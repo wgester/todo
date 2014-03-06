@@ -15,7 +15,7 @@
     "famous/transitions/spring-transition": "git+ssh://git@github.com:Famous/famous-transitions.git#modularized",
     "famous/utilities/timer": "git+ssh://git@github.com:Famous/famous-utilities.git#modularized"
   },
-  "scripts": ["index.js"],
+  "scripts": ["index.js", "**/*.js"],
   "styles": ["styles.css"],
   "images": ["favicon.ico"],
   "fonts": [],
