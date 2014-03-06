@@ -1,0 +1,24 @@
+{
+  "name": "todo",
+  "version": "0.0.0",
+  "description": "",
+  "author": [],
+  "main": "main",
+  "local": [
+    "main"
+  ],
+  "paths": [
+    "app"
+  ],
+  "namespace": "/",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FamousPrivateBeta/todo.git"
+  },
+  "validGithub": true,
+  "bugs": {
+    "url": "https://github.com/FamousPrivateBeta/todo/issues"
+  },
+  "homepage": "https://github.com/FamousPrivateBeta/todo/"
+}

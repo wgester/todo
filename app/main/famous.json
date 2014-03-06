@@ -1,0 +1,17 @@
+{
+  "name": "main",
+  "version": "0.0.0",
+  "description": "Main App",
+  "dependencies": {
+    "famous/polyfills": "git+ssh://git@github.com:Famous/famous-polyfills.git#master",
+    "famous/engine": "git+ssh://git@github.com:Famous/famous.git#master",
+    "famous/surface": "git+ssh://git@github.com:Famous/famous.git#master",
+    "famous/modifier": "git+ssh://git@github.com:Famous/famous.git#master"
+  },
+  "scripts": ["index.js"],
+  "styles": ["styles.css"],
+  "images": ["favicon.ico"],
+  "fonts": [],
+  "templates": [],
+  "files": []
+}
