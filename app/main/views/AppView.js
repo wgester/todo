@@ -3,6 +3,8 @@ var Modifier        = require('famous/modifier');
 var Transform       = require('famous/transform');
 var View            = require('famous/view');
 
+var ListView        = require('views/ListView')
+
 
 function AppView() {
     View.apply(this, arguments);
@@ -20,7 +22,7 @@ function _createListView() {
 
     this.listMod = new Modifier();
 
-    this._add(this.listMod).link(this.listView);
+    this._add(this.listMod).add(this.listView);
 }
 
 
