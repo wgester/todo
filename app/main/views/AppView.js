@@ -27,8 +27,8 @@ function _createListView() {
 
 function _createFocusView() {
   this.focusView = new FocusView();
-  this.todayMod = new Modifier();
-  this._add(this.todayMod).add(this.focusView);
+  this.focusMod = new Modifier();
+  this._add(this.focusMod).add(this.focusView);
 };
 
 function _setListeners() {
@@ -36,18 +36,18 @@ function _setListeners() {
     
   this.focusView.on('toggleList', function() {
     if (this.toggled) {
-      this.todayMod.setTransform(Transform.translate(0, 0, 0), {duration: 300});          
+      this.focusMod.setTransform(Transform.translate(0, 0, 0), {duration: 300});          
     } else {
-      this.todayMod.setTransform(Transform.translate(0, -550, 0), {duration: 300});    
+      this.focusMod.setTransform(Transform.translate(0, -550, 0), {duration: 300});    
     }
     this.toggled = !this.toggled;
   }.bind(this));
   
   this.listView.on('toggleList', function() {
     if (this.toggled) {
-      this.todayMod.setTransform(Transform.translate(0, 0, 0), {duration: 300});          
+      this.focusMod.setTransform(Transform.translate(0, 0, 0), {duration: 300});          
     } else {
-      this.todayMod.setTransform(Transform.translate(0, -550, 0), {duration: 300});    
+      this.focusMod.setTransform(Transform.translate(0, -550, 0), {duration: 300});    
     }
     this.toggled = !this.toggled;
   }.bind(this));

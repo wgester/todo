@@ -71,7 +71,7 @@ function _createButton() {
 function _populateTasks() {
   this.tasks = [];
   for (var i = 0; i < Tasks.length; i++) {
-    if(Tasks[i].today) {
+    if(Tasks[i].focus) {
       this.tasks.push(Tasks[i]);
     }
   }
@@ -82,7 +82,7 @@ function _createManyTasks() {
   for(var i = 0; i < this.tasks.length; i++){
     var taskView = new TaskView({
       text: this.tasks[i].text,
-      classes: ['task', 'today']
+      classes: ['task', 'focus']
     });
 
     var offset = taskView.options.taskOffset * (i+1);

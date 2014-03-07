@@ -1,9 +1,9 @@
 
 var tasks = [
-  { text: 'make an app', today: false},
-  { text: 'eat lunch', today: false},
-  { text: 'be awesome', today: true},
-  { text: 'eat dinner', today: false}
+  { text: 'make an app', focus: false},
+  { text: 'eat lunch', focus: false},
+  { text: 'be awesome', focus: true},
+  { text: 'eat dinner', focus: false}
 ];
 
 
