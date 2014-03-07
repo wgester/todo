@@ -100,7 +100,10 @@ function _createManyTasks() {
 function _createInput() {
   this.inputView = new Surface({
     content: '<form><input type="text" placeholder="Enter task here..." size="60"/></form>',
-    size: [60, undefined]
+    size: [60, undefined],
+    properties: {
+      visibility: 'hidden'
+    }
   });
 
   this._add(this.inputView);
@@ -124,7 +127,10 @@ function _setListeners() {
         transform: Transform.translate(0, offset, 0)
       });
       this._add(taskMod).add(taskView);
+      this.inputView.setProperties({visibility: 'hidden'})
     }.bind(this));
+      console.log(this.inputView)
+
   }.bind(this));  
 
   this.buttonView.on('touchstart', function() {
