@@ -8,9 +8,9 @@ var Tasks         = require('./data');
 
 function ListView() {
   View.apply(this, arguments);
-  this.color = new Transitionable([360, 100, 100]);
+  this.color = new Transitionable([150, 100, 100]);
   this.lightness = 50;
-  this.hue = 116;
+  this.hue = 150;
     
   _createBackground.call(this);
   _createHeader.call(this);
@@ -119,8 +119,15 @@ function _setListeners() {
     var view = this.taskViews[i];
     view.on('completed', function() {
       this.color.set([this.hue, 100, this.lightness], {
-        duration: 1500
-      });
+        duration: 1000
+      }, function() {
+        window.setTimeout(function() {
+          console.log('called')
+          this.color.set([this.hue, 100, 100], {
+            duration: 500
+          });      
+        }.bind(this), 500); 
+      }.bind(this));
     }.bind(this));
   }
   
