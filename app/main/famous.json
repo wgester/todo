@@ -15,7 +15,7 @@
   },
   "scripts": ["index.js", "**/*.js"],
   "styles": ["styles.css"],
-  "images": ["favicon.ico"],
+  "images": ["favicon.ico", "img/**/*.png"],
   "fonts": [],
   "templates": [],
   "files": []

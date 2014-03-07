@@ -36,10 +36,7 @@ function _populateTasks() {
 
 function _createBackground() {
   this.backgroundSurf = new Surface({
-    size: [undefined, undefined],
-    properties: {
-      border: '1px solid black'
-    }
+    size: [undefined, undefined]
   });
   this.backgroundMod = new Modifier();
   this._add(this.backgroundMod).add(this.backgroundSurf);
@@ -47,6 +44,7 @@ function _createBackground() {
 
 function _createHeader() {
   this.header = new Surface({
+    size: [undefined, true],
     content: '<h1>TODAY</h1>',
     properties: {
       color: 'black',
