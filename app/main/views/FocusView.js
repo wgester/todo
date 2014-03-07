@@ -14,6 +14,8 @@ function FocusView() {
   _createManyTasks.call(this);
   _createButton.call(this);
   _setListeners.call(this);
+  _createInput.call(this);
+
   // _createNewTaskSurface.call(this)
 };
 
@@ -105,15 +107,21 @@ function _createInput() {
       visibility: 'hidden'
     }
   });
-
-  this._add(this.inputView);
+  this.inputMod = new Modifier({
+    origin: [0, 0.5],
+    transform: Transform.translate(0, 400, 0)
+  });
+  this._add(this.inputMod).add(this.inputView);
 };
 
 function _setListeners() {  
 
 
   this.backgroundSurf.on('touchstart', function(){
-    _createInput.call(this);
+    this.inputView.setProperties({visibility:'visible'});
+    
+    var offset = 39 * this.tasks.length+303;
+    this.inputMod.setTransform(Transform.translate(0, offset, 0))
     this.inputView.on('submit', function(e){
       e.preventDefault();
       var newTask = {text: this.inputView._currTarget.firstChild.firstChild.value, focus: true };
@@ -129,8 +137,6 @@ function _setListeners() {
       this._add(taskMod).add(taskView);
       this.inputView.setProperties({visibility: 'hidden'})
     }.bind(this));
-      console.log(this.inputView)
-
   }.bind(this));  
 
   this.buttonView.on('touchstart', function() {
