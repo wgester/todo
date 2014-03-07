@@ -18,8 +18,6 @@ function FocusView() {
   _createButton.call(this);
   _setListeners.call(this);
   _createInput.call(this);
-
-  // _createNewTaskSurface.call(this)
 };
 
 FocusView.prototype = Object.create(View.prototype);
@@ -64,14 +62,6 @@ function _createHeader() {
 };
 
 function _createButton() {
-  // this.buttonView = new Surface({
-  //   size: [30, 30],
-  //   content: '<img src="./img/blackHamburgerOnWhite.png" alt="button">'
-  // });
-  
-  // this.buttonMod = new Modifier({
-  //   origin: [0.5, 1]
-  // });
 
   this.buttonView = new Surface({
       size: [44, 44],
@@ -147,6 +137,8 @@ function _createInput() {
       transform: Transform.translate(0, offset, 0)
     });
 
+  _setOneCompleteListener.call(this, taskView);
+
   this._add(taskMod).add(taskView);
   this.inputView.setProperties({visibility: 'hidden'});
 
@@ -180,25 +172,25 @@ function _setListeners() {
     this._eventOutput.emit('toggleList');
   }.bind(this));
   
-  _setCompletionListeners.call(this);
+  for(var i = 0; i < this.taskViews.length; i++) {
+    _setOneCompleteListener.call(this, this.taskViews[i]);     
+  }
 
 };
  
-function _setCompletionListeners() {
-  for(var i = 0; i < this.taskViews.length; i++) {
-    var view = this.taskViews[i];
-    view.on('completed', function() {
-      this.color.set([145, 63, this.lightness], {
-        duration: 250
-      }, function() {
-        window.setTimeout(function() {
-          this.color.set([145, 63, 100], {
-            duration: 250
-          });      
-        }.bind(this), 100); 
-      }.bind(this));
+function _setOneCompleteListener(view) {
+  view.on('completed', function() {
+    this.color.set([145, 63, this.lightness], {
+      duration: 250
+    }, function() {
+      console.log('called');
+      window.setTimeout(function() {
+        this.color.set([145, 63, 100], {
+          duration: 250
+        });      
+      }.bind(this), 100); 
     }.bind(this));
-  }
+  }.bind(this));  
 };
 
 

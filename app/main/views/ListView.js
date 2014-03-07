@@ -131,6 +131,6 @@ function _setOneCompleteListener(view) {
       }.bind(this), 100); 
     }.bind(this));
   }.bind(this));  
-}
+};
 
 module.exports = ListView;
