@@ -39,7 +39,7 @@ function _setListeners() {
   this.taskSurf.on('touchend', function() {
     var first = this.touches[0];    
     var last = this.touches[this.touches.length-1];
-    if (this.touches.length && last.clientX > first.clientX) {
+    if (this.touches.length && last.clientX > (first.clientX + 5)) {
       this._eventOutput.emit('completed');
       this.taskMod.setTransform(Transform.translate(500, 0, 0), {duration: 500, curve: "easeOut"});
     }
