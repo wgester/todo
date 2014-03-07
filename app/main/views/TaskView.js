@@ -32,25 +32,33 @@ function _createTask() {
 };
 
 function _setListeners() {
-  var position = [0, 0];  
-  var touchSync = new TouchSync(function() {
-      return [0, 0];
-  });
+  // var position = [0, 0];  
+  // var touchSync = new TouchSync(function() {
+  //     return [0, 0];
+  // });
 
-  this.taskSurf.pipe(touchSync);
+  // this.taskSurf.pipe(touchSync);
   
-  touchSync.on("start", function() {
-    position = [0, 0];
-  });
+  // touchSync.on('start', function(e) {
+  //   position = [0, 0];
+  // }.bind(this));
 
-  touchSync.on("update", function(data) {
-    position[0] += data.p[0];
-    position[1] += data.p[1]; 
-  });
-        
+  // touchSync.on("update", function(data) {
+  //   position[0] += data.p[0];
+  //   position[1] += data.p[1]; 
+  //   if (position[0] > 5) {
+  //     this._eventOutput.emit('completed');
+  //     this.taskMod.setTransform(Transform.translate(500, 0, 0), {duration: 500, curve: "easeOut"});
+  //   } else if (position[0] < -5) {
+  //     this.taskSurf.setProperties({backgroundColor: "pink"});
+  //     this.taskMod.setTransform(Transform.translate(-500, 0, 0), {duration: 300, curve: "easeOut"});            
+  //   }
+  // }.bind(this));
+    
   this.taskSurf.on('touchstart', function(e) {
     this.startTouch = e.changedTouches[0].clientX;
   }.bind(this));
+
     
   this.taskSurf.on('touchend', function(e) {
     var endTouch = e.changedTouches[0].clientX;
