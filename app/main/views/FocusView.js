@@ -97,13 +97,17 @@ function _createManyTasks() {
     this.taskMods.push(taskMod);      
   }
 };
+function _createInput() {
 
-function _setListeners() {  
+    this.inputView = new Surface({
+      content: '<form><input type="text" placeholder="Enter task here..." size="60"/></form>',
+      size: [60, undefined]
+    });
 
-
-  this.backgroundSurf.on('touchstart', function(){
-    console.log('clicking background');
-    var newTask = {text: "HI YOU GUYYSSSSSSSSS", focus: true};
+    this._add(this.inputView);
+    this.inputView.on('submit', function(e){
+    e.preventDefault();
+    var newTask = {text: "", focus: true, content: '<form><input type="text" placeholder="Enter task here..." size="60"/></form>'};
     this.tasks.push(newTask);
         
     var taskView = new TaskView(newTask);
@@ -113,14 +117,20 @@ function _setListeners() {
       origin: [0, 0.425],
       transform: Transform.translate(0, offset, 0)
     });
-    
     this._add(taskMod).add(taskView);
-
-  }.bind(this));  
+  });
 
   this.buttonView.on('touchstart', function() {
     this._eventOutput.emit('toggleList');
   }.bind(this));
+};
+
+function _setListeners() {  
+
+
+  this.backgroundSurf.on('touchstart', function(){
+    _createInput.call(this);
+  }.bind(this));  
 
 };
  
