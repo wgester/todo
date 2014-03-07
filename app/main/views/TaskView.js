@@ -53,7 +53,7 @@ function _setListeners() {
       this._eventOutput.emit('completed');
       this.taskMod.setTransform(Transform.translate(500, 0, 0), {duration: 500, curve: "easeOut"});
     } else if (position.x < -5) {
-      this._eventOutput.emit('deleted');
+      this.taskSurf.setProperties({backgroundColor: 'pink'});
       this.taskMod.setTransform(Transform.translate(-500, 0, 0), {duration: 500, curve: "easeOut"});            
     }
   }.bind(this));

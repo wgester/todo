@@ -25,7 +25,7 @@ ListView.prototype.constructor = ListView;
 
 ListView.DEFAULT_OPTIONS = {};
 
-function _colorMod() {
+function _completeColorMod() {
   this.backgroundSurf.setProperties({
     backgroundColor: "hsl(145, 63%," + this.color.get()[2] + "%)"
   });
@@ -100,7 +100,7 @@ function _createInput() {
 var clicked = false; 
 
 function _setListeners() {
-  window.Engine.on("prerender", _colorMod.bind(this));
+  window.Engine.on("prerender", _completeColorMod.bind(this));
 
   this.backgroundSurf.on('touchstart', function(){
     

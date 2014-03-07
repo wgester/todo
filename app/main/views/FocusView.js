@@ -24,12 +24,11 @@ function FocusView() {
 FocusView.prototype = Object.create(View.prototype);
 FocusView.prototype.constructor = FocusView;
 
-function _colorMod() {
+function _completeColorMod() {
   this.backgroundSurf.setProperties({
     backgroundColor: "hsl(145, 63%," + this.color.get()[2] + "%)"
   });
 };
-
 
 function _createBackground() {
  this.backgroundSurf = new Surface({
@@ -126,8 +125,7 @@ function _createInput() {
 
 var clicked = false; var called = false;
 function _setListeners() {  
-
-  window.Engine.on("prerender", _colorMod.bind(this));
+  window.Engine.on("prerender", _completeColorMod.bind(this));
 
   this.backgroundSurf.on('touchstart', function(){
     
@@ -181,7 +179,6 @@ function _setOneCompleteListener(view) {
     this.color.set([145, 63, this.lightness], {
       duration: 250
     }, function() {
-      console.log('called');
       window.setTimeout(function() {
         this.color.set([145, 63, 100], {
           duration: 250
@@ -190,6 +187,5 @@ function _setOneCompleteListener(view) {
     }.bind(this));
   }.bind(this));  
 };
-
 
 module.exports = FocusView;
