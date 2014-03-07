@@ -129,11 +129,14 @@ function _createInput() {
 
 function _setListeners() {  
 
+  window.Engine.on("prerender", _colorMod.bind(this));
+
   this.backgroundSurf.on('touchstart', function(){
     this.inputView.setProperties({visibility:'visible'});
     
     var offset = 39 * this.tasks.length+303;
-    this.inputMod.setTransform(Transform.translate(0, offset, 0))
+    this.inputMod.setTransform(Transform.translate(0, offset, 0));
+    
     this.inputView.on('submit', function(e){
       e.preventDefault();
       var newTask = {text: this.inputView._currTarget.firstChild.firstChild.value, focus: true };
@@ -149,8 +152,7 @@ function _setListeners() {
       this._add(taskMod).add(taskView);
       this.inputView.setProperties({visibility: 'hidden'})
     }.bind(this));
-
-  window.Engine.on("prerender", _colorMod.bind(this));
+  }.bind(this));
 
   this.buttonView.on('touchstart', function() {
     this._eventOutput.emit('toggleList');
