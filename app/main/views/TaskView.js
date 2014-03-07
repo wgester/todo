@@ -31,24 +31,21 @@ function _createTask() {
 };
 
 function _setListeners() {
-      
-  this.touches = [];
-  
-  this.taskSurf.on('touchmove', function(e) {
-    this.touches.push(e.changedTouches[0]);
+        
+  this.taskSurf.on('touchstart', function(e) {
+    this.startTouch = e.changedTouches[0].clientX;
   }.bind(this));
     
-  this.taskSurf.on('touchend', function() {
-    var first = this.touches[0];    
-    var last = this.touches[this.touches.length-1];
-    if (this.touches.length && last.clientX > (first.clientX + 5)) {
+  this.taskSurf.on('touchend', function(e) {
+    var endTouch = e.changedTouches[0].clientX;
+    
+    if (endTouch > this.startTouch + 5) {
       this._eventOutput.emit('completed');
       this.taskMod.setTransform(Transform.translate(500, 0, 0), {duration: 500, curve: "easeOut"});
-    } else if (this.touches.length && last.clientX < (first.clientX - 5)) {
+    } else if (endTouch < this.startTouch - 5) {
       this.taskSurf.setProperties({backgroundColor: "pink"});
       this.taskMod.setTransform(Transform.translate(-500, 0, 0), {duration: 300, curve: "easeOut"});            
     }
-    this.touches = [];
     
   }.bind(this));
 };
