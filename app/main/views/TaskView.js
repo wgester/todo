@@ -32,7 +32,7 @@ function _createTask() {
 };
 
 function _setListeners() {
-  var position = [0, 0];  
+  var position = {x: 0, y: 0};  
   var touchSync = new TouchSync(function() {
       return [0, 0];
   });
@@ -40,22 +40,21 @@ function _setListeners() {
   this.taskSurf.pipe(touchSync);
   
   touchSync.on('start', function(e) {
-    position = [0, 0];
+    position = {x: 0, y: 0};
   }.bind(this));
 
   touchSync.on("update", function(data) {
-    position[0] += data.p[0];
-    position[1] += data.p[1]; 
+    position.x += data.p[0];
+    position.y += data.p[1]; 
   }.bind(this));
 
   touchSync.on('end', function(data) {
-    if (position[0] > 5) {
-      console.log('early call')
+    if (position.x > 5) {
       this._eventOutput.emit('completed');
       this.taskMod.setTransform(Transform.translate(500, 0, 0), {duration: 500, curve: "easeOut"});
-    } else if (position[0] < -5) {
-      this.taskSurf.setProperties({backgroundColor: "pink"});
-      this.taskMod.setTransform(Transform.translate(-500, 0, 0), {duration: 300, curve: "easeOut"});            
+    } else if (position.x < -5) {
+      this._eventOutput.emit('deleted');
+      this.taskMod.setTransform(Transform.translate(-500, 0, 0), {duration: 500, curve: "easeOut"});            
     }
   }.bind(this));
 };
