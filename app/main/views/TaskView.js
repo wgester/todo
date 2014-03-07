@@ -5,7 +5,7 @@ var View      = require('famous/view');
 
 function TaskView() {
   View.apply(this, arguments);
-  
+
   _createTask.call(this);
   _setListeners.call(this);
 }
@@ -18,6 +18,7 @@ TaskView.DEFAULT_OPTIONS = {
   taskOffset: 70,
   classes: ['task']
 };
+
 function _createTask() {
   this.taskSurf = new Surface({
     size: [undefined, 70],
@@ -30,7 +31,7 @@ function _createTask() {
 };
 
 function _setListeners() {
-    
+      
   this.touches = [];
   
   this.taskSurf.on('touchmove', function(e) {
@@ -43,8 +44,12 @@ function _setListeners() {
     if (this.touches.length && last.clientX > (first.clientX + 5)) {
       this._eventOutput.emit('completed');
       this.taskMod.setTransform(Transform.translate(500, 0, 0), {duration: 500, curve: "easeOut"});
+    } else if (this.touches.length && last.clientX < (first.clientX - 5)) {
+      this.taskSurf.setProperties({backgroundColor: "pink"});
+      this.taskMod.setTransform(Transform.translate(-500, 0, 0), {duration: 300, curve: "easeOut"});            
     }
     this.touches = [];
+    
   }.bind(this));
 };
 
