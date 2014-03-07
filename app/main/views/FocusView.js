@@ -37,7 +37,6 @@ function _createBackground() {
     properties: {
       backgroundColor: 'white'
     },
-    clicked: false
   });
   this.backgroundMod = new Modifier({
   });
@@ -110,9 +109,7 @@ function _createManyTasks() {
   }
 };
 function _createInput() {
-  // this.inputSurface = new InputSurface({placeholder: 'hi there'});
-
-  this.inputSurface = new InputSurface({
+  this.inputSurf = new InputSurface({
     placeholder: 'Enter task here...',
 
     properties: {
@@ -124,7 +121,7 @@ function _createInput() {
     transform: Transform.translate(0, 1000, 0)
   });
 
-  this._add(this.inputMod).add(this.inputSurface);
+  this._add(this.inputMod).add(this.inputSurf);
 };
 
 var clicked = false; var called = false;
@@ -134,13 +131,13 @@ function _setListeners() {
 
   this.backgroundSurf.on('touchstart', function(){
     
-    if(clicked && this.inputSurface.getValue()===''){
+    if(clicked && this.inputSurf.getValue()===''){
       clicked = false;
-      this.inputSurface.setProperties({visibility:'hidden'});
+      this.inputSurf.setProperties({visibility:'hidden'});
     
-    } else if (clicked && this.inputSurface.getValue().length){
+    } else if (clicked && this.inputSurf.getValue().length){
       called = true;
-      var newTask = {text: this.inputSurface.getValue(), focus: true};
+      var newTask = {text: this.inputSurf.getValue(), focus: true};
       this.tasks.push(newTask);
             
       var taskView = new TaskView(newTask);
@@ -154,13 +151,13 @@ function _setListeners() {
       _setOneCompleteListener.call(this, taskView);
 
       this._add(taskMod).add(taskView);
-      this.inputSurface.setValue('');
-      this.inputSurface.setProperties({visibility: 'hidden'});
+      this.inputSurf.setValue('');
+      this.inputSurf.setProperties({visibility: 'hidden'});
     
     } else {
 
       clicked = true;
-      this.inputSurface.setProperties({visibility:'visible'});
+      this.inputSurf.setProperties({visibility:'visible'});
       
       var offset = 39 * this.tasks.length+303;
       this.inputMod.setTransform(Transform.translate(0, offset, 0));
