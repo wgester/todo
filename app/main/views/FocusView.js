@@ -98,31 +98,12 @@ function _createManyTasks() {
   }
 };
 function _createInput() {
-
-    this.inputView = new Surface({
-      content: '<form><input type="text" placeholder="Enter task here..." size="60"/></form>',
-      size: [60, undefined]
-    });
-
-    this._add(this.inputView);
-    this.inputView.on('submit', function(e){
-    e.preventDefault();
-    var newTask = {text: "", focus: true, content: '<form><input type="text" placeholder="Enter task here..." size="60"/></form>'};
-    this.tasks.push(newTask);
-        
-    var taskView = new TaskView(newTask);
-    var offset = taskView.options.taskOffset * (this.tasks.length+1);
-    
-    var taskMod = new Modifier({
-      origin: [0, 0.425],
-      transform: Transform.translate(0, offset, 0)
-    });
-    this._add(taskMod).add(taskView);
+  this.inputView = new Surface({
+    content: '<form><input type="text" placeholder="Enter task here..." size="60"/></form>',
+    size: [60, undefined]
   });
 
-  this.buttonView.on('touchstart', function() {
-    this._eventOutput.emit('toggleList');
-  }.bind(this));
+  this._add(this.inputView);
 };
 
 function _setListeners() {  
@@ -130,8 +111,26 @@ function _setListeners() {
 
   this.backgroundSurf.on('touchstart', function(){
     _createInput.call(this);
+    this.inputView.on('submit', function(e){
+      e.preventDefault();
+      var newTask = {text: this.inputView._currTarget.firstChild.firstChild.value, focus: true };
+      this.tasks.push(newTask);
+          
+      var taskView = new TaskView(newTask);
+      var offset = taskView.options.taskOffset * (this.tasks.length+1);
+      
+      var taskMod = new Modifier({
+        origin: [0, 0.425],
+        transform: Transform.translate(0, offset, 0)
+      });
+      this._add(taskMod).add(taskView);
+    }.bind(this));
   }.bind(this));  
 
+  this.buttonView.on('touchstart', function() {
+    this._eventOutput.emit('toggleList');
+  }.bind(this));
+    
 };
  
 
