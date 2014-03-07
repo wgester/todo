@@ -45,7 +45,8 @@ function _setListeners() {
   
   this.listView.on('toggleList', function() {
     if (this.toggled) {
-      this.focusMod.setTransform(Transform.translate(0, 0, 0), {duration: 300});          
+      this.focusMod.setTransform(Transform.translate(0, 0, 0), {duration: 300});    
+      console.log(this.focusMod)      
     } else {
       this.focusMod.setTransform(Transform.translate(0, -550, 0), {duration: 300});    
     }

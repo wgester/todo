@@ -2,18 +2,17 @@ var Surface       = require('famous/surface');
 var Modifier      = require('famous/modifier');
 var View          = require('famous/view');
 var Transform     = require('famous/transform');
-
+var Transitionable = require("famous/transitions/transitionable");
 var TaskView      = require('./TaskView');
 var Tasks         = require('./data');
 
-
-
 function ListView() {
   View.apply(this, arguments);
-  
+  this.color = new Transitionable([150, 100, 100]);
+  this.lightness = 50;
+    
   _createBackground.call(this);
   _createHeader.call(this);
-  // _createButton.call(this);
   _populateTasks.call(this);
   _createInput.call(this);
   _createManyTasks.call(this);
@@ -25,6 +24,12 @@ ListView.prototype.constructor = ListView;
 
 ListView.DEFAULT_OPTIONS = {};
 
+function _colorMod() {
+  this.backgroundSurf.setProperties({
+    backgroundColor: "hsl(150, 100%," + this.color.get()[2] + "%)"
+  });
+};
+
 function _populateTasks() {
   this.tasks = Tasks;
 };
@@ -33,10 +38,7 @@ function _createBackground() {
   this.backgroundSurf = new Surface({
     size: [undefined, undefined],
     properties: {
-      backgroundColor: 'white',
-      border: '1px solid black',
       classes: ['background']
-
     }
   });
   this.backgroundMod = new Modifier();
@@ -57,21 +59,6 @@ function _createHeader() {
   
   this._add(this.headerMod).add(this.header);
 };
-
-// function _createButton() {
-//   this.buttonView = new Surface({
-//     size: [30, 30],
-//     properties: {
-//       backgroundColor: 'blue'
-//     }
-//   });
-  
-//   this.buttonMod = new Modifier({
-//     origin: [1, 0]
-//   });
-  
-//   this._add(this.buttonMod).add(this.buttonView);
-// };
 
 function _createManyTasks() {
   this.taskMods = [];
@@ -97,11 +84,11 @@ function _createManyTasks() {
 
 function _createInput() {
   this.inputView = new Surface({
-    content: '<form><input type="text" placeholder="Enter task here..." size="60"/></form>'
+    content: '<form><input type="text" placeholder="Enter task here..." size="60"/></form>',
+    size: [60, undefined]
   });
     
   this.inputMod = new Modifier({
-    // origin: [0, 1],
     transform: Transform.translate(0, 150, 0)
   });
   
@@ -109,21 +96,12 @@ function _createInput() {
 };
 
 function _setListeners() {
+  window.Engine.on("prerender", _colorMod.bind(this));
 
-// create new task on submit  
-
-  this.backgroundSurf.on('click', function(){
-    console.log('clicking background');
-  }.bind(this));
-
-  this.inputView.on('click', function(){
-
-    console.log('clicking input')
-  }.bind(this));
   this.inputView.on('submit', function(e) {
     e.preventDefault();
 
-    var newTask = {text: this.inputView._currTarget.firstChild.firstChild.value, today: false};
+    var newTask = {text: this.inputView._currTarget.firstChild.firstChild.value, focus: false};
     this.tasks.push(newTask);
         
     var taskView = new TaskView(newTask);
@@ -135,13 +113,26 @@ function _setListeners() {
     
     this._add(taskMod).add(taskView);
   }.bind(this));
-
-// create new task on touch
-
   
-  // this.buttonView.on('touchstart', function() {
-  //   this._eventOutput.emit('toggleList');
-  // }.bind(this));
+  _setCompletionListeners.call(this);
+  
+};
+
+function _setCompletionListeners() {
+  for(var i = 0; i < this.taskViews.length; i++) {
+    var view = this.taskViews[i];
+    view.on('completed', function() {
+      this.color.set([150, 100, this.lightness], {
+        duration: 1000
+      }, function() {
+        window.setTimeout(function() {
+          this.color.set([150, 100, 100], {
+            duration: 500
+          });      
+        }.bind(this), 500); 
+      }.bind(this));
+    }.bind(this));
+  }
 };
 
 module.exports = ListView;

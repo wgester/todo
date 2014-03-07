@@ -4,9 +4,12 @@ var View = require('famous/view');
 var TaskView = require('./TaskView')
 var Tasks = require('./data');
 var Transform = require('famous/transform');
+var Transitionable = require("famous/transitions/transitionable");
 
 function FocusView() {
   View.apply(this, arguments);
+  this.color = new Transitionable([150, 100, 100]);
+  this.lightness = 50;
   
   _createBackground.call(this);
   _createHeader.call(this);
@@ -14,10 +17,20 @@ function FocusView() {
   _createManyTasks.call(this);
   _createButton.call(this);
   _setListeners.call(this);
+  _createInput.call(this);
+
+  // _createNewTaskSurface.call(this)
 };
 
 FocusView.prototype = Object.create(View.prototype);
 FocusView.prototype.constructor = FocusView;
+
+function _colorMod() {
+  this.backgroundSurf.setProperties({
+    backgroundColor: "hsl(150, 100%," + this.color.get()[2] + "%)"
+  });
+};
+
 
 function _createBackground() {
  this.backgroundSurf = new Surface({
@@ -35,6 +48,7 @@ function _createBackground() {
 function _createHeader() {
   this.header = new Surface({
     content: '<h1>FOCUS</h1>',
+    size: [60, 100],
     properties: {
       color: 'black',
       fontStyle: 'regular',
@@ -44,7 +58,6 @@ function _createHeader() {
   });
   
   this.headerMod = new Modifier({
-    origin: [1, 1]
   });
   
   this._add(this.headerMod).add(this.header);
@@ -79,6 +92,8 @@ function _populateTasks() {
 
 function _createManyTasks() {
   this.taskMods = [];  
+  this.taskViews = [];
+  
   for(var i = 0; i < this.tasks.length; i++){
     var taskView = new TaskView({
       text: this.tasks[i].text,
@@ -88,27 +103,81 @@ function _createManyTasks() {
     var offset = taskView.options.taskOffset * (i+1);
 
     var taskMod = new Modifier({
-      origin: [0.5, 0.5],
+      origin: [0, 0.5],
       transform: Transform.translate(0, offset, 0)
     });
     
     this._add(taskMod).add(taskView);
     this.taskMods.push(taskMod);      
+    this.taskViews.push(taskView);      
   }
+};
+function _createInput() {
+  this.inputView = new Surface({
+    content: '<form><input type="text" placeholder="Enter task here..." size="60"/></form>',
+    size: [60, undefined],
+    properties: {
+      visibility: 'hidden'
+    }
+  });
+  this.inputMod = new Modifier({
+    origin: [0, 0.5],
+    transform: Transform.translate(0, 400, 0)
+  });
+  this._add(this.inputMod).add(this.inputView);
 };
 
 function _setListeners() {  
 
+  window.Engine.on("prerender", _colorMod.bind(this));
 
-   this.backgroundSurf.on('touchstart', function(){
-    console.log('clicking background');
-  }.bind(this));  
+  this.backgroundSurf.on('touchstart', function(){
+    this.inputView.setProperties({visibility:'visible'});
+    
+    var offset = 39 * this.tasks.length+303;
+    this.inputMod.setTransform(Transform.translate(0, offset, 0));
+    
+    this.inputView.on('submit', function(e){
+      e.preventDefault();
+      var newTask = {text: this.inputView._currTarget.firstChild.firstChild.value, focus: true };
+      this.tasks.push(newTask);
+          
+      var taskView = new TaskView(newTask);
+      var offset = taskView.options.taskOffset * (this.tasks.length+1);
+      
+      var taskMod = new Modifier({
+        origin: [0, 0.425],
+        transform: Transform.translate(0, offset, 0)
+      });
+      this._add(taskMod).add(taskView);
+      this.inputView.setProperties({visibility: 'hidden'})
+    }.bind(this));
+  }.bind(this));
 
   this.buttonView.on('touchstart', function() {
     this._eventOutput.emit('toggleList');
   }.bind(this));
+  
+  _setCompletionListeners.call(this);
 
 };
  
+function _setCompletionListeners() {
+  for(var i = 0; i < this.taskViews.length; i++) {
+    var view = this.taskViews[i];
+    view.on('completed', function() {
+      this.color.set([150, 100, this.lightness], {
+        duration: 1000
+      }, function() {
+        window.setTimeout(function() {
+          this.color.set([150, 100, 100], {
+            duration: 500
+          });      
+        }.bind(this), 500); 
+      }.bind(this));
+    }.bind(this));
+  }
+};
+
 
 module.exports = FocusView;

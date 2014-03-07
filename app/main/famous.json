@@ -10,7 +10,8 @@
     "famous/view": "git+ssh://git@github.com:Famous/famous.git#master",
     "famous/transform": "git+ssh://git@github.com:Famous/famous.git#master",
     "famous/physics/engine": "git+ssh://git@github.com:Famous/famous-physics.git#master",
-    "famous/physics/forces/drag": "git+ssh://git@github.com:Famous/famous-physics.git#master"
+    "famous/physics/forces/drag": "git+ssh://git@github.com:Famous/famous-physics.git#master",
+    "famous/transitions/transitionable": "git+ssh://git@github.com:Famous/famous-transitions.git#master"
   },
   "scripts": ["index.js", "**/*.js"],
   "styles": ["styles.css"],
