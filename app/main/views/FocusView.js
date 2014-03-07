@@ -38,7 +38,8 @@ function _createBackground() {
     properties: {
       backgroundColor: 'white',
       border: '1px solid black'
-    }
+    },
+    clicked: false
   });
   this.backgroundMod = new Modifier({
   });
@@ -120,39 +121,56 @@ function _createInput() {
       visibility: 'hidden'
     }
   });
+  
   this.inputMod = new Modifier({
-    transform: Transform.translate(0, 400, 0)
+    transform: Transform.translate(0, 1000, 0)
   });
+
   this._add(this.inputMod).add(this.inputView);
+  this.inputView.on('submit', function(e){
+    
+    e.preventDefault();
+
+    var newTask = {text: this.inputView._currTarget.firstChild.firstChild.value, focus: true};
+    this.tasks.push(newTask);
+        
+    var taskView = new TaskView(newTask);
+    var offset = taskView.options.taskOffset * (this.tasks.length+1);
+    
+    var taskMod = new Modifier({
+      origin: [0, 0.425],
+      transform: Transform.translate(0, offset, 0)
+    });
+
+  this._add(taskMod).add(taskView);
+  this.inputView.setProperties({visibility: 'hidden'});
+
+  }.bind(this));
 };
 
+var clicked = false;
 function _setListeners() {  
 
   window.Engine.on("prerender", _colorMod.bind(this));
 
   this.backgroundSurf.on('touchstart', function(){
-    this.inputView.setProperties({visibility:'visible'});
     
-    var offset = 39 * this.tasks.length+303;
-    this.inputMod.setTransform(Transform.translate(0, offset, 0));
-    
-    this.inputView.on('submit', function(e){
-      e.preventDefault();
-      var newTask = {text: this.inputView._currTarget.firstChild.firstChild.value, focus: true };
-      this.tasks.push(newTask);
-          
-      var taskView = new TaskView(newTask);
-      var offset = taskView.options.taskOffset * (this.tasks.length+1);
+    if(clicked){
       
-      var taskMod = new Modifier({
-        origin: [0, 0.425],
-        transform: Transform.translate(0, offset, 0)
-      });
-      this._add(taskMod).add(taskView);
-      this.inputView.setProperties({visibility: 'hidden'})
-    }.bind(this));
-  }.bind(this));
+      clicked = false;
+      this.inputView.setProperties({visibility:'hidden'});
+    
+    } else {
 
+      clicked = true;
+      this.inputView.setProperties({visibility:'visible'});
+      
+      var offset = 39 * this.tasks.length+303;
+      this.inputMod.setTransform(Transform.translate(0, offset, 0));
+    }
+  
+  }.bind(this));  
+  
   this.buttonView.on('touchstart', function() {
     this._eventOutput.emit('toggleList');
   }.bind(this));

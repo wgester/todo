@@ -8,8 +8,8 @@ var FocusView = require('./FocusView');
 function AppView() {
   View.apply(this, arguments);
   
-  _createListView.call(this);
   _createFocusView.call(this);
+  _createListView.call(this);
   _setListeners.call(this);
 };
 

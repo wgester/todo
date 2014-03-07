@@ -3,7 +3,6 @@
 
  }*/
 html {
-  /*background-color: #000;*/
   font-family: "helvetica", "Helvetica Neue", sans-serif;
   color: #fff;
   margin: 0;
@@ -25,4 +24,10 @@ input {
 
 .today {
    background-color: blue;
+}
+
+input {
+  border: 1px solid black;
+  margin-top: 10px;
+  margin-left: 0;
 }

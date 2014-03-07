@@ -1,3 +1,4 @@
+
 var EventHandler = require('famous/event-handler');
 
 /**
@@ -38,6 +39,7 @@ function _handleStart(event) {
     for(var i = 0; i < event.changedTouches.length; i++) {
         var touch = event.changedTouches[i];
         var data = _timestampTouch(touch, event.origin, undefined, event.touches.length);
+        console.log('TOUCH ', touch, data)
         this.eventOutput.emit('trackstart', data);
         if(!this.selective && !this.touchHistory[touch.identifier]) this.track(data);
     }
