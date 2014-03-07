@@ -6,6 +6,7 @@
     "famous/polyfills": "git+ssh://git@github.com:Famous/famous-polyfills.git#master",
     "famous/engine": "git+ssh://git@github.com:Famous/famous.git#master",
     "famous/surface": "git+ssh://git@github.com:Famous/famous.git#master",
+    "famous/surfaces/input-surface": "git+ssh://git@github.com:Famous/famous-surfaces.git#master",
     "famous/modifier": "git+ssh://git@github.com:Famous/famous.git#master",
     "famous/view": "git+ssh://git@github.com:Famous/famous.git#master",
     "famous/transform": "git+ssh://git@github.com:Famous/famous.git#master",
