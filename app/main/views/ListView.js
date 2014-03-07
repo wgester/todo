@@ -108,29 +108,29 @@ function _setListeners() {
       transform: Transform.translate(0, offset, 0)
     });
     
+    _setOneCompleteListener.call(this, taskView);
+    
     this._add(taskMod).add(taskView);
   }.bind(this));
   
-  _setCompletionListeners.call(this);
+  for(var i = 0; i < this.taskViews.length; i++) {
+    _setOneCompleteListener.call(this, this.taskViews[i]);     
+  }
   
 };
 
-function _setCompletionListeners() {
-  for(var i = 0; i < this.taskViews.length; i++) {
-    var view = this.taskViews[i];
-    view.on('completed', function() {
-      this.color.set([145, 63, this.lightness], {
-        duration: 1000
-      }, function() {
-        window.setTimeout(function() {
-          this.color.set([145, 63, 100], {
-            duration: 500
-          });      
-        }.bind(this), 100); 
-      }.bind(this));
+function _setOneCompleteListener(view) {
+  view.on('completed', function() {
+    this.color.set([145, 63, this.lightness], {
+      duration: 250
+    }, function() {
+      window.setTimeout(function() {
+        this.color.set([145, 63, 100], {
+          duration: 250
+        });      
+      }.bind(this), 100); 
     }.bind(this));
-        
-  }
+  }.bind(this));  
 };
 
 module.exports = ListView;
