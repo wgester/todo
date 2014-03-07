@@ -8,8 +8,8 @@ var Transitionable = require("famous/transitions/transitionable");
 
 function FocusView() {
   View.apply(this, arguments);
-  this.color = new Transitionable([150, 100, 100]);
-  this.lightness = 50;
+  this.color = new Transitionable([360, 100, 100]);
+  this.lightness = 75;
   
   _createBackground.call(this);
   _createHeader.call(this);
@@ -27,7 +27,7 @@ FocusView.prototype.constructor = FocusView;
 
 function _colorMod() {
   this.backgroundSurf.setProperties({
-    backgroundColor: "hsl(150, 100%," + this.color.get()[2] + "%)"
+    backgroundColor: "hsl(145, 63%," + this.color.get()[2] + "%)"
   });
 };
 
@@ -115,13 +115,12 @@ function _createManyTasks() {
 function _createInput() {
   this.inputView = new Surface({
     content: '<form><input type="text" placeholder="Enter task here..." size="60"/></form>',
-    size: [60, undefined],
+    size: [60, 70],
     properties: {
       visibility: 'hidden'
     }
   });
   this.inputMod = new Modifier({
-    origin: [0, 0.5],
     transform: Transform.translate(0, 400, 0)
   });
   this._add(this.inputMod).add(this.inputView);
@@ -166,11 +165,11 @@ function _setCompletionListeners() {
   for(var i = 0; i < this.taskViews.length; i++) {
     var view = this.taskViews[i];
     view.on('completed', function() {
-      this.color.set([150, 100, this.lightness], {
+      this.color.set([145, 63, this.lightness], {
         duration: 1000
       }, function() {
         window.setTimeout(function() {
-          this.color.set([150, 100, 100], {
+          this.color.set([145, 63, 100], {
             duration: 500
           });      
         }.bind(this), 500); 
