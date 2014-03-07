@@ -189,13 +189,13 @@ function _setCompletionListeners() {
     var view = this.taskViews[i];
     view.on('completed', function() {
       this.color.set([145, 63, this.lightness], {
-        duration: 1000
+        duration: 250
       }, function() {
         window.setTimeout(function() {
           this.color.set([145, 63, 100], {
-            duration: 500
+            duration: 250
           });      
-        }.bind(this), 500); 
+        }.bind(this), 100); 
       }.bind(this));
     }.bind(this));
   }
