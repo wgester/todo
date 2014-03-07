@@ -41,18 +41,27 @@ function _createTask() {
 };
 
 function _setListeners() {
-  this.taskSurf.on('touchstart', function() {
-    this.color.set([this.hue, 100, this.lightness], {
-      curve: "easeOut",
-      duration: 2000
-    });
+  this.touches = [];
+  
+  this.taskSurf.on('touchmove', function(e) {
+    this.touches.push(e.changedTouches[0]);
   }.bind(this));
   
   window.Engine.on("prerender", _colorMod.bind(this));
   
-  // this.taskSurf.on('touchend', function() {
-  //   this.taskMod.setTransform(Transform.translate(500, 0, 0), {duration: 300})
-  // }.bind(this));
+  this.taskSurf.on('touchend', function() {
+    var first = this.touches[0];    
+    var last = this.touches[this.touches.length-1];
+    if (last.clientX > first.clientX) {
+      this.color.set([this.hue, 100, this.lightness], {
+        curve: "easeOut",
+        duration: 1000
+      }, function () {
+        this.taskMod.setTransform(Transform.translate(500, 0, 0), {duration: 300})              
+      }.bind(this));
+    }
+    this.touches = [];
+  }.bind(this));
 };
 
 module.exports = TaskView;
