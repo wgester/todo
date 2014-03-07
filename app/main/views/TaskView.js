@@ -2,6 +2,7 @@ var Surface   = require('famous/surface');
 var Modifier  = require('famous/modifier');
 var Transform = require('famous/transform');
 var View      = require('famous/view');
+var TouchSync = require("famous/input/touch-sync");
 
 function TaskView() {
   View.apply(this, arguments);
@@ -31,6 +32,21 @@ function _createTask() {
 };
 
 function _setListeners() {
+  var position = [0, 0];  
+  var touchSync = new TouchSync(function() {
+      return [0, 0];
+  });
+
+  this.taskSurf.pipe(touchSync);
+  
+  touchSync.on("start", function() {
+    position = [0, 0];
+  });
+
+  touchSync.on("update", function(data) {
+    position[0] += data.p[0];
+    position[1] += data.p[1]; 
+  });
         
   this.taskSurf.on('touchstart', function(e) {
     this.startTouch = e.changedTouches[0].clientX;
