@@ -38,7 +38,7 @@ function _createBackground() {
   this.backgroundSurf = new Surface({
     size: [undefined, undefined],
     properties: {
-      classes: ['background']
+      border: '1px solid black'
     }
   });
   this.backgroundMod = new Modifier();
@@ -50,8 +50,7 @@ function _createHeader() {
     content: '<h1>TODAY</h1>',
     properties: {
       color: 'black',
-      fontSize: '2.5em',
-      classes: ['header']
+      fontSize: '2.5em'
     }
   });
   

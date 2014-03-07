@@ -38,7 +38,8 @@ function _createBackground() {
     properties: {
       backgroundColor: 'white',
       border: '1px solid black'
-    }
+    },
+    clicked: false
   });
   this.backgroundMod = new Modifier({
   });
@@ -126,6 +127,7 @@ function _createInput() {
   this._add(this.inputMod).add(this.inputView);
 };
 
+var clicked = false;
 function _setListeners() {  
 
   window.Engine.on("prerender", _colorMod.bind(this));
@@ -152,7 +154,7 @@ function _setListeners() {
       this.inputView.setProperties({visibility: 'hidden'})
     }.bind(this));
   }.bind(this));
-
+  
   this.buttonView.on('touchstart', function() {
     this._eventOutput.emit('toggleList');
   }.bind(this));
