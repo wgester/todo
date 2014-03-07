@@ -1,9 +1,9 @@
 
-var FamousEngine = require('famous/engine');
+window.Engine = require('famous/engine');
 var AppView = require('./views/AppView');
 var Surface = require('famous/surface')
 
-var mainCtx = FamousEngine.createContext();
+var mainCtx = window.Engine.createContext();
 
 var appView = new AppView();
 
