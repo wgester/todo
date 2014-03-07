@@ -26,6 +26,10 @@ input {
    background-color: blue;
 }
 
+h1 {
+  text-align: center;
+}
+
 input {
   border: 1px solid black;
   margin-top: 10px;

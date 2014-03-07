@@ -33,12 +33,15 @@ function _createFocusView() {
 
 function _setListeners() {
   this.toggled = false;
+
+  console.log(this.focusView);
+  console.log(this.focusMod);
     
   this.focusView.on('toggleList', function() {
     if (this.toggled) {
       this.focusMod.setTransform(Transform.translate(0, 0, 0), {duration: 300});          
     } else {
-      this.focusMod.setTransform(Transform.translate(0, -550, 0), {duration: 300});    
+      this.focusMod.setTransform(Transform.translate(0, -1 * (window.innerHeight - 44), 0), {duration: 300});    
     }
     this.toggled = !this.toggled;
   }.bind(this));
@@ -48,7 +51,7 @@ function _setListeners() {
       this.focusMod.setTransform(Transform.translate(0, 0, 0), {duration: 300});    
       console.log(this.focusMod)      
     } else {
-      this.focusMod.setTransform(Transform.translate(0, -550, 0), {duration: 300});    
+      this.focusMod.setTransform(Transform.translate(0, -500, 0), {duration: 300});    
     }
     this.toggled = !this.toggled;
   }.bind(this));

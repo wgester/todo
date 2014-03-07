@@ -36,8 +36,7 @@ function _createBackground() {
  this.backgroundSurf = new Surface({
     size: [undefined, undefined],
     properties: {
-      backgroundColor: 'white',
-      border: '1px solid black'
+      backgroundColor: 'white'
     },
     clicked: false
   });
@@ -49,10 +48,10 @@ function _createBackground() {
 function _createHeader() {
   this.header = new Surface({
     content: '<h1>FOCUS</h1>',
-    size: [60, 100],
+    size: [undefined, true],
     properties: {
       color: 'black',
-      fontStyle: 'regular',
+      fontStyle: 'light',
       fontSize: '2.5em'
     }
 
@@ -65,20 +64,26 @@ function _createHeader() {
 };
 
 function _createButton() {
-  this.buttonView = new Surface({
-    size: [30, 30],
-    properties: {
-      backgroundColor: 'white',
-      border: '1px black solid',
-      borderRadius: '20px'
-    }
-  });
+  // this.buttonView = new Surface({
+  //   size: [30, 30],
+  //   content: '<img src="./img/blackHamburgerOnWhite.png" alt="button">'
+  // });
   
-  this.buttonMod = new Modifier({
+  // this.buttonMod = new Modifier({
+  //   origin: [0.5, 1]
+  // });
+
+  this.buttonView = new Surface({
+      size: [44, 44],
+      content: '<img width="44" src="./img/hamburgerOnClear.png"/>'
+  });
+
+  this.buttonModifier = new Modifier({
     origin: [0.5, 1]
   });
+
   
-  this._add(this.buttonMod).add(this.buttonView);
+  this._add(this.buttonModifier).add(this.buttonView);
 };
 
 
