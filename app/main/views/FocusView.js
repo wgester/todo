@@ -116,7 +116,6 @@ function _createInput() {
 
 function _setListeners() {  
 
-
   this.backgroundSurf.on('touchstart', function(){
     this.inputView.setProperties({visibility:'visible'});
     
@@ -137,7 +136,6 @@ function _setListeners() {
       this._add(taskMod).add(taskView);
       this.inputView.setProperties({visibility: 'hidden'})
     }.bind(this));
-  }.bind(this));  
 
   this.buttonView.on('touchstart', function() {
     this._eventOutput.emit('toggleList');

@@ -1,14 +1,10 @@
 var Surface   = require('famous/surface');
 var Modifier  = require('famous/modifier');
 var Transform = require('famous/transform');
-var Transitionable = require("famous/transitions/transitionable");
 var View      = require('famous/view');
 
 function TaskView() {
   View.apply(this, arguments);
-  this.color = new Transitionable([200, 100, 100]);
-  this.lightness = 50;
-  this.hue = 128;
   
   _createTask.call(this);
   _setListeners.call(this);
@@ -22,13 +18,6 @@ TaskView.DEFAULT_OPTIONS = {
   taskOffset: 50,
   classes: ['task']
 };
-
-function _colorMod() {
-  this.taskSurf.setProperties({
-    backgroundColor: "hsl(" + this.color.get()[0] + ", 100%," + this.color.get()[2] + "%)"
-  });
-};
-
 function _createTask() {
   this.taskSurf = new Surface({
     size: [undefined, 40],
@@ -46,19 +35,13 @@ function _setListeners() {
   this.taskSurf.on('touchmove', function(e) {
     this.touches.push(e.changedTouches[0]);
   }.bind(this));
-  
-  window.Engine.on("prerender", _colorMod.bind(this));
-  
+    
   this.taskSurf.on('touchend', function() {
     var first = this.touches[0];    
     var last = this.touches[this.touches.length-1];
-    if (last.clientX > first.clientX) {
-      this.color.set([this.hue, 100, this.lightness], {
-        curve: "easeOut",
-        duration: 1000
-      }, function () {
-        this.taskMod.setTransform(Transform.translate(500, 0, 0), {duration: 300})              
-      }.bind(this));
+    if (this.touches.length && last.clientX > first.clientX) {
+      this._eventOutput.emit('completed');
+      this.taskMod.setTransform(Transform.translate(500, 0, 0), {duration: 500, curve: "easeOut"});
     }
     this.touches = [];
   }.bind(this));
