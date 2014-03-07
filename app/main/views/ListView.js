@@ -97,7 +97,9 @@ function _createManyTasks() {
 
 function _createInput() {
   this.inputView = new Surface({
-    content: '<form><input type="text" placeholder="Enter task here..." size="60"/></form>'
+    content: '<form><input type="text" placeholder="Enter task here..." size="60"/></form>',
+    size: [60, undefined]
+  
   });
     
   this.inputMod = new Modifier({
@@ -112,18 +114,18 @@ function _setListeners() {
 
 // create new task on submit  
 
-  this.backgroundSurf.on('click', function(){
-    console.log('clicking background');
+  this.backgroundSurf.on('touchstart', function(){
+    console.log('touching background');
   }.bind(this));
 
-  this.inputView.on('click', function(){
+  this.inputView.on('touchstart', function(){
 
-    console.log('clicking input')
+    console.log('touching input')
   }.bind(this));
   this.inputView.on('submit', function(e) {
     e.preventDefault();
 
-    var newTask = {text: this.inputView._currTarget.firstChild.firstChild.value, today: false};
+    var newTask = {text: this.inputView._currTarget.firstChild.firstChild.value, focus: false};
     this.tasks.push(newTask);
         
     var taskView = new TaskView(newTask);

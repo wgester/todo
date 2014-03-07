@@ -14,6 +14,7 @@ function FocusView() {
   _createManyTasks.call(this);
   _createButton.call(this);
   _setListeners.call(this);
+  // _createNewTaskSurface.call(this)
 };
 
 FocusView.prototype = Object.create(View.prototype);
@@ -35,6 +36,7 @@ function _createBackground() {
 function _createHeader() {
   this.header = new Surface({
     content: '<h1>FOCUS</h1>',
+    size: [60, 100],
     properties: {
       color: 'black',
       fontStyle: 'regular',
@@ -44,7 +46,6 @@ function _createHeader() {
   });
   
   this.headerMod = new Modifier({
-    origin: [1, 1]
   });
   
   this._add(this.headerMod).add(this.header);
@@ -88,7 +89,7 @@ function _createManyTasks() {
     var offset = taskView.options.taskOffset * (i+1);
 
     var taskMod = new Modifier({
-      origin: [0.5, 0.5],
+      origin: [0, 0.5],
       transform: Transform.translate(0, offset, 0)
     });
     
@@ -100,8 +101,21 @@ function _createManyTasks() {
 function _setListeners() {  
 
 
-   this.backgroundSurf.on('touchstart', function(){
+  this.backgroundSurf.on('touchstart', function(){
     console.log('clicking background');
+    var newTask = {text: "HI YOU GUYYSSSSSSSSS", focus: true};
+    this.tasks.push(newTask);
+        
+    var taskView = new TaskView(newTask);
+    var offset = taskView.options.taskOffset * (this.tasks.length+1);
+    
+    var taskMod = new Modifier({
+      origin: [0, 0.425],
+      transform: Transform.translate(0, offset, 0)
+    });
+    
+    this._add(taskMod).add(taskView);
+
   }.bind(this));  
 
   this.buttonView.on('touchstart', function() {
