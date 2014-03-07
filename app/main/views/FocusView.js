@@ -4,9 +4,12 @@ var View = require('famous/view');
 var TaskView = require('./TaskView')
 var Tasks = require('./data');
 var Transform = require('famous/transform');
+var Transitionable = require("famous/transitions/transitionable");
 
 function FocusView() {
   View.apply(this, arguments);
+  this.color = new Transitionable([150, 100, 100]);
+  this.lightness = 50;
   
   _createBackground.call(this);
   _createHeader.call(this);
@@ -21,6 +24,13 @@ function FocusView() {
 
 FocusView.prototype = Object.create(View.prototype);
 FocusView.prototype.constructor = FocusView;
+
+function _colorMod() {
+  this.backgroundSurf.setProperties({
+    backgroundColor: "hsl(150, 100%," + this.color.get()[2] + "%)"
+  });
+};
+
 
 function _createBackground() {
  this.backgroundSurf = new Surface({
@@ -82,6 +92,8 @@ function _populateTasks() {
 
 function _createManyTasks() {
   this.taskMods = [];  
+  this.taskViews = [];
+  
   for(var i = 0; i < this.tasks.length; i++){
     var taskView = new TaskView({
       text: this.tasks[i].text,
@@ -97,6 +109,7 @@ function _createManyTasks() {
     
     this._add(taskMod).add(taskView);
     this.taskMods.push(taskMod);      
+    this.taskViews.push(taskView);      
   }
 };
 function _createInput() {
@@ -137,10 +150,26 @@ function _setListeners() {
       this.inputView.setProperties({visibility: 'hidden'})
     }.bind(this));
 
+  window.Engine.on("prerender", _colorMod.bind(this));
+
   this.buttonView.on('touchstart', function() {
     this._eventOutput.emit('toggleList');
   }.bind(this));
-    
+  
+  for(var i = 0; i < this.taskViews.length; i++) {
+    var view = this.taskViews[i];
+    view.on('completed', function() {
+      this.color.set([150, 100, this.lightness], {
+        duration: 1000
+      }, function() {
+        window.setTimeout(function() {
+          this.color.set([150, 100, 100], {
+            duration: 500
+          });      
+        }.bind(this), 500); 
+      }.bind(this));
+    }.bind(this));
+  }
 };
  
 

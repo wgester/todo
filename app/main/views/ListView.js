@@ -10,7 +10,6 @@ function ListView() {
   View.apply(this, arguments);
   this.color = new Transitionable([150, 100, 100]);
   this.lightness = 50;
-  this.hue = 150;
     
   _createBackground.call(this);
   _createHeader.call(this);
@@ -27,7 +26,7 @@ ListView.DEFAULT_OPTIONS = {};
 
 function _colorMod() {
   this.backgroundSurf.setProperties({
-    backgroundColor: "hsl(" + this.color.get()[0] + ", 100%," + this.color.get()[2] + "%)"
+    backgroundColor: "hsl(150, 100%," + this.color.get()[2] + "%)"
   });
 };
 
@@ -118,19 +117,17 @@ function _setListeners() {
   for(var i = 0; i < this.taskViews.length; i++) {
     var view = this.taskViews[i];
     view.on('completed', function() {
-      this.color.set([this.hue, 100, this.lightness], {
+      this.color.set([150, 100, this.lightness], {
         duration: 1000
       }, function() {
         window.setTimeout(function() {
-          console.log('called')
-          this.color.set([this.hue, 100, 100], {
+          this.color.set([150, 100, 100], {
             duration: 500
           });      
         }.bind(this), 500); 
       }.bind(this));
     }.bind(this));
   }
-  
   
 };
 
