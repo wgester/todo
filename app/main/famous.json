@@ -6,9 +6,13 @@
     "famous/polyfills": "git+ssh://git@github.com:Famous/famous-polyfills.git#master",
     "famous/engine": "git+ssh://git@github.com:Famous/famous.git#master",
     "famous/surface": "git+ssh://git@github.com:Famous/famous.git#master",
-    "famous/modifier": "git+ssh://git@github.com:Famous/famous.git#master"
+    "famous/modifier": "git+ssh://git@github.com:Famous/famous.git#master",
+    "famous/view": "git+ssh://git@github.com:Famous/famous.git#master",
+    "famous/transform": "git+ssh://git@github.com:Famous/famous.git#master",
+    "famous/physics/engine": "git+ssh://git@github.com:Famous/famous-physics.git#master",
+    "famous/physics/forces/drag": "git+ssh://git@github.com:Famous/famous-physics.git#master"
   },
-  "scripts": ["index.js"],
+  "scripts": ["index.js", "**/*.js"],
   "styles": ["styles.css"],
   "images": ["favicon.ico"],
   "fonts": [],
