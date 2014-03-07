@@ -15,12 +15,12 @@ TaskView.prototype.constructor = TaskView;
 
 TaskView.DEFAULT_OPTIONS = {
   text: null,
-  taskOffset: 50,
+  taskOffset: 70,
   classes: ['task']
 };
 function _createTask() {
   this.taskSurf = new Surface({
-    size: [undefined, 40],
+    size: [undefined, 70],
     classes: this.options.classes,
     content: '<p>' + this.options.text + '</p>'
   });
@@ -30,6 +30,7 @@ function _createTask() {
 };
 
 function _setListeners() {
+    
   this.touches = [];
   
   this.taskSurf.on('touchmove', function(e) {

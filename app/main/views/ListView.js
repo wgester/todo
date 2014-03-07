@@ -89,7 +89,7 @@ function _createInput() {
   });
     
   this.inputMod = new Modifier({
-    transform: Transform.translate(0, 150, 0)
+    transform: Transform.translate(0, 190, 0)
   });
   
   this._add(this.inputMod).add(this.inputView);

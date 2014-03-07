@@ -115,13 +115,12 @@ function _createManyTasks() {
 function _createInput() {
   this.inputView = new Surface({
     content: '<form><input type="text" placeholder="Enter task here..." size="60"/></form>',
-    size: [60, undefined],
+    size: [60, 70],
     properties: {
       visibility: 'hidden'
     }
   });
   this.inputMod = new Modifier({
-    origin: [0, 0.5],
     transform: Transform.translate(0, 400, 0)
   });
   this._add(this.inputMod).add(this.inputView);
