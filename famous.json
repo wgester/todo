@@ -1,8 +1,9 @@
 {
-  "name": "todo",
+  "name": "famous/templates/base",
+  "namespace": "famous/templates",
   "version": "0.0.0",
   "description": "",
-  "author": [],
+  "authors": [],
   "main": "main",
   "local": [
     "main"
@@ -10,15 +11,6 @@
   "paths": [
     "app"
   ],
-  "namespace": "/",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/FamousPrivateBeta/todo.git"
-  },
-  "validGithub": true,
-  "bugs": {
-    "url": "https://github.com/FamousPrivateBeta/todo/issues"
-  },
-  "homepage": "https://github.com/FamousPrivateBeta/todo/"
+  "author": "Kara",
+  "license": "MIT"
 }

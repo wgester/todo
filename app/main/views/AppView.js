@@ -1,29 +1,57 @@
-var Surface         = require('famous/surface');
-var Modifier        = require('famous/modifier');
-var Transform       = require('famous/transform');
-var View            = require('famous/view');
-
-var ListView        = require('views/ListView')
-
+var Surface = require('famous/surface');
+var Modifier = require('famous/modifier');
+var Transform = require('famous/transform');
+var View = require('famous/view');
+var ListView = require('./ListView');
+var FocusView = require('./FocusView');
 
 function AppView() {
-    View.apply(this, arguments);
-    _createListView.call(this);
-}
+  View.apply(this, arguments);
+  
+  _createListView.call(this);
+  _createFocusView.call(this);
+  _setListeners.call(this);
+};
 
 AppView.prototype = Object.create(View.prototype);
 AppView.prototype.constructor = AppView;
 
-AppView.DEFAULT_OPTIONS = {};
-
-
 function _createListView() {
-    this.listView = new ListView();
+  this.listView = new ListView();
+  this.listMod = new Modifier({
+    transform: Transform.translate(0, 0, -1)
+  });
+  
+  this._add(this.listMod).add(this.listView);
+};
 
-    this.listMod = new Modifier();
+function _createFocusView() {
+  this.focusView = new FocusView();
+  this.todayMod = new Modifier();
+  this._add(this.todayMod).add(this.focusView);
+};
 
-    this._add(this.listMod).add(this.listView);
-}
-
+function _setListeners() {
+  this.toggled = false;
+    
+  this.focusView.on('toggleList', function() {
+    if (this.toggled) {
+      this.todayMod.setTransform(Transform.translate(0, 0, 0), {duration: 300});          
+    } else {
+      this.todayMod.setTransform(Transform.translate(0, -550, 0), {duration: 300});    
+    }
+    this.toggled = !this.toggled;
+  }.bind(this));
+  
+  this.listView.on('toggleList', function() {
+    if (this.toggled) {
+      this.todayMod.setTransform(Transform.translate(0, 0, 0), {duration: 300});          
+    } else {
+      this.todayMod.setTransform(Transform.translate(0, -550, 0), {duration: 300});    
+    }
+    this.toggled = !this.toggled;
+  }.bind(this));
+  
+};
 
 module.exports = AppView;
