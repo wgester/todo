@@ -156,6 +156,11 @@ function _setListeners() {
     this._eventOutput.emit('toggleList');
   }.bind(this));
   
+  _setCompletionListeners.call(this);
+
+};
+ 
+function _setCompletionListeners() {
   for(var i = 0; i < this.taskViews.length; i++) {
     var view = this.taskViews[i];
     view.on('completed', function() {
@@ -171,6 +176,6 @@ function _setListeners() {
     }.bind(this));
   }
 };
- 
+
 
 module.exports = FocusView;

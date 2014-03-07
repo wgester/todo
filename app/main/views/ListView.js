@@ -114,6 +114,11 @@ function _setListeners() {
     this._add(taskMod).add(taskView);
   }.bind(this));
   
+  _setCompletionListeners.call(this);
+  
+};
+
+function _setCompletionListeners() {
   for(var i = 0; i < this.taskViews.length; i++) {
     var view = this.taskViews[i];
     view.on('completed', function() {
@@ -128,7 +133,6 @@ function _setListeners() {
       }.bind(this));
     }.bind(this));
   }
-  
 };
 
 module.exports = ListView;
