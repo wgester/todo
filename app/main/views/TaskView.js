@@ -16,7 +16,7 @@ TaskView.prototype.constructor = TaskView;
 
 TaskView.DEFAULT_OPTIONS = {
   text: null,
-  taskOffset: 70,
+  // taskOffset: 70,
   classes: ['task']
 };
 
@@ -26,9 +26,7 @@ function _createTask() {
     classes: this.options.classes,
     content: '<p>' + this.options.text + '</p>'
   });
-  
-  this.taskMod = new Modifier();
-  this._add(this.taskMod).add(this.taskSurf);
+  this._add(this.taskSurf);
 };
 
 function _setListeners() {
@@ -51,10 +49,10 @@ function _setListeners() {
   touchSync.on('end', function(data) {
     if (position.x > 5) {
       this._eventOutput.emit('completed');
-      this.taskMod.setTransform(Transform.translate(500, 0, 0), {duration: 500, curve: "easeOut"});
+      // this.taskMod.setTransform(Transform.translate(500, 0, 0), {duration: 500, curve: "easeOut"});
     } else if (position.x < -5) {
       this.taskSurf.setProperties({backgroundColor: 'pink'});
-      this.taskMod.setTransform(Transform.translate(-500, 0, 0), {duration: 500, curve: "easeOut"});            
+      // this.taskMod.setTransform(Transform.translate(-500, 0, 0), {duration: 500, curve: "easeOut"});            
     }
   }.bind(this));
 };

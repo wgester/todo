@@ -1,11 +1,10 @@
 var EventHandler = require('famous/event-handler');
-var Engine       = require('famous/engine');
 
 /**
- * @class Handles piped in mousewheel events. Can be used as delegate of
- *        GenericSync.
+ * @class Handles piped in mouse drag events. Outputs an object with two
+ *        properties, position and velocity.
  * @description
- * @name ScrollSync
+ * @name MouseSync
  * @constructor
  * @example
  * 
@@ -13,7 +12,7 @@ var Engine       = require('famous/engine');
  *     var Surface = require('famous/Surface');
  *     var Modifier = require('famous/Modifier');
  *     var FM = require('famous/Matrix');
- *     var ScrollSync = require('famous-sync/ScrollSync');
+ *     var MouseSync = require('famous-sync/MouseSync');
  *     var Context = Engine.createContext();
  *
  *     var surface = new Surface({
@@ -28,9 +27,9 @@ var Engine       = require('famous/engine');
  *     });
  *
  *     var position = 0;
- *     var sync = new ScrollSync(function(){
+ *     var sync = new MouseSync(function(){
  *         return position;
- *     }, {direction: ScrollSync.DIRECTION_Y});  
+ *     }, {direction: MouseSync.DIRECTION_Y});  
  *
  *     surface.pipe(sync);
  *     sync.on('update', function(data) {
@@ -48,16 +47,15 @@ var Engine       = require('famous/engine');
  *     Context.link(modifier).link(surface);
  * 
  */
-function ScrollSync(targetSync,options) {
-    this.targetGet = targetSync;
+function MouseSync(targetGet, options) {
+    this.targetGet = targetGet;
 
-    this.options = {
+    this.options =  {
         direction: undefined,
-        minimumEndSpeed: Infinity,
         rails: false,
         scale: 1,
         stallTime: 50,
-        lineHeight: 40
+        propogate : true           //events piped to document on mouseleave
     };
 
     if (options) {
@@ -72,50 +70,41 @@ function ScrollSync(targetSync,options) {
     EventHandler.setInputHandler(this, this.input);
     EventHandler.setOutputHandler(this, this.output);
 
+    this._prevCoord = undefined;
     this._prevTime = undefined;
     this._prevVel = undefined;
-    this.input.on('mousewheel', _handleMove.bind(this));
-    this.input.on('wheel', _handleMove.bind(this));
-    this.inProgress = false;
 
-    this._loopBound = false;
-};
+    this.input.on('mousedown', _handleStart.bind(this));
+    this.input.on('mousemove', _handleMove.bind(this));
+    this.input.on('mouseup', _handleEnd.bind(this));
 
-/** @const */ ScrollSync.DIRECTION_X = 0;
-/** @const */ ScrollSync.DIRECTION_Y = 1;
+    (this.options.propogate)
+        ? this.input.on('mouseleave', _handleLeave.bind(this))
+        : this.input.on('mouseleave', _handleEnd.bind(this));
+}
 
-function _newFrame() {
-    var now = Date.now();
-    if(this.inProgress && now - this._prevTime > this.options.stallTime) {
-        var pos = this.targetGet();
-        this.inProgress = false;
-        var finalVel = 0;
-        if(Math.abs(this._prevVel) >= this.options.minimumEndSpeed) finalVel = this._prevVel;
-        this.output.emit('end', {p: pos, v: finalVel, slip: true});
-    }
+/** @const */ MouseSync.DIRECTION_X = 0;
+/** @const */ MouseSync.DIRECTION_Y = 1;
+
+function _handleStart(e) {
+    e.preventDefault(); // prevent drag
+    this._prevCoord = [e.clientX, e.clientY];
+    this._prevTime = Date.now();
+    this._prevVel = (this.options.direction !== undefined) ? 0 : [0, 0];
+    this.output.emit('start');
 };
 
 function _handleMove(e) {
-    e.preventDefault();
-    if (!this.inProgress) {
-        this.inProgress = true;
-        this.output.emit('start', {slip: true});
-        if(!this._loopBound) {
-            Engine.on('prerender', _newFrame.bind(this));
-            this._loopBound = true;
-        }
-    };
+    if(!this._prevCoord) return;
 
+    var prevCoord = this._prevCoord;
     var prevTime = this._prevTime;
-    var diffX = (e.wheelDeltaX !== undefined) ? e.wheelDeltaX : -e.deltaX;
-    var diffY = (e.wheelDeltaY !== undefined) ? e.wheelDeltaY : -e.deltaY;
-
-    if(e.deltaMode === 1) { // units in lines, not pixels
-        diffX *= this.options.lineHeight;
-        diffY *= this.options.lineHeight;
-    }
+    var currCoord = [e.clientX, e.clientY];
 
     var currTime = Date.now();
+
+    var diffX = currCoord[0] - prevCoord[0];
+    var diffY = currCoord[1] - prevCoord[1];
 
     if(this.options.rails) {
         if(Math.abs(diffX) > Math.abs(diffY)) diffY = 0;
@@ -128,17 +117,15 @@ function _handleMove(e) {
     var velY = diffY / diffTime;
 
     var prevPos = this.targetGet();
-
     var scale = this.options.scale;
-
     var nextPos;
     var nextVel;
 
-    if(this.options.direction == ScrollSync.DIRECTION_X) {
+    if(this.options.direction == MouseSync.DIRECTION_X) {
         nextPos = prevPos + scale*diffX;
         nextVel = scale*velX;
     }
-    else if(this.options.direction == ScrollSync.DIRECTION_Y) {
+    else if(this.options.direction == MouseSync.DIRECTION_Y) {
         nextPos = prevPos + scale*diffY;
         nextVel = scale*velY;
     }
@@ -147,22 +134,57 @@ function _handleMove(e) {
         nextVel = [scale*velX, scale*velY];
     }
 
-    this.output.emit('update', {p: nextPos, v: nextVel, slip: true});
+    this.output.emit('update', {p: nextPos, v: nextVel});
 
+    this._prevCoord = currCoord;
     this._prevTime = currTime;
     this._prevVel = nextVel;
 };
 
-ScrollSync.prototype.getOptions = function() {
+function _handleEnd(e) {
+    if(!this._prevCoord) return;
+
+    var prevTime = this._prevTime;
+    var currTime = Date.now();
+
+    if(currTime - prevTime > this.options.stallTime) this._prevVel = (this.options.direction == undefined) ? [0, 0] : 0;
+
+    var pos = this.targetGet();
+
+    this.output.emit('end', {p: pos, v: this._prevVel});
+
+    this._prevCoord = undefined;
+    this._prevTime = undefined;
+    this._prevVel = undefined;
+};
+
+function _handleLeave(e){
+    if(!this._prevCoord) return;
+
+    var boundMove = function(e){
+        _handleMove.call(this, e);
+    }.bind(this);
+
+    var boundEnd = function(e){
+        _handleEnd.call(this, e);
+        document.removeEventListener('mousemove', boundMove);
+        document.removeEventListener('mouseup', boundEnd);
+    }.bind(this);
+
+    document.addEventListener('mousemove', boundMove);
+    document.addEventListener('mouseup', boundEnd);
+};
+
+MouseSync.prototype.getOptions = function() {
     return this.options;
 };
 
-ScrollSync.prototype.setOptions = function(options) {
+MouseSync.prototype.setOptions = function(options) {
     if(options.direction !== undefined) this.options.direction = options.direction;
-    if(options.minimumEndSpeed !== undefined) this.options.minimumEndSpeed = options.minimumEndSpeed;
     if(options.rails !== undefined) this.options.rails = options.rails;
     if(options.scale !== undefined) this.options.scale = options.scale;
     if(options.stallTime !== undefined) this.options.stallTime = options.stallTime;
+    if(options.propogate !== undefined) this.options.propogate = options.propogate;
 };
 
-module.exports = ScrollSync;
+module.exports = MouseSync;

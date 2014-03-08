@@ -21,8 +21,8 @@ function PageView() {
   _createTitleLabel.call(this);
   _populateTasks.call(this);
   _createInput.call(this);
-  _createManyTasks.call(this);
   _createButton.call(this);
+  _createManyTasks.call(this);
   _setListeners.call(this);
   _handlePageToggleTouches.call(this);
 }
@@ -36,7 +36,7 @@ PageView.prototype.togglePosition = function() {
   } else if (this.toggleUpOrDown === 'up') {
     this.slideDown();
   } else {
-    throw new Error('togleUpOrDown is illegally defined');
+    throw new Error('toggleUpOrDown is illegally defined');
   }
 };
 
@@ -130,31 +130,32 @@ function _createTitleLabel() {
     }
   });
   
-  this.titleModifier = new Modifier();
+  this.titleModifier = new Modifier({
+    origin: [0, 0]
+  });
   
   this._add(this.titleModifier).add(this.titleLabelSurface);
 };
 
+
 function _createManyTasks() {
-  this.taskMods = [];
+
   this.taskViews = [];
-  
-  for(var i = 0; i < this.tasks.length; i++){
-    var taskView = new TaskView({
-      text: this.tasks[i].text
-    });
+  this.scrollview = new Scrollview();
 
-    var offset = taskView.options.taskOffset * (i+2);
+  this.scrollview.sequenceFrom(this.taskViews);
 
-    var taskModifier = new Modifier({
-      origin: [0.2, 0.2],
-      transform: Transform.translate(0, offset, 0)
-    });
+  for(var i = 0; i < this.tasks.length; i++) {
+    if(this.options.title === this.tasks[i].page){
+      var taskView = new TaskView({
+        text: this.tasks[i].text
+      });
+      taskView.pipe(this.scrollview);
+      this.taskViews.push(taskView);
+    }
     
-    this._add(taskModifier).add(taskView);
-    this.taskMods.push(taskModifier);
-    this.taskViews.push(taskView);
   }
+  this._add(this.scrollview);
 };
 
 function _createInput() {
@@ -175,36 +176,38 @@ function calculateOffset(tasksLength) {
   return taskViewOffset * (tasksLength+0.5);
 };
 
-var clicked = false; 
+var tapped = false; 
 function _setListeners() {  
   window.Engine.on("prerender", _completeColorMod.bind(this));
 
   this.backgroundSurf.on('touchstart', function(){
     
-    if(clicked && this.inputSurf.getValue() === ''){
-      clicked = false;
+    if(tapped && this.inputSurf.getValue() === ''){
+      tapped = false;
       this.inputMod.setTransform(Transform.translate(0, 300, -1), {duration: 500});
-    } else if (clicked && this.inputSurf.getValue().length){
+    } else if (tapped && this.inputSurf.getValue().length){
       var newTask = {text: this.inputSurf.getValue(), focus: true};
-
       this.tasks.push(newTask);
             
       var taskView = new TaskView(newTask);
-      var offset = calculateOffset(this.tasks.length);
+      this.taskViews.push(taskView)
+      // var offset = calculateOffset(this.tasks.length);
       
-      var taskMod = new Modifier({  
-        origin: [0, 0.425],
-        transform: Transform.translate(0, offset, 0)
-      });
+      // var taskMod = new Modifier({  
+      //   origin: [0, 0.425],
+      //   transform: Transform.translate(0, offset, 0)
+      // });
+
+      console.log(this.scrollview)
 
       _setOneCompleteListener.call(this, taskView);
       this.inputMod.setTransform(Transform.translate(0, 300, -1), {duration: 500});
 
-      this._add(taskMod).add(taskView);
+      // this._add(taskMod).add(taskView);
       this.inputSurf.setValue('');
     
     } else {
-      clicked = true;
+      tapped = true;
       this.inputMod.setTransform(Transform.translate(0, 400, 1), {duration: 500});
   }
     //   var offset = calculateOffset(this.tasks.length) + 274;
@@ -239,7 +242,7 @@ function _setOneCompleteListener(view) {
 function _createButton() {
   this.buttonView = new Surface({
       size: [30, 30],
-      content: '<img width="30" src="./img/hamburgerOnClear.png"/>'
+      content: '<img width="40" src="./img/hamburgerOnClear.png"/>'
   });
   this.buttonModifier = new Modifier({
     origin: [0.5, 1]
