@@ -137,17 +137,18 @@ function _createTitleLabel() {
 
 
 function _createManyTasks() {
-  this.taskSurfaces = [];
+  this.taskSurfaces = new ContainerSurface({
+    size: [undefined, 200]
+  });
   this.scrollview = new Scrollview();
 
   this.scrollview.sequenceFrom(this.taskSurfaces);
 
   for(var i = 0; i < this.tasks.length; i++) {
     if(this.options.title === this.tasks[i].page){
-      var taskSurf = new TaskSurface()
-      taskSurf.createTask(this.tasks[i].text, this.options.title)
+      var taskSurf = new TaskSurface().createTask(this.tasks[i].text, this.options.title)
       taskSurf.pipe(this.scrollview);
-      this.taskSurfaces.push(taskSurf);
+      this.taskSurfaces.add(taskSurf);
     }
     
   };
@@ -169,11 +170,6 @@ function _createInput() {
   this._add(this.inputMod).add(this.inputSurf);
 };
 
-// function calculateOffset(tasksLength) {
-//   var taskViewOffset = new TaskView().options.taskOffset;
-//   return taskViewOffset * (tasksLength+0.5);
-// };
-
 var tapped = false; 
 function _setListeners() {  
   window.Engine.on("prerender", _completeColorMod.bind(this));
@@ -190,7 +186,6 @@ function _setListeners() {
       var taskSurf = new TaskSurface(newTask).createTask(newTask.text, newTask.page);
 
       this.taskSurfaces.push(taskSurf)
-      // console.log(this.scrollview)
 
       _setOneCompleteListener.call(this, taskSurf);
       this.inputMod.setTransform(Transform.translate(0, 300, -1), {duration: 500});
@@ -208,9 +203,9 @@ function _setListeners() {
     this.togglePosition();
   }.bind(this));
   
-  // for(var i = 0; i < this.taskViews.length; i++) {
-  //   _setOneCompleteListener.call(this, this.taskViews[i]);     
-  // }
+  for(var i = 0; i < this.taskSurfaces.length; i++) {
+    _setOneCompleteListener.call(this, this.taskSurfaces[i]);     
+  }
     
 };
 

@@ -5,17 +5,13 @@ var Transform = require('famous/transform');
 var TouchSync = require("famous/input/touch-sync");
 
 function TaskSurface (options) {
-  // this._size = options._size || [undefined, 70];
-  // this.text = options.text || null;
   Surface.apply(this, arguments);
 
-  // _createTask.call(this);
   // _setListeners.call(this);
 }
 
 TaskSurface.prototype = Object.create(Surface.prototype);
 TaskSurface.prototype.elementClass = 'task';
-// TaskSurface.prototype.constructor = TaskSurface;
 
 TaskSurface.DEFAULT_OPTIONS = {
   text: null,
