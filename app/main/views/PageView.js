@@ -144,20 +144,23 @@ function _createLinkedListTaskView() {
 function _createManyTasks() {
 
   this.taskViews = [];
-  this.taskMods = [];
+  // this.taskMods = [];
   this.scrollview = new Scrollview();
+
   this.scrollview.sequenceFrom(this.taskViews);
   for(var i = 0; i < this.tasks.length; i++){
     var taskView = new TaskView({
       text: this.tasks[i].text
     });
-    var offset = taskView.options.taskOffset * (i+2);
-    var taskModifier = new Modifier({
-      origin: [0.2, 0.2],
-      transform: Transform.translate(0, offset, 0)
-    });
-    
-    this.taskMods.push(taskModifier);
+    taskView.taskMod.setTransform(Transform.translate(0, taskView.options.taskOffset * (i+2), 0))
+    console.log(taskView.options.taskOffset * (i+2), taskView.taskMod.getTransform())
+    // var offset = taskView.options.taskOffset * (i+2);
+    // console.log(taskView.taskMo)
+    // taskView.taskMod.transform =  Transform.translate(0, offset, 0);
+    // var taskModifier = new Modifier({
+    //   origin: [0.2, 0.2],
+    // });
+    // this.taskMods.push(taskModifier);
     taskView.pipe(this.scrollview);
     this.taskViews.push(taskView);
   }
@@ -198,12 +201,12 @@ function _setListeners() {
             
       var taskView = new TaskView(newTask);
       this.taskViews.push(taskView)
-      var offset = calculateOffset(this.tasks.length);
+      // var offset = calculateOffset(this.tasks.length);
       
-      var taskMod = new Modifier({  
-        origin: [0, 0.425],
-        transform: Transform.translate(0, offset, 0)
-      });
+      // var taskMod = new Modifier({  
+      //   origin: [0, 0.425],
+      //   transform: Transform.translate(0, offset, 0)
+      // });
 
       console.log(this.scrollview)
 

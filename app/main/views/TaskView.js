@@ -28,7 +28,7 @@ function _createTask() {
   });
   
   this.taskMod = new Modifier({
-    transform: Transform.translate(0, 100, 0)
+    transform: Transform.translate(0, 0, 0)
   });
   this._add(this.taskMod).add(this.taskSurf);
 };
