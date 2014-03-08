@@ -6,12 +6,13 @@ var Tasks = require('./data');
 var Transform = require('famous/transform');
 var Transitionable = require("famous/transitions/transitionable");
 var InputSurface = require('famous/surfaces/input-surface');
+var Timer = require('famous/utilities/timer');
 
 function FocusView() {
   View.apply(this, arguments);
   this.color = new Transitionable([360, 100, 100]);
   this.lightness = 75;
-  
+
   _createBackground.call(this);
   _createHeader.call(this);
   _populateTasks.call(this);
@@ -24,12 +25,11 @@ function FocusView() {
 FocusView.prototype = Object.create(View.prototype);
 FocusView.prototype.constructor = FocusView;
 
-function _colorMod() {
+function _completeColorMod() {
   this.backgroundSurf.setProperties({
     backgroundColor: "hsl(145, 63%," + this.color.get()[2] + "%)"
   });
 };
-
 
 function _createBackground() {
  this.backgroundSurf = new Surface({
@@ -72,7 +72,6 @@ function _createButton() {
     origin: [0.5, 1]
   });
 
-  
   this._add(this.buttonModifier).add(this.buttonView);
 };
 
@@ -110,15 +109,12 @@ function _createManyTasks() {
 };
 function _createInput() {
   this.inputSurf = new InputSurface({
-    placeholder: 'Enter task here...',
-
-    properties: {
-      visibility: 'hidden',
-      height: '60px',
-    }
+    size: [undefined,50],
+    placeholder: 'Enter task here...'
   });
+  
   this.inputMod = new Modifier({
-    transform: Transform.translate(0, 1000, 0)
+    transform: Transform.translate(0, 300, -1)
   });
 
   this._add(this.inputMod).add(this.inputSurf);
@@ -126,14 +122,12 @@ function _createInput() {
 
 var clicked = false; var called = false;
 function _setListeners() {  
-
-  window.Engine.on("prerender", _colorMod.bind(this));
+  window.Engine.on("prerender", _completeColorMod.bind(this));
 
   this.backgroundSurf.on('touchstart', function(){
     
     if(clicked && this.inputSurf.getValue()===''){
       clicked = false;
-      this.inputSurf.setProperties({visibility:'hidden'});
     
     } else if (clicked && this.inputSurf.getValue().length){
       called = true;
@@ -152,16 +146,12 @@ function _setListeners() {
 
       this._add(taskMod).add(taskView);
       this.inputSurf.setValue('');
-      this.inputSurf.setProperties({visibility: 'hidden'});
     
     } else {
-
       clicked = true;
-      this.inputSurf.setProperties({visibility:'visible'});
-      
-      var offset = 39 * this.tasks.length+303;
-      this.inputMod.setTransform(Transform.translate(0, offset, 0));
-    }
+      this.inputMod.setTransform(Transform.translate(0, 400, 1), {duration: 500}, function() {
+      }.bind(this));
+  }
   
   }.bind(this));  
 
@@ -181,15 +171,13 @@ function _setOneCompleteListener(view) {
     this.color.set([145, 63, this.lightness], {
       duration: 250
     }, function() {
-      console.log('called');
-      window.setTimeout(function() {
+      Timer.after(function() {
         this.color.set([145, 63, 100], {
           duration: 250
         });      
-      }.bind(this), 100); 
+      }.bind(this), 7);            
     }.bind(this));
   }.bind(this));  
 };
-
 
 module.exports = FocusView;
