@@ -15,14 +15,13 @@ function PageView() {
   this.toggleUpOrDown = 'down';
   this.offPage = false;
   _createBackground.call(this);
-  _createHeader.call(this);
+  _createTitleLabel.call(this);
   _populateTasks.call(this);
   _createInput.call(this);
   _createManyTasks.call(this);
   _createButton.call(this);
   _setListeners.call(this);
   _handlePageToggleTouches.call(this);
-  _listenForToggleEvents.call(this);
 }
 
 PageView.prototype = Object.create(View.prototype);
@@ -31,8 +30,10 @@ PageView.prototype.constructor = PageView;
 PageView.prototype.togglePosition = function() {
   if (this.toggleUpOrDown === 'down') {
     this.slideUp();
-  } else {
+  } else if (this.toggleUpOrDown === 'up') {
     this.slideDown();
+  } else {
+    throw new Error('togleUpOrDown is illegally defined');
   }
 };
 
@@ -112,12 +113,12 @@ function _createBackground() {
   this.backgroundSurf = new Surface({
     size: [undefined, undefined]
   });
-  this.backgroundMod = new Modifier();
-  this._add(this.backgroundMod).add(this.backgroundSurf);
+  this.backgroundModifier = new Modifier();
+  this._add(this.backgroundModifier).add(this.backgroundSurf);
 };
 
-function _createHeader() {
-  this.header = new Surface({
+function _createTitleLabel() {
+  this.titleLabelSurface = new Surface({
     size: [undefined, true],
     content: '<h1>' + this.options.title + '</h1>',
     properties: {
@@ -126,9 +127,9 @@ function _createHeader() {
     }
   });
   
-  this.headerMod = new Modifier();
+  this.titleModifier = new Modifier();
   
-  this._add(this.headerMod).add(this.header);
+  this._add(this.titleModifier).add(this.titleLabelSurface);
 };
 
 function _createManyTasks() {
@@ -142,13 +143,13 @@ function _createManyTasks() {
 
     var offset = taskView.options.taskOffset * (i+2);
 
-    var taskMod = new Modifier({
+    var taskModifier = new Modifier({
       origin: [0.2, 0.2],
       transform: Transform.translate(0, offset, 0)
     });
     
-    this._add(taskMod).add(taskView);
-    this.taskMods.push(taskMod);
+    this._add(taskModifier).add(taskView);
+    this.taskMods.push(taskModifier);
     this.taskViews.push(taskView);
   }
 };
@@ -159,11 +160,11 @@ function _createInput() {
     size: [60, undefined]
   });
     
-  this.inputMod = new Modifier({
+  this.inputModifier = new Modifier({
     transform: Transform.translate(0, 190, 0)
   });
   
-  this._add(this.inputMod).add(this.inputView);
+  this._add(this.inputModifier).add(this.inputView);
 };
 
 function _setListeners() {
@@ -178,15 +179,15 @@ function _setListeners() {
     var taskView = new TaskView(newTask);
     var offset = taskView.options.taskOffset * (this.tasks.length+1);
     
-    var taskMod = new Modifier({
+    var taskModifier = new Modifier({
       transform: Transform.translate(0, offset, 0)
     });
     
-    this._add(taskMod).add(taskView);
+    this._add(taskModifier).add(taskView);
   }.bind(this));
 
-  this.buttonView.on('touchstart', function() {
-    this._eventOutput.emit('toggleButtonPressed');
+  this.buttonView.on('touchend', function() {
+    this.togglePosition();
   }.bind(this));
   
   _setCompletionListeners.call(this);
@@ -220,11 +221,5 @@ function _createButton() {
   });
   this._add(this.buttonModifier).add(this.buttonView);
 };
-
-function _listenForToggleEvents() {
-  this.on('toggleButtonPressed', function() {
-    this.togglePosition();
-  });
-}
 
 module.exports = PageView;

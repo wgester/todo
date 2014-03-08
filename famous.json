@@ -11,6 +11,6 @@
   "paths": [
     "app"
   ],
-  "author": "Kara",
+  "authors": ["Anastasia Aizman github.com/Anastasia", "Adam Cmiel github.com/AdamCmiel", "Kara Ericson github.com/Kara", "Will Gester github.com/wgester"],
   "license": "MIT"
 }

@@ -8,7 +8,7 @@ function AppView() {
   View.apply(this, arguments);
   
   _createFocusView.call(this);
-  _createListView.call(this);
+  _createTodayView.call(this);
 };
 
 AppView.prototype = Object.create(View.prototype);
@@ -23,8 +23,8 @@ AppView.prototype.render = function() {
     });
 
     this.spec.push({
-        transform: Transform.translate(0, this.listView.yPosition.get(), 1),
-        target: this.listView.render()
+        transform: Transform.translate(0, this.todayView.yPosition.get(), 1),
+        target: this.todayView.render()
     });
 
     return this.spec;
@@ -37,17 +37,17 @@ AppView.DEFAULT_OPTIONS = {
   }
 };
 
-function _createListView() {
-  this.listView = new PageView({
+function _createTodayView() {
+  this.todayView = new PageView({
     title: 'Today',
     aboveView: this.focusView,
     transition: this.options.transition
   });
-  this.listMod = new Modifier({
+  this.TodayMod = new Modifier({
     transform: Transform.translate(0, 0, -1)
   });
   
-  this._add(this.listMod).add(this.listView);
+  this._add(this.TodayMod).add(this.TodayView);
 };
 
 function _createFocusView() {
