@@ -19,7 +19,9 @@
     "famous/utilities/timer": "git+ssh://git@github.com:Famous/famous-utilities.git#modularized",
     "famous/modifiers/draggable": "git+ssh://git@github.com:Famous/famous-modifiers.git#modularized",
     "famous/input/generic-sync": "git+ssh://git@github.com:Famous/famous-sync.git#modularized",
-    "famous/views/scrollview": "git+ssh://git@github.com:Famous/famous-views.git#modularized"
+    "famous/views/scrollview": "git+ssh://git@github.com:Famous/famous-views.git#modularized",
+    "famous/surfaces/container-surface": "git+ssh://git@github.com:Famous/famous-surfaces.git#modularized"
+
   },
   "scripts": ["index.js", "**/*.js"],
   "styles": ["styles.css"],
