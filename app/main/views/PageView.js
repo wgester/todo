@@ -36,7 +36,7 @@ PageView.prototype.togglePosition = function() {
   } else if (this.toggleUpOrDown === 'up') {
     this.slideDown();
   } else {
-    throw new Error('togleUpOrDown is illegally defined');
+    throw new Error('toggleUpOrDown is illegally defined');
   }
 };
 
@@ -130,41 +130,28 @@ function _createTitleLabel() {
     }
   });
   
-  this.titleModifier = new Modifier();
+  this.titleModifier = new Modifier({
+    origin: [0, 0]
+  });
   
   this._add(this.titleModifier).add(this.titleLabelSurface);
 };
 
-function _createLinkedListTaskView() {
-  var newTaskView = new TaskView({
-
-  })
-}
 
 function _createManyTasks() {
 
   this.taskViews = [];
-  // this.taskMods = [];
   this.scrollview = new Scrollview();
 
   this.scrollview.sequenceFrom(this.taskViews);
+
   for(var i = 0; i < this.tasks.length; i++){
     var taskView = new TaskView({
       text: this.tasks[i].text
     });
-    taskView.taskMod.setTransform(Transform.translate(0, taskView.options.taskOffset * (i+2), 0))
-    console.log(taskView.options.taskOffset * (i+2), taskView.taskMod.getTransform())
-    // var offset = taskView.options.taskOffset * (i+2);
-    // console.log(taskView.taskMo)
-    // taskView.taskMod.transform =  Transform.translate(0, offset, 0);
-    // var taskModifier = new Modifier({
-    //   origin: [0.2, 0.2],
-    // });
-    // this.taskMods.push(taskModifier);
     taskView.pipe(this.scrollview);
     this.taskViews.push(taskView);
   }
-  
   this._add(this.scrollview);
 };
 
@@ -252,7 +239,7 @@ function _setOneCompleteListener(view) {
 function _createButton() {
   this.buttonView = new Surface({
       size: [30, 30],
-      content: '<img width="30" src="./img/hamburgerOnClear.png"/>'
+      content: '<img width="40" src="./img/hamburgerOnClear.png"/>'
   });
   this.buttonModifier = new Modifier({
     origin: [0.5, 1]
