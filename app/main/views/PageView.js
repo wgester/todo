@@ -19,6 +19,7 @@ function PageView() {
   this.lightness = 75;
   this.toggleUpOrDown = 'down';
   this.offPage = false;
+  
   _createBackground.call(this);
   _createTitleLabel.call(this);
   _populateTasks.call(this);
@@ -164,12 +165,12 @@ function _createManyTasks() {
 
 function _createInput() {
   this.inputSurf = new InputSurface({
-    size: [undefined,50],
+    size: [300,50],
     placeholder: 'Enter task here...'
   });
   
   this.inputMod = new Modifier({
-    transform: Transform.translate(0, 300, -1)
+    transform: Transform.multiply(Transform.translate(10, 300, 0), Transform.rotateX(90))
   });
 
   this._add(this.inputMod).add(this.inputSurf);
@@ -183,7 +184,7 @@ function _setListeners() {
     
     if(tapped && this.inputSurf.getValue() === ''){
       tapped = false;
-      this.inputMod.setTransform(Transform.translate(0, 300, -1), {duration: 500});
+      this.inputMod.setTransform(Transform.multiply(Transform.translate(10, 300, 0), Transform.rotateX(90)), {duration: 1000});
     } else if (tapped && this.inputSurf.getValue().length){
       var newTask = {text: this.inputSurf.getValue(), page: this.options.title};
       this.tasks.push(newTask);
