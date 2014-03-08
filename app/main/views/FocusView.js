@@ -107,6 +107,7 @@ function _createManyTasks() {
     this.taskViews.push(taskView);      
   }
 };
+
 function _createInput() {
   this.inputSurf = new InputSurface({
     size: [undefined,50],
