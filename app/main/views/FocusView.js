@@ -7,6 +7,7 @@ var Transform = require('famous/transform');
 var Transitionable = require("famous/transitions/transitionable");
 var InputSurface = require('famous/surfaces/input-surface');
 var Timer = require('famous/utilities/timer');
+var Scrollview = require('famous/views/scrollview')
 
 function FocusView() {
   View.apply(this, arguments);
@@ -87,7 +88,6 @@ function _createManyTasks() {
   this.taskViews = [];
  
   this.taskScrollView = new Scrollview();
-  console.log(this.taskScrollView);
 
   for(var i = 0; i < this.tasks.length; i++){
     var taskView = new TaskView({
@@ -124,7 +124,7 @@ function _createInput() {
 
 function calculateOffset(tasksLength) {
   var taskViewOffset = new TaskView().options.taskOffset;
-  return taskViewOffset * (x+0.5);
+  return taskViewOffset * (tasksLength+0.5);
 };
 
 var clicked = false; 
