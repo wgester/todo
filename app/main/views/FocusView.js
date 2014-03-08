@@ -5,6 +5,7 @@ var TaskView = require('./TaskView')
 var Tasks = require('./data');
 var Transform = require('famous/transform');
 var Transitionable = require("famous/transitions/transitionable");
+var InputSurface = require('famous/surfaces/input-surface');
 
 function FocusView() {
   View.apply(this, arguments);
@@ -36,7 +37,6 @@ function _createBackground() {
     properties: {
       backgroundColor: 'white'
     },
-    clicked: false
   });
   this.backgroundMod = new Modifier({
   });
@@ -109,65 +109,63 @@ function _createManyTasks() {
   }
 };
 function _createInput() {
-  this.inputView = new Surface({
-    content: '<form><input type="text" placeholder="Enter task here..." size="60"/></form>',
-    size: [60, 70],
+  this.inputSurf = new InputSurface({
+    placeholder: 'Enter task here...',
+
     properties: {
-      visibility: 'hidden'
+      visibility: 'hidden',
+      height: '60px',
     }
   });
-  
   this.inputMod = new Modifier({
     transform: Transform.translate(0, 1000, 0)
   });
 
-  this._add(this.inputMod).add(this.inputView);
-  this.inputView.on('submit', function(e){
-    
-    e.preventDefault();
-
-    var newTask = {text: this.inputView._currTarget.firstChild.firstChild.value, focus: true};
-    this.tasks.push(newTask);
-        
-    var taskView = new TaskView(newTask);
-    var offset = taskView.options.taskOffset * (this.tasks.length+1);
-    
-    var taskMod = new Modifier({
-      origin: [0, 0.425],
-      transform: Transform.translate(0, offset, 0)
-    });
-
-  _setOneCompleteListener.call(this, taskView);
-
-  this._add(taskMod).add(taskView);
-  this.inputView.setProperties({visibility: 'hidden'});
-
-  }.bind(this));
+  this._add(this.inputMod).add(this.inputSurf);
 };
 
-var clicked = false;
+var clicked = false; var called = false;
 function _setListeners() {  
 
   window.Engine.on("prerender", _colorMod.bind(this));
 
   this.backgroundSurf.on('touchstart', function(){
     
-    if(clicked){
-      
+    if(clicked && this.inputSurf.getValue()===''){
       clicked = false;
-      this.inputView.setProperties({visibility:'hidden'});
+      this.inputSurf.setProperties({visibility:'hidden'});
+    
+    } else if (clicked && this.inputSurf.getValue().length){
+      called = true;
+      var newTask = {text: this.inputSurf.getValue(), focus: true};
+      this.tasks.push(newTask);
+            
+      var taskView = new TaskView(newTask);
+      var offset = taskView.options.taskOffset * (this.tasks.length+1);
+      
+      var taskMod = new Modifier({
+        origin: [0, 0.425],
+        transform: Transform.translate(0, offset, 0)
+      });
+
+      _setOneCompleteListener.call(this, taskView);
+
+      this._add(taskMod).add(taskView);
+      this.inputSurf.setValue('');
+      this.inputSurf.setProperties({visibility: 'hidden'});
     
     } else {
 
       clicked = true;
-      this.inputView.setProperties({visibility:'visible'});
+      this.inputSurf.setProperties({visibility:'visible'});
       
       var offset = 39 * this.tasks.length+303;
       this.inputMod.setTransform(Transform.translate(0, offset, 0));
     }
   
   }.bind(this));  
-  
+
+
   this.buttonView.on('touchstart', function() {
     this._eventOutput.emit('toggleList');
   }.bind(this));
