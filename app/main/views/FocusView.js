@@ -12,7 +12,7 @@ function FocusView() {
   View.apply(this, arguments);
   this.color = new Transitionable([360, 100, 100]);
   this.lightness = 75;
-  
+
   _createBackground.call(this);
   _createHeader.call(this);
   _populateTasks.call(this);
@@ -109,15 +109,12 @@ function _createManyTasks() {
 };
 function _createInput() {
   this.inputSurf = new InputSurface({
-    placeholder: 'Enter task here...',
-
-    properties: {
-      visibility: 'hidden',
-      height: '60px',
-    }
+    size: [undefined,50],
+    placeholder: 'Enter task here...'
   });
+  
   this.inputMod = new Modifier({
-    transform: Transform.translate(0, 1000, 0)
+    transform: Transform.translate(0, 300, -1)
   });
 
   this._add(this.inputMod).add(this.inputSurf);
@@ -131,7 +128,6 @@ function _setListeners() {
     
     if(clicked && this.inputSurf.getValue()===''){
       clicked = false;
-      this.inputSurf.setProperties({visibility:'hidden'});
     
     } else if (clicked && this.inputSurf.getValue().length){
       called = true;
@@ -150,16 +146,12 @@ function _setListeners() {
 
       this._add(taskMod).add(taskView);
       this.inputSurf.setValue('');
-      this.inputSurf.setProperties({visibility: 'hidden'});
     
     } else {
-
       clicked = true;
-      this.inputSurf.setProperties({visibility:'visible'});
-      
-      var offset = 39 * this.tasks.length+303;
-      this.inputMod.setTransform(Transform.translate(0, offset, 0));
-    }
+      this.inputMod.setTransform(Transform.translate(0, 400, 1), {duration: 500}, function() {
+      }.bind(this));
+  }
   
   }.bind(this));  
 

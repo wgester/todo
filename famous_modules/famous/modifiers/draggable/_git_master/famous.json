@@ -1,0 +1,23 @@
+{
+    "name": "famous/modifiers/draggable",
+    "namespace": "famous/modifiers",
+    "type": "famous",
+    "description": "",
+    "version": "0.0.1",
+    "repository" : { 
+        "type" : "git", 
+        "url" : "https://github.com/Famous/famous-modifiers.git"
+    },
+    "keywords": [],
+    "dependencies": {
+        "famous/transitions/transitionable": "git+ssh://git@github.com:Famous/famous-transitions.git#master",
+        "famous/transform": "git+ssh://git@github.com:Famous/famous.git#master",
+        "famous/event-handler": "git+ssh://git@github.com:Famous/famous.git#master",
+        "famous/input/mouse-sync": "git+ssh://git@github.com:Famous/famous-sync.git#master",
+        "famous/input/touch-sync": "git+ssh://git@github.com:Famous/famous-sync.git#master",
+        "famous/input/generic-sync": "git+ssh://git@github.com:Famous/famous-sync.git#master"
+    },
+    "scripts": [
+        "index.js"
+    ]
+}
