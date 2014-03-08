@@ -120,18 +120,18 @@ function _createInput() {
   this._add(this.inputMod).add(this.inputSurf);
 };
 
-var clicked = false; var called = false;
+var clicked = false; 
 function _setListeners() {  
   window.Engine.on("prerender", _completeColorMod.bind(this));
 
   this.backgroundSurf.on('touchstart', function(){
     
-    if(clicked && this.inputSurf.getValue()===''){
+    if(clicked && this.inputSurf.getValue() === ''){
       clicked = false;
-    
+      this.inputMod.setTransform(Transform.translate(0, 300, -1), {duration: 500});
     } else if (clicked && this.inputSurf.getValue().length){
-      called = true;
       var newTask = {text: this.inputSurf.getValue(), focus: true};
+
       this.tasks.push(newTask);
             
       var taskView = new TaskView(newTask);
@@ -143,14 +143,14 @@ function _setListeners() {
       });
 
       _setOneCompleteListener.call(this, taskView);
+      this.inputMod.setTransform(Transform.translate(0, 300, -1), {duration: 500});
 
       this._add(taskMod).add(taskView);
       this.inputSurf.setValue('');
     
     } else {
       clicked = true;
-      this.inputMod.setTransform(Transform.translate(0, 400, 1), {duration: 500}, function() {
-      }.bind(this));
+      this.inputMod.setTransform(Transform.translate(0, 400, 1), {duration: 500});
   }
   
   }.bind(this));  
