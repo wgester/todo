@@ -3,7 +3,10 @@ var Modifier  = require('famous/modifier');
 var Transform = require('famous/transform');
 var View      = require('famous/view');
 var TouchSync = require("famous/input/touch-sync");
-var Draggable = require('famous/modifiers/draggable')
+var Draggable = require('famous/modifiers/draggable');
+var Drag      = require('famous/physics/forces/drag');
+var Transitionable = require('famous/transitions/transitionable');
+
 
 function TaskView() {
   View.apply(this, arguments);
@@ -33,6 +36,16 @@ function _createTask() {
 };
 
 function _setListeners() {
+  this.taskDrag.on('dragend', function(data) {
+    var position = new Transitionable([0,0]);
+    position.set(data.p, {
+        strength : 0.001,
+        velocity : data.v
+    });
+    var dragged = new Drag(data.v);
+    console.log(dragged);
+  });
+
   var position = {x: 0, y: 0};  
   var touchSync = new TouchSync(function() {
       return [0, 0];

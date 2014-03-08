@@ -44,7 +44,7 @@ function Draggable(options) {
         function() { return this._differential; }.bind(this),
         {
             scale : this.options.scale,
-            syncClasses : [MouseSync, TouchSync]
+            syncClasses : [TouchSync]
         }
     );
 
@@ -114,7 +114,7 @@ function _handleMove(event){
 
 function _handleEnd(event){
     if (!this._active) return;
-    this.eventOutput.emit('dragend', {p : this.getPosition(), v : event.v, a : event.a});
+    this.eventOutput.emit('dragend', {p : this.getPosition(), v : event.v});
 }
 
 function _bindEvents() {

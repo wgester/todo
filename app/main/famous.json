@@ -18,6 +18,7 @@
     "famous/transitions/tween-transition": "git+ssh://git@github.com:Famous/famous-transitions.git#modularized",
     "famous/utilities/timer": "git+ssh://git@github.com:Famous/famous-utilities.git#modularized",
     "famous/utilities/utility": "git+ssh://git@github.com:Famous/famous-utilities.git#modularized",
+    "famous/transitions/spring-transition": "git+ssh://git@github.com:Famous/famous-transitions.git#modularized",
     "famous/modifiers/draggable": "git+ssh://git@github.com:Famous/famous-modifiers.git#modularized",
     "famous/input/generic-sync": "git+ssh://git@github.com:Famous/famous-sync.git#modularized",
     "famous/views/scrollview": "git+ssh://git@github.com:Famous/famous-views.git#modularized",
