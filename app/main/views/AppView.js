@@ -2,22 +2,47 @@ var Surface = require('famous/surface');
 var Modifier = require('famous/modifier');
 var Transform = require('famous/transform');
 var View = require('famous/view');
-var ListView = require('./ListView');
-var FocusView = require('./FocusView');
+var PageView = require('./PageView');
 
 function AppView() {
   View.apply(this, arguments);
   
   _createFocusView.call(this);
   _createListView.call(this);
-  _setListeners.call(this);
 };
 
 AppView.prototype = Object.create(View.prototype);
 AppView.prototype.constructor = AppView;
 
+AppView.prototype.render = function() {
+    this.spec = [];
+
+    this.spec.push({
+        transform: Transform.translate(0, this.focusView.yPosition.get(), 2),
+        target: this.focusView.render()
+    });
+
+    this.spec.push({
+        transform: Transform.translate(0, this.listView.yPosition.get(), 1),
+        target: this.listView.render()
+    });
+
+    return this.spec;
+};
+
+AppView.DEFAULT_OPTIONS = {
+  transition: {
+      duration: 300,
+      curve: 'easeOut'            
+  }
+};
+
 function _createListView() {
-  this.listView = new ListView();
+  this.listView = new PageView({
+    title: 'Today',
+    aboveView: this.focusView,
+    transition: this.options.transition
+  });
   this.listMod = new Modifier({
     transform: Transform.translate(0, 0, -1)
   });
@@ -26,31 +51,12 @@ function _createListView() {
 };
 
 function _createFocusView() {
-  this.focusView = new FocusView();
+  this.focusView = new PageView({
+    title: 'Focus',
+    transition: this.options.transition
+  });
   this.focusMod = new Modifier();
   this._add(this.focusMod).add(this.focusView);
-};
-
-function _setListeners() {
-  this.toggled = false;
-  this.focusView.on('toggleList', function() {
-    if (this.toggled) {
-      this.focusMod.setTransform(Transform.translate(0, 0, 0), {duration: 300});          
-    } else {
-      this.focusMod.setTransform(Transform.translate(0, -1 * (window.innerHeight - 44), 0), {duration: 300});    
-    }
-    this.toggled = !this.toggled;
-  }.bind(this));
-  
-  this.listView.on('toggleList', function() {
-    if (this.toggled) {
-      this.focusMod.setTransform(Transform.translate(0, 0, 0), {duration: 300});    
-    } else {
-      this.focusMod.setTransform(Transform.translate(0, -500, 0), {duration: 300});    
-    }
-    this.toggled = !this.toggled;
-  }.bind(this));
-  
 };
 
 module.exports = AppView;
