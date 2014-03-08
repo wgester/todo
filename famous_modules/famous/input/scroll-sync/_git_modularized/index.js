@@ -1,3 +1,6 @@
+var EventHandler = require('famous/event-handler');
+var Engine       = require('famous/engine');
+
 /**
  * @class Handles piped in mousewheel events. Can be used as delegate of
  *        GenericSync.
@@ -45,9 +48,6 @@
  *     Context.link(modifier).link(surface);
  * 
  */
-var FEH = require('famous/event-handler');
-var FE = require('famous/engine');
-
 function ScrollSync(targetSync,options) {
     this.targetGet = targetSync;
 
@@ -66,11 +66,11 @@ function ScrollSync(targetSync,options) {
         this.setOptions(this.options);
     }
 
-    this.input = new FEH();
-    this.output = new FEH();
+    this.input = new EventHandler();
+    this.output = new EventHandler();
 
-    FEH.setInputHandler(this, this.input);
-    FEH.setOutputHandler(this, this.output);
+    EventHandler.setInputHandler(this, this.input);
+    EventHandler.setOutputHandler(this, this.output);
 
     this._prevTime = undefined;
     this._prevVel = undefined;
@@ -101,7 +101,7 @@ function _handleMove(e) {
         this.inProgress = true;
         this.output.emit('start', {slip: true});
         if(!this._loopBound) {
-            FE.on('prerender', _newFrame.bind(this));
+            Engine.on('prerender', _newFrame.bind(this));
             this._loopBound = true;
         }
     };

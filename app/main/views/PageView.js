@@ -21,8 +21,8 @@ function PageView() {
   _createTitleLabel.call(this);
   _populateTasks.call(this);
   _createInput.call(this);
-  _createManyTasks.call(this);
   _createButton.call(this);
+  _createManyTasks.call(this);
   _setListeners.call(this);
   _handlePageToggleTouches.call(this);
 }
@@ -135,26 +135,34 @@ function _createTitleLabel() {
   this._add(this.titleModifier).add(this.titleLabelSurface);
 };
 
+function _createLinkedListTaskView() {
+  var newTaskView = new TaskView({
+
+  })
+}
+
 function _createManyTasks() {
-  this.taskMods = [];
+
   this.taskViews = [];
-  
+  this.taskMods = [];
+  this.scrollview = new Scrollview();
+  this.scrollview.sequenceFrom(this.taskViews);
   for(var i = 0; i < this.tasks.length; i++){
     var taskView = new TaskView({
       text: this.tasks[i].text
     });
-
     var offset = taskView.options.taskOffset * (i+2);
-
     var taskModifier = new Modifier({
       origin: [0.2, 0.2],
       transform: Transform.translate(0, offset, 0)
     });
     
-    this._add(taskModifier).add(taskView);
     this.taskMods.push(taskModifier);
+    taskView.pipe(this.scrollview);
     this.taskViews.push(taskView);
   }
+  
+  this._add(this.scrollview);
 };
 
 function _createInput() {
@@ -175,21 +183,21 @@ function calculateOffset(tasksLength) {
   return taskViewOffset * (tasksLength+0.5);
 };
 
-var clicked = false; 
+var tapped = false; 
 function _setListeners() {  
   window.Engine.on("prerender", _completeColorMod.bind(this));
 
   this.backgroundSurf.on('touchstart', function(){
     
-    if(clicked && this.inputSurf.getValue() === ''){
-      clicked = false;
+    if(tapped && this.inputSurf.getValue() === ''){
+      tapped = false;
       this.inputMod.setTransform(Transform.translate(0, 300, -1), {duration: 500});
-    } else if (clicked && this.inputSurf.getValue().length){
+    } else if (tapped && this.inputSurf.getValue().length){
       var newTask = {text: this.inputSurf.getValue(), focus: true};
-
       this.tasks.push(newTask);
             
       var taskView = new TaskView(newTask);
+      this.taskViews.push(taskView)
       var offset = calculateOffset(this.tasks.length);
       
       var taskMod = new Modifier({  
@@ -197,14 +205,16 @@ function _setListeners() {
         transform: Transform.translate(0, offset, 0)
       });
 
+      console.log(this.scrollview)
+
       _setOneCompleteListener.call(this, taskView);
       this.inputMod.setTransform(Transform.translate(0, 300, -1), {duration: 500});
 
-      this._add(taskMod).add(taskView);
+      // this._add(taskMod).add(taskView);
       this.inputSurf.setValue('');
     
     } else {
-      clicked = true;
+      tapped = true;
       this.inputMod.setTransform(Transform.translate(0, 400, 1), {duration: 500});
   }
     //   var offset = calculateOffset(this.tasks.length) + 274;

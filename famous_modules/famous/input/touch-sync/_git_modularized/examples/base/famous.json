@@ -12,9 +12,7 @@
     "dependencies": {
         "famous/polyfills": "git+ssh://git@github.com:Famous/famous-polyfills.git#master",
         "famous/engine": "git+ssh://git@github.com:Famous/famous.git#modularized",
-        "famous/surface": "git+ssh://git@github.com:Famous/famous.git#modularized",
-        "famous/transitions/multiple-transition": "git+ssh://git@github.com:Famous/famous-transitions.git#master",
-        "famous/transitions/tween-transition": "git+ssh://git@github.com:Famous/famous-transitions.git#master"
+        "famous/surface": "git+ssh://git@github.com:Famous/famous.git#modularized"
     },
     "local": [
         "famous/input/touch-sync"

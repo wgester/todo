@@ -1,5 +1,5 @@
-var FTT = require('famous/input/touch-tracker');
-var FEH = require('famous/event-handler');
+var TouchTracker = require('famous/input/touch-tracker');
+var EventHandler = require('famous/event-handler');
 
 /**
  * @class Handles piped in touch events. On update it outputs an
@@ -52,8 +52,8 @@ var FEH = require('famous/event-handler');
 function TouchSync(targetSync,options) {
     this.targetGet = targetSync;
 
-    this.output = new FEH();
-    this.touchTracker = new FTT();
+    this.output = new EventHandler();
+    this.touchTracker = new TouchTracker();
 
     this.options = {
         direction: undefined,
@@ -67,8 +67,8 @@ function TouchSync(targetSync,options) {
         this.setOptions(this.options);
     }
 
-    FEH.setOutputHandler(this, this.output);
-    FEH.setInputHandler(this, this.touchTracker);
+    EventHandler.setOutputHandler(this, this.output);
+    EventHandler.setInputHandler(this, this.touchTracker);
 
     this.touchTracker.on('trackstart', _handleStart.bind(this));
     this.touchTracker.on('trackmove', _handleMove.bind(this));

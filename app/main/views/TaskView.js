@@ -27,7 +27,9 @@ function _createTask() {
     content: '<p>' + this.options.text + '</p>'
   });
   
-  this.taskMod = new Modifier();
+  this.taskMod = new Modifier({
+    transform: Transform.translate(0, 100, 0)
+  });
   this._add(this.taskMod).add(this.taskSurf);
 };
 

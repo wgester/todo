@@ -15,19 +15,19 @@ AppView.prototype = Object.create(View.prototype);
 AppView.prototype.constructor = AppView;
 
 AppView.prototype.render = function() {
-    this.spec = [];
+  this.spec = [];
 
-    this.spec.push({
-        transform: Transform.translate(0, this.focusView.yPosition.get(), 2),
-        target: this.focusView.render()
-    });
+  this.spec.push({
+      transform: Transform.translate(0, this.focusView.yPosition.get(), 2),
+      target: this.focusView.render()
+  });
 
-    this.spec.push({
-        transform: Transform.translate(0, this.todayView.yPosition.get(), 1),
-        target: this.todayView.render()
-    });
+  this.spec.push({
+      transform: Transform.translate(0, this.todayView.yPosition.get(), 1),
+      target: this.todayView.render()
+  });
 
-    return this.spec;
+  return this.spec;
 };
 
 AppView.DEFAULT_OPTIONS = {

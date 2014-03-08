@@ -1,6 +1,6 @@
 var EventHandler = require('famous/event-handler');
-var TouchSync = require('famous/input/touch-sync');
-var ScrollSync = require('famous/input/scroll-sync');
+var TouchSync    = require('famous/input/touch-sync');
+var ScrollSync   = require('famous/input/scroll-sync');
 
 /**
  * @class Combines multiple types of event handling (e.g. touch, trackpad 
