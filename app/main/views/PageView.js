@@ -7,6 +7,9 @@ var TaskView       = require('./TaskView');
 var Tasks          = require('./data');
 var GenericSync     = require('famous/input/generic-sync');
 var Transitionable  = require('famous/transitions/transitionable');
+var InputSurface = require('famous/surfaces/input-surface');
+var Timer = require('famous/utilities/timer');
+var Scrollview = require('famous/views/scrollview')
 
 function PageView() {
   View.apply(this, arguments);
@@ -99,7 +102,7 @@ PageView.DEFAULT_OPTIONS = {
   velocityToggleThreshold: 0.75
 };
 
-function _colorMod() {
+function _completeColorMod() {
   this.backgroundSurf.setProperties({
     backgroundColor: "hsl(145, 63%," + this.color.get()[2] + "%)"
   });
@@ -155,60 +158,82 @@ function _createManyTasks() {
 };
 
 function _createInput() {
-  this.inputView = new Surface({
-    content: '<form><input type="text" placeholder="Enter task here..." size="60"/></form>',
-    size: [60, undefined]
-  });
-    
-  this.inputModifier = new Modifier({
-    transform: Transform.translate(0, 190, 0)
+  this.inputSurf = new InputSurface({
+    size: [undefined,50],
+    placeholder: 'Enter task here...'
   });
   
-  this._add(this.inputModifier).add(this.inputView);
+  this.inputMod = new Modifier({
+    transform: Transform.translate(0, 300, -1)
+  });
+
+  this._add(this.inputMod).add(this.inputSurf);
 };
 
-function _setListeners() {
-  window.Engine.on("prerender", _colorMod.bind(this));
+function calculateOffset(tasksLength) {
+  var taskViewOffset = new TaskView().options.taskOffset;
+  return taskViewOffset * (tasksLength+0.5);
+};
 
-  this.inputView.on('submit', function(e) {
-    e.preventDefault();
+var clicked = false; 
+function _setListeners() {  
+  window.Engine.on("prerender", _completeColorMod.bind(this));
 
-    var newTask = {text: this.inputView._currTarget.firstChild.firstChild.value, focus: false};
-    this.tasks.push(newTask);
-        
-    var taskView = new TaskView(newTask);
-    var offset = taskView.options.taskOffset * (this.tasks.length+1);
+  this.backgroundSurf.on('touchstart', function(){
     
-    var taskModifier = new Modifier({
-      transform: Transform.translate(0, offset, 0)
-    });
+    if(clicked && this.inputSurf.getValue() === ''){
+      clicked = false;
+      this.inputMod.setTransform(Transform.translate(0, 300, -1), {duration: 500});
+    } else if (clicked && this.inputSurf.getValue().length){
+      var newTask = {text: this.inputSurf.getValue(), focus: true};
+
+      this.tasks.push(newTask);
+            
+      var taskView = new TaskView(newTask);
+      var offset = calculateOffset(this.tasks.length);
+      
+      var taskMod = new Modifier({  
+        origin: [0, 0.425],
+        transform: Transform.translate(0, offset, 0)
+      });
+
+      _setOneCompleteListener.call(this, taskView);
+      this.inputMod.setTransform(Transform.translate(0, 300, -1), {duration: 500});
+
+      this._add(taskMod).add(taskView);
+      this.inputSurf.setValue('');
     
-    this._add(taskModifier).add(taskView);
-  }.bind(this));
+    } else {
+      clicked = true;
+      this.inputMod.setTransform(Transform.translate(0, 400, 1), {duration: 500});
+  }
+    //   var offset = calculateOffset(this.tasks.length) + 274;
+    //   this.inputMod.setTransform(Transform.translate(0, offset, 0));
+  }.bind(this));  
+
 
   this.buttonView.on('touchend', function() {
     this.togglePosition();
   }.bind(this));
   
-  _setCompletionListeners.call(this);
+  for(var i = 0; i < this.taskViews.length; i++) {
+    _setOneCompleteListener.call(this, this.taskViews[i]);     
+  }
     
 };
 
-function _setCompletionListeners() {
-  for(var i = 0; i < this.taskViews.length; i++) {
-    var view = this.taskViews[i];
-    view.on('completed', function() {
-      this.color.set([145, 63, this.lightness], {
-        duration: 1000
-      }, function() {
-        window.setTimeout(function() {
-          this.color.set([145, 63, 100], {
-            duration: 500
-          });      
-        }.bind(this), 100); 
-      }.bind(this));
+function _setOneCompleteListener(view) {
+  view.on('completed', function() {
+    this.color.set([145, 63, this.lightness], {
+      duration: 250
+    }, function() {
+      Timer.after(function() {
+        this.color.set([145, 63, 100], {
+          duration: 250
+        });      
+      }.bind(this), 7);            
     }.bind(this));
-  }
+  }.bind(this));  
 };
 
 function _createButton() {
