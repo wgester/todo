@@ -55,10 +55,7 @@ function _createHeader() {
 
   });
   
-  this.headerMod = new Modifier({
-  });
-  
-  this._add(this.headerMod).add(this.header);
+  this._add(this.header);
 };
 
 function _createButton() {
@@ -89,6 +86,8 @@ function _createManyTasks() {
   this.taskMods = [];  
   this.taskViews = [];
  
+  this.taskScrollView = new Scrollview();
+  console.log(this.taskScrollView);
 
   for(var i = 0; i < this.tasks.length; i++){
     var taskView = new TaskView({
