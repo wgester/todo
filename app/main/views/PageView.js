@@ -145,12 +145,15 @@ function _createManyTasks() {
 
   this.scrollview.sequenceFrom(this.taskViews);
 
-  for(var i = 0; i < this.tasks.length; i++){
-    var taskView = new TaskView({
-      text: this.tasks[i].text
-    });
-    taskView.pipe(this.scrollview);
-    this.taskViews.push(taskView);
+  for(var i = 0; i < this.tasks.length; i++) {
+    if(this.options.title === this.tasks[i].page){
+      var taskView = new TaskView({
+        text: this.tasks[i].text
+      });
+      taskView.pipe(this.scrollview);
+      this.taskViews.push(taskView);
+    }
+    
   }
   this._add(this.scrollview);
 };
