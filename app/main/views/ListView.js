@@ -6,6 +6,8 @@ var Transitionable = require("famous/transitions/transitionable");
 var TaskView      = require('./TaskView');
 var Tasks         = require('./data');
 var InputSurface = require('famous/surfaces/input-surface');
+var Timer = require('famous/utilities/timer');
+
 
 function ListView() {
   View.apply(this, arguments);
@@ -149,11 +151,11 @@ function _setOneCompleteListener(view) {
     this.color.set([145, 63, this.lightness], {
       duration: 250
     }, function() {
-      window.setTimeout(function() {
+      Timer.after(function() {
         this.color.set([145, 63, 100], {
           duration: 250
         });      
-      }.bind(this), 100); 
+      }.bind(this), 7);            
     }.bind(this));
   }.bind(this));  
 };

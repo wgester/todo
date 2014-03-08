@@ -33,7 +33,6 @@ function _createFocusView() {
 
 function _setListeners() {
   this.toggled = false;
-    
   this.focusView.on('toggleList', function() {
     if (this.toggled) {
       this.focusMod.setTransform(Transform.translate(0, 0, 0), {duration: 300});          
