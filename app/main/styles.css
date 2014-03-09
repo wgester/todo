@@ -12,7 +12,7 @@ input {
   height: 3em;
   margin-top: 10px;
   margin-left: 0;
-  border: 1px solid black;
+  border: 1px solid gray;
   box-shadow: 2px 2px 2px #000;
 }
 
@@ -30,14 +30,10 @@ h1 {
   text-align: center;
 }
 
-.face {
-  border: 1px solid black;
-  box-shadow: 2px 2px 2px #000;
-}
 
 .container {
-  width: 200px;
-  height: 200px;
+  width: 100px;
+  height: 100px;
   position: relative;
   top: 10em;
   -webkit-perspective: 1000px;
@@ -48,36 +44,41 @@ h1 {
   height: 100%;
   position: absolute;
   -webkit-transform-style: preserve-3d;
-  -webkit-transform: translateZ( -100px ) rotateY(10deg);
+  -webkit-transform: translateX(20px) translateZ( -50px ) rotateY(10deg);
   -webkit-transition: all 1s;
 }
 
 #cube div, #cube input {
-  width: 196px;
-  height: 196px;
+  width: 96px;
+  height: 96px;
   display: block;
   position: absolute;
   border: 1px solid black;
   box-shadow: 2px 2px 2px #000;
   margin: 0;
-  color: blue;
 }
 
-#cube .front  { -webkit-transform: rotateY(   0deg ) translateZ( 100px ); }
-#cube .back   { -webkit-transform: rotateX( 180deg ) translateZ( 100px ); }
-#cube .right  { -webkit-transform: rotateY(  90deg ) translateZ( 100px ); }
-#cube .left   { -webkit-transform: rotateY( -90deg ) translateZ( 100px ); }
-#cube .top    { -webkit-transform: rotateX(  90deg ) translateZ( 100px ); }
-#cube .bottom { -webkit-transform: rotateX( -90deg ) translateZ( 100px ); }
+#cube .front  { 
+  background-color: rgba(128, 128, 128, 0.57);
+  -webkit-transform: rotateY(   0deg ) translateZ( 50px );
+}
+#cube .back   { -webkit-transform: rotateX( 180deg ) translateZ( 50px ); }
+#cube .right  { -webkit-transform: rotateY(  90deg ) translateZ( 50px ); }
+#cube .left   { -webkit-transform: rotateY( -90deg ) translateZ( 50px ); }
+#cube .top    { -webkit-transform: rotateX(  90deg ) translateZ( 50px ); }
+#cube .bottom { -webkit-transform: rotateX( -90deg ) translateZ( 50px ); }
 
 .famous-surface.show-top #cube {
-  -webkit-transform: translateZ( -100px ) rotateX( -90deg ); 
+  -webkit-transform: translateZ( -50px ) rotateX( -90deg ); 
 }
 
 .famous-surface.show-front #cube {
-  -webkit-transform: translateZ( -100px ) rotateX( 0deg ) rotateY( 10deg ); 
+  -webkit-transform: translateZ( -50px ) rotateX( 0deg ) rotateY( 10deg ); 
 }
+<<<<<<< HEAD
 
 /*#cube.show-front  { -webkit-transform: translateZ( -100px ) rotateX(    0deg ); }
 #cube.show-top    { -webkit-transform: translateZ( -100px ) rotateX(  -90deg ); }
 */
+=======
+>>>>>>> Square rotates and disappears on touch

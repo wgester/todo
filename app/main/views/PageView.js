@@ -168,8 +168,11 @@ function _createCube() {
   //create container and add it to pageview
   
   this.cube = new Surface({
-    size: [200, 200],
+    size: [100, 100],
     classes: ['show-front'],
+    properties: {
+      visibility: 'hidden'
+    },
     content: '<section class="container"> \
                 <div id="cube"> \
                   <div class="front"></div> \
@@ -182,7 +185,9 @@ function _createCube() {
             </section>'
   });
   
-  this.cubeMod = new Modifier();
+  this.cubeMod = new Modifier({
+    transform: Transform.translate(10, 0, 0)
+  });
   
   //add cube to the container
   this._add(this.cubeMod).add(this.cube);
@@ -216,6 +221,7 @@ function _setListeners() {
     } else {
       tapped = true;
       this.inputMod.setTransform(Transform.translate(0, 400, 1), {duration: 500});
+
     }
     
   }.bind(this));  
