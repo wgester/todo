@@ -18,7 +18,7 @@ input {
 
 .task {
   padding: 10px;
-  border: 1px solid gray;
+  border: 1px dotted gray;
   color: black;
 }
 

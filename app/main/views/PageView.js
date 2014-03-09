@@ -11,6 +11,7 @@ var InputSurface      = require("famous/surfaces/input-surface");
 var Timer             = require("famous/utilities/timer");
 var Scrollview        = require("famous/views/scrollview");
 var ContainerSurface  = require("famous/surfaces/container-surface");
+var Draggable         = require('famous/modifiers/draggable');
 
 function PageView() {
   View.apply(this, arguments);
@@ -123,7 +124,7 @@ function _createBackground() {
 
 function _createTitleLabel() {
   this.titleLabelSurface = new Surface({
-    size: [undefined, true],
+    size: [undefined, 200],
     content: '<h1>' + this.options.title + '</h1>',
     properties: {
       color: 'black',
@@ -137,24 +138,28 @@ function _createTitleLabel() {
 
 
 function _createManyTasks() {
+
   this.taskSurfaces = new ContainerSurface({
-    size: [undefined, 200]
+    size: [undefined, 300],
+    properties: {
+      top: this.titleLabelSurface.size[1] + 'px'
+    }
   });
   this.scrollview = new Scrollview();
-
   this.scrollview.sequenceFrom(this.taskSurfaces);
 
   for(var i = 0; i < this.tasks.length; i++) {
     if(this.options.title === this.tasks[i].page){
-      var taskSurf = new TaskSurface().createTask(this.tasks[i].text, this.options.title)
+      var taskSurf = new TaskSurface().createTask(this.tasks[i].text, this.options.title);
       taskSurf.pipe(this.scrollview);
-      this.taskSurfaces.add(taskSurf);
+      var taskMod = new Draggable();
+      this.taskSurfaces.add(taskMod).add(taskSurf);
+      console.log(this.taskSurfaces)
     }
     
   };
 
   this._add(this.scrollview);
-  console.log(this.scrollview)
 };
 
 function _createInput() {
@@ -185,7 +190,7 @@ function _setListeners() {
       
       var taskSurf = new TaskSurface(newTask).createTask(newTask.text, newTask.page);
 
-      this.taskSurfaces.push(taskSurf)
+      this.taskSurfaces.add(taskSurf)
 
       _setOneCompleteListener.call(this, taskSurf);
       this.inputMod.setTransform(Transform.translate(0, 300, -1), {duration: 500});
