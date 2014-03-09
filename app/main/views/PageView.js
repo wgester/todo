@@ -23,7 +23,8 @@ function PageView() {
   _createBackground.call(this);
   _createTitleLabel.call(this);
   _populateTasks.call(this);
-  _createInput.call(this);
+  // _createInput.call(this);
+  _createCube.call(this);
   _createButton.call(this);
   _createManyTasks.call(this);
   _setListeners.call(this);
@@ -163,24 +164,38 @@ function _createManyTasks() {
   this._add(this.scrollview);
 };
 
-function _createInput() {
-  this.inputSurf = new InputSurface({
-    size: [300,50],
-    placeholder: 'Enter task here...'
+function _createCube() {
+  //create container and add it to pageview
+  
+  this.cube = new Surface({
+    size: [200, 200],
+    classes: ['show-front'],
+    content: '<section class="container"> \
+                <div id="cube"> \
+                  <div class="front"></div> \
+                  <div class="back"></div> \
+                  <div class="right"></div> \
+                  <div class="left"></div> \
+                  <input type="text" class="top" placeholder="enter text here..."/> \
+                  <div class="bottom"></div> \
+                </div> \
+            </section>'
   });
   
-  this.inputMod = new Modifier({
-    transform: Transform.multiply(Transform.translate(10, 300, 0), Transform.rotateX(90))
-  });
+  this.cubeMod = new Modifier();
+  
+  //add cube to the container
+  this._add(this.cubeMod).add(this.cube);
 
-  this._add(this.inputMod).add(this.inputSurf);
 };
 
 var tapped = false; 
+
 function _setListeners() {  
   window.Engine.on("prerender", _completeColorMod.bind(this));
 
   this.backgroundSurf.on('touchstart', function(){
+    inputToggled = !inputToggled;
     
     if(tapped && this.inputSurf.getValue() === ''){
       tapped = false;
@@ -202,6 +217,7 @@ function _setListeners() {
       tapped = true;
       this.inputMod.setTransform(Transform.translate(0, 400, 1), {duration: 500});
     }
+    
   }.bind(this));  
 
 
