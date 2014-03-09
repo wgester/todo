@@ -174,7 +174,7 @@ function _createCube() {
       visibility: 'hidden'
     },
     content: '<section class="container"> \
-                <div id="cube"> \
+                <div id="box"> \
                   <div class="front"></div> \
                   <div class="back"></div> \
                   <div class="right"></div> \
@@ -200,7 +200,6 @@ function _setListeners() {
   window.Engine.on("prerender", _completeColorMod.bind(this));
 
   this.backgroundSurf.on('touchstart', function(){
-    inputToggled = !inputToggled;
     
     if(tapped && this.inputSurf.getValue() === ''){
       tapped = false;
