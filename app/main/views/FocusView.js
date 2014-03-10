@@ -9,7 +9,6 @@ var InputSurface = require('famous/surfaces/input-surface');
 var Timer = require('famous/utilities/timer');
 var Scrollview = require('famous/views/scrollview')
 
-
 function FocusView() {
   View.apply(this, arguments);
   this.color = new Transitionable([360, 100, 100]);
@@ -57,9 +56,7 @@ function _createHeader() {
 
   });
   
-
   this._add(this.header);
-
 };
 
 function _createButton() {
@@ -118,18 +115,18 @@ function _createInput() {
   });
   
   this.inputMod = new Modifier({
-    transform: Transform.translate(0, 300, -1)
+    transform: Transform.translate(0, 300, -1),
+    origin: [0, 1]
+    // transform: Transform.translate(0, , 0)
   });
 
   this._add(this.inputMod).add(this.inputSurf);
 };
 
-
 function calculateOffset(tasksLength) {
   var taskViewOffset = new TaskView().options.taskOffset;
   return taskViewOffset * (tasksLength+0.5);
 };
-
 
 var clicked = false; 
 function _setListeners() {  
@@ -146,11 +143,9 @@ function _setListeners() {
       this.tasks.push(newTask);
             
       var taskView = new TaskView(newTask);
-
-      var offset = taskView.options.taskOffset * (this.tasks.length+1);
+      var offset = calculateOffset(this.tasks.length);
       
-      var taskMod = new Modifier({
-
+      var taskMod = new Modifier({  
         origin: [0, 0.425],
         transform: Transform.translate(0, offset, 0)
       });
@@ -165,7 +160,10 @@ function _setListeners() {
       clicked = true;
       this.inputMod.setTransform(Transform.translate(0, 400, 1), {duration: 500});
   }
-
+      // this.inputSurf.setProperties({visibility:'visible'});
+    //   var offset = calculateOffset(this.tasks.length) + 274;
+    //   this.inputMod.setTransform(Transform.translate(0, offset, 0));
+    // }  
   }.bind(this));  
 
 
