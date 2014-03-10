@@ -12,10 +12,13 @@ function FooterView() {
 FooterView.prototype = Object.create(View.prototype);
 FooterView.prototype.constructor = FooterView;
 
+FooterView.DEFAULT_OPTIONS = {
+  classes: ['footer']
+};
+
 function _createButton() {
   this.buttonSurf = new Surface({
-    size: [undefined, undefined],
-    content: "<img width='40' src='./img/hamburgerOnClear.png'/>",
+    content: "<img width='40' height='40' src='./img/hamburgerOnClear.png'/>",
     properties: {
       backgroundColor: 'pink',
       textAlign: 'center'
