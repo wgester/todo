@@ -8,10 +8,11 @@ function AppView() {
   View.apply(this, arguments);
   
   this.pages = [];
+  this.pageViewsRendered = {};
   this._numberOfPages = 0;
+  this.lastPage = null;
 
-  _createFocusAndTodayViews.call(this);
-  _addPageView.call(this, 'Later', 0, 'Today');
+  _createAppViews.call(this);
 };
 
 AppView.prototype = Object.create(View.prototype);
@@ -55,50 +56,52 @@ function _createPageView(title, z_index, aboveView) {
     transform: Transform.translate(0, 0, z_index)
   };
 
-  this._numberOfPages++;
+  // this.lastPage && _stopListeningToOldLastPageSlideUpEvent.call(this);
 
-  this[title + 'View'] = new PageView(pageViewOptions);
+  this.lastPage = this[title + 'View'] = new PageView(pageViewOptions);
   this[title + 'Modifier'] = new Modifier(pageViewModifierOptions);
 
   this._add(this[title + 'Modifier']).add(this[title + 'View']);
+  // _listenForLastPageViewSlideUpToCreateNewLastPageView.call(this);
 }
 
-function _addPageView(title, z_index, aboveView) {
+function _addPageView(title) {
+  this._numberOfPages++;
   this.pages.push({
     title: title,
-    z_index: z_index,
-    aboveView: aboveView
+    z_index: 3 - this._numberOfPages,
+    aboveView: this.lastPage
   });
-
-  _createPageViews.call(this);
+  _createPageView.call(
+    this, 
+    this.pages[this.pages.length -1].title, 
+    this.pages[this.pages.length -1].z_index, 
+    this.lastPage
+  );
 }
 
-function _createFocusAndTodayViews() {
-  this.pages.push(
-    {
-      title: 'Focus',
-      z_index: 2,
-      aboveView: null
-    },
-    {
-      title: 'Today',
-      z_index: 1,
-      aboveView: 'Focus'
-    }
-  ); 
-
-  _createPageViews.call(this);
+function _createAppViews() {
+  _addPageView.call(this, 'Focus');
+  _addPageView.call(this, 'Today');
+  _addPageView.call(this, 'Later');
+  _addPageView.call(this, 'Never');
 }
 
-function _createPageViews() {
-  for (var i = 0; i < this.pages.length; i++) {
-    _createPageView.call(
-      this, 
-      this.pages[i].title,
-      this.pages[i].z_index,
-      this[this.pages[i].aboveView && (this.pages[i].aboveView + 'View')]
-    );
-  }
-}
+// function _listenForLastPageViewSlideUpToCreateNewLastPageView() {
+//   this.lastPage.on('slideUp', _slideUpCallback.bind(this));
+// }
+
+// function _stopListeningToOldLastPageSlideUpEvent() {
+//   this.lastPage.unbind('slideUp', _slideUpCallback.bind(this));
+// }
+
+// function _slideUpCallback() {
+//   console.log(this.lastPage.options.title);
+//   var title = 'Later';
+//   if (/Later/.test(this.lastPage.options.title)) {
+//     title = 'Later' + this._numberOfPages;
+//   }
+//   _addPageView.call(this, title);
+// }
 
 module.exports = AppView;

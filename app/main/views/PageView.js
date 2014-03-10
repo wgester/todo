@@ -45,6 +45,7 @@ PageView.prototype.togglePosition = function() {
 };
 
 PageView.prototype.slideUp = function() {
+  this._eventOutput.emit('slideUp');
   this.yPosition.set(-1 * (window.innerHeight - 30), this.options.transition, function() {
     this.toggleUpOrDown = 'up';
   }.bind(this));
@@ -52,6 +53,7 @@ PageView.prototype.slideUp = function() {
 };
 
 PageView.prototype.slideDown = function() {
+  this._eventOutput.emit('slideDown');
   this.yPosition.set(0, this.options.transition, function() {
                   this.toggleUpOrDown = 'down';
                 }.bind(this));
@@ -59,6 +61,7 @@ PageView.prototype.slideDown = function() {
 };
 
 PageView.prototype.slideUpOffPage = function() {
+  this._eventOutput.emit('slideUpOffPage');
   this.yPosition.set(-1 * window.innerHeight, this.options.transition, function() {
     this.offPage = !this.offPage;
   }.bind(this));
