@@ -32,37 +32,20 @@ function Box(options) {
       transform: Transform.move(Transform.rotate(6.28, 0, 0), [0, 0, -faceSize])
   });
 
-  var frontSurf = new Surface({
-    size: this.options.face.size,
-    properties: this.options.face.properties
-  });
+  var frontSurf = new Surface(this.options.face);
 
-  var leftSurf = new Surface({
-    size: this.options.face.size,
-    properties: this.options.face.properties
-  });
+  var leftSurf = new Surface(this.options.face);
 
-  var rightSurf = new Surface({
-    size: this.options.face.size,
-    properties: this.options.face.properties
-  });
+  var rightSurf = new Surface(this.options.face);
 
   this.topSurf = new InputSurface({
     size: this.options.face.size,
     properties: {background: 'white', margin: 0, border: '1px solid black'}
   });
 
-  var bottomSurf = new Surface({
-    size: this.options.face.size,
-    properties: this.options.face.properties
-  });
+  var bottomSurf = new Surface(this.options.face);
 
-  var backSurf = new Surface({
-    size: this.options.face.size,
-    properties: this.options.face.properties
-  });
-
-
+  var backSurf = new Surface(this.options.face);
 
   this._add(frontSurf);
   this._add(left).add(leftSurf);
