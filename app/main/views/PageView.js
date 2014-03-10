@@ -15,6 +15,7 @@ var TaskView          = require('./TaskView');
 var HeaderView        = require('./HeaderView');
 var FooterView        = require('./FooterView');
 var ContentView       = require('./ContentView');
+var Box = require('./BoxView');
 
 function PageView() {
   View.apply(this, arguments);
@@ -142,14 +143,48 @@ function _createInput() {
 };
 
 function _setListeners() {  
-
-
+  window.Engine.on("prerender", _completeColorMod.bind(this));
+  _setInputListener.call(this);
+  
+  for(var i = 0; i < this.taskViews.length; i++) {
+    _setOneCompleteListener.call(this, this.taskViews[i]);     
+  }  
+};
 /* ------------------------------------BUTTON LISTENER--------------------------------------------*/
   
   this.footer.on('hamburger', function(){
     this.togglePosition();
   }.bind(this));
 
+};
+
+function _createInput() {
+  this.box = new Box();
+  this.boxMod = new Modifier({
+    transform: Transform.move(Transform.rotate(0, 0, 0), [50, 200, 0])
+  });
+  this.inputSurf = this.box.getInput();
+  this._add(this.boxMod).add(this.box);
+};
+
+
+function _setInputListener() {
+  this.backgroundSurf.on('touchend', function(e) {
+    this.inputToggled = !this.inputToggled;
+    var value = this.inputSurf.getValue();
+    this.inputSurf.setValue('');
+    
+    if (this.inputToggled) {
+      this.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [50, 300, 100]), {duration: 300})      
+    } else if (!this.inputToggled && value.length) {
+      this.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [50, 200, 0]), {duration: 300})
+      var newTask = new TaskView({text: value});
+      newTask.pipe(this.scrollview);    
+      this.taskViews.push(newTask);
+    } else {
+      this.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [50, 200, 0]), {duration: 300})
+    }
+  }.bind(this));  
 };
 
 
