@@ -27,9 +27,9 @@ function _createTask() {
     classes: this.options.classes,
     content: '<p>' + this.options.text + '</p>'
   });
-  this.taskMod = new Draggable();
+  // this.taskMod = new Modifier();
   this.taskSurf.pipe(this._eventOutput);
-  this._add(this.taskMod).add(this.taskSurf);
+  this._add(this.taskSurf);
 };
 
 function _setListeners() {

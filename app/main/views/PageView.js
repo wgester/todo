@@ -25,10 +25,9 @@ function PageView() {
   this.offPage = false;
   _createBackground.call(this);
   _createLayout.call(this);
-  // _populateTasks.call(this);
+  _populateTasks.call(this);
   _createInput.call(this);
-  // _createButton.call(this);
-  // _createManyTasks.call(this);
+  _createManyTasks.call(this);
   _setListeners.call(this);
   _handlePageToggleTouches.call(this);
 
@@ -66,6 +65,10 @@ PageView.prototype.slideUpOffPage = function() {
     this.offPage = !this.offPage;
   }.bind(this));
 };
+
+function _populateTasks(){
+  this.tasks = Tasks;
+}
 
 function _handlePageToggleTouches() {
   this.yPosition = new Transitionable(0);
@@ -126,7 +129,7 @@ function _createBackground() {
 
 function _createLayout() {
   this.layout = new HeaderFooter({
-    headerSize: 100,
+    headerSize: 200,
     footerSize: 50
   });
 
@@ -134,33 +137,35 @@ function _createLayout() {
   
   this.header = new HeaderView({title: this.options.title});
 
-  this.contents = new ContentView()
+  // this.contents = new ContentView()
 
-  console.log(this.contents)
   this.layout.id["header"].add(this.header);
-  this.layout.id["content"].add(this.contents);
+  // this.layout.id["content"].add(this.contents.scrollview);
+
+  // console.log("LAYOUT CONTENT ", this.contents.scrollview)
   this.layout.id["footer"].add(this.footer);
-  this._add(this.layout)
+
+  this._add(this.layout);
 }
 
-// function _createManyTasks() {
+function _createManyTasks() {
 
-//   this.taskViews = [];
+  this.taskViews = [];
 
-//   this.scrollview = new Scrollview();
-//   this.scrollview.setPosition(0.8);
-//   this.scrollview.sequenceFrom(this.taskViews);
+  this.scrollview = new Scrollview();
+  this.scrollview.setPosition(0.8);
+  this.scrollview.sequenceFrom(this.taskViews);
 
-//   for(var i = 0; i < this.tasks.length; i++) {
-//     if (this.options.title === this.tasks[i].page) {
-//       var newTask = new TaskView({text: this.tasks[i].text});
-//       newTask.pipe(this.scrollview);    
-//       this.taskViews.push(newTask);
-//     }
-//   }
+  for(var i = 0; i < this.tasks.length; i++) {
+    if (this.options.title === this.tasks[i].page) {
+      var newTask = new TaskView({text: this.tasks[i].text});
+      newTask.pipe(this.scrollview);    
+      this.taskViews.push(newTask);
+    }
+  }
 
-//   this._add(this.scrollview);
-// };
+  this._add(this.scrollview);
+};
 
 
 function _createInput() {
@@ -182,6 +187,7 @@ function _setListeners() {
   window.Engine.on('prerender', _completeColorMod.bind(this));
 
 /* ------------------------------------BUTTON LISTENER--------------------------------------------*/
+  
   this.footer.on('hamburger', function(){
     this.togglePosition();
   }.bind(this));
@@ -213,37 +219,9 @@ function _setListeners() {
   // }.bind(this));  
 
 
-  
-  // for(var i = 0; i < this.taskViews.length; i++) {
-  //   _setOneCompleteListener.call(this, this.taskViews[i]);     
-  // }
+ 
     
 };
-
-function _setOneCompleteListener(surface) {
-  surface.on('completed', function() {
-    this.color.set([145, 63, this.lightness], {
-      duration: 250
-    }, function() {
-      Timer.after(function() {
-        this.color.set([145, 63, 100], {
-          duration: 250
-        });      
-      }.bind(this), 7);            
-    }.bind(this));
-  }.bind(this));  
-};
-
-// function _createButton() {
-//   this.buttonView = new Surface({
-//       size: [30, 30],
-//       content: "<img width='40' src='./img/hamburgerOnClear.png'/>"
-//   });
-//   this.buttonModifier = new Modifier({
-//     origin: [0.5, 1]
-//   });
-//   this._add(this.buttonModifier).add(this.buttonView);
-// };
 
 
 

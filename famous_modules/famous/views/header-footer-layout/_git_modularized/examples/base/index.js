@@ -34,7 +34,7 @@ layout.id["footer"].add(new Surface({
     content: "Footer",
     properties: {
         backgroundColor: "#3cf",
-         color: "white"
+        color: "white"
     }
 }));
 

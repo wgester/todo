@@ -12,12 +12,13 @@ function FooterView() {
 FooterView.prototype = Object.create(View.prototype);
 FooterView.prototype.constructor = FooterView;
 
-FooterView.DEFAULT_OPTIONS = {};
+FooterView.DEFAULT_OPTIONS = {
+  classes: ['footer']
+};
 
 function _createButton() {
   this.buttonSurf = new Surface({
-    size: [undefined, undefined],
-    content: "<img width='40' src='./img/hamburgerOnClear.png'/>",
+    content: "<img width='40' height='40' src='./img/hamburgerOnClear.png'/>",
     properties: {
       backgroundColor: 'pink',
       textAlign: 'center'
@@ -33,7 +34,6 @@ function _createButton() {
 
 function _buttonListener() {
   this.buttonSurf.on('touchstart', function() {
-    console.log('touched button in footerview')
     this._eventOutput.emit('hamburger');
   }.bind(this));
 

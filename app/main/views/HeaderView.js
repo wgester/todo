@@ -19,7 +19,6 @@ HeaderView.DEFAULT_OPTIONS = {
 
 function _createTitle() {
   this.titleHeader = new Surface({
-    size: [undefined, 200],
     content: '<h1>' + this.options.title + '</h1>',
     properties: {
       color: 'black',
