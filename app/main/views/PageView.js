@@ -26,6 +26,7 @@ function PageView() {
   _createInput.call(this);
   _createButton.call(this);
   _createManyTasks.call(this);
+  _createHeader.call(this);
   _setListeners.call(this);
   _handlePageToggleTouches.call(this);
 }
@@ -52,8 +53,8 @@ PageView.prototype.slideUp = function() {
 
 PageView.prototype.slideDown = function() {
   this.yPosition.set(0, this.options.transition, function() {
-    this.toggleUpOrDown = 'down';
-  }.bind(this));
+                  this.toggleUpOrDown = 'down';
+                }.bind(this));
   this.options.aboveView && this.options.aboveView.slideUp();
 };
 
@@ -223,7 +224,15 @@ function _setOneCompleteListener(surface) {
   }.bind(this));  
 };
 
-function _createButton() {
+function _createHeader() {
+  // this.headerView = new HeaderView({
+  //   size: [undefined, 30]
+  // });
+  // this.headerModifier = new Modifier({
+  //   origin: [0.5, 1]
+  // });
+  // this._add(this.headerModifier).add(this.headerView);
+
   this.buttonView = new Surface({
       size: [30, 30],
       content: '<img width="40" src="./img/hamburgerOnClear.png"/>'
