@@ -1,15 +1,18 @@
-var Surface        = require('famous/surface');
-var Modifier       = require('famous/modifier');
-var View           = require('famous/view');
-var Transform      = require('famous/transform');
-var Transitionable = require("famous/transitions/transitionable");
-var TaskView       = require('./TaskView');
-var Tasks          = require('./data');
-var GenericSync     = require('famous/input/generic-sync');
-var Transitionable  = require('famous/transitions/transitionable');
-var InputSurface = require('famous/surfaces/input-surface');
-var Timer = require('famous/utilities/timer');
-var Scrollview = require('famous/views/scrollview')
+var Surface           = require("famous/surface");
+var Modifier          = require("famous/modifier");
+var View              = require("famous/view");
+var Transform         = require("famous/transform");
+var Transitionable    = require("famous/transitions/transitionable");
+var TaskSurface       = require("./TaskSurface");
+var Tasks             = require("./data");
+var GenericSync       = require("famous/input/generic-sync");
+var Transitionable    = require("famous/transitions/transitionable");
+var InputSurface      = require("famous/surfaces/input-surface");
+var Timer             = require("famous/utilities/timer");
+var Scrollview        = require("famous/views/scrollview");
+var ContainerSurface  = require("famous/surfaces/container-surface");
+var Draggable         = require('famous/modifiers/draggable');
+var TaskView = require('./TaskView');
 
 function PageView() {
   View.apply(this, arguments);
@@ -122,7 +125,7 @@ function _createBackground() {
 
 function _createTitleLabel() {
   this.titleLabelSurface = new Surface({
-    size: [undefined, true],
+    size: [undefined, 200],
     content: '<h1>' + this.options.title + '</h1>',
     properties: {
       color: 'black',
@@ -130,31 +133,27 @@ function _createTitleLabel() {
     }
   });
   
-  this.titleModifier = new Modifier({
-    origin: [0, 0]
-  });
   
-  this._add(this.titleModifier).add(this.titleLabelSurface);
+  this._add(this.titleLabelSurface);
 };
 
 
 function _createManyTasks() {
 
   this.taskViews = [];
-  this.scrollview = new Scrollview();
 
+  this.scrollview = new Scrollview();
+  this.scrollview.setPosition(0.8);
   this.scrollview.sequenceFrom(this.taskViews);
 
   for(var i = 0; i < this.tasks.length; i++) {
-    if(this.options.title === this.tasks[i].page){
-      var taskView = new TaskView({
-        text: this.tasks[i].text
-      });
-      taskView.pipe(this.scrollview);
-      this.taskViews.push(taskView);
+    if (this.options.title === this.tasks[i].page) {
+      var newTask = new TaskView({text: this.tasks[i].text});
+      newTask.pipe(this.scrollview);    
+      this.taskViews.push(newTask);
     }
-    
   }
+
   this._add(this.scrollview);
 };
 
@@ -171,11 +170,6 @@ function _createInput() {
   this._add(this.inputMod).add(this.inputSurf);
 };
 
-function calculateOffset(tasksLength) {
-  var taskViewOffset = new TaskView().options.taskOffset;
-  return taskViewOffset * (tasksLength+0.5);
-};
-
 var tapped = false; 
 function _setListeners() {  
   window.Engine.on("prerender", _completeColorMod.bind(this));
@@ -186,32 +180,22 @@ function _setListeners() {
       tapped = false;
       this.inputMod.setTransform(Transform.translate(0, 300, -1), {duration: 500});
     } else if (tapped && this.inputSurf.getValue().length){
-      var newTask = {text: this.inputSurf.getValue(), focus: true};
+      var newTask = {text: this.inputSurf.getValue(), page: this.options.title};
       this.tasks.push(newTask);
-            
-      var taskView = new TaskView(newTask);
-      this.taskViews.push(taskView)
-      // var offset = calculateOffset(this.tasks.length);
       
-      // var taskMod = new Modifier({  
-      //   origin: [0, 0.425],
-      //   transform: Transform.translate(0, offset, 0)
-      // });
+      var taskSurf = new TaskSurface(newTask).createTask(newTask.text, newTask.page);
 
-      console.log(this.scrollview)
+      this.taskSurfaces.add(taskSurf)
 
-      _setOneCompleteListener.call(this, taskView);
+      _setOneCompleteListener.call(this, taskSurf);
       this.inputMod.setTransform(Transform.translate(0, 300, -1), {duration: 500});
 
-      // this._add(taskMod).add(taskView);
       this.inputSurf.setValue('');
     
     } else {
       tapped = true;
       this.inputMod.setTransform(Transform.translate(0, 400, 1), {duration: 500});
-  }
-    //   var offset = calculateOffset(this.tasks.length) + 274;
-    //   this.inputMod.setTransform(Transform.translate(0, offset, 0));
+    }
   }.bind(this));  
 
 
@@ -225,8 +209,8 @@ function _setListeners() {
     
 };
 
-function _setOneCompleteListener(view) {
-  view.on('completed', function() {
+function _setOneCompleteListener(surface) {
+  surface.on('completed', function() {
     this.color.set([145, 63, this.lightness], {
       duration: 250
     }, function() {
