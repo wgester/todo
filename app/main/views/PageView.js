@@ -183,10 +183,7 @@ function _setListeners() {
 
 /* ------------------------------------BUTTON LISTENER--------------------------------------------*/
   this.footer.on('hamburger', function(){
-
-    this.buttonSurf = this.footer.buttonSurf
-    console.log('TOUCHED in page view ', this.footer.buttonSurf)
-    this.footer.buttonSurf.togglePosition();
+    this.togglePosition();
   }.bind(this));
 
 /* ------------------------------------NEW TASK LISTENER--------------------------------------------*/
