@@ -3,7 +3,7 @@ var Modifier  = require('famous/modifier');
 var Transform = require('famous/transform');
 var View      = require('famous/view');
 var TouchSync = require("famous/input/touch-sync");
-var Draggrable = require('famous/modifiers/draggable')
+var Draggable = require('famous/modifiers/draggable')
 
 function TaskView() {
   View.apply(this, arguments);
@@ -27,8 +27,9 @@ function _createTask() {
     classes: this.options.classes,
     content: '<p>' + this.options.text + '</p>'
   });
-  // this.taskMod = new Draggrable();
-  this._add(this.taskSurf);
+  this.taskMod = new Draggable();
+  this.taskSurf.pipe(this._eventOutput);
+  this._add(this.taskMod).add(this.taskSurf);
 };
 
 function _setListeners() {

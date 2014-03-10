@@ -12,6 +12,7 @@ var Timer             = require("famous/utilities/timer");
 var Scrollview        = require("famous/views/scrollview");
 var ContainerSurface  = require("famous/surfaces/container-surface");
 var Draggable         = require('famous/modifiers/draggable');
+var TaskView = require('./TaskView');
 
 function PageView() {
   View.apply(this, arguments);
@@ -19,12 +20,10 @@ function PageView() {
   this.lightness = 75;
   this.toggleUpOrDown = 'down';
   this.offPage = false;
-  
   _createBackground.call(this);
   _createTitleLabel.call(this);
   _populateTasks.call(this);
-  // _createInput.call(this);
-  _createCube.call(this);
+  _createInput.call(this);
   _createButton.call(this);
   _createManyTasks.call(this);
   _setListeners.call(this);
@@ -141,61 +140,37 @@ function _createTitleLabel() {
 
 function _createManyTasks() {
 
-  this.taskSurfaces = new ContainerSurface({
-    size: [undefined, 300],
-    properties: {
-      top: this.titleLabelSurface.size[1] + 'px'
-    }
-  });
+  this.taskViews = [];
+
   this.scrollview = new Scrollview();
-  this.scrollview.sequenceFrom(this.taskSurfaces);
+  this.scrollview.setPosition(0.8);
+  this.scrollview.sequenceFrom(this.taskViews);
 
   for(var i = 0; i < this.tasks.length; i++) {
-    if(this.options.title === this.tasks[i].page){
-      var taskSurf = new TaskSurface().createTask(this.tasks[i].text, this.options.title);
-      taskSurf.pipe(this.scrollview);
-      var taskMod = new Draggable();
-      this.taskSurfaces.add(taskMod).add(taskSurf);
-      console.log(this.taskSurfaces)
+    if (this.options.title === this.tasks[i].page) {
+      var newTask = new TaskView({text: this.tasks[i].text});
+      newTask.pipe(this.scrollview);    
+      this.taskViews.push(newTask);
     }
-    
-  };
+  }
 
   this._add(this.scrollview);
 };
 
-function _createCube() {
-  //create container and add it to pageview
-  
-  this.cube = new Surface({
-    size: [100, 100],
-    classes: ['show-front'],
-    properties: {
-      visibility: 'hidden'
-    },
-    content: '<section class="container"> \
-                <div id="box"> \
-                  <div class="front"></div> \
-                  <div class="back"></div> \
-                  <div class="right"></div> \
-                  <div class="left"></div> \
-                  <input type="text" class="top" placeholder="enter text here..."/> \
-                  <div class="bottom"></div> \
-                </div> \
-            </section>'
+function _createInput() {
+  this.inputSurf = new InputSurface({
+    size: [undefined,50],
+    placeholder: 'Enter task here...'
   });
   
-  this.cubeMod = new Modifier({
-    transform: Transform.translate(10, 0, 0)
+  this.inputMod = new Modifier({
+    transform: Transform.translate(0, 300, -1)
   });
-  
-  //add cube to the container
-  this._add(this.cubeMod).add(this.cube);
 
+  this._add(this.inputMod).add(this.inputSurf);
 };
 
 var tapped = false; 
-
 function _setListeners() {  
   window.Engine.on("prerender", _completeColorMod.bind(this));
 
@@ -203,7 +178,7 @@ function _setListeners() {
     
     if(tapped && this.inputSurf.getValue() === ''){
       tapped = false;
-      this.inputMod.setTransform(Transform.multiply(Transform.translate(10, 300, 0), Transform.rotateX(90)), {duration: 1000});
+      this.inputMod.setTransform(Transform.translate(0, 300, -1), {duration: 500});
     } else if (tapped && this.inputSurf.getValue().length){
       var newTask = {text: this.inputSurf.getValue(), page: this.options.title};
       this.tasks.push(newTask);
@@ -220,9 +195,7 @@ function _setListeners() {
     } else {
       tapped = true;
       this.inputMod.setTransform(Transform.translate(0, 400, 1), {duration: 500});
-
     }
-    
   }.bind(this));  
 
 
@@ -230,8 +203,8 @@ function _setListeners() {
     this.togglePosition();
   }.bind(this));
   
-  for(var i = 0; i < this.taskSurfaces.length; i++) {
-    _setOneCompleteListener.call(this, this.taskSurfaces[i]);     
+  for(var i = 0; i < this.taskViews.length; i++) {
+    _setOneCompleteListener.call(this, this.taskViews[i]);     
   }
     
 };
