@@ -3,13 +3,13 @@ var Modifier          = require('famous/modifier');
 var Transform         = require('famous/transform');
 var View              = require('famous/view');
 var Scrollview        = require('famous/views/scrollview');
+
 var TaskView          = require('./TaskView');
 var Tasks             = require('./data');
 
 
 function ContentView() {
   View.apply(this, arguments);
-  _populateTasks.call(this);
   _createTasks.call(this);
 }
 
@@ -19,11 +19,9 @@ ContentView.prototype.constructor = ContentView;
 ContentView.DEFAULT_OPTIONS = {
 };
 
-function _populateTasks() {
-  this.tasks = Tasks;
-};
 
 function _createTasks() {
+  this.tasks = Tasks;
 
   this.taskViews = [];
 
@@ -38,6 +36,8 @@ function _createTasks() {
       this.taskViews.push(newTask);
     }
   }
+
+  console.log(this.scrollview)
 
   this._add(this.scrollview);
 };

@@ -4,7 +4,6 @@ var View              = require('famous/view');
 var Transform         = require('famous/transform');
 var Transitionable    = require('famous/transitions/transitionable');
 var GenericSync       = require('famous/input/generic-sync');
-var Transitionable    = require('famous/transitions/transitionable');
 var InputSurface      = require('famous/surfaces/input-surface');
 var Timer             = require('famous/utilities/timer');
 var Scrollview        = require('famous/views/scrollview');
@@ -104,7 +103,7 @@ function _handlePageToggleTouches() {
 };
 
 PageView.DEFAULT_OPTIONS = {
-  title: 'Tasks',
+  title: 'LATER',
   aboveView: null,
   yPositionToggleThreshold: 250,
   velocityToggleThreshold: 0.75
@@ -114,10 +113,6 @@ function _completeColorMod() {
   this.backgroundSurf.setProperties({
     backgroundColor: 'hsl(145, 63%,' + this.color.get()[2] + '%)'
   });
-};
-
-function _populateTasks() {
-  this.tasks = Tasks;
 };
 
 function _createBackground() {
@@ -130,21 +125,20 @@ function _createBackground() {
 
 
 function _createLayout() {
-  this.footer = new FooterView();
-  
-  this.header = new HeaderView({
-    title: this.options.title
-  });
-
-  this.content = new ContentView()
-
   this.layout = new HeaderFooter({
     headerSize: 100,
     footerSize: 50
   });
 
+  this.footer = new FooterView();
+  
+  this.header = new HeaderView({title: this.options.title});
+
+  this.contents = new ContentView()
+
+  console.log(this.contents)
   this.layout.id["header"].add(this.header);
-  this.layout.id["content"].add(this.content);
+  this.layout.id["content"].add(this.contents);
   this.layout.id["footer"].add(this.footer);
   this._add(this.layout)
 }
@@ -184,13 +178,17 @@ function _createInput() {
 
 var tapped = false; 
 function _setListeners() {  
+
   window.Engine.on('prerender', _completeColorMod.bind(this));
-  console.log(this.footer.buttonView)
+
 /* ------------------------------------BUTTON LISTENER--------------------------------------------*/
   this.footer.on('hamburger', function(){
-    console.log('TOUCHED in page view')
-    this.buttonView.togglePosition();
-  });
+
+    this.buttonSurf = this.footer.buttonSurf
+    console.log('TOUCHED in page view ', this.footer.buttonSurf)
+    this.footer.buttonSurf.togglePosition();
+  }.bind(this));
+
 /* ------------------------------------NEW TASK LISTENER--------------------------------------------*/
 
   // this.backgroundSurf.on('touchstart', function(){
@@ -239,16 +237,16 @@ function _setOneCompleteListener(surface) {
   }.bind(this));  
 };
 
-function _createButton() {
-  this.buttonView = new Surface({
-      size: [30, 30],
-      content: "<img width='40' src='./img/hamburgerOnClear.png'/>"
-  });
-  this.buttonModifier = new Modifier({
-    origin: [0.5, 1]
-  });
-  this._add(this.buttonModifier).add(this.buttonView);
-};
+// function _createButton() {
+//   this.buttonView = new Surface({
+//       size: [30, 30],
+//       content: "<img width='40' src='./img/hamburgerOnClear.png'/>"
+//   });
+//   this.buttonModifier = new Modifier({
+//     origin: [0.5, 1]
+//   });
+//   this._add(this.buttonModifier).add(this.buttonView);
+// };
 
 
 
