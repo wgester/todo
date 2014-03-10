@@ -24,7 +24,7 @@ function PageView() {
   _createTitleLabel.call(this);
   _populateTasks.call(this);
   _createInput.call(this);
-  _createButton.call(this);
+  // _createButton.call(this);
   _createManyTasks.call(this);
   _createHeader.call(this);
   _setListeners.call(this);
