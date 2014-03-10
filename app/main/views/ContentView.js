@@ -11,6 +11,7 @@ var Timer             = require('famous/utilities/timer');
 
 function ContentView() {
   View.apply(this, arguments);
+  this.lightness = 75;
 
   this.color = new Transitionable([360, 100, 100]);
   _createBackground.call(this);
@@ -57,6 +58,8 @@ function _createTasks() {
     newTask.pipe(this.scrollview);    
     this.taskViews.push(newTask);
   }
+
+  console.log(this.scrollview)
 
   this._add(this.scrollview);
 };

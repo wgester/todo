@@ -18,7 +18,6 @@ var ContentView       = require('./ContentView');
 
 function PageView() {
   View.apply(this, arguments);
-  this.lightness = 75;
   
   this.toggleUpOrDown = 'down';
   this.offPage = false;
@@ -105,9 +104,10 @@ PageView.DEFAULT_OPTIONS = {
 };
 
 
+
 function _createLayout() {
   this.layout = new HeaderFooter({
-    headerSize: 200,
+    headerSize: 100,
     footerSize: 50
   });
 
@@ -117,28 +117,8 @@ function _createLayout() {
 
   this.contents = new ContentView()
 
-  this.layout.id["header"].add(Utility.transformInFront).add(this.header);
-
-  this.layout.id["content"].add(this.contents);
-
-  this.layout.id["footer"].add(Utility.transformInFront).add(this.footer);
-};
-
-
-function _createLayout() {
-  this.footer = new FooterView();
-  
-  this.header = new HeaderView({title: this.options.title});
-
-  this.content = new ContentView()
-
-  this.layout = new HeaderFooter({
-    headerSize: 100,
-    footerSize: 50
-  });
-
   this.layout.id["header"].add(this.header);
-  this.layout.id["content"].add(this.content);
+  this.layout.id["content"].add(this.contents);
   this.layout.id["footer"].add(this.footer);
   this._add(this.layout)
 }
@@ -160,22 +140,17 @@ function _createInput() {
   this._add(this.inputMod).add(this.inputSurf);
 };
 
-var tapped = false; 
 function _setListeners() {  
 
+  window.Engine.on('prerender', _completeColorMod.bind(this));
 
 /* ------------------------------------BUTTON LISTENER--------------------------------------------*/
-  
   this.footer.on('hamburger', function(){
-    this.togglePosition();
+
+    this.buttonSurf = this.footer.buttonSurf
+    this.footer.buttonSurf.togglePosition();
   }.bind(this));
 
-/* ------------------------------------NEW TASK LISTENER--------------------------------------------*/
-    
 };
-
-
-
-
 
 module.exports = PageView;
