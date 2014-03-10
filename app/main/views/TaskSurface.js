@@ -1,24 +1,23 @@
-var Surface   = require('famous/surface');
-var Modifier  = require('famous/modifier');
-var Transform = require('famous/transform');
-var TouchSync = require("famous/input/touch-sync");
+var Surface     = require('famous/surface');
+var Context     = require('famous/context');
+var Modifier    = require('famous/modifier');
+var Transform   = require('famous/transform');
+var TouchSync   = require("famous/input/touch-sync");
 
-function TaskSurface (options) {
-  Surface.apply(this, arguments);
-  _setListeners.call(this);
-}
+function TaskSurface(options) {
+    Surface.call(this, options);
+    _setListeners.call(this);
+};
 
 TaskSurface.prototype = Object.create(Surface.prototype);
-TaskSurface.prototype.elementClass = 'task';
-
+TaskSurface.prototype.constructor = TaskSurface;
 
 TaskSurface.prototype.createTask = function(text, page){
   this.size = [undefined, 40];
   this.page = page;
   this.content = '<p>' + text + '</p>';
-
   return this;
-}
+};
 
 function _setListeners() {
   var position = {x: 0, y: 0};  
@@ -40,14 +39,10 @@ function _setListeners() {
 
   touchSync.on('end', function(data) {
     if (position.x > 5) {
-      console.log('TOOOOOOOOUUCHED')
-      this._eventOutput.emit('completed');
-      // this.taskMod.setTransform(Transform.translate(500, 0, 0), {duration: 500, curve: 'easeOut'});
-    } else if (position.x < -5) {
-      console.log('TOOOOOOOOUUCHED')
+      this.setProperties({backgroundColor: 'green'});
 
+    } else if (position.x < -5) {
       this.setProperties({backgroundColor: 'pink'});
-      // this.taskMod.setTransform(Transform.translate(-500, 0, 0), {duration: 500, curve: 'easeOut'});            
     }
   }.bind(this));
 };

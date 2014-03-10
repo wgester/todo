@@ -1,18 +1,18 @@
-var Surface           = require("famous/surface");
-var Modifier          = require("famous/modifier");
-var View              = require("famous/view");
-var Transform         = require("famous/transform");
-var Transitionable    = require("famous/transitions/transitionable");
-var TaskSurface       = require("./TaskSurface");
-var Tasks             = require("./data");
-var GenericSync       = require("famous/input/generic-sync");
-var Transitionable    = require("famous/transitions/transitionable");
-var InputSurface      = require("famous/surfaces/input-surface");
-var Timer             = require("famous/utilities/timer");
-var Scrollview        = require("famous/views/scrollview");
-var ContainerSurface  = require("famous/surfaces/container-surface");
+var Surface           = require('famous/surface');
+var Modifier          = require('famous/modifier');
+var View              = require('famous/view');
+var Transform         = require('famous/transform');
+var Transitionable    = require('famous/transitions/transitionable');
+var GenericSync       = require('famous/input/generic-sync');
+var Transitionable    = require('famous/transitions/transitionable');
+var InputSurface      = require('famous/surfaces/input-surface');
+var Timer             = require('famous/utilities/timer');
+var Scrollview        = require('famous/views/scrollview');
 var Draggable         = require('famous/modifiers/draggable');
-var TaskView = require('./TaskView');
+var HeaderFooter      = require('famous/views/header-footer-layout');
+var Tasks             = require('./data');
+var TaskView          = require('./TaskView');
+var HeaderView        = require('./HeaderView');
 
 function PageView() {
   View.apply(this, arguments);
@@ -28,8 +28,9 @@ function PageView() {
   _createManyTasks.call(this);
   _setListeners.call(this);
   _handlePageToggleTouches.call(this);
-}
 
+}
+// PAGE VIEW TO HAVE HEADER, FOOTER, CONTENT VIEW
 PageView.prototype = Object.create(View.prototype);
 PageView.prototype.constructor = PageView;
 
@@ -107,7 +108,7 @@ PageView.DEFAULT_OPTIONS = {
 
 function _completeColorMod() {
   this.backgroundSurf.setProperties({
-    backgroundColor: "hsl(145, 63%," + this.color.get()[2] + "%)"
+    backgroundColor: 'hsl(145, 63%,' + this.color.get()[2] + '%)'
   });
 };
 
@@ -124,16 +125,7 @@ function _createBackground() {
 };
 
 function _createTitleLabel() {
-  this.titleLabelSurface = new Surface({
-    size: [undefined, 200],
-    content: '<h1>' + this.options.title + '</h1>',
-    properties: {
-      color: 'black',
-      fontSize: '2.5em'
-    }
-  });
-  
-  
+  this.titleLabelSurface = new HeaderView({title: this.options.title})
   this._add(this.titleLabelSurface);
 };
 
@@ -157,6 +149,7 @@ function _createManyTasks() {
   this._add(this.scrollview);
 };
 
+
 function _createInput() {
   this.inputSurf = new InputSurface({
     size: [undefined,50],
@@ -172,7 +165,7 @@ function _createInput() {
 
 var tapped = false; 
 function _setListeners() {  
-  window.Engine.on("prerender", _completeColorMod.bind(this));
+  window.Engine.on('prerender', _completeColorMod.bind(this));
 
   this.backgroundSurf.on('touchstart', function(){
     
@@ -183,7 +176,7 @@ function _setListeners() {
       var newTask = {text: this.inputSurf.getValue(), page: this.options.title};
       this.tasks.push(newTask);
       
-      var taskSurf = new TaskSurface(newTask).createTask(newTask.text, newTask.page);
+      var taskSurf = new TaskView(newTask).createTask(newTask.text, newTask.page);
 
       this.taskSurfaces.add(taskSurf)
 
@@ -226,12 +219,16 @@ function _setOneCompleteListener(surface) {
 function _createButton() {
   this.buttonView = new Surface({
       size: [30, 30],
-      content: '<img width="40" src="./img/hamburgerOnClear.png"/>'
+      content: "<img width='40' src='./img/hamburgerOnClear.png'/>"
   });
   this.buttonModifier = new Modifier({
     origin: [0.5, 1]
   });
   this._add(this.buttonModifier).add(this.buttonView);
 };
+
+
+
+
 
 module.exports = PageView;

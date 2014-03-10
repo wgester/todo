@@ -39,7 +39,7 @@ AppView.DEFAULT_OPTIONS = {
 
 function _createTodayView() {
   this.todayView = new PageView({
-    title: 'Today',
+    title: 'TODAY',
     aboveView: this.focusView,
     transition: this.options.transition
   });
@@ -52,7 +52,7 @@ function _createTodayView() {
 
 function _createFocusView() {
   this.focusView = new PageView({
-    title: 'Focus',
+    title: 'FOCUS',
     transition: this.options.transition
   });
   this.focusMod = new Modifier();
