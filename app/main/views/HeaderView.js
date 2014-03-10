@@ -1,6 +1,7 @@
 var Surface   = require('famous/surface');
 var Modifier  = require('famous/modifier');
 var Transform = require('famous/transform');
+var View      = require('famous/view');
 
 function HeaderView() {
   View.apply(this, arguments);
