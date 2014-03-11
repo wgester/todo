@@ -9,6 +9,8 @@ var Timer             = require('famous/utilities/timer');
 var Scrollview        = require('famous/views/scrollview');
 var Draggable         = require('famous/modifiers/draggable');
 var HeaderFooter      = require('famous/views/header-footer-layout');
+var Utility           = require('famous/utilities/utility');
+
 var Tasks             = require('./data');
 var TaskView          = require('./TaskView');
 var HeaderView        = require('./HeaderView');
@@ -17,17 +19,15 @@ var ContentView       = require('./ContentView');
 
 function PageView() {
   View.apply(this, arguments);
-  this.color = new Transitionable([360, 100, 100]);
   this.lightness = 75;
   
   
   this.toggleUpOrDown = 'down';
   this.offPage = false;
-  _createBackground.call(this);
   _createLayout.call(this);
-  _populateTasks.call(this);
+  // _populateTasks.call(this);
   _createInput.call(this);
-  _createManyTasks.call(this);
+  // _createManyTasks.call(this);
   _setListeners.call(this);
   _handlePageToggleTouches.call(this);
 
@@ -112,20 +112,6 @@ PageView.DEFAULT_OPTIONS = {
   velocityToggleThreshold: 0.75
 };
 
-function _completeColorMod() {
-  this.backgroundSurf.setProperties({
-    backgroundColor: 'hsl(145, 63%,' + this.color.get()[2] + '%)'
-  });
-};
-
-function _createBackground() {
-  this.backgroundSurf = new Surface({
-    size: [undefined, undefined]
-  });
-  this.backgroundModifier = new Modifier();
-  this._add(this.backgroundModifier).add(this.backgroundSurf);
-};
-
 
 function _createLayout() {
   this.layout = new HeaderFooter({
@@ -137,36 +123,16 @@ function _createLayout() {
   
   this.header = new HeaderView({title: this.options.title});
 
-  // this.contents = new ContentView()
+  this.contents = new ContentView()
 
-  this.layout.id["header"].add(this.header);
-  // this.layout.id["content"].add(this.contents.scrollview);
+  this.layout.id["header"].add(Utility.transformInFront).add(this.header);
 
-  // console.log("LAYOUT CONTENT ", this.contents.scrollview)
-  this.layout.id["footer"].add(this.footer);
+  this.layout.id["content"].add(this.contents);
+
+  this.layout.id["footer"].add(Utility.transformInFront).add(this.footer);
 
   this._add(this.layout);
 }
-
-function _createManyTasks() {
-
-  this.taskViews = [];
-
-  this.scrollview = new Scrollview();
-  this.scrollview.setPosition(0.8);
-  this.scrollview.sequenceFrom(this.taskViews);
-
-  for(var i = 0; i < this.tasks.length; i++) {
-    if (this.options.title === this.tasks[i].page) {
-      var newTask = new TaskView({text: this.tasks[i].text});
-      newTask.pipe(this.scrollview);    
-      this.taskViews.push(newTask);
-    }
-  }
-
-  this._add(this.scrollview);
-};
-
 
 function _createInput() {
   this.inputSurf = new InputSurface({
@@ -184,7 +150,6 @@ function _createInput() {
 var tapped = false; 
 function _setListeners() {  
 
-  window.Engine.on('prerender', _completeColorMod.bind(this));
 
 /* ------------------------------------BUTTON LISTENER--------------------------------------------*/
   
