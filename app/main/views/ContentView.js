@@ -23,13 +23,14 @@ ContentView.prototype = Object.create(View.prototype);
 ContentView.prototype.constructor = ContentView;
 
 ContentView.DEFAULT_OPTIONS = {
-  classes: ['content']
+  classes: ['contents']
 };
 
 function _createBackground() {
   this.backgroundSurf = new Surface({
     size: [undefined, undefined]
   });
+
   this.backgroundModifier = new Modifier();
   this._add(this.backgroundModifier).add(this.backgroundSurf);
 };

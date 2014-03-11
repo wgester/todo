@@ -27,7 +27,7 @@ function _createTitle() {
     }
   });
   this._add(this.titleHeader);  
-}
+};
 
 
 module.exports = HeaderView;

@@ -36,7 +36,6 @@ function _buttonListener() {
   this.buttonSurf.on('touchstart', function() {
     this._eventOutput.emit('hamburger');
   }.bind(this));
-
-}
+};
 
 module.exports = FooterView;

@@ -25,14 +25,12 @@ function PageView() {
   this.toggleUpOrDown = 'down';
   this.offPage = false;
   _createLayout.call(this);
-  // _populateTasks.call(this);
   _createInput.call(this);
-  // _createManyTasks.call(this);
   _setListeners.call(this);
   _handlePageToggleTouches.call(this);
 
 }
-// PAGE VIEW TO HAVE HEADER, FOOTER, CONTENT VIEW
+
 PageView.prototype = Object.create(View.prototype);
 PageView.prototype.constructor = PageView;
 
