@@ -2,7 +2,6 @@ var Surface = require('famous/surface');
 var Modifier      = require('famous/modifier');
 var Transform     = require('famous/transform');
 var View           = require('famous/view');
-var ContainerSurface  = require("famous/surfaces/container-surface");
 var InputSurface      = require("famous/surfaces/input-surface");
 
 
@@ -75,6 +74,4 @@ Box.DEFAULT_OPTIONS = {
 };
 
 Box.prototype = Object.create(View.prototype);
-
-
 module.exports = Box;

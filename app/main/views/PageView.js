@@ -15,8 +15,6 @@ var TaskView          = require('./TaskView');
 var HeaderView        = require('./HeaderView');
 var FooterView        = require('./FooterView');
 var ContentView       = require('./ContentView');
-var Box = require('./BoxView');
-var BoxContainer = require('./BoxContainer');
 
 function PageView() {
   View.apply(this, arguments);
@@ -24,8 +22,6 @@ function PageView() {
   this.toggleUpOrDown = 'down';
   this.offPage = false;
   _createLayout.call(this);
-  _createInput.call(this);
-  _createButton.call(this);
   _setListeners.call(this);
   _handlePageToggleTouches.call(this);
 }
@@ -129,55 +125,15 @@ function _createLayout() {
   this.layout.id["footer"].add(Utility.transformInFront).add(this.footer);
 
   this._add(this.layout);
-}
-
-function _setListeners() {  
-  window.Engine.on("prerender", _completeColorMod.bind(this));
-
-  _setInputListener.call(this);
-  
-  for(var i = 0; i < this.taskViews.length; i++) {
-    _setOneCompleteListener.call(this, this.taskViews[i]);     
-  }  
 };
+
 /* ------------------------------------BUTTON LISTENER--------------------------------------------*/
-  
+function _setListeners() {
   this.footer.on('hamburger', function(){
     this.togglePosition();
-  }.bind(this));
-
-};
-
-function _createInput() {
-  this.boxContainer = new BoxContainer();
-  this._add(this.boxContainer);
-};
-
-
-function _setInputListener() {
-  this.backgroundSurf.on('touchstart', function(e) {
-    this.inputToggled = !this.inputToggled;
-    var value = this.boxContainer.inputSurf.getValue();
-    this.boxContainer.inputSurf.setValue('');
-    
-    if (this.inputToggled) {
-      this.boxContainer.frontSurf.setProperties({'visibility': 'visible'})
-      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [0, 300, 150]), {duration: 300});      
-    } else if (!this.inputToggled && value.length) {
-      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [0, 250, 150]), {duration: 300}, function() {
-        var newTask = new TaskView({text: value});
-        newTask.pipe(this.scrollview);    
-        this.taskViews.push(newTask);        
-        this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
-      }.bind(this));
-    } else {
-      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [0, 250, 150]), {duration: 300}, function() {
-        this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
-      }.bind(this));
-    }
   }.bind(this));  
-  
 };
+
 
 
 module.exports = PageView;
