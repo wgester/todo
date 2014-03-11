@@ -169,12 +169,12 @@ function _setInputListener() {
       this.frontSurf.setProperties({'visibility': 'visible'})
       this.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [50, 300, 150]), {duration: 300});      
     } else if (!this.inputToggled && value.length) {
-      this.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [50, 200, 250]), {duration: 300}, function() {
+      this.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [50, 200, 150]), {duration: 300}, function() {
         var newTask = new TaskView({text: value});
         newTask.pipe(this.scrollview);    
         this.taskViews.push(newTask);        
         this.frontSurf.setProperties({'visibility': 'hidden'});
-      });
+      }.bind(this));
     } else {
       this.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [50, 200, 150]), {duration: 300}, function() {
         this.frontSurf.setProperties({'visibility': 'hidden'});
