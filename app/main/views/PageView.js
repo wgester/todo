@@ -22,7 +22,6 @@ function PageView() {
   this.toggleUpOrDown = 'down';
   this.offPage = false;
   _createLayout.call(this);
-  _createInput.call(this);
   _setListeners.call(this);
   _handlePageToggleTouches.call(this);
 }
@@ -126,31 +125,15 @@ function _createLayout() {
   this.layout.id["footer"].add(Utility.transformInFront).add(this.footer);
 
   this._add(this.layout);
-}
-
-function _createInput() {
-  this.inputSurf = new InputSurface({
-    size: [undefined,50],
-    placeholder: 'Enter task here...'
-  });
-  
-  this.inputMod = new Modifier({
-    transform: Transform.translate(0, 300, -1)
-  });
-
-  this._add(this.inputMod).add(this.inputSurf);
 };
-
-function _setListeners() {  
-
 
 /* ------------------------------------BUTTON LISTENER--------------------------------------------*/
-  
+function _setListeners() {
   this.footer.on('hamburger', function(){
     this.togglePosition();
-  }.bind(this));
-
+  }.bind(this));  
 };
+
 
 
 module.exports = PageView;

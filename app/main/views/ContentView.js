@@ -6,7 +6,8 @@ var Scrollview        = require('famous/views/scrollview');
 var Transitionable    = require('famous/transitions/transitionable');
 var TaskView          = require('./TaskView');
 var Tasks             = require('./data');
-
+var Box               = require('./BoxView');
+var BoxContainer      = require('./BoxContainer');
 var Timer             = require('famous/utilities/timer');
 
 function ContentView() {
@@ -15,10 +16,10 @@ function ContentView() {
 
   this.color = new Transitionable([360, 100, 100]);
   _createBackground.call(this);
-
   _createTasks.call(this);
+  _createInput.call(this);
   _taskListeners.call(this);
-}
+};
 
 ContentView.prototype = Object.create(View.prototype);
 ContentView.prototype.constructor = ContentView;
@@ -44,7 +45,10 @@ function _completeColorMod() {
   });
 };
 
-
+function _createInput() {
+  this.boxContainer = new BoxContainer();
+  // this.taskViews.push(this.boxContainer);
+};
 
 function _createTasks() {
   this.tasks = Tasks;
@@ -67,10 +71,37 @@ function _createTasks() {
 
 function _taskListeners() {
   window.Engine.on('prerender', _completeColorMod.bind(this));
+  _setInputListener.call(this);
 
   for(var i = 0; i < this.taskViews.length; i++) {
     _setOneCompleteListener.call(this, this.taskViews[i]);     
   }
+};
+
+function _setInputListener() {
+  this.backgroundSurf.on('touchstart', function(e) {
+    this.inputToggled = !this.inputToggled;
+    var value = this.boxContainer.inputSurf.getValue();
+    this.boxContainer.inputSurf.setValue('');
+    
+    if (this.inputToggled) {
+      this.boxContainer.frontSurf.setProperties({'visibility': 'visible'})
+      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [0, 200, 150]), {duration: 300});      
+    } else if (!this.inputToggled && value.length) {
+      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [0, 150, 150]), {duration: 300}, function() {
+        var newTask = new TaskView({text: value});
+        newTask.pipe(this.scrollview);    
+        this.taskViews.push(newTask);        
+        this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
+      }.bind(this));
+    } else {
+      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [0, 150, 150]), {duration: 300}, function() {
+        this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
+      }.bind(this));
+    }
+  }.bind(this));  
+  
+};
 
 function _setOneCompleteListener(surface) {
   surface.on('completed', function() {
@@ -80,12 +111,11 @@ function _setOneCompleteListener(surface) {
       Timer.after(function() {
         this.color.set([145, 63, 100], {
           duration: 250
-        });      
+        }, function() {});      
       }.bind(this), 7);            
     }.bind(this));
   }.bind(this));  
 };
 
-}
 
 module.exports = ContentView;
