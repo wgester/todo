@@ -11,6 +11,7 @@ var Timer             = require('famous/utilities/timer');
 
 function ContentView() {
   View.apply(this, arguments);
+  this.lightness = 75;
 
   this.color = new Transitionable([360, 100, 100]);
   _createBackground.call(this);
@@ -23,6 +24,7 @@ ContentView.prototype = Object.create(View.prototype);
 ContentView.prototype.constructor = ContentView;
 
 ContentView.DEFAULT_OPTIONS = {
+  title: 'later',
   classes: ['contents']
 };
 
@@ -53,9 +55,11 @@ function _createTasks() {
   this.scrollview.sequenceFrom(this.taskViews);
 
   for(var i = 0; i < this.tasks.length; i++) {
-    var newTask = new TaskView({text: this.tasks[i].text});
-    newTask.pipe(this.scrollview);    
-    this.taskViews.push(newTask);
+    if(this.options.title === this.tasks[i].page){
+      var newTask = new TaskView({text: this.tasks[i].text});
+      newTask.pipe(this.scrollview);    
+      this.taskViews.push(newTask);
+    }
   }
 
   this._add(this.scrollview);

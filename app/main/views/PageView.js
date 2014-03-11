@@ -63,9 +63,6 @@ PageView.prototype.slideUpOffPage = function() {
   }.bind(this));
 };
 
-function _populateTasks(){
-  this.tasks = Tasks;
-}
 
 function _handlePageToggleTouches() {
   this.yPosition = new Transitionable(0);
@@ -120,7 +117,7 @@ function _createLayout() {
   
   this.header = new HeaderView({title: this.options.title});
 
-  this.contents = new ContentView()
+  this.contents = new ContentView({title: this.options.title})
 
   this.layout.id["header"].add(Utility.transformInFront).add(this.header);
 
