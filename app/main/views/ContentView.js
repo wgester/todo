@@ -35,22 +35,6 @@ function _createBackground() {
   this._add(this.backgroundModifier).add(this.backgroundSurf);
 };
 
-function _createBackground() {
-  this.backgroundSurf = new Surface({
-    size: [undefined, undefined]
-  });
-  this.backgroundModifier = new Modifier();
-  this._add(this.backgroundModifier).add(this.backgroundSurf);
-};
-
-
-function _completeColorMod() {
-  this.backgroundSurf.setProperties({
-    backgroundColor: 'hsl(145, 63%,' + this.color.get()[2] + '%)'
-  });
-};
-
-
 
 function _completeColorMod() {
   this.backgroundSurf.setProperties({

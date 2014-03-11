@@ -38,18 +38,4 @@ function _buttonListener() {
   }.bind(this));
 };
 
-  this.buttonModifier = new Modifier({
-    origin: [0.5, 1]
-  });
-
-  this._add(this.buttonModifier).add(this.buttonSurf);
-};
-
-function _buttonListener() {
-  this.buttonSurf.on('touchstart', function() {
-    this._eventOutput.emit('hamburger');
-  }.bind(this));
-
-}
-
 module.exports = FooterView;
