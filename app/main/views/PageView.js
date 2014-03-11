@@ -24,6 +24,7 @@ function PageView() {
   _createLayout.call(this);
   _setListeners.call(this);
   _handlePageToggleTouches.call(this);
+  this.pipe(this._eventOutput);
 }
 
 PageView.prototype = Object.create(View.prototype);
@@ -49,7 +50,7 @@ PageView.prototype.slideUp = function() {
 
 PageView.prototype.slideDown = function() {
   this._eventOutput.emit('slideDown');
-  this.yPosition.set(0, this.options.transition, function() {
+  this.yPosition.set(0, this.options.wall, function() {
                   this.toggleUpOrDown = 'down';
                 }.bind(this));
   this.options.aboveView && this.options.aboveView.slideUp();
