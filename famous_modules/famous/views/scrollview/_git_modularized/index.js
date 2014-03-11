@@ -394,7 +394,7 @@ Scrollview.prototype.getCurrentNode = function() {
 }
 
 Scrollview.prototype.sequenceFrom = function(node) {
-    if(node instanceof Array) node = new ViewSequence(node);
+    if(node instanceof Array) node = new ViewSequence({array: node});
     this.node = node;
     this._lastFrameNode = node;
 }

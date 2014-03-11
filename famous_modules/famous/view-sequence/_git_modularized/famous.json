@@ -9,7 +9,7 @@
         "url" : "https://github.com/Famous/famous.git"
     },
     "keywords": [],
-    "dependencies": {},
+    "dependencies": {"famous/options-manager": "git+ssh://git@github.com:Famous/famous.git#modularized"},
     "scripts": [
         "index.js"
     ]
