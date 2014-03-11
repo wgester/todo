@@ -19,7 +19,7 @@ function ContentView() {
   _createTasks.call(this);
   _createInput.call(this);
   _taskListeners.call(this);
-}
+};
 
 ContentView.prototype = Object.create(View.prototype);
 ContentView.prototype.constructor = ContentView;
@@ -47,7 +47,7 @@ function _completeColorMod() {
 
 function _createInput() {
   this.boxContainer = new BoxContainer();
-  this._add(this.boxContainer);
+  // this.taskViews.push(this.boxContainer);
 };
 
 function _createTasks() {
