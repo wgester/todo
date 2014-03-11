@@ -60,12 +60,9 @@ PageView.prototype.slideUpOffPage = function() {
   }.bind(this));
 };
 
-<<<<<<< HEAD
-=======
 function _populateTasks(){
   this.tasks = Tasks;
 }
->>>>>>> scrollview not showing up in layout.id['content']
 
 function _handlePageToggleTouches() {
   this.yPosition = new Transitionable(0);
@@ -110,8 +107,7 @@ PageView.DEFAULT_OPTIONS = {
 };
 
 
-
-function _createLayout() {
+ffunction _createLayout() {
   this.layout = new HeaderFooter({
     headerSize: 200,
     footerSize: 50
@@ -132,7 +128,6 @@ function _createLayout() {
   this._add(this.layout);
 }
 
-
 function _createInput() {
   this.inputSurf = new InputSurface({
     size: [undefined,50],
@@ -148,7 +143,6 @@ function _createInput() {
 
 function _setListeners() {  
 
-  window.Engine.on('prerender', _completeColorMod.bind(this));
 
 /* ------------------------------------BUTTON LISTENER--------------------------------------------*/
   
