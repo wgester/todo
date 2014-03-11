@@ -156,12 +156,11 @@ function _setListeners() {
 
 function _createInput() {
   this.box = new Box();
-  this.boxMod = new Modifier({
-    transform: Transform.move(Transform.rotate(0, 0, 0), [50, 200, 150])
-  });
-  this.inputSurf = this.box.getInput();
-  // this.taskViews.push(this.box);
-  this._add(this.boxMod).add(this.box);
+  this.boxMod = new Modifier();
+  this.boxPosition.set([0, 0, 0, 50, 200, 150], {duration: 300}, function() {
+    this.inputSurf = this.box.getInput();
+    this._add(this.boxMod).add(this.box);        
+  }.bind(this));
 };
 
 
