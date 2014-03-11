@@ -159,6 +159,7 @@ function _bindEvents() {
     this.eventInput.on('start', _handleStart.bind(this));
     this.eventInput.on('update', _handleMove.bind(this));
     this.eventInput.on('end', _handleEnd.bind(this));
+    this.eventInput.on('editmodeOn', (function(){this._earlyEnd = true}).bind(this));
 }
 
 function _attachAgents() {

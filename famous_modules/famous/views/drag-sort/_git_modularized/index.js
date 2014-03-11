@@ -2,28 +2,32 @@ var ViewSequence   = require('famous/view-sequence');
 var Draggable      = require('famous/modifiers/draggable');
 var Modifier       = require('famous/modifier');
 var EventHandler   = require('famous/event-handler');
-var Transform      = require('famous/transform');
+var Matrix      = require('famous/transform');
 var Utility        = require('famous/utilities/utility');
 var OptionsManager = require('famous/options-manager');
 
 function DragSort(options) {
     ViewSequence.apply(this, arguments);
-    this.optionsManager = new OptionsManager();
 
-    this.optionsManager.patch(Object.create(DragSort.DEFAULT_OPTIONS));
-    this.optionsManager.patch(options);
+    this._optionsManager.patch(Object.create(DragSort.DEFAULT_OPTIONS));
+    this._optionsManager.patch(options);
 
-    this.modifier    = new Modifier();
-    this.draggable   = new Draggable(this.options.draggable);
+    this.modifier     = new Modifier();
+    this.draggable    = new Draggable(this.options.draggable);
 
-    this.eventInput.pipe(this.eventOutput);
-    this.eventOutput.pipe(this.draggable);
-    this.draggable.pipe(this.eventInput);
+    this._eventInput  = new EventHandler();
+    this._eventOutput = new EventHandler();
+    this._dragEvents  = new EventHandler();
+
+    EventHandler.setInputHandler(this, this._eventInput);
+    EventHandler.setOutputHandler(this, this._eventOutput);
+
+    this._eventInput.pipe(this.draggable);
+    this.draggable.pipe(this._dragEvents);
 
     bindEvents.call(this);
 
-    this.size                          = this.options.size;
-    this.projection                    = (this.options.draggable.projection === 'y') ? 1 : 0;
+    this.projection = (this.options.draggable.projection === 'y') ? 1 : 0;
 
     initializeDragMemory.call(this);
 
@@ -50,11 +54,11 @@ function initializeDragMemory() {
 }
 
 function bindEvents() {
-    this.eventInput.on('editmodeOn', this.activate.bind(this));
-    this.eventInput.on('editmodeOff', this.deactivate.bind(this));
-    this.eventInput.on('dragstart', handleDragStart.bind(this));
-    this.eventInput.on('dragmove', handleDragMove.bind(this));
-    this.eventInput.on('dragend', handleDragEnd.bind(this));
+    this._eventInput.on('editmodeOn', this.activate.bind(this));
+    this._eventInput.on('editmodeOff', this.deactivate.bind(this));
+    this._dragEvents.on('dragstart', handleDragStart.bind(this));
+    this._dragEvents.on('dragmove', handleDragMove.bind(this));
+    this._dragEvents.on('dragend', handleDragEnd.bind(this));
 }
 
 function handleDragStart() {
@@ -86,14 +90,14 @@ function dragIsAForwardSwap() {
 }
 
 function forwardSwap() {
-    this.eventOutput.emit('swap', {
-            swapper: {
-                index: this.index
-            },
-            swappee: {
-                index: this.index + 1
-            }
-        });
+    this._eventOutput.emit('swap', {
+        swapper: {
+            index: this.index
+        },
+        swappee: {
+            index: this.index + 1
+        }
+    });
 
     var adjustedPosition = [0, 0];
 
@@ -114,7 +118,7 @@ function dragIsABackwardSwap() {
 }
 
 function backwardSwap() {
-    this.eventOutput.emit('swap', {
+    this._eventOutput.emit('swap', {
         swapper: {
             index: this.index
         },
@@ -132,21 +136,20 @@ function backwardSwap() {
 
 function handleDragEnd() {
     this.dragging = false;
-    this.modifier.setTransform(Transform.Identity);
+    this.modifier.setTransform(Matrix.Identity);
     initializeDragMemory.call(this);
 }
 
 DragSort.prototype = Object.create(ViewSequence.prototype);
+DragSort.prototype.constructor = DragSort;
 
 DragSort.prototype.activate = function() {
-    this.eventInput.unpipe(this.eventOutput);
     this.activated = true;
     this.draggable.activate();
     return this;
 };
 
 DragSort.prototype.deactivate = function() {
-    this.eventInput.pipe(this.eventOutput);
     this.activated = false;
     this.draggable.deactivate();
     return this;
