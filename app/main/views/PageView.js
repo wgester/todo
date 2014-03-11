@@ -6,7 +6,6 @@ var Transitionable    = require('famous/transitions/transitionable');
 var GenericSync       = require('famous/input/generic-sync');
 var InputSurface      = require('famous/surfaces/input-surface');
 var Timer             = require('famous/utilities/timer');
-var Scrollview        = require('famous/views/scrollview');
 var Draggable         = require('famous/modifiers/draggable');
 var HeaderFooter      = require('famous/views/header-footer-layout');
 var Utility           = require('famous/utilities/utility');
@@ -21,14 +20,12 @@ function PageView() {
   View.apply(this, arguments);
   this.lightness = 75;
   
-  
   this.toggleUpOrDown = 'down';
   this.offPage = false;
   _createLayout.call(this);
   _createInput.call(this);
   _setListeners.call(this);
   _handlePageToggleTouches.call(this);
-
 }
 
 PageView.prototype = Object.create(View.prototype);
@@ -64,9 +61,6 @@ PageView.prototype.slideUpOffPage = function() {
   }.bind(this));
 };
 
-function _populateTasks(){
-  this.tasks = Tasks;
-}
 
 function _handlePageToggleTouches() {
   this.yPosition = new Transitionable(0);
@@ -128,6 +122,27 @@ function _createLayout() {
   this.layout.id["content"].add(this.contents);
 
   this.layout.id["footer"].add(Utility.transformInFront).add(this.footer);
+};
+
+
+function _createLayout() {
+  this.footer = new FooterView();
+  
+  this.header = new HeaderView({title: this.options.title});
+
+  this.content = new ContentView()
+
+  this.layout = new HeaderFooter({
+    headerSize: 100,
+    footerSize: 50
+  });
+
+  this.layout.id["header"].add(this.header);
+  this.layout.id["content"].add(this.content);
+  this.layout.id["footer"].add(this.footer);
+  this._add(this.layout)
+}
+
 
   this._add(this.layout);
 }
@@ -156,33 +171,6 @@ function _setListeners() {
   }.bind(this));
 
 /* ------------------------------------NEW TASK LISTENER--------------------------------------------*/
-
-  // this.backgroundSurf.on('touchstart', function(){
-    
-  //   if(tapped && this.inputSurf.getValue() === ''){
-  //     tapped = false;
-  //     this.inputMod.setTransform(Transform.translate(0, 300, -1), {duration: 500});
-  //   } else if (tapped && this.inputSurf.getValue().length){
-  //     var newTask = {text: this.inputSurf.getValue(), page: this.options.title};
-  //     this.tasks.push(newTask);
-      
-  //     var taskSurf = new TaskView(newTask).createTask(newTask.text, newTask.page);
-
-  //     this.taskSurfaces.add(taskSurf)
-
-  //     _setOneCompleteListener.call(this, taskSurf);
-  //     this.inputMod.setTransform(Transform.translate(0, 300, -1), {duration: 500});
-
-  //     this.inputSurf.setValue('');
-    
-  //   } else {
-  //     tapped = true;
-  //     this.inputMod.setTransform(Transform.translate(0, 400, 1), {duration: 500});
-  //   }
-  // }.bind(this));  
-
-
- 
     
 };
 

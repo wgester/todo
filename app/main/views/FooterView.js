@@ -19,6 +19,12 @@ FooterView.DEFAULT_OPTIONS = {
 function _createButton() {
   this.buttonSurf = new Surface({
     content: "<img width='40' height='40' src='./img/hamburgerOnClear.png'/>",
+};
+
+function _createButton() {
+  this.buttonView = new Surface({
+    size: [undefined, undefined],
+    content: "<img width='40' src='./img/hamburgerOnClear.png'/>",
     properties: {
       backgroundColor: 'pink',
       textAlign: 'center'
@@ -37,5 +43,19 @@ function _buttonListener() {
     this._eventOutput.emit('hamburger');
   }.bind(this));
 };
+
+  this.buttonModifier = new Modifier({
+    origin: [0.5, 1]
+  });
+  this._add(this.buttonModifier).add(this.buttonView);
+};
+
+function _buttonListener() {
+  this.buttonView.on('touchstart', function() {
+    console.log('touched button in footerview')
+    this._eventOutput.emit('hamburger');
+  }.bind(this));
+
+}
 
 module.exports = FooterView;
