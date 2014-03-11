@@ -9,6 +9,7 @@ var Tasks             = require('./data');
 var Box               = require('./BoxView');
 var BoxContainer      = require('./BoxContainer');
 var Timer             = require('famous/utilities/timer');
+var InputSurface      = require('famous/surfaces/input-surface');
 
 function ContentView() {
   View.apply(this, arguments);
@@ -46,7 +47,8 @@ function _completeColorMod() {
 };
 
 function _createInput() {
-  this.boxContainer = new BoxContainer();
+  // this.boxContainer = new BoxContainer();
+  // // this.taskViews.push(this.boxContainer);
 };
 
 function _createTasks() {
@@ -64,7 +66,6 @@ function _createTasks() {
       this.taskViews.push(newTask);
     }
   }
-
   this._add(this.scrollview);
 };
 
