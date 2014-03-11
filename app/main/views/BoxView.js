@@ -21,26 +21,26 @@ function Box(options) {
   });
 
   var top = new Modifier({
-      transform: Transform.move(Transform.rotate(1.57, 0, 0), [0, 0, -100])
+      transform: Transform.move(Transform.rotate(1.57, 0, 0), [0, 0, -50])
   });
 
   var bottom = new Modifier({
-      transform: Transform.move(Transform.rotate(-1.57, 0, 0), [0, 100, 0])
+      transform: Transform.move(Transform.rotate(-1.57, 0, 0), [0, 50, 0])
   });
 
   var back = new Modifier({
-      transform: Transform.move(Transform.rotate(6.28, 0, 0), [0, 0, -100])
+      transform: Transform.move(Transform.rotate(6.28, 0, 0), [0, 0, -50])
   });
 
   this.frontSurf = new Surface(this.options.face);
 
   var leftSurf = new Surface({
-    size: [100, 100],
+    size: [50, 50],
     properties: this.options.face.properties
   });
 
   var rightSurf = new Surface({
-    size: [100, 100],
+    size: [50, 50],
     properties: this.options.face.properties
   });
 
@@ -100,12 +100,12 @@ function Box(options) {
 
 Box.DEFAULT_OPTIONS = {
     face: {
-        size: [400, 100],
+        size: [400, 50],
         properties:  {
             border: '1px solid black',
             background: 'gray',
             margin: 0,
-            opacity: 0.5,
+            opacity: 0,
             visibility: 'hidden'
         }
     }
