@@ -42,7 +42,7 @@ PageView.prototype.togglePosition = function() {
 
 PageView.prototype.slideUp = function() {
   this._eventOutput.emit('slideUp');
-  this.yPosition.set(-1 * (window.innerHeight - 30), this.options.transition, function() {
+  this.yPosition.set(-1 * (window.innerHeight - 40), this.options.transition, function() {
     this.toggleUpOrDown = 'up';
   }.bind(this));
   this.options.aboveView && this.options.aboveView.slideUpOffPage();
@@ -110,7 +110,7 @@ PageView.DEFAULT_OPTIONS = {
 function _createLayout() {
   this.layout = new HeaderFooter({
     headerSize: 200,
-    footerSize: 50
+    footerSize: 40
   });
 
   this.footer = new FooterView();
