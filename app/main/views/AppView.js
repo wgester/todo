@@ -39,8 +39,13 @@ AppView.prototype.render = function() {
 
 AppView.DEFAULT_OPTIONS = {
   transition: {
-      duration: 300,
-      curve: 'easeOut'            
+    duration: 300,
+    curve: 'easeOut'
+  },
+  wall: {
+    method: 'wall',
+    period: 300,
+    dampingRatio: 0.3
   }
 };
 
@@ -49,7 +54,8 @@ function _createPageView(title, z_index, aboveView) {
   var pageViewOptions = {
     title: title,
     aboveView: aboveView,
-    transition: this.options.transition
+    transition: this.options.transition,
+    wall: this.options.wall
   };
 
   var pageViewModifierOptions = {
@@ -63,6 +69,10 @@ function _createPageView(title, z_index, aboveView) {
 
   this._add(this[title + 'Modifier']).add(this[title + 'View']);
   // _listenForLastPageViewSlideUpToCreateNewLastPageView.call(this);
+
+  // this[title + 'View'].on('slideDown', function(){
+  //   this[title + 'Modifier'].setTransform(Transform.translate(0, 0, 0), this.options.wallTransition)
+  // }.bind(this));
 }
 
 function _addPageView(title) {
