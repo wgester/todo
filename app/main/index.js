@@ -1,4 +1,3 @@
-
 window.Engine = require('famous/engine');
 var AppView = require('./views/AppView');
 var Surface = require('famous/surface')

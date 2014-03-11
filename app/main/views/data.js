@@ -1,15 +1,15 @@
 
 var tasks = [
-  { text: 'make an app', page: 'Focus'},
-  { text: 'eat lunch', page: 'Today'},
-  { text: 'be awesome', page: 'Focus'},
-  { text: 'eat dinner', page: 'Today'},
-  { text: 'eat lunch', page: 'Today'},
-  { text: 'be awesome', page: 'Focus'},
-  { text: 'eat dinner', page: 'Today'},
-  { text: 'eat lunch', page: 'Today'},
-  { text: 'be awesome', page: 'Focus'},
-  { text: 'eat dinner', page: 'Today'}
+  { text: 'make an app', page: 'FOCUS'},
+  { text: 'eat lunch', page: 'TODAY'},
+  { text: 'be awesome', page: 'FOCUS'},
+  { text: 'eat dinner', page: 'TODAY'},
+  { text: 'eat lunch', page: 'TODAY'},
+  { text: 'be awesome', page: 'FOCUS'},
+  { text: 'eat dinner', page: 'TODAY'},
+  { text: 'eat lunch', page: 'TODAY'},
+  { text: 'be awesome', page: 'FOCUS'},
+  { text: 'eat dinner', page: 'TODAY'}
 ];
 
 

@@ -1,50 +1,33 @@
-var Surface        = require('famous/surface');
-var Modifier       = require('famous/modifier');
-var Transform      = require('famous/transform')
-var View           = require('famous/view');
-var HeaderHamburgerToggleButtonView = require('./HeaderHamburgerToggleButtonView');
+var Surface   = require('famous/surface');
+var Modifier  = require('famous/modifier');
+var Transform = require('famous/transform');
+var View      = require('famous/view');
 
 function HeaderView() {
   View.apply(this, arguments);
-  _createHeaderViewSurface.call(this);
-  _createHeaderHamburgerToggleButtonView.call(this);
+  _createTitle.call(this);
 }
 
 HeaderView.prototype = Object.create(View.prototype);
 HeaderView.prototype.constructor = HeaderView;
 
 HeaderView.DEFAULT_OPTIONS = {
-  size: [undefined, 30],
-  headerViewBackgroundColor: 'white',
-  hamburgerToggleButtonColor: '#9b59b6'
+  text: null,
+  classes: ['title'],
+  title: 'LATER'
 };
 
-function _createHeaderViewSurface() {
-  this.backgroundSurface = new Surface({
-    size: this.options.size,
+function _createTitle() {
+  this.titleHeader = new Surface({
+    content: '<h1>' + this.options.title + '</h1>',
     properties: {
-      backgroundColor: this.options.headerViewBackgroundColor
+      color: 'black',
+      fontSize: '2.5em',
+      backgroundColor: "#3cf"
     }
   });
+  this._add(this.titleHeader);  
+};
 
-  this.headerModifier = new Modifier({
-    origin: [0.5, 1]
-  });
-  // this.backgroundSurface.pipe(this.eventOutput);
-  this._add(this.backgroundModifier).add(this.backgroundSurface);
-}
-
-function _createHeaderHamburgerToggleButtonView() {
-  this.hamburgerToggleButtonView = new HeaderHamburgerToggleButtonView (this.options);
-  // this.hamburgerToggleButtonView.pipe(this.eventOutput);
-
-  this.hamburgerToggleButtonModifier = new Modifier({
-    transform: Transform.translate(0, 0, 3),
-    origin: [0.5, 1]
-  });
-
-  this._add(this.hamburgerToggleButtonModifier).add(this.hamburgerToggleButtonView);
-  // this._add(this.hamburgerToggleButtonView.bottomButtonModifier).add(this.hamburgerToggleButtonView.buttonView);
-}  
 
 module.exports = HeaderView;

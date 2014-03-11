@@ -69,7 +69,7 @@ function _addPageView(title) {
   this._numberOfPages++;
   this.pages.push({
     title: title,
-    z_index: 3 - this._numberOfPages,
+    z_index: 3 - 2 * this._numberOfPages,
     aboveView: this.lastPage
   });
   _createPageView.call(
@@ -81,10 +81,10 @@ function _addPageView(title) {
 }
 
 function _createAppViews() {
-  _addPageView.call(this, 'Focus');
-  _addPageView.call(this, 'Today');
-  _addPageView.call(this, 'Later');
-  _addPageView.call(this, 'Never');
+  _addPageView.call(this, 'FOCUS');
+  _addPageView.call(this, 'TODAY');
+  _addPageView.call(this, 'LATER');
+  _addPageView.call(this, 'NEVER');
 }
 
 // function _listenForLastPageViewSlideUpToCreateNewLastPageView() {
