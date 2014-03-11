@@ -32,7 +32,7 @@ function Box(options) {
       transform: Transform.move(Transform.rotate(6.28, 0, 0), [0, 0, -faceSize])
   });
 
-  var frontSurf = new Surface(this.options.face);
+  this.frontSurf = new Surface(this.options.face);
 
   var leftSurf = new Surface(this.options.face);
 
@@ -47,7 +47,7 @@ function Box(options) {
 
   var backSurf = new Surface(this.options.face);
 
-  this._add(frontSurf);
+  this._add(this.frontSurf);
   this._add(left).add(leftSurf);
   this._add(right).add(rightSurf);
   this._add(top).add(this.topSurf);
@@ -62,7 +62,8 @@ Box.DEFAULT_OPTIONS = {
             border: '1px solid black',
             background: 'gray',
             margin: 0,
-            opacity: 0.5
+            opacity: 0.5,
+            visibility: 'hidden'
         }
     }
 };
@@ -72,6 +73,10 @@ Box.prototype = Object.create(View.prototype);
 Box.prototype.getInput = function() {
   return this.topSurf;
 };
+
+Box.prototype.getFront = function() {
+  return this.frontSurf;
+}
 
 
 module.exports = Box;

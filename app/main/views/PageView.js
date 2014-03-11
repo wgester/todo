@@ -24,6 +24,7 @@ function PageView() {
   this.offPage = false;
   _createLayout.call(this);
   _createInput.call(this);
+  _createButton.call(this);
   _setListeners.call(this);
   _handlePageToggleTouches.call(this);
 }
@@ -129,17 +130,9 @@ function _createLayout() {
   this._add(this.layout);
 }
 
-
-function _inputPositionMod() {
-  this.boxMod.setTransform(Transform.move(Transform.rotate
-    (this.boxPosition.get()[0], this.boxPosition.get()[1], this.boxPosition.get()[2]),
-    [this.boxPosition.get()[3], this.boxPosition.get()[4], this.boxPosition.get()[5]]
-  ));
-};
-
 function _setListeners() {  
   window.Engine.on("prerender", _completeColorMod.bind(this));
-  window.Engine.on("prerender", _inputPositionMod.bind(this));
+
   _setInputListener.call(this);
   
   for(var i = 0; i < this.taskViews.length; i++) {
@@ -157,33 +150,36 @@ function _setListeners() {
 function _createInput() {
   this.box = new Box();
   this.boxMod = new Modifier();
-  this.boxPosition.set([0, 0, 0, 50, 200, 150], {duration: 300}, function() {
-    this.inputSurf = this.box.getInput();
-    this._add(this.boxMod).add(this.box);        
+  this.boxMod.setTransform(Transform.move(Transform.rotate(0,0,0), [50, 200, 150]), {}, function() {
   }.bind(this));
+  this.inputSurf = this.box.getInput();
+  this.frontSurf = this.box.getFront();
+  this._add(this.boxMod).add(this.box);            
+
 };
 
 
 function _setInputListener() {
-  this.backgroundSurf.on('touchend', function(e) {
+  this.backgroundSurf.on('touchstart', function(e) {
     this.inputToggled = !this.inputToggled;
     var value = this.inputSurf.getValue();
     this.inputSurf.setValue('');
     
     if (this.inputToggled) {
-      this.boxPosition.set([-1.57, 0, 0, 50, 300, 150], {duration: 300});
-      // this.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [50, 300, 100]), {duration: 300})      
+      this.frontSurf.setProperties({'visibility': 'visible'})
+      this.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [50, 300, 150]), {duration: 300});      
     } else if (!this.inputToggled && value.length) {
-      this.boxPosition.set([0, 0, 0, 50, 200, 250], {duration: 300}, function() {
+      this.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [50, 200, 250]), {duration: 300}, function() {
         var newTask = new TaskView({text: value});
         newTask.pipe(this.scrollview);    
         this.taskViews.push(newTask);        
+        this.frontSurf.setProperties({'visibility': 'hidden'});
       });
-
-      // this.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [50, 200, 0]), {duration: 300})
     } else {
-      this.boxPosition.set([0, 0, 0, 50, 200, 150], {duration: 300});
-      // this.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [50, 200, 0]), {duration: 300})
+      this.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [50, 200, 150]), {duration: 300}, function() {
+        this.frontSurf.setProperties({'visibility': 'hidden'});
+      }.bind(this));
+
     }
   }.bind(this));  
 };
