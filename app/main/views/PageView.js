@@ -23,71 +23,10 @@ function PageView() {
   this.offPage = false;
   _createLayout.call(this);
   _pipeSubviewEventsToAppView.call(this);
-  _handlePageToggleTouches.call(this);
 }
 
 PageView.prototype = Object.create(View.prototype);
 PageView.prototype.constructor = PageView;
-
-PageView.prototype.togglePosition = function() {
-  if (this.toggleUpOrDown === 'down') {
-    this.slideUp();
-  } else if (this.toggleUpOrDown === 'up') {
-    this.slideDown();
-  } else {
-    throw new Error('toggleUpOrDown is illegally defined');
-  }
-};
-
-PageView.prototype.slideUp = function() {
-  this.yPosition.set(-1 * (window.innerHeight - 40), this.options.transition, function() {
-    console.log('CALLED this')
-    this._eventOutput.emit('detach');
-    this.toggleUpOrDown = 'up';
-  }.bind(this));
-};
-
-PageView.prototype.slideDown = function() {
-  this._eventOutput.emit('reattach');
-  this.yPosition.set(0, this.options.wall, function() {
-                  this.toggleUpOrDown = 'down';
-                }.bind(this));
-};
-
-function _handlePageToggleTouches() {
-  this.yPosition = new Transitionable(0);
-  this.sync = new GenericSync(function() {
-    return this.yPosition.get(0);
-  }.bind(this), {direction: GenericSync.DIRECTION_Y});
-
-  this.pipe(this.sync);
-
-  this.sync.on('update', _viewSyncUpdate.bind(this));
-  this.sync.on('end',       _viewSyncEnd.bind(this));
-
-  function _viewSyncUpdate(data) {
-    this.yPosition.set(Math.min(0, data.p));
-  }
-
-  function _viewSyncEnd(data) {
-    var velocity = data.v;
-    var position = this.yPosition.get();
-
-    if (this.yPosition.get() > this.options.yPositionToggleThreshold) {
-      if (velocity < -1 * this.options.velocityToggleThreshold) {
-        this.slideUp();
-      } else {
-        this.slideDown();
-      }
-    } else {
-      if (velocity > this.options.velocityToggleThreshold) {
-        this.slideDown();
-      } else {
-        this.slideUp();
-      }
-    }
-  };
-};
 
 PageView.DEFAULT_OPTIONS = {
   title: 'LATER',
