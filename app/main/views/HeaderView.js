@@ -29,5 +29,10 @@ function _createTitle() {
   this._add(this.titleHeader);  
 };
 
+function _buttonListener() {
+  this.titleHeader.on('touchend', function() {
+    this._eventOutput.emit('togglePageViewDown');
+  }.bind(this));
+}
 
 module.exports = HeaderView;

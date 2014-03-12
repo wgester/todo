@@ -33,8 +33,8 @@ function _createButton() {
 };
 
 function _buttonListener() {
-  this.buttonSurf.on('touchstart', function() {
-    this._eventOutput.emit('hamburger');
+  this.buttonSurf.on('touchend', function() {
+    this._eventOutput.emit('togglePageViewUp');
   }.bind(this));
 };
 
