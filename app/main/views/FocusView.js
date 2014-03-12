@@ -49,7 +49,7 @@ function _createHeader() {
     content: '<h1>FOCUS</h1>',
     size: [undefined, true],
     properties: {
-      color: 'black',
+      color: '#003156',
       fontStyle: 'light',
       fontSize: '2.5em'
     }

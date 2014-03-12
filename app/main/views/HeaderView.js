@@ -19,14 +19,20 @@ HeaderView.DEFAULT_OPTIONS = {
   title: 'LATER'
 };
 
+function _isAndroid() {
+  var userAgent = navigator.userAgent.toLowerCase();  
+  return userAgent.indexOf("android") > -1;
+};
+
+
 function _createTitle() {
   if (this.options.title === "TODAY") {
     this.titleHeader = new Surface({
       content: '<h1>' + this.options.title + '</h1>',
       properties: {
-        color: 'black',
+        color: '#003156',
         fontSize: '1em',
-        backgroundColor: new Color('#3399FF').setLightness(70).getHex()
+        backgroundColor:  new Color('#3399FF').setLightness(60).getHex() 
       }
     });
   this._add(this.titleHeader);  
@@ -34,7 +40,7 @@ function _createTitle() {
     this.titleHeader = new Surface({
       content: '<h1>' + this.options.title + '</h1>',
       properties: {
-        color: 'black',
+        color: '#003156',
         fontSize: '1em',
         backgroundColor: new Color('#32CEA8').setLightness(50).getHex()
       }
@@ -44,7 +50,7 @@ function _createTitle() {
     this.titleHeader = new Surface({
       content: '<h1>' + this.options.title + '</h1>',
       properties: {
-        color: 'black',
+        color: '#003156',
         fontSize: '1em',
         backgroundColor: new Color('#32CEA8').setLightness(50).getHex()
       }

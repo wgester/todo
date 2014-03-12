@@ -38,91 +38,16 @@ ContentView.DEFAULT_OPTIONS = {
   classes: ['contents']
 };
 
+function _isAndroid() {
+  var userAgent = navigator.userAgent.toLowerCase();  
+  return userAgent.indexOf("android") > -1;
+};
+
 function _createBackground() {
   if (this.options.title === 'TODAY') {
-    
-    this.backgroundSurf = new CanvasSurface({
-      size: [window.innerWidth, window.innerHeight],
-      canvasSize: [window.innerWidth*2, window.innerHeight*2],
-      classes: ['famous-surface']
-    });
-    
-    var colorCanvas = this.backgroundSurf.getContext('2d');
-
-
-    var userAgent = navigator.userAgent.toLowerCase();
-    if (userAgent.indexOf("android") > -1) {
-      this.radial = colorCanvas.createLinearGradient( 
-                300 * 0.5 * 2,    // x0
-                0,                              // y0
-                300 * 0.5 * 2,    // x1
-                500 * 2         // y1
-                );
-      this.radial.addColorStop(0, "#3399FF");
-      this.radial.addColorStop(1, "white");
-              
-      colorCanvas.fillStyle = this.radial;
-      colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
-      this._add(this.backgroundSurf);
-    } else {
-       this.radial = colorCanvas.createRadialGradient( 
-                      300 * 0.5 * 2,    // x0
-                      500 * 2,         // y0
-                      0,   // r0
-
-                      300 * 0.5 * 2,    // x1
-                      500 * 2.5,       // y1
-                      300 * 5        // r1
-                      );
-      this.radial.addColorStop(0, "white");
-      this.radial.addColorStop(1, "#3399FF");
-      colorCanvas.fillStyle = this.radial;
-      colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
-
-      this._add(this.backgroundSurf);
-
-    }
+    _createCanvas.call(this, '#3399FF');
   } else if (this.options.title === "FOCUS") {
-    this.backgroundSurf = new CanvasSurface({
-      size: [window.innerWidth, window.innerHeight],
-      canvasSize: [window.innerWidth*2, window.innerHeight*2],
-      classes: ['famous-surface']
-    });
-    
-    var colorCanvas = this.backgroundSurf.getContext('2d');
-
-
-    var userAgent = navigator.userAgent.toLowerCase();
-    if (userAgent.indexOf("android") > -1) {
-      this.radial = colorCanvas.createLinearGradient( 
-                300 * 0.5 * 2,    // x0
-                0,                              // y0
-                300 * 0.5 * 2,    // x1
-                500 * 2         // y1
-                );
-      this.radial.addColorStop(0, "#32CEA8");
-      this.radial.addColorStop(1, "white");
-              
-      colorCanvas.fillStyle = this.radial;
-      colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
-      this._add(this.backgroundSurf);
-    } else {
-       this.radial = colorCanvas.createRadialGradient( 
-                      300 * 0.5 * 2,    // x0
-                      500 * 2,         // y0
-                      0,   // r0
-
-                      300 * 0.5 * 2,    // x1
-                      500 * 2.5,       // y1
-                      300 * 2.5        // r1
-                      );
-      this.radial.addColorStop(0, "white");
-      this.radial.addColorStop(1, "#32CEA8");
-      colorCanvas.fillStyle = this.radial;
-      colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
-
-      this._add(this.backgroundSurf); 
-    }   
+    _createCanvas.call(this, '#32CEA8');
   } else {
     this.backgroundSurf = new Surface({
       size: [undefined, undefined]
@@ -133,6 +58,49 @@ function _createBackground() {
   }
   
 };
+
+function _createCanvas(color) {
+  this.backgroundSurf = new CanvasSurface({
+    size: [window.innerWidth, window.innerHeight],
+    canvasSize: [window.innerWidth*2, window.innerHeight*2],
+    classes: ['famous-surface']
+  });
+  
+  var colorCanvas = this.backgroundSurf.getContext('2d');
+
+  var userAgent = navigator.userAgent.toLowerCase();
+  if (userAgent.indexOf("android") > -1) {
+    this.radial = colorCanvas.createLinearGradient( 
+              300 * 0.5 * 2,    // x0
+              0,                              // y0
+              300 * 0.5 * 2,    // x1
+              500 * 2         // y1
+              );
+    this.radial.addColorStop(0, color);
+    this.radial.addColorStop(1, "white");
+            
+    colorCanvas.fillStyle = this.radial;
+    colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
+    this._add(this.backgroundSurf);
+  } else {
+     this.radial = colorCanvas.createRadialGradient( 
+                    300 * 0.5 * 2,    // x0
+                    500 * 2,         // y0
+                    0,   // r0
+
+                    300 * 0.5 * 2,    // x1
+                    500 * 2.5,       // y1
+                    300 * 2.5        // r1
+                    );
+    this.radial.addColorStop(0, "white");
+    this.radial.addColorStop(1, color);
+    colorCanvas.fillStyle = this.radial;
+    colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
+
+    this._add(this.backgroundSurf); 
+  }    
+};
+
 
 function _completeColorMod() {
   this.backgroundSurf.setProperties({

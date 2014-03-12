@@ -1,7 +1,18 @@
 
+@font-face {
+  font-family: 'museo_sans300';
+  src: url('museosans-300-webfont-webfont.eot');
+/*  src: url('museosans-300-webfont-webfont.eot?#iefix') format('embedded-opentype'),
+       url('museosans-300-webfont-webfont.woff') format('woff'),
+       url('museosans-300-webfont-webfont.ttf') format('truetype'),
+       url('museosans-300-webfont-webfont.svg#museo_sans300') format('svg');
+*/  font-weight: normal;
+  font-style: normal;
+}
+
 html {
-  font-family: "helvetica", "Helvetica Neue", sans-serif;
-  color: #fff;
+  font-family: "museo_sans300";
+  color: #003156;
   margin: 0;
 }
 .layer {
@@ -19,7 +30,7 @@ input {
 .task {
   padding: 10px;
   border: 1px dotted gray;
-  color: black;
+  color: #003156;
 }
 
 .today {
