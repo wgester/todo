@@ -3,13 +3,13 @@ var tasks = [
   { text: 'make an app', page: 'FOCUS'},
   { text: 'eat lunch', page: 'TODAY'},
   { text: 'be awesome', page: 'FOCUS'},
-  { text: 'eat dinner', page: 'TODAY'},
+  { text: 'find phone', page: 'TODAY'},
+  { text: 'be awesome', page: 'TODAY'},
+  // { text: 'be awesome', page: 'FOCUS'},
+  { text: 'make app', page: 'TODAY'},
   { text: 'eat lunch', page: 'TODAY'},
   // { text: 'be awesome', page: 'FOCUS'},
   { text: 'eat dinner', page: 'TODAY'},
-  { text: 'eat lunch', page: 'TODAY'},
-  // { text: 'be awesome', page: 'FOCUS'},
-  { text: 'eat dinner', page: 'TODAY'},
   // { text: 'make an app', page: 'FOCUS'},
   // { text: 'eat lunch', page: 'TODAY'},
   // { text: 'be awesome', page: 'FOCUS'},
@@ -39,7 +39,7 @@ var tasks = [
   // { text: 'eat dinner', page: 'TODAY'},
   // { text: 'eat lunch', page: 'TODAY'},
   // { text: 'be awesome', page: 'FOCUS'},
-  { text: 'eat dinner', page: 'TODAY'}
+  { text: 'finish work', page: 'TODAY'}
 
 ];
 

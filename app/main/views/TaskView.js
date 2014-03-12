@@ -22,7 +22,7 @@ TaskView.DEFAULT_OPTIONS = {
 
 function _createTask() {
   this.taskSurf = new Surface({
-    size: [undefined, 50],
+    size: [undefined, 60],
     classes: this.options.classes,
     content: '<p>' + this.options.text + '</p>',
     properties: {

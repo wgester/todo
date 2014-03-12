@@ -30,8 +30,6 @@ function _createTitle() {
     this.titleHeader = new Surface({
       content: '<h1>' + this.options.title + '</h1>',
       properties: {
-        color: '#003156',
-        fontSize: '0.75em',
         backgroundColor:  new Color('#3399FF').setLightness(60).getHex() 
       }
     });
@@ -39,8 +37,6 @@ function _createTitle() {
     this.titleHeader = new Surface({
       content: '<h1>' + this.options.title + '</h1>',
       properties: {
-        color: '#003156',
-        fontSize: '0.75em',
         backgroundColor: new Color('#32CEA8').setLightness(50).getHex()
       }
     });
@@ -48,8 +44,6 @@ function _createTitle() {
     this.titleHeader = new Surface({
       content: '<h1>' + this.options.title + '</h1>',
       properties: {
-        color: '#003156',
-        fontSize: '0.75em',
         backgroundColor: new Color('#9C7CCB').setLightness(65).getHex()
       }
     });
@@ -58,8 +52,6 @@ function _createTitle() {
     this.titleHeader = new Surface({
       content: '<h1>' + this.options.title + '</h1>',
       properties: {
-        color: '#003156',
-        fontSize: '0.75em',
         backgroundColor: new Color('#32CEA8').setLightness(50).getHex()
       }
     });
