@@ -23,7 +23,7 @@ function ContentView() {
   this.lightness = 75;
   this.inputToggled = false;
 
-  this.gradient = new Transitionable([255, 255, 255, 255, 255, 255]);
+  this.gradient = new Transitionable([50, 206, 168, 255, 255, 255]);
 
   _createBackground.call(this);
   _createTasks.call(this);

@@ -30,7 +30,6 @@ input {
 .task {
   box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.2);
   line-height: 60px;
-  color: #003156;
 }
 
 .task p {
@@ -50,6 +49,7 @@ h1 {
   font-weight: 300;
   letter-spacing: 4px;
   font-size: 2em;
+  color: transparent;
 }
 
 
