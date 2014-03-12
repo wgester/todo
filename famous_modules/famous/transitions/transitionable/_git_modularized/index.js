@@ -62,8 +62,6 @@ function Transitionable(start) {
     this._callback = undefined;
     this._engineInstance = null;
     this._currentMethod = null;
-    this._transition = null;
-    this._deffered = null;
 
     this.set(start);
 };
@@ -148,66 +146,12 @@ Transitionable.prototype.set = function(endState, transition, callback) {
         return this;
     }
 
-    if(!callback) {
-        return this.chain.apply(this, arguments);
-    }
-
     var action = [endState, transition];
     this.actionQueue.push(action);
     this.callbackQueue.push(callback);
     if(!this.currentAction) _loadNext.call(this);
     return this;
 };
-
-Transitionable.prototype.chain = function(endState, transition, callback) {
-    if(!callback) {
-        this._deffered = {
-            states: []
-        }
-        this._deffered.states.push({
-            endState: endState,
-            transition: transition
-        });
-        this._transition = transition;
-        return this;
-    } else {
-        this.set.apply(this, arguments);
-    }
-}
-
-Transitionable.prototype.then = function(endState, transition, callback) {
-    if (endState === undefined) return this;
-    transition && (this._transition = transition);
-    this._deffered.states.push({
-        endState: endState,
-        transition: this._transition
-    });
-    if (typeof callback === 'function') {
-        return this.done(callback);
-    } else {
-        return this;
-    }
-}
-
-Transitionable.prototype.done = function(callback) {
-    if (callback === undefined) {
-        return _applyDefferreds.call(this);
-    } else if (typeof callback === 'function') {
-        return _applyDefferreds.call(this, callback);
-    } else {
-        throw new Error('Bad Syntax: Execute done with a callback function');
-    }
-}
-
-function _applyDefferreds(callback) {
-    var currentState = this._deffered.states.pop();
-    if (currentState) {
-        if (this._deffered.states.length > 0) callback = _applyDefferreds.bind(this, callback);
-        return this.set.call(this, currentState.endState, currentState.transition, callback);
-    } else {
-        return this;
-    }
-}
 
 /**
  * Cancel all transitions and reset to a stable engineInstance

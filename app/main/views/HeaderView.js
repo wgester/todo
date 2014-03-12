@@ -2,6 +2,7 @@ var Surface   = require('famous/surface');
 var Modifier  = require('famous/modifier');
 var Transform = require('famous/transform');
 var View      = require('famous/view');
+var Color     = require('./Color');
 
 function HeaderView() {
   View.apply(this, arguments);
@@ -23,9 +24,9 @@ function _createTitle() {
     content: '<h1>' + this.options.title + '</h1>',
     properties: {
       color: 'black',
-      fontSize: '2.5em',
-      backgroundColor: "#3cf"
-    }
+      fontSize: '1em',
+      backgroundColor: new Color('#3399FF').setLightness(70).getHex()
+}
   });
   this._add(this.titleHeader);  
 };
