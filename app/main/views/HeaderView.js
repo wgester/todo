@@ -12,7 +12,8 @@ function HeaderView() {
   _createTitle.call(this);
   _buttonListener.call(this);
   _setListeners.call(this);
-  _playShadow.call(this);
+  this.options.title === 'FOCUS' && _playShadow.call(this);    
+  
 }
 
 HeaderView.prototype = Object.create(View.prototype);
@@ -57,6 +58,7 @@ function _createTitle() {
     this.titleHeader = new Surface({
       content: '<h1>' + this.options.title + '</h1>',
       properties: {
+        color: 'transparent',
         backgroundColor: new Color('#32CEA8').setLightness(50).getHex()
       }
     });
@@ -87,7 +89,9 @@ function _buttonListener() {
 };
 
 function _setListeners() {
-  window.Engine.on("prerender", _shadowMod.bind(this));
+  if (this.options.title === 'FOCUS') {
+    window.Engine.on("prerender", _shadowMod.bind(this));  
+  }
 };
 
 module.exports = HeaderView;
