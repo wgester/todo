@@ -12,9 +12,9 @@ input {
   height: 3em;
   margin-top: 10px;
   margin-left: 0;
-  border: 1px solid gray;
-  box-shadow: 2px 2px 2px #000;
-}
+/*  border: 1px solid gray;
+*//*  box-shadow: 2px 2px 2px #000;
+*/}
 
 .task {
   padding: 10px;

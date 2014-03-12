@@ -43,7 +43,8 @@ function _createBackground() {
     
     this.backgroundSurf = new CanvasSurface({
       size: [window.innerWidth, window.innerHeight],
-      canvasSize: [window.innerWidth*2, window.innerHeight*2]
+      canvasSize: [window.innerWidth*2, window.innerHeight*2],
+      classes: ['famous-surface']
     });
     
     var colorCanvas = this.backgroundSurf.getContext('2d');
@@ -147,16 +148,16 @@ function _setInputListener() {
     
     if (this.inputToggled) {
       this.boxContainer.frontSurf.setProperties({'visibility': 'visible'})
-      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [0, 200, 150]), {duration: 300});      
+      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [10, 200, 50]), {duration: 300});      
     } else if (!this.inputToggled && value.length) {
-      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [0, 150, 150]), {duration: 300}, function() {
+      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [10, 150, 50]), {duration: 300}, function() {
         var newTask = new TaskView({text: value});
         newTask.pipe(this.scrollview);    
         this.taskViews.push(newTask);        
         this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
       }.bind(this));
     } else {
-      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [0, 150, 150]), {duration: 300}, function() {
+      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [10, 150, 50]), {duration: 300}, function() {
         this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
       }.bind(this));
     }
