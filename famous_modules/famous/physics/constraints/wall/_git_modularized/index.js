@@ -1,5 +1,5 @@
-var Constraint = require('famous/physics/constraints/constraint');
-var Vector = require('famous/math/vector');
+var Constraint   = require('famous/physics/constraints/constraint');
+var Vector       = require('famous/math/vector');
 var EventHandler = require('famous/event-handler');
 
 /** @constructor */

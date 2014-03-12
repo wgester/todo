@@ -10,6 +10,7 @@ var Box               = require('./BoxView');
 var BoxContainer      = require('./BoxContainer');
 var Timer             = require('famous/utilities/timer');
 var InputSurface      = require('famous/surfaces/input-surface');
+var CanvasSurface     = require('famous/surfaces/canvas-surface');
 
 function ContentView() {
   View.apply(this, arguments);
@@ -31,12 +32,36 @@ ContentView.DEFAULT_OPTIONS = {
 };
 
 function _createBackground() {
-  this.backgroundSurf = new Surface({
-    size: [undefined, undefined]
+   this.backgroundSurf = new CanvasSurface({
+    size: [window.innerWidth, window.innerHeight],
+    canvasSize: [window.innerWidth*2, window.innerHeight*2]
   });
 
-  this.backgroundModifier = new Modifier();
-  this._add(this.backgroundModifier).add(this.backgroundSurf);
+  var colorCanvas = this.backgroundSurf.getContext('2d');
+
+   var radial = colorCanvas.createRadialGradient( 
+                  300 * 0.5 * 2,    // x0
+                  500 * 2,         // y0
+                  0,   // r0
+
+                  300 * 0.5 * 2,    // x1
+                  500 * 2.5,       // y1
+                  300 * 5        // r1
+                  );
+
+  radial.addColorStop(0, "white");
+  radial.addColorStop(1, "#3399FF");
+          
+  colorCanvas.fillStyle = radial;
+  colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
+  this._add(this.backgroundSurf);
+  
+  // this.backgroundSurf = new Surface({
+  //   size: [undefined, undefined]
+  // });
+
+  // this.backgroundModifier = new Modifier();
+  // this._add(this.backgroundModifier).add(this.backgroundSurf);
 };
 
 

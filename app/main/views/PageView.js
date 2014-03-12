@@ -96,7 +96,7 @@ PageView.DEFAULT_OPTIONS = {
 
 function _createLayout() {
   this.layout = new HeaderFooter({
-    headerSize: 200,
+    headerSize: 70,
     footerSize: 40
   });
   this.footer = new FooterView();

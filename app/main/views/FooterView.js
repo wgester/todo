@@ -20,7 +20,6 @@ function _createButton() {
   this.buttonSurf = new Surface({
     content: "<img width='40' height='40' src='./img/hamburgerOnClear.png'/>",
     properties: {
-      backgroundColor: 'pink',
       textAlign: 'center'
     }
   });
