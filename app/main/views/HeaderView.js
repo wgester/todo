@@ -32,34 +32,39 @@ function _createTitle() {
       properties: {
         color: '#003156',
         fontSize: '0.75em',
-        letterSpacing: '200%',
         backgroundColor:  new Color('#3399FF').setLightness(60).getHex() 
       }
     });
-  this._add(this.titleHeader);  
   } else if (this.options.title === "FOCUS") {
     this.titleHeader = new Surface({
       content: '<h1>' + this.options.title + '</h1>',
       properties: {
         color: '#003156',
         fontSize: '0.75em',
-        letterSpacing: '200%',
         backgroundColor: new Color('#32CEA8').setLightness(50).getHex()
       }
     });
-    this._add(this.titleHeader);  
+  } else if (this.options.title === "LATER") {
+    this.titleHeader = new Surface({
+      content: '<h1>' + this.options.title + '</h1>',
+      properties: {
+        color: '#003156',
+        fontSize: '0.75em',
+        backgroundColor: new Color('#9C7CCB').setLightness(65).getHex()
+      }
+    });
+    this._add(this.titleHeader);      
   } else {
     this.titleHeader = new Surface({
       content: '<h1>' + this.options.title + '</h1>',
       properties: {
         color: '#003156',
         fontSize: '0.75em',
-        letterSpacing: '120%',
         backgroundColor: new Color('#32CEA8').setLightness(50).getHex()
       }
     });
-    this._add(this.titleHeader);      
   }
+  this._add(this.titleHeader);      
   
 };
 
