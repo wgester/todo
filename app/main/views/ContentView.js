@@ -47,7 +47,6 @@ function _completeColorMod() {
 
 function _createInput() {
   this.boxContainer = new BoxContainer();
-  // this.taskViews.push(this.boxContainer);
 };
 
 function _createTasks() {
