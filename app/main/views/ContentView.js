@@ -15,6 +15,7 @@ var CanvasSurface     = require('famous/surfaces/canvas-surface');
 function ContentView() {
   View.apply(this, arguments);
   this.lightness = 75;
+  this.inputToggled = false;
 
   this.color = new Transitionable([360, 100, 100]);
   _createBackground.call(this);
@@ -32,52 +33,58 @@ ContentView.DEFAULT_OPTIONS = {
 };
 
 function _createBackground() {
-   this.backgroundSurf = new CanvasSurface({
-    size: [window.innerWidth, window.innerHeight],
-    canvasSize: [window.innerWidth*2, window.innerHeight*2]
-  });
-  var colorCanvas = this.backgroundSurf.getContext('2d');
+  if (this.options.title === 'FOCUS') {
+    
+    this.backgroundSurf = new CanvasSurface({
+      size: [window.innerWidth, window.innerHeight],
+      canvasSize: [window.innerWidth*2, window.innerHeight*2]
+    });
+    
+    var colorCanvas = this.backgroundSurf.getContext('2d');
 
 
-  var userAgent = navigator.userAgent.toLowerCase();
-  if (userAgent.indexOf("android") > -1) {
-    var radial = colorCanvas.createLinearGradient( 
-              300 * 0.5 * 2,    // x0
-              0,                              // y0
-              300 * 0.5 * 2,    // x1
-              500 * 2         // y1
-              );
+    var userAgent = navigator.userAgent.toLowerCase();
+    if (userAgent.indexOf("android") > -1) {
+      this.radial = colorCanvas.createLinearGradient( 
+                300 * 0.5 * 2,    // x0
+                0,                              // y0
+                300 * 0.5 * 2,    // x1
+                500 * 2         // y1
+                );
+      this.radial.addColorStop(0, "#3399FF");
+      this.radial.addColorStop(1, "white");
+              
+      colorCanvas.fillStyle = this.radial;
+      colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
+      this._add(this.backgroundSurf);
+    } else {
+       this.radial = colorCanvas.createRadialGradient( 
+                      300 * 0.5 * 2,    // x0
+                      500 * 2,         // y0
+                      0,   // r0
 
-    radial.addColorStop(0, "#3399FF");
-    radial.addColorStop(1, "white");
-            
-    colorCanvas.fillStyle = radial;
-    colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
-    this._add(this.backgroundSurf);
+                      300 * 0.5 * 2,    // x1
+                      500 * 2.5,       // y1
+                      300 * 5        // r1
+                      );
+      this.radial.addColorStop(0, "white");
+      this.radial.addColorStop(1, "#3399FF");
+      colorCanvas.fillStyle = this.radial;
+      colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
+
+      this._add(this.backgroundSurf);
+
+    }
   } else {
-     var radial = colorCanvas.createRadialGradient( 
-                    300 * 0.5 * 2,    // x0
-                    500 * 2,         // y0
-                    0,   // r0
+    this.backgroundSurf = new Surface({
+      size: [undefined, undefined]
+    });
 
-                    300 * 0.5 * 2,    // x1
-                    500 * 2.5,       // y1
-                    300 * 5        // r1
-                    );
-    radial.addColorStop(0, "white");
-    radial.addColorStop(1, "#3399FF");
-  
+    this.backgroundModifier = new Modifier();
+    this._add(this.backgroundModifier).add(this.backgroundSurf);
   }
-
   
-  // this.backgroundSurf = new Surface({
-  //   size: [undefined, undefined]
-  // });
-
-  // this.backgroundModifier = new Modifier();
-  // this._add(this.backgroundModifier).add(this.backgroundSurf);
 };
-
 
 function _completeColorMod() {
   this.backgroundSurf.setProperties({
@@ -85,9 +92,10 @@ function _completeColorMod() {
   });
 };
 
+
 function _createInput() {
-  // this.boxContainer = new BoxContainer();
-  // // this.taskViews.push(this.boxContainer);
+  this.boxContainer = new BoxContainer();
+  this._add(this.boxContainer);
 };
 
 function _createTasks() {
@@ -108,8 +116,10 @@ function _createTasks() {
   this._add(this.scrollview);
 };
 
+
 function _taskListeners() {
   window.Engine.on('prerender', _completeColorMod.bind(this));
+
   _setInputListener.call(this);
 
   for(var i = 0; i < this.taskViews.length; i++) {
@@ -139,6 +149,7 @@ function _setInputListener() {
       }.bind(this));
     }
   }.bind(this));  
+
   
 };
 
