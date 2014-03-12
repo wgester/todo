@@ -26,8 +26,8 @@ function ContentView() {
   this.color = new Transitionable([360, 100, 100]);
   _createBackground.call(this);
   _createTasks.call(this);
-  // _createInput.call(this);
-  // _taskListeners.call(this);
+  _createInput.call(this);
+  _taskListeners.call(this);
 };
 
 ContentView.prototype = Object.create(View.prototype);
@@ -107,80 +107,25 @@ function _createInput() {
 function _createTasks() {
   this.tasks = Tasks;
 
-  // this.taskViews = [];
+  this.taskViews = [];
 
-  // this.scrollview = new Scrollview();
-  // this.scrollview.sequenceFrom(this.taskViews);
+  this.customscrollview = new CustomScrollView();
+  this.customdragsort = new CustomDragSort();
 
-  // for(var i = 0; i < this.tasks.length; i++) {
-  //   if(this.options.title === this.tasks[i].page){
-  //     var newTask = new TaskView({text: this.tasks[i].text});
-  //     newTask.pipe(this.scrollview);    
-  //     this.taskViews.push(newTask);
-  //   }
-  // }
 
-  // this._add(this.scrollview);
-
-  var customscrollview = new CustomScrollView();
-  var customdragsort = new CustomDragSort();
-
-  for (var i = 0; i < this.tasks.length; i++) {
-    console.log(this.tasks[i])
-
-    if(this.options.title === this.tasks[i].page){
-      var sampleItem = new SampleItem({
-        index: i,
-        text: this.tasks[i].text
-      });
-      customdragsort.push(sampleItem);
-
-      var associatedDragSort = customdragsort.find(i);
-
-      sampleItem.pipe(customscrollview);
-
-      sampleItem.pipe(associatedDragSort);
-
-      associatedDragSort.pipe(customscrollview);
-
-      customscrollview.pipe(associatedDragSort);
-      
+  for(var i = 0; i < this.tasks.length; i++) {
+      var newTask = new SampleItem({text: this.tasks[i].text});
+      this.customdragsort.push(newTask);
+      var associatedDragSort = this.customdragsort.find(i);
+      newTask.pipe(associatedDragSort);
+      associatedDragSort.pipe(this.customscrollview);
+      newTask.pipe(this.customscrollview);    
+      this.customscrollview.pipe(associatedDragSort);
     }
-    
 
-  }
+  this.customscrollview.sequenceFrom(this.customdragsort);
 
-   for (var i = 0; i < this.tasks.length; i++) {
-    console.log(this.tasks[i])
-
-    if(this.options.title === this.tasks[i].page){
-      var sampleItem = new SampleItem({
-        index: i,
-        text: this.tasks[i].text
-      });
-      customdragsort.push(sampleItem);
-
-      var associatedDragSort = customdragsort.find(i);
-
-      sampleItem.pipe(customscrollview);
-
-      sampleItem.pipe(associatedDragSort);
-
-      associatedDragSort.pipe(customscrollview);
-
-      customscrollview.pipe(associatedDragSort);
-      
-    }
-    
-
-  }
-
-  customscrollview.sequenceFrom(customdragsort);
-
-  this._add(customscrollview);
-
-
-
+  this._add(this.customscrollview);
 };
 
 

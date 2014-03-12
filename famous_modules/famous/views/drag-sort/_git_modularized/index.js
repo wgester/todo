@@ -39,10 +39,10 @@ DragSort.DEFAULT_OPTIONS = {
         projection: 'y'
     },
     getForwardSwapThreshold: function() {
-        return (this.getNext()) ? this.getNext().getSize()[this.projection] * 0.5 : 0;
+        return (this.currentNode.getNext()) ? this.currentNode.getNext().getSize()[this.projection] * 0.5 + this.currentPosition : 0;
     },
     getPreviousSwapThreshold: function() {
-        return (this.getPrevious()) ? this.getPrevious().getSize()[this.projection] * 0.5 : 0;
+        return (this.currentNode.getPrevious()) ? this.currentNode.getPrevious().getSize()[this.projection] * (-0.5) + this.currentPosition : 0;
     }
 };
 
@@ -51,6 +51,9 @@ function initializeDragMemory() {
     this.scrollOffset                  = 0;
     this.dragging                      = false;
     this.draggablePosition             = 0;
+    this.currentNode                   = this;
+    this.currentPosition               = 0;
+    this.direction                     = null;
 }
 
 function bindEvents() {
@@ -71,7 +74,7 @@ function handleDragMove() {
     this.forwardsSwapBarrier = this.options.getForwardSwapThreshold.call(this);
     this.backwardsSwapBarrier = this.options.getPreviousSwapThreshold.call(this);
     this.draggablePosition = this.draggable.getPosition()[this.projection];
-    if (this.draggablePosition > 0) {
+    if (this.draggablePosition > this.currentPosition) {
         forwardsDrag.call(this);
     } else {
         backwardsDrag.call(this);
@@ -90,20 +93,26 @@ function dragIsAForwardSwap() {
 }
 
 function forwardSwap() {
-    this._eventOutput.emit('swap', {
-        swapper: {
-            index: this.index
-        },
-        swappee: {
-            index: this.index + 1
-        }
-    });
-
+    if (!this.direction) {
+        this.direction = 'forward';
+    }
     var adjustedPosition = [0, 0];
-
-    adjustedPosition[this.projection] = -this.options.getForwardSwapThreshold.call(this);
-
-    this.draggable.setPosition(adjustedPosition);
+    this.currentNode = this.currentNode.getNext();
+    if (this.direction === 'backward' && this.currentNode !== this) {
+        this.currentNode.getPrevious().setPosition([0,0]);
+        this.currentPosition += this.currentNode.getSize()[this.projection];
+        return;
+    }
+    if (this.index !== this.currentNode.index) {
+        adjustedPosition[this.projection] = -this.currentNode.getSize()[this.projection];
+        this.currentNode.setPosition(adjustedPosition);
+        this.currentPosition += this.currentNode.getSize()[this.projection];
+    } else {
+        adjustedPosition[this.projection] = -this.currentNode.getSize()[this.projection];
+        this.currentNode.getPrevious().setPosition([0,0]);
+        this.currentPosition += this.currentNode.getSize()[this.projection];
+        this.direction = null;
+    }
 }
 
 function backwardsDrag() {
@@ -114,27 +123,39 @@ function backwardsDrag() {
 }
 
 function dragIsABackwardSwap() {
-    return (this.draggablePosition < -this.backwardsSwapBarrier) ? true : false;
+    return (this.draggablePosition < this.backwardsSwapBarrier) ? true : false;
 }
 
 function backwardSwap() {
-    this._eventOutput.emit('swap', {
-        swapper: {
-            index: this.index
-        },
-        swappee: {
-            index: this.index - 1
-        }
-    });
-
+    if (!this.direction) {
+        this.direction = 'backward';
+    }
     var adjustedPosition = [0, 0];
-
-    adjustedPosition[this.projection] = this.options.getPreviousSwapThreshold.call(this);
-
-    this.draggable.setPosition(adjustedPosition);
+    this.currentNode = this.currentNode.getPrevious();
+    if (this.direction === 'forward' && this.currentNode !== this) {
+        this.currentNode.getNext().setPosition([0,0]);
+        this.currentPosition -= this.currentNode.getSize()[this.projection];
+        return;
+    }
+    if (this.index !== this.currentNode.index) {
+        adjustedPosition[this.projection] = this.currentNode.getSize()[this.projection];
+        this.currentNode.setPosition(adjustedPosition);
+        this.currentPosition -= this.currentNode.getSize()[this.projection];
+    } else {
+        adjustedPosition[this.projection] = this.currentNode.getSize()[this.projection];
+        this.currentNode.getNext().setPosition([0,0]);
+        this.currentPosition -= this.currentNode.getSize()[this.projection];
+        this.direction = null;
+    }
 }
 
 function handleDragEnd() {
+    if (this.index !== this.currentNode.index) {
+        this._eventOutput.emit('shift', {
+            oldIndex: this.index,
+            newIndex: this.currentNode.index
+        });
+    }
     this.dragging = false;
     this.modifier.setTransform(Matrix.Identity);
     initializeDragMemory.call(this);

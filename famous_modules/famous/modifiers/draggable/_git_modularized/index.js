@@ -183,7 +183,7 @@ Draggable.prototype.toggle = function(){
     this._active = !this._active;
 }
 
-Draggable.prototype.render = function(target) {
+Draggable.prototype.modify = function(target) {
     var pos = this.getPosition();
     return {
         transform: Transform.translate(pos[0], pos[1]),
