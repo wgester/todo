@@ -15,4 +15,4 @@ var mainCtx = window.Engine.createContext();
 var appView = new AppView();
 
 mainCtx.add(appView);
-mainCtx.setPerspective(1000);
+mainCtx.setPerspective(500);

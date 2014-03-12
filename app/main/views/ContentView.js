@@ -12,6 +12,12 @@ var Timer             = require('famous/utilities/timer');
 var InputSurface      = require('famous/surfaces/input-surface');
 var CanvasSurface     = require('famous/surfaces/canvas-surface');
 
+//Drag Sort Testing
+var CustomDragSort    = require('./customDragSort');
+var CustomScrollView  = require('./customScrollView');
+var SampleItem        = require('./sampleItem');
+
+
 function ContentView() {
   View.apply(this, arguments);
   this.lightness = 75;
@@ -103,17 +109,23 @@ function _createTasks() {
 
   this.taskViews = [];
 
-  this.scrollview = new Scrollview();
-  this.scrollview.sequenceFrom(this.taskViews);
+  this.customscrollview = new CustomScrollView();
+  this.customdragsort = new CustomDragSort();
+
 
   for(var i = 0; i < this.tasks.length; i++) {
-    if(this.options.title === this.tasks[i].page){
-      var newTask = new TaskView({text: this.tasks[i].text});
-      newTask.pipe(this.scrollview);    
-      this.taskViews.push(newTask);
+      var newTask = new SampleItem({text: this.tasks[i].text});
+      this.customdragsort.push(newTask);
+      var associatedDragSort = this.customdragsort.find(i);
+      newTask.pipe(associatedDragSort);
+      associatedDragSort.pipe(this.customscrollview);
+      newTask.pipe(this.customscrollview);    
+      this.customscrollview.pipe(associatedDragSort);
     }
-  }
-  this._add(this.scrollview);
+
+  this.customscrollview.sequenceFrom(this.customdragsort);
+
+  this._add(this.customscrollview);
 };
 
 

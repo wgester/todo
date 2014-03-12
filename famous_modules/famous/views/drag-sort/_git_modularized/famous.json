@@ -1,0 +1,24 @@
+{
+    "name": "famous/views/drag-sort",
+    "namespace": "famous/views",
+    "type": "famous",
+    "description": "",
+    "version": "0.0.1",
+    "repository" : { 
+        "type" : "git", 
+        "url" : "https://github.com/Famous/famous-views.git"
+    },
+    "keywords": [],
+    "dependencies": {
+        "famous/view-sequence": "git+ssh://git@github.com:Famous/famous.git#modularized",
+        "famous/modifiers/draggable": "git+ssh://git@github.com:Famous/famous-modifiers.git#modularized",
+        "famous/modifier": "git+ssh://git@github.com:Famous/famous.git#modularized",
+        "famous/event-handler": "git+ssh://git@github.com:Famous/famous.git#modularized",
+        "famous/utilities/utility": "git+ssh://git@github.com:Famous/famous-utilities.git#modularized",
+        "famous/transform": "git+ssh://git@github.com:Famous/famous.git#modularized",
+        "famous/options-manager": "git+ssh://git@github.com:Famous/famous.git#modularized"
+    },
+    "scripts": [
+        "index.js"
+    ]
+}
