@@ -36,25 +36,39 @@ function _createBackground() {
     size: [window.innerWidth, window.innerHeight],
     canvasSize: [window.innerWidth*2, window.innerHeight*2]
   });
-
   var colorCanvas = this.backgroundSurf.getContext('2d');
 
-   var radial = colorCanvas.createRadialGradient( 
-                  300 * 0.5 * 2,    // x0
-                  500 * 2,         // y0
-                  0,   // r0
 
-                  300 * 0.5 * 2,    // x1
-                  500 * 2.5,       // y1
-                  300 * 5        // r1
-                  );
+  var userAgent = navigator.userAgent.toLowerCase();
+  if (userAgent.indexOf("android") > -1) {
+    var radial = colorCanvas.createLinearGradient( 
+              300 * 0.5 * 2,    // x0
+              0,                              // y0
+              300 * 0.5 * 2,    // x1
+              500 * 2         // y1
+              );
 
-  radial.addColorStop(0, "white");
-  radial.addColorStop(1, "#3399FF");
-          
-  colorCanvas.fillStyle = radial;
-  colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
-  this._add(this.backgroundSurf);
+    radial.addColorStop(0, "#3399FF");
+    radial.addColorStop(1, "white");
+            
+    colorCanvas.fillStyle = radial;
+    colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
+    this._add(this.backgroundSurf);
+  } else {
+     var radial = colorCanvas.createRadialGradient( 
+                    300 * 0.5 * 2,    // x0
+                    500 * 2,         // y0
+                    0,   // r0
+
+                    300 * 0.5 * 2,    // x1
+                    500 * 2.5,       // y1
+                    300 * 5        // r1
+                    );
+    radial.addColorStop(0, "white");
+    radial.addColorStop(1, "#3399FF");
+  
+  }
+
   
   // this.backgroundSurf = new Surface({
   //   size: [undefined, undefined]

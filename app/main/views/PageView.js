@@ -41,6 +41,7 @@ PageView.prototype.togglePosition = function() {
 
 PageView.prototype.slideUp = function() {
   this.yPosition.set(-1 * (window.innerHeight - 40), this.options.transition, function() {
+    console.log('CALLED this')
     this._eventOutput.emit('detach');
     this.toggleUpOrDown = 'up';
   }.bind(this));

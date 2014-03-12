@@ -25,7 +25,7 @@ function _createTitle() {
     properties: {
       color: 'black',
       fontSize: '1em',
-      backgroundColor: new Color('#3399FF').setLightness(70).getHex()
+      backgroundColor: new Color('#3399FF').setLightness(60).getHex()
 }
   });
   this._add(this.titleHeader);  
