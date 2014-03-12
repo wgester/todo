@@ -6,9 +6,7 @@ var Transform     = require('famous/transform');
 var Transitionable = require("famous/transitions/transitionable");
 var WallTransition = require("famous/transitions/wall-transition");
 
-
 Transitionable.registerMethod('wall', WallTransition);
-
 
 var mainCtx = window.Engine.createContext();
 

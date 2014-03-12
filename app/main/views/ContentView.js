@@ -45,9 +45,9 @@ function _isAndroid() {
 
 function _createBackground() {
   if (this.options.title === 'TODAY') {
-    _createCanvas.call(this, '#3399FF');
+    _createCanvas.call(this, '#3399FF', 4);
   } else if (this.options.title === "FOCUS") {
-    _createCanvas.call(this, '#32CEA8');
+    _createCanvas.call(this, '#32CEA8', 2.5);
   } else {
     this.backgroundSurf = new Surface({
       size: [undefined, undefined]
@@ -59,7 +59,7 @@ function _createBackground() {
   
 };
 
-function _createCanvas(color) {
+function _createCanvas(color, radialSize) {
   this.backgroundSurf = new CanvasSurface({
     size: [window.innerWidth, window.innerHeight],
     canvasSize: [window.innerWidth*2, window.innerHeight*2],
@@ -90,7 +90,7 @@ function _createCanvas(color) {
 
                     300 * 0.5 * 2,    // x1
                     500 * 2.5,       // y1
-                    300 * 2.5        // r1
+                    300 * radialSize        // r1
                     );
     this.radial.addColorStop(0, "white");
     this.radial.addColorStop(1, color);

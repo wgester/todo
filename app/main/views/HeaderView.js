@@ -31,7 +31,8 @@ function _createTitle() {
       content: '<h1>' + this.options.title + '</h1>',
       properties: {
         color: '#003156',
-        fontSize: '1em',
+        fontSize: '0.75em',
+        letterSpacing: '200%',
         backgroundColor:  new Color('#3399FF').setLightness(60).getHex() 
       }
     });
@@ -41,7 +42,8 @@ function _createTitle() {
       content: '<h1>' + this.options.title + '</h1>',
       properties: {
         color: '#003156',
-        fontSize: '1em',
+        fontSize: '0.75em',
+        letterSpacing: '200%',
         backgroundColor: new Color('#32CEA8').setLightness(50).getHex()
       }
     });
@@ -51,7 +53,8 @@ function _createTitle() {
       content: '<h1>' + this.options.title + '</h1>',
       properties: {
         color: '#003156',
-        fontSize: '1em',
+        fontSize: '0.75em',
+        letterSpacing: '120%',
         backgroundColor: new Color('#32CEA8').setLightness(50).getHex()
       }
     });
