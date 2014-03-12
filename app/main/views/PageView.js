@@ -22,9 +22,8 @@ function PageView() {
   this.toggleUpOrDown = 'down';
   this.offPage = false;
   _createLayout.call(this);
-  _setListeners.call(this);
+  _pipeSubviewEventsToAppView.call(this);
   _handlePageToggleTouches.call(this);
-  this.pipe(this._eventOutput);
 }
 
 PageView.prototype = Object.create(View.prototype);
@@ -41,28 +40,18 @@ PageView.prototype.togglePosition = function() {
 };
 
 PageView.prototype.slideUp = function() {
-  this._eventOutput.emit('slideUp');
   this.yPosition.set(-1 * (window.innerHeight - 40), this.options.transition, function() {
+    this._eventOutput.emit('detach');
     this.toggleUpOrDown = 'up';
   }.bind(this));
-  this.options.aboveView && this.options.aboveView.slideUpOffPage();
 };
 
 PageView.prototype.slideDown = function() {
-  this._eventOutput.emit('slideDown');
+  this._eventOutput.emit('reattach');
   this.yPosition.set(0, this.options.wall, function() {
                   this.toggleUpOrDown = 'down';
                 }.bind(this));
-  this.options.aboveView && this.options.aboveView.slideUp();
 };
-
-PageView.prototype.slideUpOffPage = function() {
-  this._eventOutput.emit('slideUpOffPage');
-  this.yPosition.set(-1 * window.innerHeight, this.options.transition, function() {
-    this.offPage = !this.offPage;
-  }.bind(this));
-};
-
 
 function _handlePageToggleTouches() {
   this.yPosition = new Transitionable(0);
@@ -101,40 +90,27 @@ function _handlePageToggleTouches() {
 
 PageView.DEFAULT_OPTIONS = {
   title: 'LATER',
-  aboveView: null,
   yPositionToggleThreshold: 250,
   velocityToggleThreshold: 0.75
 };
-
 
 function _createLayout() {
   this.layout = new HeaderFooter({
     headerSize: 200,
     footerSize: 40
   });
-
   this.footer = new FooterView();
-  
   this.header = new HeaderView({title: this.options.title});
-
   this.contents = new ContentView({title: this.options.title})
-
-  this.layout.id["header"].add(Utility.transformInFront).add(this.header);
-
+  this.layout.id["header"] .add(Utility.transformInFront).add(this.header);
   this.layout.id["content"].add(this.contents);
-
-  this.layout.id["footer"].add(Utility.transformInFront).add(this.footer);
-
+  this.layout.id["footer"] .add(Utility.transformInFront).add(this.footer);
   this._add(this.layout);
 };
 
-/* ------------------------------------BUTTON LISTENER--------------------------------------------*/
-function _setListeners() {
-  this.footer.on('hamburger', function(){
-    this.togglePosition();
-  }.bind(this));  
+function _pipeSubviewEventsToAppView() {
+  this.footer.pipe(this._eventOutput);
+  this.header.pipe(this._eventOutput);
 };
-
-
 
 module.exports = PageView;

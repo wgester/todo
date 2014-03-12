@@ -6,6 +6,7 @@ var View      = require('famous/view');
 function HeaderView() {
   View.apply(this, arguments);
   _createTitle.call(this);
+  _buttonListener.call(this);
 }
 
 HeaderView.prototype = Object.create(View.prototype);
@@ -29,5 +30,10 @@ function _createTitle() {
   this._add(this.titleHeader);  
 };
 
+function _buttonListener() {
+  this.titleHeader.on('touchend', function() {
+    this._eventOutput.emit('togglePageViewDown');
+  }.bind(this));
+}
 
 module.exports = HeaderView;
