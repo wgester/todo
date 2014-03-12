@@ -6,6 +6,7 @@ var View      = require('famous/view');
 function HeaderView() {
   View.apply(this, arguments);
   _createTitle.call(this);
+  _buttonListener.call(this);
 }
 
 HeaderView.prototype = Object.create(View.prototype);
