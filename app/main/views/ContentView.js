@@ -23,7 +23,9 @@ function ContentView() {
   this.lightness = 75;
   this.inputToggled = false;
 
-  this.color = new Transitionable([360, 100, 100]);
+  // this.color = new Transitionable([360, 100, 100]);
+  this.gradient = new Transitionable([50, 206, 168]);
+
   _createBackground.call(this);
   _createTasks.call(this);
   _createInput.call(this);
@@ -44,30 +46,29 @@ function _isAndroid() {
 };
 
 function _createBackground() {
-  if (this.options.title === 'TODAY') {
-    _createCanvas.call(this, '#3399FF', 'white',  4);
-  } else if (this.options.title === "FOCUS") {
-    _createCanvas.call(this, '#32CEA8', 'white', 2.5);
-  } else if (this.options.title === "LATER") {
-    _createCanvas.call(this, '#9C7CCB', '#3690FF', 2.5);    
-  } else {
-    this.backgroundSurf = new Surface({
-      size: [undefined, undefined]
-    });
+  // if (this.options.title === 'TODAY') {
+  //   _createCanvas.call(this, '#3399FF', 'white',  4);
+  // } else if (this.options.title === "FOCUS") {
+  //   _createCanvas.call(this, '#32CEA8', 'white', 2.5);
+  // } else if (this.options.title === "LATER") {
+  //   _createCanvas.call(this, '#9C7CCB', '#3690FF', 2.5);    
+  // } else {
+  //   this.backgroundSurf = new Surface({
+  //     size: [undefined, undefined]
+  //   });
 
-    this.backgroundModifier = new Modifier();
-    this._add(this.backgroundModifier).add(this.backgroundSurf);
-  }
-  
-};
-
-function _createCanvas(mainColor, minorColor, radialSize) {
+  //   this.backgroundModifier = new Modifier();
+  //   this._add(this.backgroundModifier).add(this.backgroundSurf);
+  // }
   this.backgroundSurf = new CanvasSurface({
     size: [window.innerWidth, window.innerHeight],
     canvasSize: [window.innerWidth*2, window.innerHeight*2],
     classes: ['famous-surface']
   });
-  
+  // _createCanvas.call(this);
+};
+
+function _createCanvas() {
   var colorCanvas = this.backgroundSurf.getContext('2d');
 
   var userAgent = navigator.userAgent.toLowerCase();
@@ -78,8 +79,16 @@ function _createCanvas(mainColor, minorColor, radialSize) {
               300 * 0.5 * 2,    // x1
               500 * 2         // y1
               );
-    this.radial.addColorStop(0, mainColor);
-    this.radial.addColorStop(1, minorColor);
+    
+    this.radial.addColorStop(
+      0, 
+      "rgb(" +
+      Math.floor(this.gradient.get()[0]) + "," + 
+      Math.floor(this.gradient.get()[1]) + "," + 
+      Math.floor(this.gradient.get()[2]) + ")"
+    );
+    
+    this.radial.addColorStop(1, 'rgb(255, 255, 255)');
             
     colorCanvas.fillStyle = this.radial;
     colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
@@ -92,10 +101,18 @@ function _createCanvas(mainColor, minorColor, radialSize) {
 
                     300 * 0.5 * 2,    // x1
                     500 * 2.5,       // y1
-                    300 * radialSize        // r1
+                    300 * 2.5        // r1
                     );
-    this.radial.addColorStop(0, minorColor);
-    this.radial.addColorStop(1, mainColor);
+    this.radial.addColorStop(0, 'rgb(255, 255, 255)');
+    
+    this.radial.addColorStop(
+      1,
+      "rgb(" +
+      Math.floor(this.gradient.get()[0]) + "," + 
+      Math.floor(this.gradient.get()[1]) + "," + 
+      Math.floor(this.gradient.get()[2]) + ")"
+    );
+    
     colorCanvas.fillStyle = this.radial;
     colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
 
@@ -104,11 +121,11 @@ function _createCanvas(mainColor, minorColor, radialSize) {
 };
 
 
-function _completeColorMod() {
-  this.backgroundSurf.setProperties({
-    backgroundColor: 'hsl(145, 63%,' + this.color.get()[2] + '%)'
-  });
-};
+// function _completeColorMod() {
+//   this.backgroundSurf.setProperties({
+//     backgroundColor: 'hsl(145, 63%,' + this.color.get()[2] + '%)'
+//   });
+// };
 
 
 function _createInput() {
@@ -142,7 +159,8 @@ function _createTasks() {
 
 
 function _taskListeners() {
-  window.Engine.on('prerender', _completeColorMod.bind(this));
+  // window.Engine.on('prerender', _completeColorMod.bind(this));
+  window.Engine.on('prerender', _createCanvas.bind(this));
 
   _setInputListener.call(this);
 
@@ -152,43 +170,48 @@ function _taskListeners() {
 };
 
 function _setInputListener() {
-  this.backgroundSurf.on('touchstart', function(e) {
-    this.inputToggled = !this.inputToggled;
-    var value = this.boxContainer.inputSurf.getValue();
-    this.boxContainer.inputSurf.setValue('');
+  // this.backgroundSurf.on('touchstart', function(e) {
+  //   this.inputToggled = !this.inputToggled;
+  //   var value = this.boxContainer.inputSurf.getValue();
+  //   this.boxContainer.inputSurf.setValue('');
     
-    if (this.inputToggled) {
-      this.boxContainer.frontSurf.setProperties({'visibility': 'visible'})
-      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [10, 200, 50]), {duration: 300});      
-    } else if (!this.inputToggled && value.length) {
-      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [10, 150, 50]), {duration: 300}, function() {
-        var newTask = new TaskView({text: value});
-        newTask.pipe(this.scrollview);    
-        this.taskViews.push(newTask);        
-        this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
-      }.bind(this));
-    } else {
-      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [10, 150, 50]), {duration: 300}, function() {
-        this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
-      }.bind(this));
-    }
-  }.bind(this));  
+  //   if (this.inputToggled) {
+  //     this.boxContainer.frontSurf.setProperties({'visibility': 'visible'})
+  //     this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [10, 200, 50]), {duration: 300});      
+  //   } else if (!this.inputToggled && value.length) {
+  //     this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [10, 150, 50]), {duration: 300}, function() {
+  //       var newTask = new TaskView({text: value});
+  //       newTask.pipe(this.scrollview);    
+  //       this.taskViews.push(newTask);        
+  //       this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
+  //     }.bind(this));
+  //   } else {
+  //     this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [10, 150, 50]), {duration: 300}, function() {
+  //       this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
+  //     }.bind(this));
+  //   }
+  // }.bind(this));  
 
+  this.backgroundSurf.on('touchstart', function() {
+    this.gradient.set([51, 153, 255], {duration: 1000}, function() {
+      console.log('GRADIENTED');
+    });
+  }.bind(this));
   
 };
 
 function _setOneCompleteListener(surface) {
-  surface.on('completed', function() {
-    this.color.set([145, 63, this.lightness], {
-      duration: 250
-    }, function() {
-      Timer.after(function() {
-        this.color.set([145, 63, 100], {
-          duration: 250
-        }, function() {});      
-      }.bind(this), 7);            
-    }.bind(this));
-  }.bind(this));  
+  // surface.on('completed', function() {
+  //   this.color.set([145, 63, this.lightness], {
+  //     duration: 250
+  //   }, function() {
+  //     Timer.after(function() {
+  //       this.color.set([145, 63, 100], {
+  //         duration: 250
+  //       }, function() {});      
+  //     }.bind(this), 7);            
+  //   }.bind(this));
+  // }.bind(this));  
 };
 
 

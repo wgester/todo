@@ -34,7 +34,7 @@ input {
 }
 
 .task p {
-  padding-left: 10px;
+  padding-left: 20px;
   margin: 0;
   letter-spacing: 0.3px;
   font-size: 1.2em;
@@ -46,7 +46,7 @@ input {
 }
 
 h1 {
-  padding-left: 10px;
+  padding-left: 20px;
   font-weight: 300;
   letter-spacing: 4px;
   font-size: 2em;
