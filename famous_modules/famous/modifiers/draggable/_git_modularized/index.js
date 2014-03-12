@@ -112,7 +112,7 @@ function _handleMove(event){
     this.eventOutput.emit('dragmove', {p : pos});
 }
 
-function _handleEnd(event){
+function _handleEnd(){
     if (!this._active) return;
     this.eventOutput.emit('dragend', {p : this.getPosition(), v : event.v});
 }
@@ -183,7 +183,7 @@ Draggable.prototype.toggle = function(){
     this._active = !this._active;
 }
 
-Draggable.prototype.modify = function(target) {
+Draggable.prototype.render = function(target) {
     var pos = this.getPosition();
     return {
         transform: Transform.translate(pos[0], pos[1]),

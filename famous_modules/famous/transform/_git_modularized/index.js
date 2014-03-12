@@ -61,10 +61,6 @@ Transform.multiply4x4 = function multiply4x4(a, b) {
     else return multiply4x4.apply(null, [result].concat(Array.prototype.slice.call(arguments, 2)));
 };
 
-Transform.setMatrix = function(matrix) {
-    return matrix;
-};
-
 /**
  * Fast-multiply two or more Matrix types to return a
  *    Matrix, assuming bottom row on each is [0 0 0 1].
