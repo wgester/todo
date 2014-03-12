@@ -20,15 +20,38 @@ HeaderView.DEFAULT_OPTIONS = {
 };
 
 function _createTitle() {
-  this.titleHeader = new Surface({
-    content: '<h1>' + this.options.title + '</h1>',
-    properties: {
-      color: 'black',
-      fontSize: '1em',
-      backgroundColor: new Color('#3399FF').setLightness(70).getHex()
-}
-  });
+  if (this.options.title === "TODAY") {
+    this.titleHeader = new Surface({
+      content: '<h1>' + this.options.title + '</h1>',
+      properties: {
+        color: 'black',
+        fontSize: '1em',
+        backgroundColor: new Color('#3399FF').setLightness(70).getHex()
+      }
+    });
   this._add(this.titleHeader);  
+  } else if (this.options.title === "FOCUS") {
+    this.titleHeader = new Surface({
+      content: '<h1>' + this.options.title + '</h1>',
+      properties: {
+        color: 'black',
+        fontSize: '1em',
+        backgroundColor: new Color('#32CEA8').setLightness(50).getHex()
+      }
+    });
+    this._add(this.titleHeader);  
+  } else {
+    this.titleHeader = new Surface({
+      content: '<h1>' + this.options.title + '</h1>',
+      properties: {
+        color: 'black',
+        fontSize: '1em',
+        backgroundColor: new Color('#32CEA8').setLightness(50).getHex()
+      }
+    });
+    this._add(this.titleHeader);      
+  }
+  
 };
 
 function _buttonListener() {
