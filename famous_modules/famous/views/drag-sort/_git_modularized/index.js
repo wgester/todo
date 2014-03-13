@@ -100,25 +100,25 @@ function forwardSwap() {
     this.currentNode = this.currentNode.getNext();
     if (this.direction === 'backward' && this.currentNode !== this) {
         this.currentNode.getPrevious().setPosition([0,0], {
-            duration: 300,
-            curve: 'easeOut'
-        });
+        duration: 165,
+        curve: 'easeOut'
+    });
         this.currentPosition += this.currentNode.getSize()[this.projection];
         return;
     }
     if (this.index !== this.currentNode.index) {
         adjustedPosition[this.projection] = -this.currentNode.getSize()[this.projection];
         this.currentNode.setPosition(adjustedPosition, {
-            duration: 300,
-            curve: 'easeOut'
-        });
+        duration: 165,
+        curve: 'easeOut'
+    });
         this.currentPosition += this.currentNode.getSize()[this.projection];
     } else {
         adjustedPosition[this.projection] = -this.currentNode.getSize()[this.projection];
-        this.currentNode.getPrevious().setPosition([0,4000], {
-            duration: 300,
-            curve: 'easeOut'
-        });
+        this.currentNode.getPrevious().setPosition([0,0], {
+        duration: 165,
+        curve: 'easeOut'
+    });
         this.currentPosition += this.currentNode.getSize()[this.projection];
         this.direction = null;
     }
@@ -142,26 +142,26 @@ function backwardSwap() {
     var adjustedPosition = [0, 0];
     this.currentNode = this.currentNode.getPrevious();
     if (this.direction === 'forward' && this.currentNode !== this) {
-        this.currentNode.getNext().setPosition([100, 100], {
-            duration: 300,
-            curve: 'easeOut'
-        });
+        this.currentNode.getNext().setPosition([0,0], {
+        duration: 165,
+        curve: 'easeOut'
+    });
         this.currentPosition -= this.currentNode.getSize()[this.projection];
         return;
     }
     if (this.index !== this.currentNode.index) {
         adjustedPosition[this.projection] = this.currentNode.getSize()[this.projection];
         this.currentNode.setPosition(adjustedPosition, {
-            duration: 300,
-            curve: 'easeOut'
-        });
+        duration: 165,
+        curve: 'easeOut'
+    });
         this.currentPosition -= this.currentNode.getSize()[this.projection];
     } else {
         adjustedPosition[this.projection] = this.currentNode.getSize()[this.projection];
-        this.currentNode.getNext().setPosition([300,300], {
-            duration: 300,
-            curve: 'easeOut'
-        });
+        this.currentNode.getNext().setPosition([0,0], {
+        duration: 165,
+        curve: 'easeOut'
+    });
         this.currentPosition -= this.currentNode.getSize()[this.projection];
         this.direction = null;
     }
@@ -173,6 +173,11 @@ function handleDragEnd() {
             oldIndex: this.index,
             newIndex: this.currentNode.index
         });
+    } else {
+        this.setPosition([0,0], {
+        duration: 165,
+        curve: 'easeOut'
+    });
     }
     this.dragging = false;
     this.modifier.setTransform(Matrix.Identity);
