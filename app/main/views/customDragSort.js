@@ -43,7 +43,7 @@ function normalizeColors() {
 
     for (var i = 0; i < nodes.length; i++) {
         var nodeValue = nodes[i].get();
-        nodeValue.setColor(i);
+        // nodeValue.setColor(i);
     }
 }
 
