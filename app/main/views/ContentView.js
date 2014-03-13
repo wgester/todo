@@ -56,8 +56,7 @@ function _createBackground() {
 function _createCanvas() {
   var colorCanvas = this.backgroundSurf.getContext('2d');
 
-  var userAgent = navigator.userAgent.toLowerCase();
-  if (userAgent.indexOf("android") > -1) {
+  if (_isAndroid()) {
     this.radial = colorCanvas.createLinearGradient( 
               300 * 0.5 * 2,    // x0
               0,                              // y0
