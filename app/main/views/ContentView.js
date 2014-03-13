@@ -29,7 +29,7 @@ function ContentView() {
   _createTasks.call(this);
   _createInput.call(this);
   _taskListeners.call(this);
-  _colorTransitionOnLoad.call(this);
+  // _colorTransitionOnLoad.call(this);
 };
 
 ContentView.prototype = Object.create(View.prototype);
@@ -46,10 +46,13 @@ function _isAndroid() {
 };
 
 function _createBackground() {
-  this.backgroundSurf = new CanvasSurface({
-    size: [window.innerWidth, window.innerHeight],
-    canvasSize: [window.innerWidth*2, window.innerHeight*2],
-    classes: ['famous-surface']
+  // this.backgroundSurf = new CanvasSurface({
+  //   size: [window.innerWidth, window.innerHeight],
+  //   canvasSize: [window.innerWidth*2, window.innerHeight*2],
+  //   classes: ['famous-surface']
+  // });
+  this.backgroundSurf = new Surface({
+    size: [undefined, undefined]
   });
 };
 
@@ -148,7 +151,7 @@ function _createTasks() {
 
 
 function _taskListeners() {
-  window.Engine.on('prerender', _createCanvas.bind(this));
+  // window.Engine.on('prerender', _createCanvas.bind(this));
 
   _setInputListener.call(this);
 };

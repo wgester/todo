@@ -81,24 +81,30 @@ function _addPageRelations(page, previousPage, nextPage) {
 function _addEventListeners(newView, newModifier){
   newView.on('togglePageViewUp', function() {
     if (newView.nextPage) {
-      this.lightBox.optionsForSwipeUp || this.lightBox.setOptions({
-        outTransition: this.options.transition,
-        outTransform: Transform.translate(0, -600, 10),
-        inTransition: this.options.noTransition,
-        inTransform: Transform.translate(0, 0, -5)
-      });
+      if (!this.lightBox.optionsForSwipeUp){
+        this.lightBox.setOptions({
+          outTransition: this.options.transition,
+          outTransform: Transform.translate(0, -1200, 10),
+          inTransition: this.options.noTransition,
+          inTransform: Transform.translate(0, 0, -5)
+        });
+        this.lightBox.optionsForSwipeUp = true;
+      }
       this.lightBox.show(newView.nextPage);
     }
   }.bind(this));
 
   newView.on('togglePageViewDown', function() {
     if (newView.previousPage) {
-      this.lightBox.optionsForSwipeUp && this.lightBox.setOptions({
-        outTransition: this.options.noTransition,
-        outTransform: Transform.translate(0, 0, -5),
-        inTransition: this.options.wall,
-        inTransform: Transform.translate(0, -600, 1)
-      });
+      if (this.lightBox.optionsForSwipeUp)  {
+        this.lightBox.setOptions({
+          outTransition: this.options.noTransition,
+          outTransform: Transform.translate(0, 0, -5),
+          inTransition: this.options.wall,
+          inTransform: Transform.translate(0, -1200, 1)
+        });
+        this.lightBox.optionsForSwipeUp = false;
+      }
       this.lightBox.show(newView.previousPage);
     }
   }.bind(this));
