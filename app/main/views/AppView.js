@@ -20,10 +20,13 @@ AppView.DEFAULT_OPTIONS = {
     duration: 300,
     curve: 'easeOut'
   },
+  menuDropTransition: {
+    duration: 200,
+    curve: 'easeIn'
+  },
   wall: {
     method: 'wall',
     period: 300,
-    delay: 400,
     dampingRatio: 0.3
   },
   noTransition: {
@@ -33,18 +36,14 @@ AppView.DEFAULT_OPTIONS = {
 
 function _createLightBox() {
   this.lightBox = new Lightbox({
-    inTransform: Transform.translate(0, -500, 2),
-    inTransition: this.options.wall,
-    // inTransition: this.options.noTransition,
+    inTransition: this.options.noTransition,
+    inTransform: Transform.translate(0, 0, 0),
     inOpacity: 1,
-    outTransform: Transform.translate(0, 0, -10),
-    outTransition: false,
-    // outTransition: this.options.noTransition,
     outOpacity: 1,
-    overlap: true,
-    inOrigin: [0, 0],
-    outOrigin: [0, 0]
+    overlap: true
   });
+
+  this.lightBox.optionsForSwipeUp = false;
 
   this._add(this.lightBox);
 }
@@ -67,15 +66,39 @@ function _addPageRelations(page, previousPage, nextPage) {
   _addEventListeners.call(this, this[page + 'View'], this[page + 'Modifier']);
 }
 
+//toggle up
+//outTransition: easeOut
+//outTransform:  Transform.translate(0, -600, 1)
+//inTransition: false
+//inTransform: Transform.translate(0, 0, -1)
+
+//toggle down
+//outTransition: false
+//outTransform:  Transform.translate(0, 0, -1)
+//inTransition: wall
+//inTransform: Transform.translate(0, -600, 1)
+
 function _addEventListeners(newView, newModifier){
   newView.on('togglePageViewUp', function() {
     if (newView.nextPage) {
+      this.lightBox.optionsForSwipeUp || this.lightBox.setOptions({
+        outTransition: this.options.transition,
+        outTransform: Transform.translate(0, -600, 10),
+        inTransition: this.options.noTransition,
+        inTransform: Transform.translate(0, 0, -5)
+      });
       this.lightBox.show(newView.nextPage);
     }
   }.bind(this));
 
   newView.on('togglePageViewDown', function() {
     if (newView.previousPage) {
+      this.lightBox.optionsForSwipeUp && this.lightBox.setOptions({
+        outTransition: this.options.noTransition,
+        outTransform: Transform.translate(0, 0, -5),
+        inTransition: this.options.wall,
+        inTransform: Transform.translate(0, -600, 1)
+      });
       this.lightBox.show(newView.previousPage);
     }
   }.bind(this));
