@@ -45,13 +45,10 @@ function _isAndroid() {
 };
 
 function _createBackground() {
-  // this.backgroundSurf = new CanvasSurface({
-  //   size: [window.innerWidth, window.innerHeight],
-  //   canvasSize: [window.innerWidth*2, window.innerHeight*2],
-  //   classes: ['famous-surface']
-  // });
-  this.backgroundSurf = new Surface({
-    size: [undefined, undefined]
+  this.backgroundSurf = new CanvasSurface({
+    size: [window.innerWidth, window.innerHeight],
+    canvasSize: [window.innerWidth*2, window.innerHeight*2],
+    classes: ['famous-surface']
   });
 };
 
@@ -189,6 +186,7 @@ function _colorTransitionOnLoad() {
   } else if (this.options.title === 'FOCUS') {
     this.gradient.set([50, 206, 168, 255, 255, 255], {duration: 2000, curve: 'easeInOut'}, function() {});
   } else if (this.options.title === 'LATER') {
+    this.gradient = new Transitionable([51, 153, 255, 255, 255, 255]);
     this.gradient.set([156, 124, 203, 54, 144, 255], {duration: 2000, curve: 'easeInOut'}, function() {});    
   } else {
     this.gradient.set([50, 206, 168, 255, 255, 255], {duration: 2000}, function() {});    

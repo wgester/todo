@@ -107,7 +107,6 @@ function _addEventListeners(newView, newModifier){
         this.lightBox.optionsForSwipeUp = false;
       }
       this.lightBox.show(newView.previousPage);
-      newView.previousPage.contents._eventOutput.emit('opened');
     }
   }.bind(this));
 }
