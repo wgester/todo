@@ -128,7 +128,7 @@ function _createTasks() {
 
   this.customscrollview = new CustomScrollView();
   this.customdragsort = new CustomDragSort();
-  var node = customdragsort;
+  var node = this.customdragsort;
 
 
   for(var i = 0; i < this.tasks.length; i++) {
