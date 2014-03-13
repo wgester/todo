@@ -128,16 +128,17 @@ function _createTasks() {
 
   this.customscrollview = new CustomScrollView();
   this.customdragsort = new CustomDragSort();
+  var node = this.customdragsort;
 
 
   for(var i = 0; i < this.tasks.length; i++) {
       var newTask = new SampleItem({text: this.tasks[i].text});
       this.customdragsort.push(newTask);
-      var associatedDragSort = this.customdragsort.find(i);
-      newTask.pipe(associatedDragSort);
-      associatedDragSort.pipe(this.customscrollview);
+      if(node.getNext()) node = node._next;
+      newTask.pipe(node);
+      node.pipe(this.customscrollview);
       newTask.pipe(this.customscrollview);    
-      this.customscrollview.pipe(associatedDragSort);
+      this.customscrollview.pipe(node);
     }
 
   this.customscrollview.sequenceFrom(this.customdragsort);
