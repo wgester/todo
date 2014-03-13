@@ -55,9 +55,13 @@ function bindEvents() {
     Engine.on('prerender', checkForDragging.bind(this));
 }
 
-function handleStart() {
+function handleStart(data) {
     this.touched = true;
-    this.touchStart = [0,0];
+    console.log('start', data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY'])
+}
+
+function handleMove(data) {
+    console.log('move', data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY'])   
 }
 
 function handleEnd() {
