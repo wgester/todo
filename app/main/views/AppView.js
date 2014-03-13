@@ -16,8 +16,6 @@ function AppView() {
 AppView.prototype = Object.create(View.prototype);
 AppView.prototype.constructor = AppView;
 
-
-
 AppView.DEFAULT_OPTIONS = {
   transition: {
     duration: 300,
