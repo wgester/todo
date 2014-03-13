@@ -66,22 +66,18 @@ function _createCanvas() {
     this.radial.addColorStop(
       0, 
       "rgb(" +
-      Math.floor(this.gradient.get()[0]) + "," + 
-      Math.floor(this.gradient.get()[1]) + "," + 
-      Math.floor(this.gradient.get()[2]) + ")"
+      (this.gradient.get()[0] >> 0) + "," + 
+      (this.gradient.get()[1] >> 0) + "," + 
+      (this.gradient.get()[2] >> 0) + ")"
     );
     
     this.radial.addColorStop(
       1,
       "rgb(" + 
-      Math.floor(this.gradient.get()[3]) + "," + 
-      Math.floor(this.gradient.get()[4]) + "," + 
-      Math.floor(this.gradient.get()[5]) + ")"
+      (this.gradient.get()[3] >> 0) + "," + 
+      (this.gradient.get()[4] >> 0) + "," + 
+      (this.gradient.get()[5] >> 0) + ")"
     );
-            
-    colorCanvas.fillStyle = this.radial;
-    colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
-    this._add(this.backgroundSurf);
   } else {
      this.radial = colorCanvas.createRadialGradient( 
                     300 * 0.5 * 2,    // x0
@@ -95,24 +91,22 @@ function _createCanvas() {
     this.radial.addColorStop(
       0,
       "rgb(" + 
-      Math.floor(this.gradient.get()[3]) + "," + 
-      Math.floor(this.gradient.get()[4]) + "," + 
-      Math.floor(this.gradient.get()[5]) + ")"
+      (this.gradient.get()[3] >> 0) + "," + 
+      (this.gradient.get()[4] >> 0) + "," + 
+      (this.gradient.get()[5] >> 0) + ")"
     );
     
     this.radial.addColorStop(
       1,
       "rgb(" +
-      Math.floor(this.gradient.get()[0]) + "," + 
-      Math.floor(this.gradient.get()[1]) + "," + 
-      Math.floor(this.gradient.get()[2]) + ")"
+      (this.gradient.get()[0] >> 0) + "," + 
+      (this.gradient.get()[1] >> 0) + "," + 
+      (this.gradient.get()[2] >> 0) + ")"
     );
-    
-    colorCanvas.fillStyle = this.radial;
-    colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
-
-    this._add(this.backgroundSurf); 
-  }    
+  }
+  colorCanvas.fillStyle = this.radial;
+  colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
+  this._add(this.backgroundSurf);
 };
 
 function _createInput() {
@@ -150,8 +144,8 @@ function _taskListeners() {
   window.Engine.on('prerender', _createCanvas.bind(this));
   _setInputListener.call(this);
 
-  this.on('opened', function() {
-    _colorTransitionOnLoad.call(this);  
+  this.on('opened', function(direction) {
+    _colorTransitionOnLoad.call(this, direction);  
   });
 };
 
@@ -179,17 +173,20 @@ function _setInputListener() {
   }.bind(this));    
 };
 
-function _colorTransitionOnLoad() {
-  
-  if (this.options.title === 'TODAY') {
-    this.gradient.set([51, 153, 255, 255, 255, 255], {duration: 2000, curve: 'easeInOut'}, function() {});
-  } else if (this.options.title === 'FOCUS') {
-    this.gradient.set([50, 206, 168, 255, 255, 255], {duration: 2000, curve: 'easeInOut'}, function() {});
-  } else if (this.options.title === 'LATER') {
+function _colorTransitionOnLoad(dir) {
+
+  if (this.options.title === 'FOCUS') {
     this.gradient = new Transitionable([51, 153, 255, 255, 255, 255]);
-    this.gradient.set([156, 124, 203, 54, 144, 255], {duration: 2000, curve: 'easeInOut'}, function() {});    
+    this.gradient.set([50, 206, 168, 255, 255, 255], {duration: 1000, curve: 'easeInOut'}, function() {});
+  } else if (this.options.title === 'TODAY') {
+    this.gradient = (dir === 'forward') ? new Transitionable([50, 206, 168, 255, 255, 255]) : new Transitionable([156, 124, 203, 54, 144, 255]);
+    this.gradient.set([51, 153, 255, 255, 255, 255], {duration: 1000, curve: 'easeInOut'}, function() {});
+  } else if (this.options.title === 'LATER') {
+    this.gradient = (dir === 'forward') ? new Transitionable([51, 153, 255, 255, 255, 255]) : new Transitionable([50, 206, 168, 255, 255, 255]);
+    this.gradient.set([156, 124, 203, 54, 144, 255], {duration: 1000, curve: 'easeInOut'}, function() {});    
   } else {
-    this.gradient.set([50, 206, 168, 255, 255, 255], {duration: 2000}, function() {});    
+    this.gradient = new Transitionable([156, 124, 203, 54, 144, 255]);
+    this.gradient.set([50, 206, 168, 255, 255, 255], {duration: 1000}, function() {});    
   }
 };
 
