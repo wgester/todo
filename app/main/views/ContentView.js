@@ -23,11 +23,13 @@ function ContentView() {
   this.lightness = 75;
   this.inputToggled = false;
 
-  this.color = new Transitionable([360, 100, 100]);
+  this.gradient = new Transitionable([50, 206, 168, 255, 255, 255]);
+
   _createBackground.call(this);
   _createTasks.call(this);
   _createInput.call(this);
   _taskListeners.call(this);
+  _colorTransitionOnLoad.call(this);
 };
 
 ContentView.prototype = Object.create(View.prototype);
@@ -44,30 +46,14 @@ function _isAndroid() {
 };
 
 function _createBackground() {
-  if (this.options.title === 'TODAY') {
-    _createCanvas.call(this, '#3399FF', 'white',  4);
-  } else if (this.options.title === "FOCUS") {
-    _createCanvas.call(this, '#32CEA8', 'white', 2.5);
-  } else if (this.options.title === "LATER") {
-    _createCanvas.call(this, '#9C7CCB', '#3690FF', 2.5);    
-  } else {
-    this.backgroundSurf = new Surface({
-      size: [undefined, undefined]
-    });
-
-    this.backgroundModifier = new Modifier();
-    this._add(this.backgroundModifier).add(this.backgroundSurf);
-  }
-  
-};
-
-function _createCanvas(mainColor, minorColor, radialSize) {
   this.backgroundSurf = new CanvasSurface({
     size: [window.innerWidth, window.innerHeight],
     canvasSize: [window.innerWidth*2, window.innerHeight*2],
     classes: ['famous-surface']
   });
-  
+};
+
+function _createCanvas() {
   var colorCanvas = this.backgroundSurf.getContext('2d');
 
   var userAgent = navigator.userAgent.toLowerCase();
@@ -78,8 +64,22 @@ function _createCanvas(mainColor, minorColor, radialSize) {
               300 * 0.5 * 2,    // x1
               500 * 2         // y1
               );
-    this.radial.addColorStop(0, mainColor);
-    this.radial.addColorStop(1, minorColor);
+    
+    this.radial.addColorStop(
+      0, 
+      "rgb(" +
+      Math.floor(this.gradient.get()[0]) + "," + 
+      Math.floor(this.gradient.get()[1]) + "," + 
+      Math.floor(this.gradient.get()[2]) + ")"
+    );
+    
+    this.radial.addColorStop(
+      1,
+      "rgb(" + 
+      Math.floor(this.gradient.get()[3]) + "," + 
+      Math.floor(this.gradient.get()[4]) + "," + 
+      Math.floor(this.gradient.get()[5]) + ")"
+    );
             
     colorCanvas.fillStyle = this.radial;
     colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
@@ -92,24 +92,30 @@ function _createCanvas(mainColor, minorColor, radialSize) {
 
                     300 * 0.5 * 2,    // x1
                     500 * 2.5,       // y1
-                    300 * radialSize        // r1
+                    300 * 2.5        // r1
                     );
-    this.radial.addColorStop(0, minorColor);
-    this.radial.addColorStop(1, mainColor);
+    this.radial.addColorStop(
+      0,
+      "rgb(" + 
+      Math.floor(this.gradient.get()[3]) + "," + 
+      Math.floor(this.gradient.get()[4]) + "," + 
+      Math.floor(this.gradient.get()[5]) + ")"
+    );
+    
+    this.radial.addColorStop(
+      1,
+      "rgb(" +
+      Math.floor(this.gradient.get()[0]) + "," + 
+      Math.floor(this.gradient.get()[1]) + "," + 
+      Math.floor(this.gradient.get()[2]) + ")"
+    );
+    
     colorCanvas.fillStyle = this.radial;
     colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
 
     this._add(this.backgroundSurf); 
   }    
 };
-
-
-function _completeColorMod() {
-  this.backgroundSurf.setProperties({
-    backgroundColor: 'hsl(145, 63%,' + this.color.get()[2] + '%)'
-  });
-};
-
 
 function _createInput() {
   this.boxContainer = new BoxContainer();
@@ -142,13 +148,9 @@ function _createTasks() {
 
 
 function _taskListeners() {
-  window.Engine.on('prerender', _completeColorMod.bind(this));
+  window.Engine.on('prerender', _createCanvas.bind(this));
 
   _setInputListener.call(this);
-
-  for(var i = 0; i < this.taskViews.length; i++) {
-    _setOneCompleteListener.call(this, this.taskViews[i]);     
-  }
 };
 
 function _setInputListener() {
@@ -172,24 +174,64 @@ function _setInputListener() {
         this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
       }.bind(this));
     }
-  }.bind(this));  
+  }.bind(this));    
+};
 
+function _colorTransitionOnLoad() {
   
-};
+    // if (this.options.title === 'TODAY') {
+  //   _createCanvas.call(this, '#3399FF', 'white',  4);
+  // } else if (this.options.title === "FOCUS") {
+  //   _createCanvas.call(this, '#32CEA8', 'white', 2.5);
+  // } else if (this.options.title === "LATER") {
+  //   _createCanvas.call(this, '#9C7CCB', '#3690FF', 2.5);    
+  // } else {
+  //   this.backgroundSurf = new Surface({
+  //     size: [undefined, undefined]
+  //   });
 
-function _setOneCompleteListener(surface) {
-  surface.on('completed', function() {
-    this.color.set([145, 63, this.lightness], {
-      duration: 250
-    }, function() {
-      Timer.after(function() {
-        this.color.set([145, 63, 100], {
-          duration: 250
-        }, function() {});      
-      }.bind(this), 7);            
-    }.bind(this));
-  }.bind(this));  
+  //   this.backgroundModifier = new Modifier();
+  //   this._add(this.backgroundModifier).add(this.backgroundSurf);
+  // }
+  if (this.options.title === 'TODAY') {
+    this.gradient.set([51, 153, 255, 255, 255, 255], {duration: 2000, curve: 'easeInOut'}, function() {});
+  } else if (this.options.title === 'FOCUS') {
+    this.gradient.set([50, 206, 168, 255, 255, 255], {duration: 2000, curve: 'easeInOut'}, function() {});
+  } else if (this.options.title === 'LATER') {
+    this.gradient.set([156, 124, 203, 54, 144, 255], {duration: 2000, curve: 'easeInOut'}, function() {});    
+  } else {
+    this.gradient.set([50, 206, 168, 255, 255, 255], {duration: 2000}, function() {});    
+  }
 };
-
 
 module.exports = ContentView;
+
+
+// this.color = new Transitionable([360, 100, 100]);
+
+// window.Engine.on('prerender', _completeColorMod.bind(this));
+
+// for(var i = 0; i < this.taskViews.length; i++) {
+//   _setOneCompleteListener.call(this, this.taskViews[i]);     
+// }
+
+// function _completeColorMod() {
+//   this.backgroundSurf.setProperties({
+//     backgroundColor: 'hsl(145, 63%,' + this.color.get()[2] + '%)'
+//   });
+// };
+
+// function _setOneCompleteListener(surface) {
+  // surface.on('completed', function() {
+  //   this.color.set([145, 63, this.lightness], {
+  //     duration: 250
+  //   }, function() {
+  //     Timer.after(function() {
+  //       this.color.set([145, 63, 100], {
+  //         duration: 250
+  //       }, function() {});      
+  //     }.bind(this), 7);            
+  //   }.bind(this));
+  // }.bind(this));  
+// };
+

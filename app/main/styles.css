@@ -23,18 +23,23 @@ input {
   height: 3em;
   margin-top: 10px;
   margin-left: 0;
-/*  border: 1px solid gray;
-*//*  box-shadow: 2px 2px 2px #000;
-*/}
+}
+
+.title h1 {
+  margin-top: 200px;
+  text-align: center;
+  color: transparent;
+  font-size: 4em;
+
+}
 
 .task {
   box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.2);
   line-height: 60px;
-  color: #003156;
 }
 
 .task p {
-  padding-left: 10px;
+  padding-left: 20px;
   margin: 0;
   letter-spacing: 0.3px;
   font-size: 1.2em;
@@ -46,12 +51,12 @@ input {
 }
 
 h1 {
-  padding-left: 10px;
+  padding-left: 20px;
   font-weight: 300;
   letter-spacing: 4px;
   font-size: 2em;
+  color: #003156;
 }
-
 
 .container {
   width: 300px;
