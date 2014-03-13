@@ -57,11 +57,12 @@ function bindEvents() {
 
 function handleStart(data) {
     this.touched = true;
-    console.log('start', data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY'])
+    this.touchStart = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
+    this.touchCurrent = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
 }
 
 function handleMove(data) {
-    console.log('move', data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY'])   
+    this.touchCurrent = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];  
 }
 
 function handleEnd() {
@@ -81,6 +82,7 @@ function checkForDragging(data) {
     if (this.touched) {
         this.timeTouched += this.timeDelta;
         if (this.timeTouched > this.dragThreshold) {
+            console.log(this.touchStart, this.touchCurrent)
             this.timeTouched = 0;
             this._eventOutput.emit('editmodeOn');
             this.touched = false;
