@@ -5,7 +5,7 @@ var Modifier      = require('famous/modifier');
 var Transform     = require('famous/transform');
 var Transitionable = require("famous/transitions/transitionable");
 var WallTransition = require("famous/transitions/wall-transition");
-
+var devMode = true;
 
 Transitionable.registerMethod('wall', WallTransition);
 
@@ -32,15 +32,21 @@ function _shadowMod() {
 };
 
 function _playShadow() {
-  this.set([1.5, 100, 50], {duration: 1500}, function() {
-    this.set([2, 100, 50], {duration: 800}, function(){
-      this.set([0, 100, 50], {duration: 500}, function() {
-        var appView = new AppView();
-        mainCtx.add(appView);        
-        titleMod.setTransform(Transform.translate(0, 0, -50000));
+  if (devMode) {
+    var appView = new AppView();
+    mainCtx.add(appView);        
+    titleMod.setTransform(Transform.translate(0, 0, -50000));
+  } else {
+    this.set([1.5, 100, 50], {duration: 1500}, function() {
+      this.set([2, 100, 50], {duration: 800}, function(){
+        this.set([0, 100, 50], {duration: 500}, function() {
+          var appView = new AppView();
+          mainCtx.add(appView);        
+          titleMod.setTransform(Transform.translate(0, 0, -50000));
+        }.bind(this));
       }.bind(this));
-    }.bind(this));
-  }.bind(this));
+    }.bind(this));    
+  }
 };
 
 mainCtx.add(titleMod).add(titleSurf);
