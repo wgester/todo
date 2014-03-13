@@ -49,6 +49,7 @@ ClearItem.DEFAULT_OPTIONS = {
 
 function bindEvents() {
     this._eventInput.on('touchstart', handleStart.bind(this));
+    this._eventInput.on('touchmove', handleMove.bind(this));
     this._eventInput.on('touchend', handleEnd.bind(this));
     Engine.on('prerender', findTimeDeltas.bind(this));
     Engine.on('prerender', checkForDragging.bind(this));
