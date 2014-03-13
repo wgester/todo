@@ -27,6 +27,14 @@ input {
 *//*  box-shadow: 2px 2px 2px #000;
 */}
 
+.title h1 {
+  margin-top: 200px;
+  text-align: center;
+  color: transparent;
+  font-size: 4em;
+  
+}
+
 .task {
   box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.2);
   line-height: 60px;
