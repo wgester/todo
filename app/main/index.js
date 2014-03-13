@@ -88,7 +88,7 @@ function _playShadow() {
   if (devMode) {
     var appView = new AppView();
     mainCtx.add(appView);        
-    titleMod.setTransform(Transform.translate(0, 0, -50000));
+    titleMod.setTransform(Transform.translate(0, 0, -100));
   } else {
     this.set([1.5, 100, 50], {duration: 1500}, function() {
       this.set([2, 100, 50], {duration: 500}, function(){

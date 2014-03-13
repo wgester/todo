@@ -49,13 +49,20 @@ ClearItem.DEFAULT_OPTIONS = {
 
 function bindEvents() {
     this._eventInput.on('touchstart', handleStart.bind(this));
+    this._eventInput.on('touchmove', handleMove.bind(this));
     this._eventInput.on('touchend', handleEnd.bind(this));
     Engine.on('prerender', findTimeDeltas.bind(this));
     Engine.on('prerender', checkForDragging.bind(this));
 }
 
-function handleStart() {
+function handleStart(data) {
     this.touched = true;
+    this.touchStart = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
+    this.touchCurrent = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
+}
+
+function handleMove(data) {
+    this.touchCurrent = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];  
 }
 
 function handleEnd() {
@@ -75,10 +82,15 @@ function checkForDragging(data) {
     if (this.touched) {
         this.timeTouched += this.timeDelta;
         if (this.timeTouched > this.dragThreshold) {
-            this.timeTouched = 0;
-            this._eventOutput.emit('editmodeOn');
-            this.touched = false;
-            dragmode.call(this);
+            var distance = Math.sqrt(Math.pow((this.touchStart[0] - this.touchCurrent[0]), 2) + Math.pow((this.touchStart[1] - this.touchCurrent[1]), 2));
+            if (distance < 25) {
+                this.timeTouched = 0;
+                this._eventOutput.emit('editmodeOn');
+                this.touched = false;
+                dragmode.call(this);
+            } else {
+                this.touched = false;
+            }
         }
     }
 }
