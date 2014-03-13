@@ -7,7 +7,6 @@ var Lightbox = require('famous/views/light-box');
 
 function AppView() {
   View.apply(this, arguments);
-  
   _createLightBox.call(this);
   _createAppViews.call(this);
   _renderFocusPage.call(this);
@@ -47,13 +46,6 @@ function _createLightBox() {
     outOrigin: [0, 0]
   });
 
-  this.swapSurface = new Surface({
-    size: [undefined, undefined],
-    properties: {
-      backgroundColor: 'red'
-    }
-  });
-
   this._add(this.lightBox);
 }
 
@@ -65,10 +57,7 @@ function _addPageView(title, previousPage, nextPage) {
     wall: this.options.wall
   };
  
-  var newView = this[title + 'View'] = new PageView(pageViewOptions)
-  this[title + 'Modifier'] = new Modifier({
-    origin: [0.5, 0.5]
-  });
+  var newView = this[title + 'View'] = new PageView(pageViewOptions);
 }
 
 function _addPageRelations(page, previousPage, nextPage) {
@@ -80,15 +69,12 @@ function _addPageRelations(page, previousPage, nextPage) {
 
 function _addEventListeners(newView, newModifier){
   newView.on('togglePageViewUp', function() {
-    console.log('togglePageViewUp');
     if (newView.nextPage) {
       this.lightBox.show(newView.nextPage);
-      // this.lightBox.show(this.TODAYView);
     }
   }.bind(this));
 
   newView.on('togglePageViewDown', function() {
-    console.log('togglePageViewDown');
     if (newView.previousPage) {
       this.lightBox.show(newView.previousPage);
     }
