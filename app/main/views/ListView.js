@@ -1,15 +1,17 @@
-var Surface       = require('famous/surface');
-var Modifier      = require('famous/modifier');
-var View          = require('famous/view');
-var Transform     = require('famous/transform');
+var Surface        = require('famous/surface');
+var Modifier       = require('famous/modifier');
+var View           = require('famous/view');
+var Transform      = require('famous/transform');
 var Transitionable = require("famous/transitions/transitionable");
 var TaskView      = require('./TaskView');
 var Tasks         = require('./data');
+var InputSurface = require('famous/surfaces/input-surface');
+var Timer = require('famous/utilities/timer');
 
 function ListView() {
   View.apply(this, arguments);
-  this.color = new Transitionable([150, 100, 100]);
-  this.lightness = 50;
+  this.color = new Transitionable([360, 100, 100]);
+  this.lightness = 75;
     
   _createBackground.call(this);
   _createHeader.call(this);
@@ -24,9 +26,9 @@ ListView.prototype.constructor = ListView;
 
 ListView.DEFAULT_OPTIONS = {};
 
-function _colorMod() {
+function _completeColorMod() {
   this.backgroundSurf.setProperties({
-    backgroundColor: "hsl(150, 100%," + this.color.get()[2] + "%)"
+    backgroundColor: "hsl(145, 63%," + this.color.get()[2] + "%)"
   });
 };
 
@@ -36,10 +38,7 @@ function _populateTasks() {
 
 function _createBackground() {
   this.backgroundSurf = new Surface({
-    size: [undefined, undefined],
-    properties: {
-      classes: ['background']
-    }
+    size: [undefined, undefined]
   });
   this.backgroundMod = new Modifier();
   this._add(this.backgroundMod).add(this.backgroundSurf);
@@ -47,11 +46,11 @@ function _createBackground() {
 
 function _createHeader() {
   this.header = new Surface({
+    size: [undefined, true],
     content: '<h1>TODAY</h1>',
     properties: {
       color: 'black',
-      fontSize: '2.5em',
-      classes: ['header']
+      fontSize: '2.5em'
     }
   });
   
@@ -83,56 +82,81 @@ function _createManyTasks() {
 };
 
 function _createInput() {
-  this.inputView = new Surface({
-    content: '<form><input type="text" placeholder="Enter task here..." size="60"/></form>',
-    size: [60, undefined]
+  this.inputSurf = new InputSurface({
+    placeholder: 'Enter task here...',
+
+    properties: {
+      visibility: 'hidden',
+      height: '60px',
+    }
   });
-    
   this.inputMod = new Modifier({
-    transform: Transform.translate(0, 150, 0)
+    transform: Transform.translate(0, 1000, 0)
   });
-  
-  this._add(this.inputMod).add(this.inputView);
+
+  this._add(this.inputMod).add(this.inputSurf);
 };
+
+
+var clicked = false; 
 
 function _setListeners() {
-  window.Engine.on("prerender", _colorMod.bind(this));
+  window.Engine.on("prerender", _completeColorMod.bind(this));
 
-  this.inputView.on('submit', function(e) {
-    e.preventDefault();
+  this.backgroundSurf.on('touchstart', function(){
+    
+    if(clicked && this.inputSurf.getValue()===''){
+      clicked = false;
+      this.inputSurf.setProperties({visibility:'hidden'});
+    
+    } else if (clicked && this.inputSurf.getValue().length){
+      called = true;
+      var newTask = {text: this.inputSurf.getValue(), focus: true};
+      this.tasks.push(newTask);
+            
+      var taskView = new TaskView(newTask);
+      var offset = taskView.options.taskOffset * (this.tasks.length+1);
+      
+      var taskMod = new Modifier({
+        origin: [0, 0.425],
+        transform: Transform.translate(0, offset, 0)
+      });
 
-    var newTask = {text: this.inputView._currTarget.firstChild.firstChild.value, focus: false};
-    this.tasks.push(newTask);
-        
-    var taskView = new TaskView(newTask);
-    var offset = taskView.options.taskOffset * (this.tasks.length+1);
+      _setOneCompleteListener.call(this, taskView);
+
+      this._add(taskMod).add(taskView);
+      this.inputSurf.setValue('');
+      this.inputSurf.setProperties({visibility: 'hidden'});
     
-    var taskMod = new Modifier({
-      transform: Transform.translate(0, offset, 0)
-    });
-    
-    this._add(taskMod).add(taskView);
-  }.bind(this));
+    } else {
+
+      clicked = true;
+      this.inputSurf.setProperties({visibility:'visible'});
+      
+      var offset = 39 * this.tasks.length+303;
+      this.inputMod.setTransform(Transform.translate(0, offset, 0));
+    }
   
-  _setCompletionListeners.call(this);
+  }.bind(this));  
+  
+  for(var i = 0; i < this.taskViews.length; i++) {
+    _setOneCompleteListener.call(this, this.taskViews[i]);     
+  }
   
 };
 
-function _setCompletionListeners() {
-  for(var i = 0; i < this.taskViews.length; i++) {
-    var view = this.taskViews[i];
-    view.on('completed', function() {
-      this.color.set([150, 100, this.lightness], {
-        duration: 1000
-      }, function() {
-        window.setTimeout(function() {
-          this.color.set([150, 100, 100], {
-            duration: 500
-          });      
-        }.bind(this), 500); 
-      }.bind(this));
+function _setOneCompleteListener(view) {
+  view.on('completed', function() {
+    this.color.set([145, 63, this.lightness], {
+      duration: 250
+    }, function() {
+      Timer.after(function() {
+        this.color.set([145, 63, 100], {
+          duration: 250
+        });      
+      }.bind(this), 7);            
     }.bind(this));
-  }
+  }.bind(this));  
 };
 
 module.exports = ListView;

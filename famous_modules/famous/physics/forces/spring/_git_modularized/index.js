@@ -1,5 +1,5 @@
-var Force = require('famous/physics/forces/force');
-var Vector = require('famous/math/vector');
+var Force        = require('famous/physics/forces/force');
+var Vector       = require('famous/math/vector');
 var EventHandler = require('famous/event-handler');
 
 /** @constructor */

@@ -1,7 +1,7 @@
-var Particle = require('famous/physics/bodies/particle');
-var Vector = require('famous/math/vector');
+var Particle   = require('famous/physics/bodies/particle');
+var Vector     = require('famous/math/vector');
 var Quaternion = require('famous/math/quaternion');
-var Transform = require('famous/transform');
+var Transform  = require('famous/transform');
 
 function Body(opts){
     Particle.call(this, opts);

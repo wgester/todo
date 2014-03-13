@@ -1,6 +1,6 @@
-var Entity = require('famous/entity');
+var Entity       = require('famous/entity');
 var EventHandler = require('famous/event-handler');
-var Transform = require('famous/transform');
+var Transform    = require('famous/transform');
 
 var usePrefix = document.body.style.webkitTransform !== undefined;
 
@@ -384,20 +384,9 @@ else _setOrigin = function(element, origin) { element.style.transformOrigin = _f
 if(usePrefix) _setInvisible = function(element) { element.style.webkitTransform = 'scale3d(0.0001,0.0001,1)'; element.style.opacity = 0; };
 else _setInvisible = function(element) { element.style.transform = 'scale3d(0.0001,0.0001,1)'; element.style.opacity = 0; };
 
-/**
- * Comparator for length two numerical arrays (presumably, [x,y])
- *
- * @name SurfaceManager#xyEquals
- * @function
- * @static
- * @param {Array.<number>} a
- * @param {Array.<number>} b
- * @returns {boolean} true if both falsy or both have equal [0] and [1] components.
- */
-function xyEquals(a, b) {
-    if(!a && !b) return true;
-    else if(!a || !b) return false;
-    return a[0] == b[0] && a[1] == b[1];
+function _xyNotEquals(a, b) {
+    if(!(a && b)) return a !== b;
+    return a[0] !== b[0] || a[1] !== b[1];
 };
 
 function _formatCSSOrigin(origin) {
@@ -427,6 +416,7 @@ Surface.prototype.setup = function(allocator) {
     }
     _bindEvents.call(this, target);
     _setOrigin(target, [0, 0]); // handled internally
+    target.style.display = "";
     this._currTarget = target;
     this._stylesDirty = true;
     this._classesDirty = true;
@@ -458,13 +448,13 @@ Surface.prototype.commit = function(context) {
 
     if(this.size) {
         var origSize = size;
-        size = this.size.slice(0);
+        size = [this.size[0], this.size[1]];
         if(size[0] === undefined && origSize[0]) size[0] = origSize[0];
         if(size[1] === undefined && origSize[1]) size[1] = origSize[1];
     }
 
-    if(!xyEquals(this._size, size)) {
-        this._size = size.slice(0);
+    if(_xyNotEquals(this._size, size)) {
+        this._size = [size[0], size[1]];
         this._sizeDirty = true;
     }
 
@@ -480,10 +470,10 @@ Surface.prototype.commit = function(context) {
         target.style.opacity = Math.min(opacity, 0.999999);
     }
 
-    if(!xyEquals(this._origin, origin) || !Transform.equals(this._matrix, matrix)) {
+    if(_xyNotEquals(this._origin, origin) || Transform.notEquals(this._matrix, matrix)) {
         if(!matrix) matrix = Transform.identity;
         if(!origin) origin = [0, 0];
-        this._origin = origin.slice(0);
+        this._origin = [origin[0], origin[1]];
         this._matrix = matrix;
         var aaMatrix = matrix;
         if(origin) {
@@ -532,6 +522,7 @@ Surface.prototype.commit = function(context) {
  */
 Surface.prototype.cleanup = function(allocator) {
     var target = this._currTarget;
+    target.style.display = 'none';
     this.eventHandler.emit('recall');
     this.recall(target);
     target.style.width = '';
@@ -613,7 +604,7 @@ Surface.prototype.getSize = function(actual) {
  * @param {Array.<number>} size x,y size array
  */
 Surface.prototype.setSize = function(size) {
-    this.size = size ? size.slice(0,2) : undefined;
+    this.size = size ? [size[0], size[1]] : undefined;
     this._sizeDirty = true;
 };
 

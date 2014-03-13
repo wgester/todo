@@ -1,8 +1,8 @@
-var Particle = require('famous/physics/bodies/particle');
-var Body = require('famous/physics/bodies/body');
-var Circle = require('famous/physics/bodies/circle');
-var Rectangle = require('famous/physics/bodies/rectangle');
-var Force = require('famous/physics/forces/force');
+var Particle   = require('famous/physics/bodies/particle');
+var Body       = require('famous/physics/bodies/body');
+var Circle     = require('famous/physics/bodies/circle');
+var Rectangle  = require('famous/physics/bodies/rectangle');
+var Force      = require('famous/physics/forces/force');
 var Constraint = require('famous/physics/constraints/constraint');
 var Integrator = require('famous/physics/integrator/symplectic-euler');
 

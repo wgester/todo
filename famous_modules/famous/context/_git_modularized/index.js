@@ -1,9 +1,9 @@
-var RenderNode = require('famous/render-node');
-var EventHandler = require('famous/event-handler');
-var SpecParser = require('famous/spec-parser');
+var RenderNode       = require('famous/render-node');
+var EventHandler     = require('famous/event-handler');
+var SpecParser       = require('famous/spec-parser');
 var ElementAllocator = require('famous/element-allocator');
-var Transform = require('famous/transform');
-var Transitionable = require('famous/transitions/transitionable');
+var Transform        = require('famous/transform');
+var Transitionable   = require('famous/transitions/transitionable');
 
 /**
  * @class Context 
@@ -52,18 +52,6 @@ Context.prototype.getAllocator = function() {
 /**
  * Add renderables to this Context
  *
- * @name Context#link
- * @function
- * @param {renderableComponent} obj 
- * @returns {RenderNode} new node wrapping this object
- */
-Context.prototype.link = function(obj) {
-    return this.srcNode.link(obj);
-};
-
-/**
- * Add renderables to this Context
- *
  * @name Context#add
  * @function
  * @param {renderableComponent} obj 
@@ -71,18 +59,6 @@ Context.prototype.link = function(obj) {
  */
 Context.prototype.add = function(obj) {
     return this.srcNode.add(obj);
-};
-
-/**
- * Add modifier renderables to this Context
- *
- * @name Context#mod
- * @function
- * @param {renderableComponent} obj 
- * @returns {RenderNode} new node wrapping this object
- */
-Context.prototype.mod = function(obj) {
-    return this.srcNode.mod(obj);
 };
 
 /**

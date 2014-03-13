@@ -39,23 +39,24 @@ Transform.identity = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
  * @returns {Transform} the resulting matrix
  */
 Transform.multiply4x4 = function multiply4x4(a, b) {
-    var result = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-    result[0] = a[0] * b[0] + a[4] * b[1] + a[8] * b[2] + a[12] * b[3];
-    result[1] = a[1] * b[0] + a[5] * b[1] + a[9] * b[2] + a[13] * b[3];
-    result[2] = a[2] * b[0] + a[6] * b[1] + a[10] * b[2] + a[14] * b[3];
-    result[3] = a[3] * b[0] + a[7] * b[1] + a[11] * b[2] + a[15] * b[3];
-    result[4] = a[0] * b[4] + a[4] * b[5] + a[8] * b[6] + a[12] * b[7];
-    result[5] = a[1] * b[4] + a[5] * b[5] + a[9] * b[6] + a[13] * b[7];
-    result[6] = a[2] * b[4] + a[6] * b[5] + a[10] * b[6] + a[14] * b[7];
-    result[7] = a[3] * b[4] + a[7] * b[5] + a[11] * b[6] + a[15] * b[7];
-    result[8] = a[0] * b[8] + a[4] * b[9] + a[8] * b[10] + a[12] * b[11];
-    result[9] = a[1] * b[8] + a[5] * b[9] + a[9] * b[10] + a[13] * b[11];
-    result[10] = a[2] * b[8] + a[6] * b[9] + a[10] * b[10] + a[14] * b[11];
-    result[11] = a[3] * b[8] + a[7] * b[9] + a[11] * b[10] + a[15] * b[11];
-    result[12] = a[0] * b[12] + a[4] * b[13] + a[8] * b[14] + a[12] * b[15];
-    result[13] = a[1] * b[12] + a[5] * b[13] + a[9] * b[14] + a[13] * b[15];
-    result[14] = a[2] * b[12] + a[6] * b[13] + a[10] * b[14] + a[14] * b[15];
-    result[15] = a[3] * b[12] + a[7] * b[13] + a[11] * b[14] + a[15] * b[15];
+    var result = [
+        a[0] * b[0] + a[4] * b[1] + a[8] * b[2] + a[12] * b[3],
+        a[1] * b[0] + a[5] * b[1] + a[9] * b[2] + a[13] * b[3],
+        a[2] * b[0] + a[6] * b[1] + a[10] * b[2] + a[14] * b[3],
+        a[3] * b[0] + a[7] * b[1] + a[11] * b[2] + a[15] * b[3],
+        a[0] * b[4] + a[4] * b[5] + a[8] * b[6] + a[12] * b[7],
+        a[1] * b[4] + a[5] * b[5] + a[9] * b[6] + a[13] * b[7],
+        a[2] * b[4] + a[6] * b[5] + a[10] * b[6] + a[14] * b[7],
+        a[3] * b[4] + a[7] * b[5] + a[11] * b[6] + a[15] * b[7],
+        a[0] * b[8] + a[4] * b[9] + a[8] * b[10] + a[12] * b[11],
+        a[1] * b[8] + a[5] * b[9] + a[9] * b[10] + a[13] * b[11],
+        a[2] * b[8] + a[6] * b[9] + a[10] * b[10] + a[14] * b[11],
+        a[3] * b[8] + a[7] * b[9] + a[11] * b[10] + a[15] * b[11],
+        a[0] * b[12] + a[4] * b[13] + a[8] * b[14] + a[12] * b[15],
+        a[1] * b[12] + a[5] * b[13] + a[9] * b[14] + a[13] * b[15],
+        a[2] * b[12] + a[6] * b[13] + a[10] * b[14] + a[14] * b[15],
+        a[3] * b[12] + a[7] * b[13] + a[11] * b[14] + a[15] * b[15]
+    ];
     if(arguments.length <= 2)  return result;
     else return multiply4x4.apply(null, [result].concat(Array.prototype.slice.call(arguments, 2)));
 };
@@ -72,19 +73,24 @@ Transform.multiply4x4 = function multiply4x4(a, b) {
  */ 
 Transform.multiply = function multiply(a, b) {
     if(!a || !b) return a || b;
-    var result = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1];
-    result[0] = a[0] * b[0] + a[4] * b[1] + a[8] * b[2];
-    result[1] = a[1] * b[0] + a[5] * b[1] + a[9] * b[2];
-    result[2] = a[2] * b[0] + a[6] * b[1] + a[10] * b[2];
-    result[4] = a[0] * b[4] + a[4] * b[5] + a[8] * b[6];
-    result[5] = a[1] * b[4] + a[5] * b[5] + a[9] * b[6];
-    result[6] = a[2] * b[4] + a[6] * b[5] + a[10] * b[6];
-    result[8] = a[0] * b[8] + a[4] * b[9] + a[8] * b[10];
-    result[9] = a[1] * b[8] + a[5] * b[9] + a[9] * b[10];
-    result[10] = a[2] * b[8] + a[6] * b[9] + a[10] * b[10];
-    result[12] = a[0] * b[12] + a[4] * b[13] + a[8] * b[14] + a[12];
-    result[13] = a[1] * b[12] + a[5] * b[13] + a[9] * b[14] + a[13];
-    result[14] = a[2] * b[12] + a[6] * b[13] + a[10] * b[14] + a[14];
+    var result = [
+        a[0] * b[0] + a[4] * b[1] + a[8] * b[2],
+        a[1] * b[0] + a[5] * b[1] + a[9] * b[2],
+        a[2] * b[0] + a[6] * b[1] + a[10] * b[2],
+        0,
+        a[0] * b[4] + a[4] * b[5] + a[8] * b[6],
+        a[1] * b[4] + a[5] * b[5] + a[9] * b[6],
+        a[2] * b[4] + a[6] * b[5] + a[10] * b[6],
+        0,
+        a[0] * b[8] + a[4] * b[9] + a[8] * b[10],
+        a[1] * b[8] + a[5] * b[9] + a[9] * b[10],
+        a[2] * b[8] + a[6] * b[9] + a[10] * b[10],
+        0,
+        a[0] * b[12] + a[4] * b[13] + a[8] * b[14] + a[12],
+        a[1] * b[12] + a[5] * b[13] + a[9] * b[14] + a[13],
+        a[2] * b[12] + a[6] * b[13] + a[10] * b[14] + a[14],
+        1
+    ];
     if(arguments.length <= 2)  return result;
     else return multiply.apply(null, [result].concat(Array.prototype.slice.call(arguments, 2)));
 };
@@ -229,16 +235,21 @@ Transform.rotate = function(phi, theta, psi) {
     var sinTheta = Math.sin(theta);
     var cosPsi = Math.cos(psi);
     var sinPsi = Math.sin(psi);
-    var result = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1];
-    result[0] = cosTheta * cosPsi;
-    result[1] = cosPhi * sinPsi + sinPhi * sinTheta * cosPsi;
-    result[2] = sinPhi * sinPsi - cosPhi * sinTheta * cosPsi;
-    result[4] = -cosTheta * sinPsi;
-    result[5] = cosPhi * cosPsi - sinPhi * sinTheta * sinPsi;
-    result[6] = sinPhi * cosPsi + cosPhi * sinTheta * sinPsi;
-    result[8] = sinTheta;
-    result[9] = -sinPhi * cosTheta;
-    result[10] = cosPhi * cosTheta;
+    var result = [
+        cosTheta * cosPsi,
+        cosPhi * sinPsi + sinPhi * sinTheta * cosPsi,
+        sinPhi * sinPsi - cosPhi * sinTheta * cosPsi,
+        0,
+        -cosTheta * sinPsi,
+        cosPhi * cosPsi - sinPhi * sinTheta * sinPsi,
+        sinPhi * cosPsi + cosPhi * sinTheta * sinPsi,
+        0,
+        sinTheta,
+        -sinPhi * cosTheta,
+        cosPhi * cosTheta,
+        0,
+        0, 0, 0, 1
+    ];
     return result;
 };
 
@@ -267,16 +278,12 @@ Transform.rotateAxis = function(v, theta) {
     var ys = v[1]*sinTheta;
     var zs = v[2]*sinTheta;
 
-    var result = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1];
-    result[0] = xxV + cosTheta;
-    result[1] = xyV + zs;
-    result[2] = xzV - ys;
-    result[4] = xyV - zs;
-    result[5] = yyV + cosTheta;
-    result[6] = yzV + xs;
-    result[8] = xzV + ys;
-    result[9] = yzV - xs;
-    result[10] = zzV + cosTheta;
+    var result = [
+        xxV + cosTheta, xyV + zs, xzV - ys, 0,
+        xyV - zs, yyV + cosTheta, yzV + xs, 0,
+        xzV + ys, yzV - xs, zzV + cosTheta, 0,
+        0, 0, 0, 1
+    ];
     return result;
 };
 
@@ -310,9 +317,12 @@ Transform.aboutOrigin = function(v, m) {
  * @returns {string} matrix3d CSS style representation of the transform
  */ 
 Transform.formatCSS = function(m) {
-    var n = m.slice(0);
-    for(var i = 0; i < n.length; i++) if(n[i] < 0.000001 && n[i] > -0.000001) n[i] = 0;
-    return 'matrix3d(' + n.join() + ')';
+    var result = 'matrix3d(';
+    for(var i = 0; i < 15; i++) {
+        result += (m[i] < 0.000001 && m[i] > -0.000001) ? '0,' : m[i] + ',';
+    }
+    result += m[15] + ')';
+    return result;
 };
 
 /**
@@ -381,15 +391,12 @@ Transform.inverse = function(m) {
     var c10 = m[0]*m[5] - m[1]*m[4];
     var detM = m[0]*c0 - m[1]*c1 + m[2]*c2;
     var invD = 1/detM;
-    result[0] = invD * c0;
-    result[1] = -invD * c4;
-    result[2] = invD * c8;
-    result[4] = -invD * c1;
-    result[5] = invD * c5;
-    result[6] = -invD * c9;
-    result[8] = invD * c2;
-    result[9] = -invD * c6;
-    result[10] = invD * c10;
+    var result = [
+        invD * c0, -invD * c4, invD * c8, 0,
+        -invD * c1, invD * c5, -invD * c9, 0,
+        invD * c2, -invD * c6, invD * c10, 0,
+        0, 0, 0, 1
+    ];
     result[12] = -m[12]*result[0] - m[13]*result[4] - m[14]*result[8];
     result[13] = -m[12]*result[1] - m[13]*result[5] - m[14]*result[9];
     result[14] = -m[12]*result[2] - m[13]*result[6] - m[14]*result[10];
@@ -569,9 +576,10 @@ Transform.build = function(spec) {
 };
 
 /**
- * Determine if two Matrixes are component-wise equal
+ * Determine if two affine Transforms are component-wise equal
+ * Warning: breaks on perspective Transforms
  * 
- * @name Matrix#equals
+ * @name Transform#equals
  * @function
  * 
  * @param {Transform} a matrix
@@ -579,10 +587,30 @@ Transform.build = function(spec) {
  * @returns {boolean} 
  */ 
 Transform.equals = function(a, b) {
-    if(a === b) return true;
-    if(!a || !b) return false;
-    for(var i = 0; i < a.length; i++) if(a[i] != b[i]) return false;
-    return true;
+    return !Transform.notEquals(a, b);
+};
+
+/**
+ * Determine if two affine Transforms are component-wise unequal
+ * Warning: breaks on perspective Transforms
+ *
+ * @name Transform#notEquals
+ * @name function
+ *
+ * @param {Transform} a matrix
+ * @param {Transform} b matrix
+ * @returns {boolean} 
+ */
+Transform.notEquals = function(a, b) {
+    if(a === b) return false;
+    if(!(a && b)) return true;
+
+    // shortci
+    return !(a && b) 
+        || a[12] !== b[12] || a[13] !== b[13] || a[14] !== b[14]
+            || a[0] !== b[0] || a[1] !== b[1] || a[2] !== b[2]
+                || a[4] !== b[4] || a[5] !== b[5] || a[6] !== b[6]
+                    || a[8] !== b[8] || a[9] !== b[9] || a[10] !== b[10];
 };
 
 /**

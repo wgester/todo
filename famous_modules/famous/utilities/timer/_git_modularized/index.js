@@ -8,7 +8,7 @@
  * @name Timer
  * @constructor
  */
-var FamousEngine = require('famous/engine');
+var Engine = require('famous/engine');
 
 var _event  = 'prerender';
 
@@ -17,7 +17,7 @@ var getTime = (window.performance)
     : function(){return Date.now()}
 
 function addTimerFunction(fn){
-    FamousEngine.on(_event, fn);
+    Engine.on(_event, fn);
     return fn;
 };
 
@@ -27,7 +27,7 @@ function setTimeout(fn, duration){
         var t2 = getTime();
         if (t2 - t >= duration){
             fn.apply(this, arguments);
-            FamousEngine.unbind(_event, callback);
+            Engine.unbind(_event, callback);
         };
     };
     return addTimerFunction(callback);
@@ -71,7 +71,7 @@ function every(fn, numTicks){
 };
 
 function clear(fn){
-    FamousEngine.unbind(_event, fn);
+    Engine.unbind(_event, fn);
 };
 
 function debounce(func, wait) {

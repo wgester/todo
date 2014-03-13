@@ -1,6 +1,6 @@
 var RenderNode = require('famous/render-node');
-var Vector = require('famous/math/vector');
-var Matrix = require('famous/transform');
+var Vector     = require('famous/math/vector');
+var Matrix     = require('famous/transform');
 
 /**
  *

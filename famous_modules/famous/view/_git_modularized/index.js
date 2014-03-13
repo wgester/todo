@@ -1,6 +1,6 @@
-var EventHandler = require('famous/event-handler');
+var EventHandler   = require('famous/event-handler');
 var OptionsManager = require('famous/options-manager');
-var RenderNode = require('famous/render-node');
+var RenderNode     = require('famous/render-node');
 
 /**
  * @class View
@@ -32,15 +32,15 @@ var RenderNode = require('famous/render-node');
  *   Context.link(view);
  */
 function View(options) {
-    this.node = new RenderNode();
+    this._node = new RenderNode();
 
-    this.eventInput = new EventHandler();
-    this.eventOutput = new EventHandler();
-    EventHandler.setInputHandler(this, this.eventInput);
-    EventHandler.setOutputHandler(this, this.eventOutput);
+    this._eventInput = new EventHandler();
+    this._eventOutput = new EventHandler();
+    EventHandler.setInputHandler(this, this._eventInput);
+    EventHandler.setOutputHandler(this, this._eventOutput);
 
     this.options = Object.create(this.constructor.DEFAULT_OPTIONS || View.DEFAULT_OPTIONS);
-    this.optionsManager = new OptionsManager(this.options);
+    this._optionsManager = new OptionsManager(this.options);
 
     if(options) this.setOptions(options);
 }
@@ -48,23 +48,25 @@ function View(options) {
 View.DEFAULT_OPTIONS = {}; // no defaults
 
 View.prototype.getOptions = function() {
-    return this.optionsManager.value();
+    return this._optionsManager.value();
 };
 
 View.prototype.setOptions = function(options) {
-    this.optionsManager.patch(options);
+    this._optionsManager.patch(options);
 };
 
-View.prototype._add = function() { return this.node.add.apply(this.node, arguments); };
-View.prototype._link = function() { return this.node.link.apply(this.node, arguments); };
+//TODO: remove underscore
+//Mark comments: remove this function instead; non-underscored version would present abstraction violation
+View.prototype._add = function() { return this._node.add.apply(this._node, arguments); };
 
 View.prototype.render =  function() {
-    return this.node.render.apply(this.node, arguments);
+    return this._node.render.apply(this._node, arguments);
 };
 
 View.prototype.getSize = function() {
-    var target = this.node.get();
-    if(target.getSize) return target.getSize.apply(target, arguments);
+    if(this._node && this._node.getSize) {
+        return this._node.getSize.apply(this._node, arguments) || this.options.size;
+    }
     else return this.options.size;
 };
 

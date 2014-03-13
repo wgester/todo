@@ -1,114 +1,67 @@
-var Entity = require('famous/entity');
+var Entity     = require('famous/entity');
 var SpecParser = require('famous/spec-parser');
-var Transform = require('famous/transform');
 
 /**
- * @class RenderNode
+ * @class A tree node wrapping a
+ *   {@link renderableComponent} (like a {@link FamousTransform} or
+ *   {@link FamousSurface}) for insertion into the render tree.
  *
- * @description A linked list object wrapping a
- *    {@link renderableComponent} (like a {@link FamousTransform} or 
- *    {@link FamousSurface}) for insertion into the render tree.
- * 
+ * @description Note that class may be removed in the near future.
+ *
  * Scope: Ideally, RenderNode should not be visible below the level
  * of component developer.
  *
  * @name RenderNode
  * @constructor
- * 
+ *
  * @example  < This should not be used by component engineers >
- * 
- * @param {renderableComponent} object Target render()able component 
+ *
+ * @param {renderableComponent} child Target renderable component
  */
 function RenderNode(object) {
-    this.modifiers = [];
-    this.object = undefined;
-    if(object) this.set(object);
+    this._object = object ? object : null;
+    this._child = null;
 
-    this._hasCached = false;
+    this._hasCached   = false;
     this._resultCache = {};
     this._prevResults = {};
 
-    // these flags purely for verification in debug builds
-    this._objectsAdded = false;
-    this._beenUsed = false;
+    this._childResult = null;
 };
 
 /**
- * Get the wrapped {@link renderableComponent}
- * 
- * @name RenderNode#get
- * @function
- *
- * @returns {renderableComponent} 
- */
-RenderNode.prototype.get = function() {
-    return this.object;
-};
-
-/**
- * Set the wrapped (@link renderableComponent}
- *
- * @name RenderNode#set
- * @function
- */
-RenderNode.prototype.set = function(object) {
-    this.object = object;
-};
-
-/**
- * Declare that content for the wrapped renderableComponent will come link
- *    the provided renderableComponent, effectively adding the provided
- *    component to the render tree.
- *
- * Note: syntactic sugar
- * 
- * @name RenderNode#link
- * @function
- *    
- * @returns {RenderNode} this render node
- */
-RenderNode.prototype.link = function(object) {
-    if(this._objectsAdded) throw 'RenderNode: Illegal usage of link() after add()';
-    if(this._beenUsed) throw 'RenderNode: Undefined behavior: link() called after setup; use set() instead';
-
-    if(object instanceof Array) this.set(object);
-    else {
-        var currentObject = this.get();
-        if(currentObject) {
-            if(currentObject instanceof Array) {
-                this.modifiers.unshift(object);
-            }
-            else {
-                this.modifiers.unshift(currentObject);
-                this.set(object);
-            }
-        }
-        else {
-            this.set(object);
-        }
-    }
-    return this;
-};
-
-/**
- * Add an object to the set of objects rendered
- *
- * Note: syntactic sugar
+ * Append a renderable to its children.
  *
  * @name RenderNode#add
  * @function
- * 
- * @param {renderableComponent} object renderable to add
- * @returns {RenderNode} render node representing added branch
+ *
+ * @returns {RenderNode} this render node
  */
-RenderNode.prototype.add = function(object) {
-    if(this._beenUsed) throw 'RenderNode: Potential abstraction violation: add() called after setup; use collection view instead';
-    this._objectsAdded = true; // this flag purely for verification in debug builds
+RenderNode.prototype.add = function(child) {
+    var childNode = (child instanceof RenderNode) ? child : new RenderNode(child);
 
-    if(!(this.get() instanceof Array)) this.set([]);
-    var node = new RenderNode(object);
-    this.get().push(node);
-    return node;
+    if(this._child instanceof Array) this._child.push(childNode);
+    else if(this._child) {
+        this._child = [this._child, childNode];
+        this._childResult = []; // to be used later
+    }
+    else this._child = childNode;
+
+    return childNode;
+};
+
+RenderNode.prototype.get = function() {
+    return this._object || this._child.get();
+};
+
+RenderNode.prototype.getSize = function() {
+    var target = this.get();
+    if(target && target.getSize) {
+        return target.getSize();
+    }
+    else {
+        return (this._child && this._child.getSize) ? this._child.getSize() : null;
+    }
 };
 
 RenderNode.prototype.commit = function(context) {
@@ -145,34 +98,28 @@ function _applyCommit(spec, context, cacheStorage) {
 
 /**
  * Render the component wrapped directly by this node.
- * 
+ *
  * @name RenderNode#render
  * @function
- * 
- * @returns {renderSpec} render specification for the component subtree 
+ *
+ * @returns {renderSpec} render specification for the component subtree
  *    only under this node.
  */
-RenderNode.prototype.render = function(input) {
-    // this statement purely for verification in debug builds
-    this._beenUsed = true;
+RenderNode.prototype.render = function() {
+    if(this._object && this._object.render) return this._object.render();
 
-    var result = input;
-    var object = this.get();
-    if(object) {
-        if(object.render) result = object.render(input);
-        else {
-            var i = object.length - 1;
-            result = new Array(i);
-            while(i >= 0) {
-                result[i] = object[i].render();
-                i--;
-            }
+    var result = {};
+    if(this._child instanceof Array) {
+        result = this._childResult;
+        var children = this._child;
+        for(var i = 0; i < children.length; i++) {
+            result[i] = children[i].render();
         }
     }
-    var modifierCount = this.modifiers.length;
-    for(var i = 0; i < modifierCount; i++) {
-        result = this.modifiers[i].render(result);
+    else if(this._child) {
+        result = this._child.render();
     }
+    if(this._object && this._object.modify) result = this._object.modify(result);
     return result;
 };
 

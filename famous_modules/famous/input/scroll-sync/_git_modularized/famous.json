@@ -11,7 +11,7 @@
     "keywords": [],
     "dependencies": {
         "famous/event-handler": "git+ssh://git@github.com:Famous/famous.git#modularized",
-        "famous/engine": "git+ssh://git@github.com:Famous/famous-sync.git#modularized"
+        "famous/engine": "git+ssh://git@github.com:Famous/famous.git#modularized"
     },
     "scripts": [
         "index.js"

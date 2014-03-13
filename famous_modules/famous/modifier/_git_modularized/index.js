@@ -1,6 +1,6 @@
-var Transform = require('famous/transform');
+var Transform      = require('famous/transform');
 var Transitionable = require('famous/transitions/transitionable');
-var Utility = require('famous/utilities/utility');
+var Utility        = require('famous/utilities/utility');
 
 /**
  *
@@ -313,7 +313,7 @@ Modifier.prototype.isActive = function() {
  *
  * (Scope: Component developers and deeper)
  * 
- * @name Modifier#render
+ * @name Modifier#modify
  * @function
  * 
  * @param {renderSpec} target (already rendered) renderable component to
@@ -321,7 +321,7 @@ Modifier.prototype.isActive = function() {
  * @returns {renderSpec} render spec for this Modifier, including the
  *    provided target
  */
-Modifier.prototype.render = function(target) {
+Modifier.prototype.modify = function(target) {
     return {transform: this.getTransform(), opacity: this.getOpacity(), origin: this.getOrigin(), size: this.getSize(), target: target};
 };
 
