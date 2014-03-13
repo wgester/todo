@@ -26,21 +26,34 @@ AppView.DEFAULT_OPTIONS = {
   wall: {
     method: 'wall',
     period: 300,
+    delay: 400,
     dampingRatio: 0.3
+  },
+  noTransition: {
+    duration: 0
   }
 };
 
 function _createLightBox() {
   this.lightBox = new Lightbox({
-    // inTransform: Transform.translate(0, 0, 0),
-    // inTransition: this.options.wall,
-    // inOpacity: 1,
-    // outTransform: Transform.translate(0, -500, 0),
-    // outTransition: true,
-    // outOpacity: 1,
-    // overlap: true
+    inTransform: Transform.translate(0, -500, 2),
+    inTransition: this.options.wall,
+    // inTransition: this.options.noTransition,
+    inOpacity: 1,
+    outTransform: Transform.translate(0, 0, -10),
+    outTransition: false,
+    // outTransition: this.options.noTransition,
+    outOpacity: 1,
+    overlap: true,
     inOrigin: [0, 0],
     outOrigin: [0, 0]
+  });
+
+  this.swapSurface = new Surface({
+    size: [undefined, undefined],
+    properties: {
+      backgroundColor: 'red'
+    }
   });
 
   this._add(this.lightBox);
@@ -55,7 +68,9 @@ function _addPageView(title, previousPage, nextPage) {
   };
  
   var newView = this[title + 'View'] = new PageView(pageViewOptions)
-  this[title + 'Modifier'] = new Modifier();
+  this[title + 'Modifier'] = new Modifier({
+    origin: [0.5, 0.5]
+  });
 }
 
 function _addPageRelations(page, previousPage, nextPage) {
@@ -70,6 +85,7 @@ function _addEventListeners(newView, newModifier){
     console.log('togglePageViewUp');
     if (newView.nextPage) {
       this.lightBox.show(newView.nextPage);
+      // this.lightBox.show(this.TODAYView);
     }
   }.bind(this));
 
