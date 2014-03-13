@@ -29,7 +29,6 @@ function ContentView() {
   _createTasks.call(this);
   _createInput.call(this);
   _taskListeners.call(this);
-  // _colorTransitionOnLoad.call(this);
 };
 
 ContentView.prototype = Object.create(View.prototype);
@@ -151,9 +150,12 @@ function _createTasks() {
 
 
 function _taskListeners() {
-  // window.Engine.on('prerender', _createCanvas.bind(this));
-
+  window.Engine.on('prerender', _createCanvas.bind(this));
   _setInputListener.call(this);
+
+  this.on('opened', function() {
+    _colorTransitionOnLoad.call(this);  
+  });
 };
 
 function _setInputListener() {
@@ -182,20 +184,6 @@ function _setInputListener() {
 
 function _colorTransitionOnLoad() {
   
-    // if (this.options.title === 'TODAY') {
-  //   _createCanvas.call(this, '#3399FF', 'white',  4);
-  // } else if (this.options.title === "FOCUS") {
-  //   _createCanvas.call(this, '#32CEA8', 'white', 2.5);
-  // } else if (this.options.title === "LATER") {
-  //   _createCanvas.call(this, '#9C7CCB', '#3690FF', 2.5);    
-  // } else {
-  //   this.backgroundSurf = new Surface({
-  //     size: [undefined, undefined]
-  //   });
-
-  //   this.backgroundModifier = new Modifier();
-  //   this._add(this.backgroundModifier).add(this.backgroundSurf);
-  // }
   if (this.options.title === 'TODAY') {
     this.gradient.set([51, 153, 255, 255, 255, 255], {duration: 2000, curve: 'easeInOut'}, function() {});
   } else if (this.options.title === 'FOCUS') {
