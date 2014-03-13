@@ -1,5 +1,3 @@
-//DISCLAIMER: This is the worst code I've ever written.
-
 var Engine         = require('famous/engine');
 var View           = require('famous/view');
 var Surface        = require('famous/surface');
@@ -18,12 +16,9 @@ function ClearItem(options) {
     this.surface.pipe(this._eventInput);
     this._eventInput.pipe(this._eventOutput);
 
-    this.color   = new Transitionable([0, 0, 0]);
+    this.name = 'be awesome';
 
-    this.name = (this.options.index + 1) + '';
-
-    this.setColor(this.options.index);
-    this.surface.setContent((this.options.index + 1) + '');
+    this.surface.setContent('<p>' + options.text + '</p>');
 
     bindEvents.call(this);
 
@@ -44,19 +39,9 @@ function ClearItem(options) {
 ClearItem.DEFAULT_OPTIONS = {
     index: 0,
     surface: {
-        size: [undefined, window.innerHeight * 0.14],
+        classes: ['task'],
+        size: [undefined, 60],
         properties: {
-            color: 'white',
-            fontSize: '18px',
-            textAlign: 'center',
-            verticalAlign: 'middle',
-            lineHeight: (window.innerHeight * 0.14) + 'px',
-            borderTopStyle: 'solid',
-            borderTopWidth: '1px',
-            borderBottomStyle: 'solid',
-            borderBottomWidth: '1px',
-            fontWeight: 'bold',
-            fontFamily: 'Helvetica',
             webkitUserSelect: 'none'
         }
     }
@@ -67,7 +52,6 @@ function bindEvents() {
     this._eventInput.on('touchend', handleEnd.bind(this));
     Engine.on('prerender', findTimeDeltas.bind(this));
     Engine.on('prerender', checkForDragging.bind(this));
-    Engine.on('prerender', applyColor.bind(this));
 }
 
 function handleStart() {
@@ -99,19 +83,6 @@ function checkForDragging(data) {
     }
 }
 
-function applyColor() {
-    var main = this.color.get();
-
-    var topColor = 'hsl(' + main[0] + ','  + main[1] + '%,' + (main[2] + 5) + '%)';
-    var mainColor = 'hsl(' + main[0] + ','  + main[1] + '%,' + main[2] + '%)';
-    var bottomColor = 'hsl(' + main[0] + ','  + main[1] + '%,' + (main[2] - 5) + '%)';
-
-    this.surface.setProperties({
-        background: mainColor,
-        borderTopColor: topColor,
-        borderBottomColor: bottomColor
-    });
-}
 
 function dragmode() {
     this.CRAZYmodifier.setTransform(Matrix.translate(0, 0, 40), {
@@ -140,13 +111,5 @@ function regularmode() {
 }
 
 ClearItem.prototype = Object.create(View.prototype);
-
-ClearItem.prototype.setColor = function(index) {
-    var mainColor = ColorMap[index];
-
-    this.color.set(mainColor.getHSL(), {
-        duration: 500
-    });
-};
 
 module.exports = ClearItem;
