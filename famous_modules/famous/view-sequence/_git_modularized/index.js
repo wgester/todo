@@ -55,12 +55,13 @@ ViewSequence.prototype._createNext = function() {
     var next = new (this.constructor)(nextOptions);
     next._prev = this;
     next._prevIndex = this.index;
+
     return next;
 };
 
 ViewSequence.prototype.getPrevious = function() {
     var prevIndex = this.index - 1;
-    if(this.index == 0) {
+    if(this.index === 0) {
         if(this.loop) prevIndex = this.array.length - 1;
         else return undefined;
     }
@@ -102,28 +103,100 @@ ViewSequence.prototype.push = function(value) {
     this.array.push.apply(this.array, arguments);
 };
 
- ViewSequence.prototype.splice = function(index, howMany, value) {
-    var result = this.find(index);
-    var next = result._next;
-    var previous = result._prev;
+ViewSequence.prototype.splice = function(index, howMany, addedNodes) {
+    var insertionNode = this.find(index);
+    var result = insertionNode.get();
+    
 
-    if (previous) previous._next = next;
-    if (next) next._prev = previous;
+    if (insertionNode) {
+        var nextNode, previousNode;
 
-    this.array.splice.apply(this.array, arguments);
+        for (var i = 0; i < howMany; i++) {
+            nextNode = insertionNode._next;
+            previousNode = insertionNode._prev;
 
-    var node = this.find(0);
-    node.index = 0;
-    node._nextIndex = 1;
+            nextNode._prev = previousNode;
+            previousNode._next = nextNode;
 
-    var i = 1;
-    while(node._next) {
-        node = node._next;
-        node.index = i;
-        node._prevIndex = i - 1;
-        node._nextIndex = i + 1;
-        i++;
+            insertionNode = nextNode;
+        }
+
+        var inject;
+        for (i = 0; i < arguments.length - 2; i ++) {
+            inject = insertionNode._createPrevious();
+            inject.setPrevious(previousNode);
+            inject.setNext(insertionNode);
+            previousNode.setNext(inject);
+            insertionNode.setPrevious(inject);
+            previousNode = inject;
+        }
+
+        var head = this.find(0);
+
+        i = 0;
+        while (head) {
+            head.setIndex(i);
+            i++;
+            head = head._next;
+        }
+
+        this.array.splice.apply(this.array, arguments);
     }
+
+    return result;
+
+};
+
+ ViewSequence.prototype.moveTo = function(index) {
+    var next = this._next;
+    var previous = this._prev;
+    var thisValue = this.array.splice(this.index, 1);
+
+    if (next) next.setPrevious(previous);
+    if (previous) previous.setNext(next);
+    
+    if (this.index < index) {
+        index += 1;
+    }
+
+    var insertBefore = this.find(index);
+
+    var insertBeforePrevious = insertBefore._prev;
+    if (insertBeforePrevious) {
+        insertBefore._prev = this;
+        insertBeforePrevious._next = this;
+
+        this._prev = insertBeforePrevious;
+        this._next = insertBefore;
+
+        var head = this.find(0);
+    } else if (!insertBefore) {
+        var insertAfter = this.find(index - 1);
+        this._prev = insertAfter;
+        this._next = undefined;
+        insertAfter._next = this;
+        var head = this.find(0);
+    } else {
+        insertBefore._prev = this;
+        this._next = insertBefore;
+        this._prev = undefined;
+        var head = this;
+    }
+    if (!previous) {
+        var head = next;
+    }
+    var i = 0;
+    while (head) {
+        head.setIndex(i);
+        i++;
+        head = head._next;
+    }
+
+    if (this.index < index) {
+        index -= 1;
+    }
+
+    this.array.splice(index, 0, thisValue[0]);
 };
 
 ViewSequence.prototype.swap = function(node) {
@@ -181,10 +254,10 @@ ViewSequence.prototype.swap = function(node) {
 ViewSequence.prototype.find = function(index) {
     var result = this;
 
-    var direction = (index > this.getIndex()) ? 'getNext' : 'getPrevious';
+    var direction = (index > this.getIndex()) ? '_next' : '_prev';
 
     while (result.getIndex() !== index) {
-        var subsequentNode = result[direction]();
+        var subsequentNode = result[direction];
         if (subsequentNode) {
             result = subsequentNode;
         } else {
@@ -200,8 +273,16 @@ ViewSequence.prototype.getIndex = function() {
 };
 
 ViewSequence.prototype.setIndex = function(index) {
-    if (this._prev) this._prevIndex = index - 1;
-    if (this._next) this._nextIndex = index + 1;
+    if (this._prev) {
+        this._prevIndex = index - 1;
+    } else {
+        this._prevIndex = undefined;
+    }
+    if (this._next) {
+        this._nextIndex = index + 1;
+    } else {
+        this._nextIndex = undefined;   
+    }
     this.index = index;
     return this;
 };
@@ -233,14 +314,14 @@ ViewSequence.prototype.getAllLinkedNodes = function() {
 
     while (node) {
         result.push(node);
-        node = node.getNext();
+        node = node._next;
     }
 
-    node = this.getPrevious();
+    node = this._prev;
 
     while (node) {
         result.unshift(node);
-        node = node.getPrevious();
+        node = node._prev;
     }
 
     return result;

@@ -1,5 +1,3 @@
-//DISCLAIMER: This is the worst code I've ever written.
-
 var Engine         = require('famous/engine');
 var View           = require('famous/view');
 var Surface        = require('famous/surface');

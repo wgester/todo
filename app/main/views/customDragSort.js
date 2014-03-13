@@ -8,8 +8,8 @@ function CustomDragSort() {
 }
 
 function bindEvents() {
-    this._eventInput.on('swapped', handleSwap.bind(this));
-    // this._eventInput.on('finishedDragging', normalizeColors.bind(this));
+    // this._eventInput.on('swapped', handleSwap.bind(this));
+    this._eventInput.on('finishedDragging', normalizeColors.bind(this));
     // this._dragEvents.on('dragend', handleDragend.bind(this));
 }
 
@@ -43,7 +43,7 @@ function normalizeColors() {
 
     for (var i = 0; i < nodes.length; i++) {
         var nodeValue = nodes[i].get();
-        nodeValue.setColor(i);
+        // nodeValue.setColor(i);
     }
 }
 

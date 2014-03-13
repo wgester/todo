@@ -29,7 +29,7 @@ function ContentView() {
   _createTasks.call(this);
   _createInput.call(this);
   _taskListeners.call(this);
-  _colorTransitionOnLoad.call(this);
+  // _colorTransitionOnLoad.call(this);
 };
 
 ContentView.prototype = Object.create(View.prototype);
@@ -46,18 +46,20 @@ function _isAndroid() {
 };
 
 function _createBackground() {
-  this.backgroundSurf = new CanvasSurface({
-    size: [window.innerWidth, window.innerHeight],
-    canvasSize: [window.innerWidth*2, window.innerHeight*2],
-    classes: ['famous-surface']
+  // this.backgroundSurf = new CanvasSurface({
+  //   size: [window.innerWidth, window.innerHeight],
+  //   canvasSize: [window.innerWidth*2, window.innerHeight*2],
+  //   classes: ['famous-surface']
+  // });
+  this.backgroundSurf = new Surface({
+    size: [undefined, undefined]
   });
 };
 
 function _createCanvas() {
   var colorCanvas = this.backgroundSurf.getContext('2d');
 
-  var userAgent = navigator.userAgent.toLowerCase();
-  if (userAgent.indexOf("android") > -1) {
+  if (_isAndroid()) {
     this.radial = colorCanvas.createLinearGradient( 
               300 * 0.5 * 2,    // x0
               0,                              // y0
@@ -129,16 +131,17 @@ function _createTasks() {
 
   this.customscrollview = new CustomScrollView();
   this.customdragsort = new CustomDragSort();
+  var node = this.customdragsort;
 
 
   for(var i = 0; i < this.tasks.length; i++) {
       var newTask = new SampleItem({text: this.tasks[i].text});
       this.customdragsort.push(newTask);
-      var associatedDragSort = this.customdragsort.find(i);
-      newTask.pipe(associatedDragSort);
-      associatedDragSort.pipe(this.customscrollview);
+      if(node.getNext()) node = node._next;
+      newTask.pipe(node);
+      node.pipe(this.customscrollview);
       newTask.pipe(this.customscrollview);    
-      this.customscrollview.pipe(associatedDragSort);
+      this.customscrollview.pipe(node);
     }
 
   this.customscrollview.sequenceFrom(this.customdragsort);
@@ -148,7 +151,7 @@ function _createTasks() {
 
 
 function _taskListeners() {
-  window.Engine.on('prerender', _createCanvas.bind(this));
+  // window.Engine.on('prerender', _createCanvas.bind(this));
 
   _setInputListener.call(this);
 };
