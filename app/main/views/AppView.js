@@ -84,7 +84,7 @@ function _addEventListeners(newView, newModifier){
       if (!this.lightBox.optionsForSwipeUp){
         this.lightBox.setOptions({
           outTransition: this.options.transition,
-          outTransform: Transform.translate(0, -600, 10),
+          outTransform: Transform.translate(0, -1200, 10),
           inTransition: this.options.noTransition,
           inTransform: Transform.translate(0, 0, -5)
         });
@@ -101,7 +101,7 @@ function _addEventListeners(newView, newModifier){
           outTransition: this.options.noTransition,
           outTransform: Transform.translate(0, 0, -5),
           inTransition: this.options.wall,
-          inTransform: Transform.translate(0, -600, 1)
+          inTransform: Transform.translate(0, -1200, 1)
         });
         this.lightBox.optionsForSwipeUp = false;
       }
