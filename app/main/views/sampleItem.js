@@ -66,6 +66,9 @@ function handleMove(data) {
 }
 
 function handleEnd() {
+    Engine.unbind('prerender', findTimeDeltas);
+    Engine.unbind('prerender', checkForDragging);
+    //^not quite right
     this.touched = false;
     regularmode.call(this);
     this.timeTouched = 0;
