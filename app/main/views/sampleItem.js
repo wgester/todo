@@ -56,6 +56,7 @@ function bindEvents() {
 
 function handleStart() {
     this.touched = true;
+    this.touchStart = [0,0];
 }
 
 function handleEnd() {
