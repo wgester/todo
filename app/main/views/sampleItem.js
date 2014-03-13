@@ -20,7 +20,7 @@ function ClearItem(options) {
 
     this.name = 'be awesome';
 
-    this.surface.setContent(options.text);
+    this.surface.setContent('<p>' + options.text + '</p>');
 
     bindEvents.call(this);
 
@@ -41,19 +41,9 @@ function ClearItem(options) {
 ClearItem.DEFAULT_OPTIONS = {
     index: 0,
     surface: {
-        size: [undefined, window.innerHeight * 0.14],
+        classes: ['task'],
+        size: [undefined, 60],
         properties: {
-            color: 'black',
-            fontSize: '18px',
-            textAlign: 'center',
-            verticalAlign: 'middle',
-            lineHeight: (window.innerHeight * 0.14) + 'px',
-            borderTopStyle: 'solid',
-            borderTopWidth: '1px',
-            borderBottomStyle: 'solid',
-            borderBottomWidth: '1px',
-            fontWeight: 'bold',
-            fontFamily: 'Helvetica',
             webkitUserSelect: 'none'
         }
     }
