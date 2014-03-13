@@ -83,10 +83,14 @@ function checkForDragging(data) {
         this.timeTouched += this.timeDelta;
         if (this.timeTouched > this.dragThreshold) {
             var distance = Math.sqrt(Math.pow((this.touchStart[0] - this.touchCurrent[0]), 2) + Math.pow((this.touchStart[1] - this.touchCurrent[1]), 2));
-            this.timeTouched = 0;
-            this._eventOutput.emit('editmodeOn');
-            this.touched = false;
-            dragmode.call(this);
+            if (distance < 25) {
+                this.timeTouched = 0;
+                this._eventOutput.emit('editmodeOn');
+                this.touched = false;
+                dragmode.call(this);
+            } else {
+                this.touched = false;
+            }
         }
     }
 }
