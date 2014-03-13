@@ -35,19 +35,6 @@ PageView.DEFAULT_OPTIONS = {
 };
 
 function _createLayout() {
-  // this.backgroundSurface = new Surface({
-  //   size: [undefined, undefined],
-  //   properties: {
-  //     backgroundColor: 'blue'
-  //   }
-  // });
-
-  // this.backgroundSurface.on('touchend', function(){
-  //   this._eventOutput.emit('togglePageViewUp');
-  // }.bind(this));
-
-  // this._add(this.backgroundSurface);
-
   this.layout = new HeaderFooter({
     headerSize: 70,
     footerSize: 40
