@@ -13,72 +13,70 @@ function bindEvents() {
 }
 
 function shift(data) {
+    if (data.newIndex === this.node.index) {
+        this.node = this.node.find(data.oldIndex);
+    } else if (data.oldIndex === this.node.index) {
+        this.node = this.node.find(data.oldIndex + 1);
+    } 
+    this.node.find(data.oldIndex).moveTo(data.newIndex);
+    var currentNode = this.node.find(0);
+    while (currentNode) {
+        currentNode.setPosition([0,0]);
+        currentNode = currentNode.getNext();
+    }
+
+
+
+
+
+
+    // console.log(data);
     // if (data.oldIndex < data.newIndex) {
-    //     var currentNode = this.node.find(0);
-    //     var movedNode = this.node.splice(data.oldIndex, 1);
-    //     this.node.splice(data.oldIndex, 0, movedNode);
-    //     while (currentNode) {
+    //     var movedNode = this.node.find(data.oldIndex);
+    //     var previousNode = movedNode.getPrevious();
+    //     var currentNode = movedNode.getNext();
+    //     while (currentNode && (currentNode.index < data.newIndex + 1)) {
+    //         currentNode.setPrevious(previousNode);
+    //         previousNode.setNext(currentNode);
     //         currentNode.setPosition([0,0]);
+    //         previousNode.setPosition([0,0]);
+    //         previousNode = currentNode; 
     //         currentNode = currentNode.getNext();
     //     }
-    //     // this.node.splice(data.newIndex, 0, movedNode);
-
-    // } else {
-
-    // }
-
-
-
-
-
-
-    console.log(data);
-    if (data.oldIndex < data.newIndex) {
-        var movedNode = this.node.find(data.oldIndex);
-        var previousNode = movedNode.getPrevious();
-        var currentNode = movedNode.getNext();
-        while (currentNode && (currentNode.index < data.newIndex + 1)) {
-            currentNode.setPrevious(previousNode);
-            previousNode.setNext(currentNode);
-            currentNode.setPosition([0,0]);
-            previousNode.setPosition([0,0]);
-            previousNode = currentNode; 
-            currentNode = currentNode.getNext();
-        }
-        if (!currentNode) {
-            movedNode.setPrevious(previousNode);
-            previousNode.setNext(movedNode);
-        } else {
-            currentNode.setPrevious(movedNode);
-            movedNode.setPrevious(previousNode);
-            previousNode.setNext(movedNode);
-            movedNode.setNext(currentNode);
-        }
-        movedNode.setPosition([0,0]);
+    //     if (!currentNode) {
+    //         movedNode.setPrevious(previousNode);
+    //         previousNode.setNext(movedNode);
+    //     } else {
+    //         currentNode.setPrevious(movedNode);
+    //         movedNode.setPrevious(previousNode);
+    //         previousNode.setNext(movedNode);
+    //         movedNode.setNext(currentNode);
+    //     }
+    //     movedNode.setPosition([0,0]);
      
-    } else {
-        var movedNode = this.node.find(data.oldIndex);
-        var previousNode = movedNode.getNext();
-        var currentNode = movedNode.getPrevious();
-        while (currentNode && (currentNode.index > data.newIndex - 1)) {
-            currentNode.setNext(previousNode);
-            previousNode.setPrevious(currentNode);
-            currentNode.setPosition([0,0]);
-            previousNode.setPosition([0,0]);
-            previousNode = currentNode; 
-            currentNode = currentNode.getPrevious();
-        }
-        if (!currentNode) {
-            movedNode.setNext(previousNode);
-            previousNode.setPrevious(movedNode);
-        } else {
-            currentNode.setNext(movedNode);
-            movedNode.setPrevious(currentNode);
-            previousNode.setPrevious(movedNode);
-            movedNode.setNext(previousNode);
-        }
-        movedNode.setPosition([0,0]);
-    }
+    // } else {
+    //     var movedNode = this.node.find(data.oldIndex);
+    //     var previousNode = movedNode.getNext();
+    //     var currentNode = movedNode.getPrevious();
+    //     while (currentNode && (currentNode.index > data.newIndex - 1)) {
+    //         currentNode.setNext(previousNode);
+    //         previousNode.setPrevious(currentNode);
+    //         currentNode.setPosition([0,0]);
+    //         previousNode.setPosition([0,0]);
+    //         previousNode = currentNode; 
+    //         currentNode = currentNode.getPrevious();
+    //     }
+    //     if (!currentNode) {
+    //         movedNode.setNext(previousNode);
+    //         previousNode.setPrevious(movedNode);
+    //     } else {
+    //         currentNode.setNext(movedNode);
+    //         movedNode.setPrevious(currentNode);
+    //         previousNode.setPrevious(movedNode);
+    //         movedNode.setNext(previousNode);
+    //     }
+    //     movedNode.setPosition([0,0]);
+    // }
     
 
     
