@@ -1,7 +1,18 @@
 
+@font-face {
+  font-family: 'museo_sans300';
+  src: url('museosans-300-webfont-webfont.eot');
+/*  src: url('museosans-300-webfont-webfont.eot?#iefix') format('embedded-opentype'),
+       url('museosans-300-webfont-webfont.woff') format('woff'),
+       url('museosans-300-webfont-webfont.ttf') format('truetype'),
+       url('museosans-300-webfont-webfont.svg#museo_sans300') format('svg');
+*/  font-weight: normal;
+  font-style: normal;
+}
+
 html {
-  font-family: "helvetica", "Helvetica Neue", sans-serif;
-  color: #fff;
+  font-family: "museo_sans300";
+  color: #003156;
   margin: 0;
 }
 .layer {
@@ -12,14 +23,22 @@ input {
   height: 3em;
   margin-top: 10px;
   margin-left: 0;
-  border: 1px solid gray;
-  box-shadow: 2px 2px 2px #000;
-}
+/*  border: 1px solid gray;
+*//*  box-shadow: 2px 2px 2px #000;
+*/}
 
 .task {
-  padding: 10px;
-  border: 1px dotted gray;
-  color: black;
+  box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.2);
+  line-height: 60px;
+  color: #003156;
+}
+
+.task p {
+  padding-left: 10px;
+  margin: 0;
+  letter-spacing: 0.3px;
+  font-size: 1.2em;
+  font-weight: 200;
 }
 
 .today {
@@ -27,7 +46,10 @@ input {
 }
 
 h1 {
-  text-align: center;
+  padding-left: 10px;
+  font-weight: 300;
+  letter-spacing: 4px;
+  font-size: 2em;
 }
 
 

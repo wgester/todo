@@ -16,7 +16,7 @@ function Box(options) {
   });
 
   var right = new Modifier({
-      transform: Transform.move(Transform.rotate(0, 1.57, 0), [400, 0])
+      transform: Transform.move(Transform.rotate(0, 1.57, 0), [300, 0])
   });
 
   var top = new Modifier({
@@ -45,7 +45,7 @@ function Box(options) {
 
   this.topSurf = new InputSurface({
     size: this.options.face.size,
-    properties: {background: 'white', margin: 0, border: '1px solid black'}
+    properties: {background: 'white', margin: 0, opacity: '0.2'}
   });
 
   var bottomSurf = new Surface(this.options.face);
@@ -62,10 +62,8 @@ function Box(options) {
 
 Box.DEFAULT_OPTIONS = {
     face: {
-        size: [400, 50],
+        size: [300, 50],
         properties:  {
-            border: '1px solid black',
-            background: 'gray',
             margin: 0,
             opacity: 0.5,
             visibility: 'hidden'

@@ -38,49 +38,18 @@ ContentView.DEFAULT_OPTIONS = {
   classes: ['contents']
 };
 
+function _isAndroid() {
+  var userAgent = navigator.userAgent.toLowerCase();  
+  return userAgent.indexOf("android") > -1;
+};
+
 function _createBackground() {
-  if (this.options.title === 'FOCUS') {
-    
-    this.backgroundSurf = new CanvasSurface({
-      size: [window.innerWidth, window.innerHeight],
-      canvasSize: [window.innerWidth*2, window.innerHeight*2]
-    });
-    
-    var colorCanvas = this.backgroundSurf.getContext('2d');
-
-
-    var userAgent = navigator.userAgent.toLowerCase();
-    if (userAgent.indexOf("android") > -1) {
-      this.radial = colorCanvas.createLinearGradient( 
-                300 * 0.5 * 2,    // x0
-                0,                              // y0
-                300 * 0.5 * 2,    // x1
-                500 * 2         // y1
-                );
-      this.radial.addColorStop(0, "#3399FF");
-      this.radial.addColorStop(1, "white");
-              
-      colorCanvas.fillStyle = this.radial;
-      colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
-      this._add(this.backgroundSurf);
-    } else {
-       this.radial = colorCanvas.createRadialGradient( 
-                      300 * 0.5 * 2,    // x0
-                      500 * 2,         // y0
-                      0,   // r0
-
-                      300 * 0.5 * 2,    // x1
-                      500 * 2.5,       // y1
-                      300 * 5        // r1
-                      );
-      this.radial.addColorStop(0, "white");
-      this.radial.addColorStop(1, "#3399FF");
-      colorCanvas.fillStyle = this.radial;
-      colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
-
-      this._add(this.backgroundSurf);
-
-    }
+  if (this.options.title === 'TODAY') {
+    _createCanvas.call(this, '#3399FF', 'white',  4);
+  } else if (this.options.title === "FOCUS") {
+    _createCanvas.call(this, '#32CEA8', 'white', 2.5);
+  } else if (this.options.title === "LATER") {
+    _createCanvas.call(this, '#9C7CCB', '#3690FF', 2.5);    
   } else {
     this.backgroundSurf = new Surface({
       size: [undefined, undefined]
@@ -91,6 +60,49 @@ function _createBackground() {
   }
   
 };
+
+function _createCanvas(mainColor, minorColor, radialSize) {
+  this.backgroundSurf = new CanvasSurface({
+    size: [window.innerWidth, window.innerHeight],
+    canvasSize: [window.innerWidth*2, window.innerHeight*2],
+    classes: ['famous-surface']
+  });
+  
+  var colorCanvas = this.backgroundSurf.getContext('2d');
+
+  var userAgent = navigator.userAgent.toLowerCase();
+  if (userAgent.indexOf("android") > -1) {
+    this.radial = colorCanvas.createLinearGradient( 
+              300 * 0.5 * 2,    // x0
+              0,                              // y0
+              300 * 0.5 * 2,    // x1
+              500 * 2         // y1
+              );
+    this.radial.addColorStop(0, mainColor);
+    this.radial.addColorStop(1, minorColor);
+            
+    colorCanvas.fillStyle = this.radial;
+    colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
+    this._add(this.backgroundSurf);
+  } else {
+     this.radial = colorCanvas.createRadialGradient( 
+                    300 * 0.5 * 2,    // x0
+                    500 * 2,         // y0
+                    0,   // r0
+
+                    300 * 0.5 * 2,    // x1
+                    500 * 2.5,       // y1
+                    300 * radialSize        // r1
+                    );
+    this.radial.addColorStop(0, minorColor);
+    this.radial.addColorStop(1, mainColor);
+    colorCanvas.fillStyle = this.radial;
+    colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
+
+    this._add(this.backgroundSurf); 
+  }    
+};
+
 
 function _completeColorMod() {
   this.backgroundSurf.setProperties({
@@ -147,16 +159,16 @@ function _setInputListener() {
     
     if (this.inputToggled) {
       this.boxContainer.frontSurf.setProperties({'visibility': 'visible'})
-      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [0, 200, 150]), {duration: 300});      
+      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [10, 200, 50]), {duration: 300});      
     } else if (!this.inputToggled && value.length) {
-      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [0, 150, 150]), {duration: 300}, function() {
+      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [10, 150, 50]), {duration: 300}, function() {
         var newTask = new TaskView({text: value});
         newTask.pipe(this.scrollview);    
         this.taskViews.push(newTask);        
         this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
       }.bind(this));
     } else {
-      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [0, 150, 150]), {duration: 300}, function() {
+      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [10, 150, 50]), {duration: 300}, function() {
         this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
       }.bind(this));
     }

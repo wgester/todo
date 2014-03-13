@@ -416,6 +416,7 @@ Surface.prototype.setup = function(allocator) {
     }
     _bindEvents.call(this, target);
     _setOrigin(target, [0, 0]); // handled internally
+    target.style.display = "";
     this._currTarget = target;
     this._stylesDirty = true;
     this._classesDirty = true;
@@ -521,6 +522,7 @@ Surface.prototype.commit = function(context) {
  */
 Surface.prototype.cleanup = function(allocator) {
     var target = this._currTarget;
+    target.style.display = 'none';
     this.eventHandler.emit('recall');
     this.recall(target);
     target.style.width = '';

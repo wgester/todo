@@ -17,15 +17,17 @@ TaskView.prototype.constructor = TaskView;
 
 TaskView.DEFAULT_OPTIONS = {
   text: null,
-  // taskOffset: 70,
   classes: ['task']
 };
 
 function _createTask() {
   this.taskSurf = new Surface({
-    size: [undefined, 70],
+    size: [undefined, 60],
     classes: this.options.classes,
-    content: '<p>' + this.options.text + '</p>'
+    content: '<p>' + this.options.text + '</p>',
+    properties: {
+      background: '-webkit-linear-gradient(bottom, rgba(255, 255, 255, 0.05), transparent)'
+    }
   });
   // this.taskMod = new Modifier();
   this.taskSurf.pipe(this._eventOutput);
