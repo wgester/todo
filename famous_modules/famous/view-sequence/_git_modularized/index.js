@@ -185,8 +185,7 @@ ViewSequence.prototype.splice = function(index, howMany, addedNodes) {
     if (!previous) {
         var head = next;
     }
-
-    i = 0;
+    var i = 0;
     while (head) {
         head.setIndex(i);
         i++;
