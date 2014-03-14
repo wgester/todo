@@ -21,7 +21,7 @@ function TaskItem(options) {
     this.surface.setContent('<p>' + options.text + '</p>');
 
     bindEvents.call(this);
-
+    this.clickThreshold = 50;
     this.dragThreshold = 600;
     this.timeTouched   = 0;
 
@@ -53,6 +53,7 @@ function bindEvents() {
     this._eventInput.on('touchend', handleEnd.bind(this));
     Engine.on('prerender', findTimeDeltas.bind(this));
     Engine.on('prerender', checkForDragging.bind(this));
+    this._eventInput.on('click', function(){console.log('clicked')}.bind(this));
 }
 
 function handleStart(data) {
