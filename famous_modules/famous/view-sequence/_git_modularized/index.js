@@ -19,7 +19,7 @@ function ViewSequence(options) {
     this._optionsManager = new OptionsManager(this.options);
     this._optionsManager.patch(options);
 
-    this.array = this.options.array;
+    this.array = this.options.array || [];
     this.index = this.options.index;
     this.loop = this.options.loop;
     this._prev = undefined;
@@ -29,7 +29,6 @@ function ViewSequence(options) {
 };
 
 ViewSequence.DEFAULT_OPTIONS = {
-    array: [],
     index: 0,
     loop: false
 };
