@@ -10,8 +10,6 @@ var Box               = require('./BoxView');
 var BoxContainer      = require('./BoxContainer');
 var Timer             = require('famous/utilities/timer');
 var InputSurface      = require('famous/surfaces/input-surface');
-
-//Drag Sort Testing
 var DragSort          = require('famous/views/drag-sort');
 var CustomScrollView  = require('./customScrollView');
 var SampleItem        = require('./sampleItem');
