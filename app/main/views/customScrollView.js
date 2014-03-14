@@ -10,6 +10,7 @@ function TableView(options) {
 function bindEvents() {
     this.eventInput.on('shift', shift.bind(this));
     this.eventInput.on('editmodeOn', function() {this._earlyEnd = true;}.bind(this));
+    this.eventInput.on('deleteTask', deleteTask.bind(this));
 }
 
 function shift(data) {
@@ -24,6 +25,10 @@ function shift(data) {
         currentNode.setPosition([0,0]);
         currentNode = currentNode.getNext();
     }
+}
+
+function deleteTask(indexObj) {
+    this.node.splice(indexObj.index, 1);
 }
 
 TableView.prototype = Object.create(Scrollview.prototype);
