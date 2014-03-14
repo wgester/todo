@@ -51,11 +51,11 @@ function bindEvents() {
     this._eventInput.on('touchstart', handleStart.bind(this));
     this._eventInput.on('touchmove', handleMove.bind(this));
     this._eventInput.on('touchend', handleEnd.bind(this));
+    Engine.on('prerender', findTimeDeltas.bind(this));
+    Engine.on('prerender', checkForDragging.bind(this));
 }
 
 function handleStart(data) {
-    Engine.on('prerender', findTimeDeltas.bind(this));
-    Engine.on('prerender', checkForDragging.bind(this));
     this.touched = true;
     this.touchStart = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
     this.touchCurrent = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
@@ -66,9 +66,6 @@ function handleMove(data) {
 }
 
 function handleEnd() {
-    Engine.unbind('prerender', findTimeDeltas);
-    Engine.unbind('prerender', checkForDragging);
-    //^not quite right
     this.touched = false;
     regularmode.call(this);
     this.timeTouched = 0;
