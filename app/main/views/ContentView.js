@@ -106,7 +106,6 @@ function _setListeners() {
 };
 
 function _newTaskListener() {
-
   this.on('saveNewTask', function(val) {
     var node = this.customdragsort.find(0);
     if (this.options.title === 'FOCUS' && this.taskCount > 2) {

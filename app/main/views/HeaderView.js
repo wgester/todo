@@ -31,26 +31,26 @@ HeaderView.DEFAULT_OPTIONS = {
 };
 
 function _isAndroid() {
-  var userAgent = navigator.userAgent.toLowerCase();  
+  var userAgent = navigator.userAgent.toLowerCase();
   return userAgent.indexOf("android") > -1;
 };
 
 function _createInput() {
   this.boxContainer = new BoxContainer();
   this.bodMod = new Modifier();
-    
+
   if (_isAndroid()) {
     this.boxMod = new Modifier({
       transform: Transform.translate(0, 90, 0)
-    });    
+    });
   } else {
     this.boxMod = new Modifier({
       transform: Transform.translate(0, 80, 0)
-    });        
+    });
   }
-  
-  
-  this._add(this.boxMod).add(this.boxContainer);  
+
+
+  this._add(this.boxMod).add(this.boxContainer);
 };
 
 function _createTitle() {
@@ -60,14 +60,14 @@ function _createTitle() {
       backgroundColor:  'transparent'
     }
   });
-  
+
   this.titleMod = new Modifier({
     opacity: 0
   });
-  
+
   this.options.title === 'FOCUS' && this.titleMod.setOpacity(1, undefined, function() {});
-  
-  this._add(this.titleMod).add(this.titleHeader);      
+
+  this._add(this.titleMod).add(this.titleHeader);
 };
 
 function _buttonListener() {
@@ -78,13 +78,13 @@ function _buttonListener() {
 
 function _setListeners() {
   this.on('opened', function() {
-    this.titleMod.setOpacity(1, {duration: this.options.openDuration}, function() { 
+    this.titleMod.setOpacity(1, {duration: this.options.openDuration}, function() {
       this.titleMod.setTransform(Transform.translate(0, 0, 1), {duration: this.options.openDurationf}, function() {});
     }.bind(this));
   }.bind(this));
 
   this.on('closed', function() {
-    this.titleMod.setOpacity(0, {duration: this.options.closedDuration}, function() { 
+    this.titleMod.setOpacity(0, {duration: this.options.closedDuration}, function() {
       this.titleMod.setTransform(Transform.translate(0, 0, 0), {duration: this.options.closedDuration}, function() {});
     }.bind(this));
   }.bind(this));
@@ -101,22 +101,22 @@ function _setInputListener() {
       this.inputToggled = !this.inputToggled;
       (this.inputToggled) ? this._eventOutput.emit('showInput') : this._eventOutput.emit('focusHideInput');
     }.bind(this));
-  } 
+  }
 
   this.on('showInput', function(e) {
     this.boxContainer.frontSurf.setProperties({'visibility': 'visible'});
 
-    this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [this.inputXOffset, 70, this.inputZOffset]), {duration: this.options.inputDuration});      
-  }.bind(this));    
-  
+    this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [this.inputXOffset, 70, this.inputZOffset]), {duration: this.options.inputDuration});
+  }.bind(this));
+
   this.on('hideInput', function() {
     this.value = this.boxContainer.inputSurf.getValue();
     this.boxContainer.inputSurf.setValue('');
 
     this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [this.inputXOffset, 0, this.inputZOffset]), {duration: this.options.inputDuration}, function() {
       this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
-    }.bind(this));            
-    
+    }.bind(this));
+
   }.bind(this));
 };
 
