@@ -62,6 +62,13 @@ function bindEvents() {
     this._dragEvents.on('dragstart', handleDragStart.bind(this));
     this._dragEvents.on('dragmove', handleDragMove.bind(this));
     this._dragEvents.on('dragend', handleDragEnd.bind(this));
+    this._dragEvents.on('deleteTask', deleteTask.bind(this));
+}
+
+function deleteTask() {
+    this._eventOutput.emit('deleteMe', {
+        index: this.index
+    });
 }
 
 function handleDragStart() {
