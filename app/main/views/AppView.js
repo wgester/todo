@@ -4,9 +4,12 @@ var Transform = require('famous/transform');
 var View = require('famous/view');
 var PageView = require('./PageView');
 var Lightbox = require('famous/views/light-box');
+var CanvasSurface     = require('famous/surfaces/canvas-surface');
+
 
 function AppView() {
   View.apply(this, arguments);
+  _createGradientSurfaces.call(this);
   _createLightBox.call(this);
   _createAppViews.call(this);
   _renderFocusPage.call(this);
@@ -31,8 +34,20 @@ AppView.DEFAULT_OPTIONS = {
   },
   noTransition: {
     duration: 0
-  }
+  },
+  colors: [
+    ['#ffffff', '#32CEA8'],
+    ['#ffffff', '#FFFFCD', '#87CEFA'],
+    ['#3690FF', '#8977C6'],
+    ['#ffffff', '#32CEA8']
+  ] 
 };
+
+function _isAndroid() {
+  var userAgent = navigator.userAgent.toLowerCase();  
+  return userAgent.indexOf("android") > -1;
+};
+
 
 function _createLightBox() {
   this.lightBox = new Lightbox({
@@ -84,14 +99,15 @@ function _addEventListeners(newView, newModifier){
       if (!this.lightBox.optionsForSwipeUp){
         this.lightBox.setOptions({
           outTransition: this.options.transition,
-          outTransform: Transform.translate(0, -1200, 10),
+          outTransform: Transform.translate(0, -1200, 1),
           inTransition: this.options.noTransition,
           inTransform: Transform.translate(0, 0, -5)
         });
         this.lightBox.optionsForSwipeUp = true;
       }
       this.lightBox.show(newView.nextPage);
-      newView.nextPage.contents._eventOutput.emit('opened', 'forward');
+      newView.nextPage.contents._eventOutput.emit('opened');
+      newView.contents._eventOutput.emit('closed');
     }
   }.bind(this));
 
@@ -107,8 +123,8 @@ function _addEventListeners(newView, newModifier){
         this.lightBox.optionsForSwipeUp = false;
       }
       this.lightBox.show(newView.previousPage);
-      newView.previousPage.contents._eventOutput.emit('opened', 'back');
-
+      newView.previousPage.contents._eventOutput.emit('opened');
+      newView.contents._eventOutput.emit('closed');
     }
   }.bind(this));
 }
@@ -128,5 +144,77 @@ function _createAppViews() {
 function _renderFocusPage() {
   this.lightBox.show(this.FOCUSView);
 }
+
+function _createGradientSurfaces(pages) {
+  window.faderSurfaces = [];
+  window.faderMods = [];
+  
+  for(var i=0; i < this.options.colors.length; i++){
+    var backgroundSurf = new CanvasSurface({
+      size: [window.innerWidth, window.innerHeight],
+      canvasSize: [window.innerWidth*2, window.innerHeight*2],
+      classes: ['famous-surface', 'gradient']
+    });
+    if (i === 0) {
+      var backgroundMod = new Modifier({
+        opacity: 1,
+        transform: Transform.translate(0, 0, 0)
+      });      
+    } else {
+      var backgroundMod = new Modifier({
+        opacity: 0,
+        transform: Transform.translate(0, 0, -10)
+      });      
+    }
+    
+    window.faderSurfaces.push(backgroundSurf);
+    window.faderMods.push(backgroundMod);
+    this._add(backgroundMod).add(backgroundSurf);
+  }
+  
+  _colorSurfaces.call(this);  
+};
+
+function _colorSurfaces() {
+  for(var i = 0; i < window.faderSurfaces.length; i++){
+    var colorCanvas = window.faderSurfaces[i].getContext('2d');
+    if (_isAndroid()) {
+      var radial = colorCanvas.createLinearGradient( 
+                300,    // x0
+                0,                              // y0
+                300,    // x1
+                1000         // y1
+                );
+      
+      radial.addColorStop(0, this.options.colors[i][0]);
+      if (this.options.colors[i][2]) {
+        radial.addColorStop(0.2, this.options.colors[i][1]);
+        radial.addColorStop(1, this.options.colors[i][2]);
+      } else {
+        radial.addColorStop(1, this.options.colors[i][1]);        
+      }                
+    } else {
+      var radial = colorCanvas.createRadialGradient( 
+                      300,    // x0
+                      1000,         // y0
+                      0,   // r0
+
+                      300,    // x1
+                      1250,       // y1
+                      700        // r1
+                      );
+       
+      radial.addColorStop(0, this.options.colors[i][0]);
+      if (this.options.colors[i][2]) {
+        radial.addColorStop(0.2, this.options.colors[i][1]);
+        radial.addColorStop(1, this.options.colors[i][2]);
+      } else {
+        radial.addColorStop(1, this.options.colors[i][1]);        
+      }                
+    }
+    colorCanvas.fillStyle = radial;
+    colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
+  }
+};
 
 module.exports = AppView;

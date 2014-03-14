@@ -46,7 +46,7 @@ function _createTitle() {
     this.titleHeader = new Surface({
       content: '<h1>' + this.options.title + '</h1>',
       properties: {
-        backgroundColor: new Color('#9C7CCB').setLightness(65).getHex()
+        backgroundColor: new Color('#8977C6').setLightness(65).getHex()
       }
     });
 

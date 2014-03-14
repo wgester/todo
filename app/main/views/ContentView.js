@@ -23,9 +23,7 @@ function ContentView() {
   this.lightness = 75;
   this.inputToggled = false;
 
-  this.gradient = new Transitionable([50, 206, 168, 255, 255, 255]);
-
-  _createBackground.call(this);
+  _setBackground.call(this);
   _createTasks.call(this);
   _createInput.call(this);
   _taskListeners.call(this);
@@ -36,7 +34,8 @@ ContentView.prototype.constructor = ContentView;
 
 ContentView.DEFAULT_OPTIONS = {
   title: 'later',
-  classes: ['contents']
+  classes: ['contents'],
+  //add colors
 };
 
 function _isAndroid() {
@@ -44,88 +43,19 @@ function _isAndroid() {
   return userAgent.indexOf("android") > -1;
 };
 
-function _createBackground() {
-  this.backgroundSurf = new CanvasSurface({
-    size: [window.innerWidth, window.innerHeight],
-    canvasSize: [window.innerWidth*2, window.innerHeight*2],
-    classes: ['famous-surface']
-  });
-};
-
-function _createCanvas() {
-  var colorCanvas = this.backgroundSurf.getContext('2d');
-
-  if (_isAndroid()) {
-    this.radial = colorCanvas.createLinearGradient( 
-              300,    // x0
-              0,                              // y0
-              300,    // x1
-              1000         // y1
-              );
-    
-    this.radial.addColorStop(
-      0, 
-      "rgb(" +
-      (this.gradient.get()[0] >> 0) + "," + 
-      (this.gradient.get()[1] >> 0) + "," + 
-      (this.gradient.get()[2] >> 0) + ")"
-    );
-    if (this.gradient.get()[3]) {
-      this.radial.addColorStop(
-        1,
-        "rgb(" + 
-        (this.gradient.get()[3] >> 0) + "," + 
-        (this.gradient.get()[4] >> 0) + "," + 
-        (this.gradient.get()[5] >> 0) + ")"
-      );      
-      
-      if (this.gradient.get()[6]) {
-        this.radial.addColorStop(0.2, 'rgba(255,255,205,0.2)');
-      } 
-
-    } else {
-      this.radial.addColorStop(1, 'white');
-    }
-    
+function _setBackground() {
+  var index;
+  if (this.options.title === 'FOCUS') {
+    index = 0;
+  } else if (this.options.title === 'TODAY') {
+    index = 1;
+  } else if (this.options.title === 'LATER') {    
+    index = 2;
   } else {
-     this.radial = colorCanvas.createRadialGradient( 
-                    300,    // x0
-                    1000,         // y0
-                    0,   // r0
-
-                    300,    // x1
-                    1250,       // y1
-                    700        // r1
-                    );
-    if (this.gradient.get()[3]) {
-      this.radial.addColorStop(
-        0,
-        "rgb(" + 
-        (this.gradient.get()[3] >> 0) + "," + 
-        (this.gradient.get()[4] >> 0) + "," + 
-        (this.gradient.get()[5] >> 0) + ")"
-      );      
-      
-      if (this.gradient.get()[6]) {
-        this.radial.addColorStop(0.2, 'rgba(255,255,205,0.2)');
-      } 
-        
-    } else {
-      this.radial.addColorStop(0, 'white');
-    }
-        
-    
-    this.radial.addColorStop(
-      1,
-      "rgb(" +
-      (this.gradient.get()[0] >> 0) + "," + 
-      (this.gradient.get()[1] >> 0) + "," + 
-      (this.gradient.get()[2] >> 0) + ")"
-    );
+    index = 0;
   }
-  colorCanvas.fillStyle = this.radial;
-  colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
-  this._add(this.backgroundSurf);
+  this.backgroundSurf = window.faderSurfaces[index];
+  this.backgroundMod = window.faderMods[index];
 };
 
 function _createInput() {
@@ -160,12 +90,19 @@ function _createTasks() {
 
 
 function _taskListeners() {
-  window.Engine.on('prerender', _createCanvas.bind(this));
   _setInputListener.call(this);
-
-  this.on('opened', function(direction) {
-    _colorTransitionOnLoad.call(this, direction);  
-  });
+  
+  this.on('opened', function() {
+    this.backgroundMod.setTransform(Transform.translate(0, 0, 0), {duration: 0}, function() {
+      this.backgroundMod.setOpacity(1, {duration: 1000}, function() {});
+    }.bind(this));
+  }.bind(this));
+  
+  this.on('closed', function() {
+    this.backgroundMod.setTransform(Transform.translate(0, 0, -20), {duration: 0}, function() {
+      this.backgroundMod.setOpacity(0, {duration: 1000}, function() {});
+    }.bind(this));    
+  }.bind(this));
 };
 
 function _setInputListener() {
@@ -194,24 +131,112 @@ function _setInputListener() {
 
 function _colorTransitionOnLoad(dir) {
 
-  if (this.options.title === 'FOCUS') {
-    this.gradient = new Transitionable([51, 153, 255]);
-    this.gradient.set([50, 206, 168], {duration: 1000, curve: 'easeInOut'}, function() {});
-  } else if (this.options.title === 'TODAY') {
-    this.gradient = (dir === 'forward') ? new Transitionable([50, 206, 168]) : new Transitionable([156, 124, 203, 54, 144, 255]);
-    this.gradient.set([135, 206, 250], {duration: 1000, curve: 'easeInOut'}, function() {});
-  } else if (this.options.title === 'LATER') {
-    this.gradient = (dir === 'forward') ? new Transitionable([51, 153, 255]) : new Transitionable([50, 206, 168]);
-    this.gradient.set([156, 124, 203, 54, 144, 255], {duration: 1000, curve: 'easeInOut'}, function() {});    
-  } else {
-    this.gradient = new Transitionable([156, 124, 203, 54, 144, 255]);
-    this.gradient.set([50, 206, 168], {duration: 1000}, function() {});    
-  }
 };
 
 module.exports = ContentView;
+/* ---------------------------------OLD GRADIENT TRANSITIONABLES LOGIC------------------------------ */
+// window.Engine.on('prerender', _createCanvas.bind(this));
 
+  // this.on('opened', function(direction) {  
+  //   _colorTransitionOnLoad.call(this, direction);  
+  // });
+// function _createBackground() {  
+//   this.backgroundSurf = new CanvasSurface({
+//     size: [window.innerWidth, window.innerHeight],
+//     canvasSize: [window.innerWidth*2, window.innerHeight*2],
+//     classes: ['famous-surface']
+//   });
+// };
 
+  // this.gradient = new Transitionable([50, 206, 168, 255, 255, 255]);
+  // if (this.options.title === 'FOCUS') {
+  //   this.gradient = new Transitionable([51, 153, 255]);
+  //   this.gradient.set([50, 206, 168], {duration: 1000, curve: 'easeInOut'}, function() {});
+  // } else if (this.options.title === 'TODAY') {
+  //   this.gradient = (dir === 'forward') ? new Transitionable([50, 206, 168]) : new Transitionable([156, 124, 203, 54, 144, 255]);
+  //   this.gradient.set([135, 206, 250], {duration: 1000, curve: 'easeInOut'}, function() {});
+  // } else if (this.options.title === 'LATER') {
+  //   this.gradient = (dir === 'forward') ? new Transitionable([51, 153, 255]) : new Transitionable([50, 206, 168]);
+  //   this.gradient.set([137, 119, 198, 54, 144, 255], {duration: 1000, curve: 'easeInOut'}, function() {});    
+  // } else {
+  //   this.gradient = new Transitionable([156, 124, 203, 54, 144, 255]);
+  //   this.gradient.set([50, 206, 168], {duration: 1000}, function() {});    
+  // }
+// function _createCanvas() {
+//   var colorCanvas = this.backgroundSurf.getContext('2d');
+
+//   if (_isAndroid()) {
+//     this.radial = colorCanvas.createLinearGradient( 
+//               300,    // x0
+//               0,                              // y0
+//               300,    // x1
+//               1000         // y1
+//               );
+    
+//     this.radial.addColorStop(
+//       0, 
+//       "rgb(" +
+//       (this.gradient.get()[0] >> 0) + "," + 
+//       (this.gradient.get()[1] >> 0) + "," + 
+//       (this.gradient.get()[2] >> 0) + ")"
+//     );
+//     if (this.gradient.get()[3]) {
+//       this.radial.addColorStop(
+//         1,
+//         "rgb(" + 
+//         (this.gradient.get()[3] >> 0) + "," + 
+//         (this.gradient.get()[4] >> 0) + "," + 
+//         (this.gradient.get()[5] >> 0) + ")"
+//       );      
+      
+//       if (this.gradient.get()[6]) {
+//         this.radial.addColorStop(0.2, 'rgba(255,255,205,0.2)');
+//       } 
+
+//     } else {
+//       this.radial.addColorStop(1, 'white');
+//     }
+    
+//   } else {
+//      this.radial = colorCanvas.createRadialGradient( 
+//                     300,    // x0
+//                     1000,         // y0
+//                     0,   // r0
+
+//                     300,    // x1
+//                     1250,       // y1
+//                     700        // r1
+//                     );
+//     if (this.gradient.get()[3]) {
+//       this.radial.addColorStop(
+//         0,
+//         "rgb(" + 
+//         (this.gradient.get()[3] >> 0) + "," + 
+//         (this.gradient.get()[4] >> 0) + "," + 
+//         (this.gradient.get()[5] >> 0) + ")"
+//       );      
+      
+//       if (this.gradient.get()[6]) {
+//         this.radial.addColorStop(0.2, 'rgba(255,255,205,0.2)');
+//       } 
+        
+//     } else {
+//       this.radial.addColorStop(0, 'white');
+//     }
+      
+//     this.radial.addColorStop(
+//       1,
+//       "rgb(" +
+//       (this.gradient.get()[0] >> 0) + "," + 
+//       (this.gradient.get()[1] >> 0) + "," + 
+//       (this.gradient.get()[2] >> 0) + ")"
+//     );
+//   }
+//   colorCanvas.fillStyle = this.radial;
+//   colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
+//   this._add(this.backgroundSurf);
+// };
+/*---------------------------------------------------------------------------------------------------*/
 // this.color = new Transitionable([360, 100, 100]);
 
 // window.Engine.on('prerender', _completeColorMod.bind(this));
@@ -239,4 +264,3 @@ module.exports = ContentView;
   //   }.bind(this));
   // }.bind(this));  
 // };
-
