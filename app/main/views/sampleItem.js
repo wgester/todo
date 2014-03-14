@@ -71,6 +71,10 @@ function handleEnd() {
     this.timeTouched = 0;
 }
 
+function deleteTask() {
+    this._eventOutput.emit('deleteTask');
+}
+
 function findTimeDeltas() {
     this.lastFrameTime = this.now;
     this.now = Date.now();
