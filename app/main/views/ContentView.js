@@ -57,10 +57,10 @@ function _createCanvas() {
 
   if (_isAndroid()) {
     this.radial = colorCanvas.createLinearGradient( 
-              300 * 0.5 * 2,    // x0
+              300,    // x0
               0,                              // y0
-              300 * 0.5 * 2,    // x1
-              500 * 2         // y1
+              300,    // x1
+              1000         // y1
               );
     
     this.radial.addColorStop(
@@ -70,31 +70,40 @@ function _createCanvas() {
       (this.gradient.get()[1] >> 0) + "," + 
       (this.gradient.get()[2] >> 0) + ")"
     );
-    
-    this.radial.addColorStop(
-      1,
-      "rgb(" + 
-      (this.gradient.get()[3] >> 0) + "," + 
-      (this.gradient.get()[4] >> 0) + "," + 
-      (this.gradient.get()[5] >> 0) + ")"
-    );
+    if (this.gradient.get()[3]) {
+      this.radial.addColorStop(
+        1,
+        "rgb(" + 
+        (this.gradient.get()[3] >> 0) + "," + 
+        (this.gradient.get()[4] >> 0) + "," + 
+        (this.gradient.get()[5] >> 0) + ")"
+      );      
+    } else {
+      this.radial.addColorStop(1, 'white');
+    }
   } else {
      this.radial = colorCanvas.createRadialGradient( 
-                    300 * 0.5 * 2,    // x0
-                    500 * 2,         // y0
+                    300,    // x0
+                    1000,         // y0
                     0,   // r0
 
-                    300 * 0.5 * 2,    // x1
-                    500 * 2.5,       // y1
-                    300 * 2.5        // r1
+                    300,    // x1
+                    1250,       // y1
+                    700        // r1
                     );
-    this.radial.addColorStop(
-      0,
-      "rgb(" + 
-      (this.gradient.get()[3] >> 0) + "," + 
-      (this.gradient.get()[4] >> 0) + "," + 
-      (this.gradient.get()[5] >> 0) + ")"
-    );
+    if (this.gradient.get()[3]) {
+      this.radial.addColorStop(
+        0,
+        "rgb(" + 
+        (this.gradient.get()[3] >> 0) + "," + 
+        (this.gradient.get()[4] >> 0) + "," + 
+        (this.gradient.get()[5] >> 0) + ")"
+      );      
+    } else {
+      this.radial.addColorStop(0, 'white');
+    }
+    
+    this.radial.addColorStop(0.2, 'rgba(255,255,205,0.2)');
     
     this.radial.addColorStop(
       1,
@@ -176,17 +185,17 @@ function _setInputListener() {
 function _colorTransitionOnLoad(dir) {
 
   if (this.options.title === 'FOCUS') {
-    this.gradient = new Transitionable([51, 153, 255, 255, 255, 255]);
-    this.gradient.set([50, 206, 168, 255, 255, 255], {duration: 1000, curve: 'easeInOut'}, function() {});
+    this.gradient = new Transitionable([51, 153, 255]);
+    this.gradient.set([50, 206, 168], {duration: 1000, curve: 'easeInOut'}, function() {});
   } else if (this.options.title === 'TODAY') {
-    this.gradient = (dir === 'forward') ? new Transitionable([50, 206, 168, 255, 255, 255]) : new Transitionable([156, 124, 203, 54, 144, 255]);
-    this.gradient.set([51, 153, 255, 255, 255, 255], {duration: 1000, curve: 'easeInOut'}, function() {});
+    this.gradient = (dir === 'forward') ? new Transitionable([50, 206, 168]) : new Transitionable([156, 124, 203, 54, 144, 255]);
+    this.gradient.set([135, 206, 250], {duration: 1000, curve: 'easeInOut'}, function() {});
   } else if (this.options.title === 'LATER') {
-    this.gradient = (dir === 'forward') ? new Transitionable([51, 153, 255, 255, 255, 255]) : new Transitionable([50, 206, 168, 255, 255, 255]);
+    this.gradient = (dir === 'forward') ? new Transitionable([51, 153, 255]) : new Transitionable([50, 206, 168]);
     this.gradient.set([156, 124, 203, 54, 144, 255], {duration: 1000, curve: 'easeInOut'}, function() {});    
   } else {
     this.gradient = new Transitionable([156, 124, 203, 54, 144, 255]);
-    this.gradient.set([50, 206, 168, 255, 255, 255], {duration: 1000}, function() {});    
+    this.gradient.set([50, 206, 168], {duration: 1000}, function() {});    
   }
 };
 

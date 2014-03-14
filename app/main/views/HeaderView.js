@@ -32,7 +32,7 @@ function _createTitle() {
     this.titleHeader = new Surface({
       content: '<h1>' + this.options.title + '</h1>',
       properties: {
-        backgroundColor:  new Color('#3399FF').setLightness(60).getHex() 
+        backgroundColor:  new Color('#87CEFA').getHex()
       }
     });
   } else if (this.options.title === "FOCUS") {
