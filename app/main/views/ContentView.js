@@ -13,7 +13,6 @@ var InputSurface      = require('famous/surfaces/input-surface');
 
 //Drag Sort Testing
 var DragSort          = require('famous/views/drag-sort');
-var CustomDragSort    = require('./customDragSort');
 var CustomScrollView  = require('./customScrollView');
 var SampleItem        = require('./sampleItem');
 
