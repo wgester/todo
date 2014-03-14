@@ -99,7 +99,6 @@ function _playShadow() {
                 var appView = new AppView();
                 mainCtx.add(appView);  
                 titleMod.setOpacity(0, {duration: 0}, function() {});                
-                console.log('EIOJGOIEWJIOGEWH')
                 titleMod.setTransform(Transform.translate(0, 2000, -50), {duration: 0}, function() {
                   titleMod.setOpacity(0, {duration: 0}, function() {});
                 });                          

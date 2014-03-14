@@ -186,29 +186,31 @@ function _colorSurfaces() {
                 1000         // y1
                 );
       
-      radial.addColorStop(0, this.options.colors[i][0]);
       if (this.options.colors[i][2]) {
-        radial.addColorStop(0.2, this.options.colors[i][1]);
-        radial.addColorStop(1, this.options.colors[i][2]);
+        radial.addColorStop(0, this.options.colors[i][2]);
+        radial.addColorStop(0.99, this.options.colors[i][1]);
+        radial.addColorStop(1, this.options.colors[i][1]);
       } else {
-        radial.addColorStop(1, this.options.colors[i][1]);        
+        radial.addColorStop(1, this.options.colors[i][0]);        
+        radial.addColorStop(0, this.options.colors[i][1]);
       }                
     } else {
       var radial = colorCanvas.createRadialGradient( 
                       300,    // x0
-                      1000,         // y0
+                      1200,         // y0
                       0,   // r0
 
                       300,    // x1
-                      1250,       // y1
-                      700        // r1
+                      1400,       // y1
+                      1200        // r1
                       );
        
-      radial.addColorStop(0, this.options.colors[i][0]);
       if (this.options.colors[i][2]) {
+        radial.addColorStop(0, this.options.colors[i][0]);
         radial.addColorStop(0.2, this.options.colors[i][1]);
         radial.addColorStop(1, this.options.colors[i][2]);
       } else {
+        radial.addColorStop(0, this.options.colors[i][0]);
         radial.addColorStop(1, this.options.colors[i][1]);        
       }                
     }
