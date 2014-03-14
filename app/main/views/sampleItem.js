@@ -5,10 +5,10 @@ var Modifier       = require('famous/modifier');
 var Matrix         = require('famous/transform');
 var Transitionable = require('famous/transitions/transitionable');
 
-function ClearItem(options) {
+function TaskItem(options) {
     View.apply(this, arguments);
 
-    this._optionsManager.patch(ClearItem.DEFAULT_OPTIONS);
+    this._optionsManager.patch(TaskItem.DEFAULT_OPTIONS);
     this._optionsManager.patch(options);
 
     this.surface = new Surface(this.options.surface);
@@ -36,7 +36,7 @@ function ClearItem(options) {
     this.lastFrameTime = Date.now();
 }
 
-ClearItem.DEFAULT_OPTIONS = {
+TaskItem.DEFAULT_OPTIONS = {
     index: 0,
     surface: {
         classes: ['task'],
@@ -62,13 +62,28 @@ function handleStart(data) {
 }
 
 function handleMove(data) {
-    this.touchCurrent = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];  
+    this.touchCurrent = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
+    var distance = Math.sqrt(Math.pow((this.touchStart[0] - this.touchCurrent[0]), 2) + Math.pow((this.touchStart[1] - this.touchCurrent[1]), 2));
+    if (distance > 35) {
+        var xDistance = Math.abs(this.touchStart[0] - this.touchCurrent[0]);
+        var yDistance = Math.abs(this.touchStart[1] - this.touchCurrent[1]);
+        if (xDistance > yDistance) {
+            this._eventOutput.emit('xScroll');
+        }
+        if (yDistance > xDistance) {
+            this._eventOutput.emit('yScroll');
+        }
+    }
 }
 
 function handleEnd() {
     this.touched = false;
     regularmode.call(this);
     this.timeTouched = 0;
+}
+
+function deleteTask() {
+    this._eventOutput.emit('deleteTask');
 }
 
 function findTimeDeltas() {
@@ -122,6 +137,6 @@ function regularmode() {
 
 }
 
-ClearItem.prototype = Object.create(View.prototype);
+TaskItem.prototype = Object.create(View.prototype);
 
-module.exports = ClearItem;
+module.exports = TaskItem;

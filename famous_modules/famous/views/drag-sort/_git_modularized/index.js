@@ -2,7 +2,7 @@ var ViewSequence   = require('famous/view-sequence');
 var Draggable      = require('famous/modifiers/draggable');
 var Modifier       = require('famous/modifier');
 var EventHandler   = require('famous/event-handler');
-var Matrix      = require('famous/transform');
+var Matrix         = require('famous/transform');
 var Utility        = require('famous/utilities/utility');
 var OptionsManager = require('famous/options-manager');
 
@@ -62,6 +62,13 @@ function bindEvents() {
     this._dragEvents.on('dragstart', handleDragStart.bind(this));
     this._dragEvents.on('dragmove', handleDragMove.bind(this));
     this._dragEvents.on('dragend', handleDragEnd.bind(this));
+    this._dragEvents.on('deleteTask', deleteTask.bind(this));
+}
+
+function deleteTask() {
+    this._eventOutput.emit('deleteMe', {
+        index: this.index
+    });
 }
 
 function handleDragStart() {
