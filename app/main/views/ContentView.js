@@ -78,9 +78,15 @@ function _createCanvas() {
         (this.gradient.get()[4] >> 0) + "," + 
         (this.gradient.get()[5] >> 0) + ")"
       );      
+      
+      if (this.gradient.get()[6]) {
+        this.radial.addColorStop(0.2, 'rgba(255,255,205,0.2)');
+      } 
+
     } else {
       this.radial.addColorStop(1, 'white');
     }
+    
   } else {
      this.radial = colorCanvas.createRadialGradient( 
                     300,    // x0
@@ -99,11 +105,15 @@ function _createCanvas() {
         (this.gradient.get()[4] >> 0) + "," + 
         (this.gradient.get()[5] >> 0) + ")"
       );      
+      
+      if (this.gradient.get()[6]) {
+        this.radial.addColorStop(0.2, 'rgba(255,255,205,0.2)');
+      } 
+        
     } else {
       this.radial.addColorStop(0, 'white');
     }
-    
-    this.radial.addColorStop(0.2, 'rgba(255,255,205,0.2)');
+        
     
     this.radial.addColorStop(
       1,
