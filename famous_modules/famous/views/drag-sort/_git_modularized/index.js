@@ -2,7 +2,7 @@ var ViewSequence   = require('famous/view-sequence');
 var Draggable      = require('famous/modifiers/draggable');
 var Modifier       = require('famous/modifier');
 var EventHandler   = require('famous/event-handler');
-var Matrix      = require('famous/transform');
+var Matrix         = require('famous/transform');
 var Utility        = require('famous/utilities/utility');
 var OptionsManager = require('famous/options-manager');
 
