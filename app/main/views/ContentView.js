@@ -96,13 +96,13 @@ function _taskListeners() {
   
   this.on('opened', function() {
     this.backgroundMod.setTransform(Transform.translate(0, 0, 0), {duration: 0}, function() {
-      this.backgroundMod.setOpacity(1, {duration: 1000}, function() {});
+      this.backgroundMod.setOpacity(1, {duration: 800}, function() {});
     }.bind(this));
   }.bind(this));
   
   this.on('closed', function() {
     this.backgroundMod.setTransform(Transform.translate(0, 0, 0), {duration: 0}, function() {
-      this.backgroundMod.setOpacity(0, {duration: 1000}, function() {});
+      this.backgroundMod.setOpacity(0, {duration: 800}, function() {});
     }.bind(this));    
   }.bind(this));
 };

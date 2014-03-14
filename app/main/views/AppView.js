@@ -198,12 +198,12 @@ function _colorSurfaces() {
                 300,    // x0
                 0,                              // y0
                 300,    // x1
-                1000         // y1
+                1500         // y1
                 );
       
       if (this.options.colors[i][2]) {
         radial.addColorStop(0, this.options.colors[i][2]);
-        radial.addColorStop(0.99, this.options.colors[i][1]);
+        radial.addColorStop(0.90, this.options.colors[i][1]);
         radial.addColorStop(1, this.options.colors[i][1]);
       } else {
         radial.addColorStop(1, this.options.colors[i][0]);        

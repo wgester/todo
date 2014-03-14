@@ -56,10 +56,12 @@ function _createTitle() {
     });
 
   } else {
+    var currColor = (_isAndroid()) ? new Color('#32CEA8').setLightness(58).getHex() : new Color('#32CEA8').setLightness(50).getHex() 
+
     this.titleHeader = new Surface({
       content: '<h1>' + this.options.title + '</h1>',
       properties: {
-        backgroundColor: new Color('#32CEA8').setLightness(50).getHex()
+        backgroundColor: currColor
       }
     });
 
