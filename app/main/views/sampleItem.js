@@ -4,6 +4,7 @@ var Surface        = require('famous/surface');
 var Modifier       = require('famous/modifier');
 var Matrix         = require('famous/transform');
 var Transitionable = require('famous/transitions/transitionable');
+var InputSurface   = require("famous/surfaces/input-surface");
 
 function TaskItem(options) {
     View.apply(this, arguments);
@@ -51,9 +52,15 @@ function bindEvents() {
     this._eventInput.on('touchstart', handleStart.bind(this));
     this._eventInput.on('touchmove', handleMove.bind(this));
     this._eventInput.on('touchend', handleEnd.bind(this));
+    this._eventInput.on('click', handleClick.bind(this));
     Engine.on('prerender', findTimeDeltas.bind(this));
     Engine.on('prerender', checkForDragging.bind(this));
-    this._eventInput.on('click', function(){console.log('clicked')}.bind(this));
+}
+
+function handleClick() {
+    if (this.timeTouched < this.clickThreshold) {
+
+    }
 }
 
 function handleStart(data) {
