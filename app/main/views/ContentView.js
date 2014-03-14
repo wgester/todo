@@ -72,6 +72,7 @@ function _createTasks() {
 
 
   for(var i = 0; i < this.tasks.length; i++) {
+    if (this.tasks[i].page === this.options.title) {
       var newTask = new SampleItem({text: this.tasks[i].text});
       this.customdragsort.push(newTask);
       if(node.getNext()) node = node._next;
@@ -80,6 +81,7 @@ function _createTasks() {
       newTask.pipe(this.customscrollview);    
       this.customscrollview.pipe(node);
     }
+  }
 
   this.customscrollview.sequenceFrom(this.customdragsort);
 
