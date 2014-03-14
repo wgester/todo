@@ -12,6 +12,7 @@ var Timer             = require('famous/utilities/timer');
 var InputSurface      = require('famous/surfaces/input-surface');
 
 //Drag Sort Testing
+var DragSort          = require('famous/views/drag-sort');
 var CustomDragSort    = require('./customDragSort');
 var CustomScrollView  = require('./customScrollView');
 var SampleItem        = require('./sampleItem');
@@ -34,7 +35,6 @@ ContentView.prototype.constructor = ContentView;
 ContentView.DEFAULT_OPTIONS = {
   title: 'later',
   classes: ['contents'],
-  //add colors
 };
 
 function _isAndroid() {
@@ -68,7 +68,7 @@ function _createTasks() {
   this.taskViews = [];
 
   this.customscrollview = new CustomScrollView();
-  this.customdragsort = new CustomDragSort();
+  this.customdragsort = new DragSort();
   var node = this.customdragsort;
 
 
