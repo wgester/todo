@@ -9,8 +9,13 @@ function TableView(options) {
 
 function bindEvents() {
     this.eventInput.on('shift', shift.bind(this));
-    this.eventInput.on('editmodeOn', function() {this._earlyEnd = true;}.bind(this));
+    this.eventInput.on('editmodeOn', stopYScroll.bind(this));
+    this.eventInput.on('xScroll', stopYScroll.bind(this));
     this.eventInput.on('deleteTask', deleteTask.bind(this));
+}
+
+function stopYScroll = function() {
+    this._earlyEnd = true;
 }
 
 function shift(data) {
