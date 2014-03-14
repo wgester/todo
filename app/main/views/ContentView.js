@@ -98,7 +98,7 @@ function _taskListeners() {
   }.bind(this));
   
   this.on('closed', function() {
-    this.backgroundMod.setTransform(Transform.translate(0, 0, -20), {duration: 0}, function() {
+    this.backgroundMod.setTransform(Transform.translate(0, 0, 0), {duration: 0}, function() {
       this.backgroundMod.setOpacity(0, {duration: 1000}, function() {});
     }.bind(this));    
   }.bind(this));

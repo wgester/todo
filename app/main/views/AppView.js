@@ -163,7 +163,7 @@ function _createGradientSurfaces(pages) {
     } else {
       var backgroundMod = new Modifier({
         opacity: 0,
-        transform: Transform.translate(0, 0, -10)
+        transform: Transform.translate(0, 0, 0)
       });      
     }
     
