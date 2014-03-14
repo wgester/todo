@@ -5,10 +5,10 @@ var Modifier       = require('famous/modifier');
 var Matrix         = require('famous/transform');
 var Transitionable = require('famous/transitions/transitionable');
 
-function ClearItem(options) {
+function TaskItem(options) {
     View.apply(this, arguments);
 
-    this._optionsManager.patch(ClearItem.DEFAULT_OPTIONS);
+    this._optionsManager.patch(TaskItem.DEFAULT_OPTIONS);
     this._optionsManager.patch(options);
 
     this.surface = new Surface(this.options.surface);
@@ -36,7 +36,7 @@ function ClearItem(options) {
     this.lastFrameTime = Date.now();
 }
 
-ClearItem.DEFAULT_OPTIONS = {
+TaskItem.DEFAULT_OPTIONS = {
     index: 0,
     surface: {
         classes: ['task'],
@@ -126,6 +126,6 @@ function regularmode() {
 
 }
 
-ClearItem.prototype = Object.create(View.prototype);
+TaskItem.prototype = Object.create(View.prototype);
 
-module.exports = ClearItem;
+module.exports = TaskItem;
