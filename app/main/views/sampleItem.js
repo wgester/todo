@@ -68,10 +68,10 @@ function handleMove(data) {
         var xDistance = Math.abs(this.touchStart[0] - this.touchCurrent[0]);
         var yDistance = Math.abs(this.touchStart[1] - this.touchCurrent[1]);
         if (xDistance > yDistance) {
-            this._eventOutput.emit 'xScroll';
+            this._eventOutput.emit('xScroll');
         }
         if (yDistance > xDistance) {
-            this._eventOutput.emit 'yScroll';
+            this._eventOutput.emit('yScroll');
         }
     }
 }

@@ -14,7 +14,7 @@ function bindEvents() {
     this.eventInput.on('deleteTask', deleteTask.bind(this));
 }
 
-function stopYScroll = function() {
+function stopYScroll() {
     this._earlyEnd = true;
 }
 
