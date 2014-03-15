@@ -65,7 +65,11 @@ function _createTasks() {
   this.taskViews = [];
 
   this.customscrollview = new CustomScrollView();
-  this.customdragsort = new DragSort();
+  this.customdragsort = new DragSort({
+    draggable: {
+      xRange: [0,0]
+    }
+  });
   var node = this.customdragsort;
  
 

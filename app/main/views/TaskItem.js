@@ -99,6 +99,7 @@ function _createLayout() {
     });
 
     this._eventInput.pipe(this.draggable);
+    
 
     this._add(this.taskItemModifier).add(this.draggable).add(this.taskItemLayout);
 }
@@ -167,6 +168,7 @@ function checkForDragging(data) {
         if (this.timeTouched > this.dragThreshold) {
             var distance = Math.sqrt(Math.pow((this.touchStart[0] - this.touchCurrent[0]), 2) + Math.pow((this.touchStart[1] - this.touchCurrent[1]), 2));
             if (distance < 25) {
+                this._eventInput.unpipe(this.draggable);
                 this.timeTouched = 0;
                 this._eventOutput.emit('editmodeOn');
                 this.touched = false;
