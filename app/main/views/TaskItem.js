@@ -83,7 +83,19 @@ function _createLayout() {
         size: this.options.surface.size
     });
 
-    this._add(this.taskItemModifier).add(this.taskItemLayout);
+    this.draggable = new Draggable({
+        projection: 'x',
+        xRange: [-60, 60],
+        snapX: -60,
+        transition: {
+            duration: 300,
+            curve: 'easeOut'
+        }
+    });
+
+    this._eventInput.pipe(this.draggable);
+
+    this._add(this.taskItemModifier).add(this.draggable).add(this.taskItemLayout);
 }
 
 function _bindEvents() {
