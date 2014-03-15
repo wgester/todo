@@ -1,41 +1,36 @@
-var Engine         = require('famous/engine');
-var View           = require('famous/view');
-var Surface        = require('famous/surface');
-var Modifier       = require('famous/modifier');
-var Matrix         = require('famous/transform');
-var Transitionable = require('famous/transitions/transitionable');
+var Engine           = require('famous/engine');
+var View             = require('famous/view');
+var Surface          = require('famous/surface');
+var Modifier         = require('famous/modifier');
+var Matrix           = require('famous/transform');
+var Transitionable   = require('famous/transitions/transitionable');
+var HeaderFooter     = require('famous/views/header-footer-layout');
+var Utility          = require('famous/utilities/utility');
+var SequentialLayout = require('famous/views/sequential-layout');
+var ViewSequence     = require('famous/view-sequence');
+var Draggable        = require('famous/modifiers/draggable');
 
 
 function TaskItem(options) {
     View.apply(this, arguments);
 
     this._optionsManager.patch(TaskItem.DEFAULT_OPTIONS);
-    this._optionsManager.patch(options);
 
-    this.surface = new Surface(this.options.surface);
+    this._optionsManager.patch(options);     
 
-    this.surface.pipe(this._eventInput);
-    this._eventInput.pipe(this._eventOutput);
-
-    this.name = 'be awesome';
-
-    this.surface.setContent('<p>' + options.text + '</p>');
-
-    bindEvents.call(this);
-    this.clickThreshold = 50;
+    //Instance properties
     this.dragThreshold = 600;
     this.timeTouched   = 0;
 
-    this.CRAZYmodifier = new Modifier({
-        transform: Matrix.identity,
-        size: this.options.surface.size
-    });
-
-    this._add(this.CRAZYmodifier).add(this.surface);
-
-    this.now = Date.now();
-    this.lastFrameTime = Date.now();
+    //Private Method calls for opject instantiation
+    // _createSurface.call(this, options);
+    _createLayout.call(this);
+    _bindEvents.call(this);
+    _setDate.call(this);
 }
+
+TaskItem.prototype = Object.create(View.prototype);
+TaskItem.prototype.constructor = TaskItem;
 
 TaskItem.DEFAULT_OPTIONS = {
     index: 0,
@@ -48,7 +43,67 @@ TaskItem.DEFAULT_OPTIONS = {
     }
 };
 
-function bindEvents() {
+function _createLayout() {
+    this.checkBox = new Surface({
+        size: [60, 60],
+        properties: {
+            backgroundColor: '#3cf'
+        }
+    });
+
+    this.deleteBox = new Surface({
+        size: [60, 60],
+        properties: {
+            backgroundColor: 'red'
+        }
+    });
+
+    this.contents = new Surface({
+        size:    [window.innerWidth, 60],
+        classes: ['task'],
+        content: '<p>' + this.options.text + '</p>',
+        properties: {
+            webkitUserSelect: 'none'    
+        }
+    });
+
+    var surfaces = [
+        this.checkBox,
+        this.contents,
+        this.deleteBox
+    ];
+
+    this.taskItemViewSequence = new ViewSequence({
+        array: surfaces,
+        index: 1
+    });
+    this.taskItemLayout = new SequentialLayout();
+    this.taskItemLayout.sequenceFrom(this.taskItemViewSequence);
+
+    this.contents.pipe(this._eventInput);
+    this._eventInput.pipe(this._eventOutput);
+    
+    this.taskItemModifier = new Modifier({
+        transform: Matrix.identity,
+        size: this.options.surface.size
+    });
+
+    this.draggable = new Draggable({
+        projection: 'x',
+        xRange: [-60, 60],
+        snapX: -60,
+        transition: {
+            duration: 300,
+            curve: 'easeOut'
+        }
+    });
+
+    this._eventInput.pipe(this.draggable);
+
+    this._add(this.taskItemModifier).add(this.draggable).add(this.taskItemLayout);
+}
+
+function _bindEvents() {
     this._eventInput.on('touchstart', handleStart.bind(this));
     this._eventInput.on('touchmove', handleMove.bind(this));
     this._eventInput.on('touchend', handleEnd.bind(this));
@@ -101,6 +156,11 @@ function findTimeDeltas() {
     this.timeDelta = this.now - this.lastFrameTime;
 }
 
+function _setDate() {
+    this.now = Date.now();
+    this.lastFrameTime = Date.now();
+}
+
 function checkForDragging(data) {
     if (this.touched) {
         this.timeTouched += this.timeDelta;
@@ -120,18 +180,18 @@ function checkForDragging(data) {
 
 
 function dragmode() {
-    this.CRAZYmodifier.setTransform(Matrix.translate(0, 0, 40), {
+    this.taskItemModifier.setTransform(Matrix.translate(0, 0, 40), {
         curve: 'easeOutBounce',
         duration: 300
     });
 
-    this.surface.setProperties({
+    this.contents.setProperties({
         boxShadow: '0px 0px 5px rgba(0, 0, 0, 20)'
     });
 }
 
 function regularmode() {
-    this.CRAZYmodifier.setTransform(Matrix.identity, {
+    this.taskItemModifier.setTransform(Matrix.identity, {
         curve: 'easeOut',
         duration: 200
     }, function() {
@@ -139,12 +199,9 @@ function regularmode() {
         this._eventOutput.emit('finishedDragging');
     }.bind(this));
 
-    this.surface.setProperties({
+    this.contents.setProperties({
         boxShadow: 'none'
     });
-
 }
-
-TaskItem.prototype = Object.create(View.prototype);
 
 module.exports = TaskItem;
