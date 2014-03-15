@@ -13,7 +13,7 @@ var Draggable        = require('famous/modifiers/draggable');
 function TaskItem(options) {
     View.apply(this, arguments);
 
-    this._optionsManager.patch(ClearItem.DEFAULT_OPTIONS);
+    this._optionsManager.patch(TaskItem.DEFAULT_OPTIONS);
     this._optionsManager.patch(options);     
 
     //Instance properties
@@ -27,10 +27,10 @@ function TaskItem(options) {
     _setDate.call(this);
 }
 
-ClearItem.prototype = Object.create(View.prototype);
-ClearItem.prototype.constructor = ClearItem;
+TaskItem.prototype = Object.create(View.prototype);
+TaskItem.prototype.constructor = TaskItem;
 
-ClearItem.DEFAULT_OPTIONS = {
+TaskItem.DEFAULT_OPTIONS = {
     index: 0,
     surface: {
         classes: ['task'],
@@ -180,4 +180,4 @@ function regularmode() {
     });
 }
 
-module.exports = ClearItem;
+module.exports = TaskItem;
