@@ -4,7 +4,7 @@ var Surface        = require('famous/surface');
 var Modifier       = require('famous/modifier');
 var Matrix         = require('famous/transform');
 var Transitionable = require('famous/transitions/transitionable');
-var InputSurface   = require("famous/surfaces/input-surface");
+
 
 function TaskItem(options) {
     View.apply(this, arguments);

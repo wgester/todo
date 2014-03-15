@@ -1,10 +1,11 @@
-var Surface = require('famous/surface');
-var Modifier = require('famous/modifier');
-var Transform = require('famous/transform');
-var View = require('famous/view');
-var PageView = require('./PageView');
-var Lightbox = require('famous/views/light-box');
-var CanvasSurface     = require('famous/surfaces/canvas-surface');
+var Surface        = require('famous/surface');
+var Modifier       = require('famous/modifier');
+var Transform      = require('famous/transform');
+var View           = require('famous/view');
+var PageView       = require('./PageView');
+var Lightbox       = require('famous/views/light-box');
+var CanvasSurface  = require('famous/surfaces/canvas-surface');
+var InputSurface   = require("famous/surfaces/input-surface");
 
 
 function AppView() {
@@ -12,6 +13,7 @@ function AppView() {
   _createGradientSurfaces.call(this);
   _createLightBox.call(this);
   _createAppViews.call(this);
+  _createInputView.call(this);
   _renderFocusPage.call(this);
 };
 
@@ -61,6 +63,19 @@ function _createLightBox() {
   this.lightBox.optionsForSwipeUp = false;
 
   this._add(this.lightBox);
+}
+
+function _createInputView() {
+  this.inputSurf = new InputSurface({
+    size: [undefined, 60],
+    properties: {background: 'white', margin: 0, opacity: '1'},
+    classes: ['task']
+  });
+  this.inputSurf.setPlaceholder('here');
+  this.inputMod = new Modifier({
+    transform: Transform.translate(0, 70, -1)
+  }); 
+  this._add(this.inputMod).add(this.inputSurf);
 }
 
 function _addPageView(title, previousPage, nextPage) {

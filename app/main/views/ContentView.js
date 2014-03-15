@@ -67,7 +67,7 @@ function _createTasks() {
   this.customscrollview = new CustomScrollView();
   this.customdragsort = new DragSort();
   var node = this.customdragsort;
-
+ 
 
   for(var i = 0; i < this.tasks.length; i++) {
     if (this.tasks[i].page === this.options.title) {
