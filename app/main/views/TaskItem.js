@@ -9,6 +9,7 @@ var Utility          = require('famous/utilities/utility');
 var SequentialLayout = require('famous/views/sequential-layout');
 var ViewSequence     = require('famous/view-sequence');
 var Draggable        = require('famous/modifiers/draggable');
+var Transform        = require('famous/transform');
 
 
 function TaskItem(options) {
@@ -46,16 +47,14 @@ TaskItem.DEFAULT_OPTIONS = {
 function _createLayout() {
     this.checkBox = new Surface({
         size: [60, 60],
-        properties: {
-            backgroundColor: '#3cf'
-        }
+        classes: ['task'],
+        content: '<img width="60" src="./img/check_icon.png">'
     });
 
     this.deleteBox = new Surface({
         size: [60, 60],
-        properties: {
-            backgroundColor: 'red'
-        }
+        classes: ['task'],
+        content: '<img width="60" src="./img/x_icon.png">'
     });
 
     this.contents = new Surface({
@@ -63,7 +62,8 @@ function _createLayout() {
         classes: ['task'],
         content: '<p>' + this.options.text + '</p>',
         properties: {
-            webkitUserSelect: 'none'    
+            webkitUserSelect: 'none'//,
+            // boxShadow: '0 2px 2px -1px rgba(0, 0, 0, 0.2)'
         }
     });
 
@@ -75,7 +75,7 @@ function _createLayout() {
 
     this.taskItemViewSequence = new ViewSequence({
         array: surfaces,
-        index: 1
+        index: 0
     });
     this.taskItemLayout = new SequentialLayout();
     this.taskItemLayout.sequenceFrom(this.taskItemViewSequence);
@@ -84,18 +84,22 @@ function _createLayout() {
     this._eventInput.pipe(this._eventOutput);
     
     this.taskItemModifier = new Modifier({
-        transform: Matrix.identity,
+        // transform: Matrix.identity,
+        transform: Transform.translate(-60, 0, 0),
         size: this.options.surface.size
     });
 
     this.draggable = new Draggable({
         projection: 'x',
-        xRange: [-60, 60],
-        snapX: -60,
-        transition: {
-            duration: 300,
-            curve: 'easeOut'
-        }
+        xRange: [-120, 0]//,
+        // transition: {
+        //     duration: 300,
+        //     curve: 'easeOut'
+        // }
+    });
+
+    this.taskItemModifier.setTransform(Transform.translate(-60, 0, 0), {
+        duration: 0,
     });
 
     this._eventInput.pipe(this.draggable);
