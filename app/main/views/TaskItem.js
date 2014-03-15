@@ -84,11 +84,16 @@ function _createLayout() {
     });
 
     this.draggable = new Draggable({
-        projection: 'x'
+        projection: 'x',
+        xRange: [-60, 60],
+        snapX: -60,
+        transition: {
+            duration: 300,
+            curve: 'easeOut'
+        }
     });
 
     this._eventInput.pipe(this.draggable);
-    // this.draggable.pipe(this._eventOutput);
 
     this._add(this.taskItemModifier).add(this.draggable).add(this.taskItemLayout);
 }
