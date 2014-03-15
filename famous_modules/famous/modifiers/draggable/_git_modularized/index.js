@@ -112,7 +112,7 @@ function _handleMove(event){
     this.eventOutput.emit('dragmove', {p : pos});
 }
 
-function _handleEnd(){
+function _handleEnd(event){
     if (!this._active) return;
     this.eventOutput.emit('dragend', {p : this.getPosition(), v : event.v});
 }

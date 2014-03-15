@@ -65,9 +65,13 @@ function _createTasks() {
   this.taskViews = [];
 
   this.customscrollview = new CustomScrollView();
-  this.customdragsort = new DragSort();
+  this.customdragsort = new DragSort({
+    draggable: {
+      xRange: [0,0]
+    }
+  });
   var node = this.customdragsort;
-
+ 
 
   for(var i = 0; i < this.tasks.length; i++) {
     if (this.tasks[i].page === this.options.title) {

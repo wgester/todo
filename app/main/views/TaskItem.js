@@ -10,10 +10,12 @@ var SequentialLayout = require('famous/views/sequential-layout');
 var ViewSequence     = require('famous/view-sequence');
 var Draggable        = require('famous/modifiers/draggable');
 
+
 function TaskItem(options) {
     View.apply(this, arguments);
 
     this._optionsManager.patch(TaskItem.DEFAULT_OPTIONS);
+
     this._optionsManager.patch(options);     
 
     //Instance properties
@@ -97,6 +99,7 @@ function _createLayout() {
     });
 
     this._eventInput.pipe(this.draggable);
+    
 
     this._add(this.taskItemModifier).add(this.draggable).add(this.taskItemLayout);
 }
@@ -105,8 +108,15 @@ function _bindEvents() {
     this._eventInput.on('touchstart', handleStart.bind(this));
     this._eventInput.on('touchmove', handleMove.bind(this));
     this._eventInput.on('touchend', handleEnd.bind(this));
+    this._eventInput.on('click', handleClick.bind(this));
     Engine.on('prerender', findTimeDeltas.bind(this));
     Engine.on('prerender', checkForDragging.bind(this));
+}
+
+function handleClick() {
+    if (this.timeTouched < this.clickThreshold) {
+
+    }
 }
 
 function handleStart(data) {
@@ -126,6 +136,7 @@ function handleMove(data) {
         }
         if (yDistance > xDistance) {
             this._eventOutput.emit('yScroll');
+            this._eventInput.unpipe(this.draggable);
         }
     }
 }
@@ -134,6 +145,7 @@ function handleEnd() {
     this.touched = false;
     regularmode.call(this);
     this.timeTouched = 0;
+    this._eventInput.pipe(this.draggable);
 }
 
 function deleteTask() {
@@ -158,6 +170,7 @@ function checkForDragging(data) {
         if (this.timeTouched > this.dragThreshold) {
             var distance = Math.sqrt(Math.pow((this.touchStart[0] - this.touchCurrent[0]), 2) + Math.pow((this.touchStart[1] - this.touchCurrent[1]), 2));
             if (distance < 25) {
+                this._eventInput.unpipe(this.draggable);
                 this.timeTouched = 0;
                 this._eventOutput.emit('editmodeOn');
                 this.touched = false;
