@@ -136,6 +136,7 @@ function handleMove(data) {
         }
         if (yDistance > xDistance) {
             this._eventOutput.emit('yScroll');
+            this._eventInput.unpipe(this.draggable);
         }
     }
 }
@@ -144,6 +145,7 @@ function handleEnd() {
     this.touched = false;
     regularmode.call(this);
     this.timeTouched = 0;
+    this._eventInput.pipe(this.draggable);
 }
 
 function deleteTask() {
