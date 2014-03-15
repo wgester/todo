@@ -23,7 +23,6 @@ function PageView() {
   this.offPage = false;
   _createLayout.call(this);
   _pipeSubviewEventsToAppView.call(this);
-  _setListeners.call(this);
 }
 
 PageView.prototype = Object.create(View.prototype);
@@ -52,9 +51,6 @@ function _createLayout() {
 function _pipeSubviewEventsToAppView() {
   this.footer.pipe(this._eventOutput);
   this.header.pipe(this._eventOutput);
-};
-
-function _setListeners() {
 };
 
 module.exports = PageView;

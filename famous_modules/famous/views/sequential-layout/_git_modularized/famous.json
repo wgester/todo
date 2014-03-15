@@ -1,0 +1,22 @@
+{
+    "name": "famous/views/sequential-layout",
+    "namespace": "famous/views",
+    "type": "famous",
+    "description": "",
+    "version": "0.0.1",
+    "repository" : { 
+        "type" : "git", 
+        "url" : "https://github.com/Famous/famous-views.git"
+    },
+    "keywords": [],
+    "dependencies": {
+        "famous/options-manager": "git+ssh://git@github.com:Famous/famous.git#modularized",
+        "famous/transitions/transitionable": "git+ssh://git@github.com:Famous/famous-transitions.git#modularized",
+        "famous/transform": "git+ssh://git@github.com:Famous/famous.git#modularized",
+        "famous/view-sequence": "git+ssh://git@github.com:Famous/famous.git#modularized",
+        "famous/utilities/utility": "git+ssh://git@github.com:Famous/famous-utilities.git#modularized"
+    },
+    "scripts": [
+        "index.js"
+    ]
+}
