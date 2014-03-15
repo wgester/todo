@@ -9,7 +9,13 @@ function TableView(options) {
 
 function bindEvents() {
     this.eventInput.on('shift', shift.bind(this));
-    this.eventInput.on('editmodeOn', function() {this._earlyEnd = true;}.bind(this));
+    this.eventInput.on('editmodeOn', stopYScroll.bind(this));
+    this.eventInput.on('xScroll', stopYScroll.bind(this));
+    this.eventInput.on('deleteTask', deleteTask.bind(this));
+}
+
+function stopYScroll() {
+    this._earlyEnd = true;
 }
 
 function shift(data) {
@@ -24,81 +30,10 @@ function shift(data) {
         currentNode.setPosition([0,0]);
         currentNode = currentNode.getNext();
     }
+}
 
-
-
-
-
-
-    // console.log(data);
-    // if (data.oldIndex < data.newIndex) {
-    //     var movedNode = this.node.find(data.oldIndex);
-    //     var previousNode = movedNode.getPrevious();
-    //     var currentNode = movedNode.getNext();
-    //     while (currentNode && (currentNode.index < data.newIndex + 1)) {
-    //         currentNode.setPrevious(previousNode);
-    //         previousNode.setNext(currentNode);
-    //         currentNode.setPosition([0,0]);
-    //         previousNode.setPosition([0,0]);
-    //         previousNode = currentNode; 
-    //         currentNode = currentNode.getNext();
-    //     }
-    //     if (!currentNode) {
-    //         movedNode.setPrevious(previousNode);
-    //         previousNode.setNext(movedNode);
-    //     } else {
-    //         currentNode.setPrevious(movedNode);
-    //         movedNode.setPrevious(previousNode);
-    //         previousNode.setNext(movedNode);
-    //         movedNode.setNext(currentNode);
-    //     }
-    //     movedNode.setPosition([0,0]);
-     
-    // } else {
-    //     var movedNode = this.node.find(data.oldIndex);
-    //     var previousNode = movedNode.getNext();
-    //     var currentNode = movedNode.getPrevious();
-    //     while (currentNode && (currentNode.index > data.newIndex - 1)) {
-    //         currentNode.setNext(previousNode);
-    //         previousNode.setPrevious(currentNode);
-    //         currentNode.setPosition([0,0]);
-    //         previousNode.setPosition([0,0]);
-    //         previousNode = currentNode; 
-    //         currentNode = currentNode.getPrevious();
-    //     }
-    //     if (!currentNode) {
-    //         movedNode.setNext(previousNode);
-    //         previousNode.setPrevious(movedNode);
-    //     } else {
-    //         currentNode.setNext(movedNode);
-    //         movedNode.setPrevious(currentNode);
-    //         previousNode.setPrevious(movedNode);
-    //         movedNode.setNext(previousNode);
-    //     }
-    //     movedNode.setPosition([0,0]);
-    // }
-    
-
-    
-    // var swapperIndex = data.swapper.index;
-    // var swappeeIndex = data.swappee.index;
-
-    // var swapperNode = this.node.find(swapperIndex);
-
-    // var swappeeNode = this.node.find(swappeeIndex);
-
-    // if (swapperIndex === this.node.index) {
-    //     this.node = swappeeNode;
-    // } else if (swappeeIndex === this.node.index) {
-    //     this.node = swapperNode;
-    // }
-
-    // swapperNode.swap(swappeeNode);
-
-    // this.eventOutput.emit('swapped', {
-    //     swapper: swapperIndex,
-    //     swappee: swappeeIndex
-    // });
+function deleteTask(indexObj) {
+    this.node.splice(indexObj.index, 1);
 }
 
 TableView.prototype = Object.create(Scrollview.prototype);

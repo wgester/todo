@@ -8,7 +8,7 @@ var WallTransition = require("famous/transitions/wall-transition");
 var Timer             = require('famous/utilities/timer');
 var CanvasSurface     = require('famous/surfaces/canvas-surface');
 
-var devMode = false;
+var devMode = true;
 
 Transitionable.registerMethod('wall', WallTransition);
 
@@ -76,7 +76,9 @@ if (_isAndroid) {
 
 
 
-var titleMod = new Modifier();
+var titleMod = new Modifier({
+  opacity: 1
+});
 
 function _shadowMod() {
   titleSurf.setProperties({
@@ -85,10 +87,11 @@ function _shadowMod() {
 };
 
 function _playShadow() {
-  if (devMode) {
+  if (devMode ) {
+    titleMod.setOpacity(0, function(){});
     var appView = new AppView();
     mainCtx.add(appView);        
-    titleMod.setTransform(Transform.translate(0, 0, -50000));
+    titleMod.setTransform(Transform.translate(0, 0, -100));
   } else {
     this.set([1.5, 100, 50], {duration: 1500}, function() {
       this.set([2, 100, 50], {duration: 500}, function(){
@@ -97,8 +100,10 @@ function _playShadow() {
             whiteGradientMod.setTransform(Transform.translate(0, 100, 0), {duration: 500}, function() {
               Timer.after(function(){
                 var appView = new AppView();
-                mainCtx.add(appView);  
-                titleMod.setTransform(Transform.translate(0, 2000, -50), {duration: 0}, function() { });                          
+                mainCtx.add(appView);
+                titleMod.setTransform(Transform.translate(0, 2000, -50), {duration: 0}, function() {
+                  titleMod.setOpacity(0, function() {});
+                });                          
               }, 20);
             });
           }, 7);

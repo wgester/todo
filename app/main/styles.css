@@ -36,13 +36,15 @@ input {
 .task {
   box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.2);
   line-height: 60px;
-}
+  background-color: rgba(255, 255, 255, 0.07);
+/*  background: -webkit-linear-gradient(bottom, rgba(255, 255, 255, 0.05), transparent);
+*/}
 
 .task p {
   padding-left: 20px;
   margin: 0;
   letter-spacing: 0.3px;
-  font-size: 1.2em;
+  font-size: 1.1em;
   font-weight: 200;
 }
 

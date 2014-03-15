@@ -26,7 +26,7 @@ function _createTask() {
     classes: this.options.classes,
     content: '<p>' + this.options.text + '</p>',
     properties: {
-      background: '-webkit-linear-gradient(bottom, rgba(255, 255, 255, 0.05), transparent)'
+      background: '-webkit-linear-gradient(bottom, rgba(255, 255, 255, 0.8), transparent)'
     }
   });
   // this.taskMod = new Modifier();

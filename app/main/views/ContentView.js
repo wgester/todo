@@ -10,12 +10,9 @@ var Box               = require('./BoxView');
 var BoxContainer      = require('./BoxContainer');
 var Timer             = require('famous/utilities/timer');
 var InputSurface      = require('famous/surfaces/input-surface');
-var CanvasSurface     = require('famous/surfaces/canvas-surface');
-
-//Drag Sort Testing
-var CustomDragSort    = require('./customDragSort');
+var DragSort          = require('famous/views/drag-sort');
 var CustomScrollView  = require('./customScrollView');
-var SampleItem        = require('./sampleItem');
+var TaskItem          = require('./TaskItem');
 
 
 function ContentView() {
@@ -23,13 +20,10 @@ function ContentView() {
   this.lightness = 75;
   this.inputToggled = false;
 
-  this.gradient = new Transitionable([50, 206, 168, 255, 255, 255]);
-
-  _createBackground.call(this);
+  _setBackground.call(this);
   _createTasks.call(this);
   _createInput.call(this);
   _taskListeners.call(this);
-  // _colorTransitionOnLoad.call(this);
 };
 
 ContentView.prototype = Object.create(View.prototype);
@@ -37,7 +31,7 @@ ContentView.prototype.constructor = ContentView;
 
 ContentView.DEFAULT_OPTIONS = {
   title: 'later',
-  classes: ['contents']
+  classes: ['contents'],
 };
 
 function _isAndroid() {
@@ -45,78 +39,19 @@ function _isAndroid() {
   return userAgent.indexOf("android") > -1;
 };
 
-function _createBackground() {
-  // this.backgroundSurf = new CanvasSurface({
-  //   size: [window.innerWidth, window.innerHeight],
-  //   canvasSize: [window.innerWidth*2, window.innerHeight*2],
-  //   classes: ['famous-surface']
-  // });
-  this.backgroundSurf = new Surface({
-    size: [undefined, undefined]
-  });
-};
-
-function _createCanvas() {
-  var colorCanvas = this.backgroundSurf.getContext('2d');
-
-  if (_isAndroid()) {
-    this.radial = colorCanvas.createLinearGradient( 
-              300 * 0.5 * 2,    // x0
-              0,                              // y0
-              300 * 0.5 * 2,    // x1
-              500 * 2         // y1
-              );
-    
-    this.radial.addColorStop(
-      0, 
-      "rgb(" +
-      Math.floor(this.gradient.get()[0]) + "," + 
-      Math.floor(this.gradient.get()[1]) + "," + 
-      Math.floor(this.gradient.get()[2]) + ")"
-    );
-    
-    this.radial.addColorStop(
-      1,
-      "rgb(" + 
-      Math.floor(this.gradient.get()[3]) + "," + 
-      Math.floor(this.gradient.get()[4]) + "," + 
-      Math.floor(this.gradient.get()[5]) + ")"
-    );
-            
-    colorCanvas.fillStyle = this.radial;
-    colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
-    this._add(this.backgroundSurf);
+function _setBackground() {
+  var index;
+  if (this.options.title === 'FOCUS') {
+    index = 0;
+  } else if (this.options.title === 'TODAY') {
+    index = 1;
+  } else if (this.options.title === 'LATER') {    
+    index = 2;
   } else {
-     this.radial = colorCanvas.createRadialGradient( 
-                    300 * 0.5 * 2,    // x0
-                    500 * 2,         // y0
-                    0,   // r0
-
-                    300 * 0.5 * 2,    // x1
-                    500 * 2.5,       // y1
-                    300 * 2.5        // r1
-                    );
-    this.radial.addColorStop(
-      0,
-      "rgb(" + 
-      Math.floor(this.gradient.get()[3]) + "," + 
-      Math.floor(this.gradient.get()[4]) + "," + 
-      Math.floor(this.gradient.get()[5]) + ")"
-    );
-    
-    this.radial.addColorStop(
-      1,
-      "rgb(" +
-      Math.floor(this.gradient.get()[0]) + "," + 
-      Math.floor(this.gradient.get()[1]) + "," + 
-      Math.floor(this.gradient.get()[2]) + ")"
-    );
-    
-    colorCanvas.fillStyle = this.radial;
-    colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
-
-    this._add(this.backgroundSurf); 
-  }    
+    index = 0;
+  }
+  this.backgroundSurf = window.faderSurfaces[index];
+  this.backgroundMod = window.faderMods[index];
 };
 
 function _createInput() {
@@ -130,12 +65,13 @@ function _createTasks() {
   this.taskViews = [];
 
   this.customscrollview = new CustomScrollView();
-  this.customdragsort = new CustomDragSort();
+  this.customdragsort = new DragSort();
   var node = this.customdragsort;
 
 
   for(var i = 0; i < this.tasks.length; i++) {
-      var newTask = new SampleItem({text: this.tasks[i].text});
+    if (this.tasks[i].page === this.options.title) {
+      var newTask = new TaskItem({text: this.tasks[i].text});
       this.customdragsort.push(newTask);
       if(node.getNext()) node = node._next;
       newTask.pipe(node);
@@ -143,6 +79,7 @@ function _createTasks() {
       newTask.pipe(this.customscrollview);    
       this.customscrollview.pipe(node);
     }
+  }
 
   this.customscrollview.sequenceFrom(this.customdragsort);
 
@@ -151,9 +88,19 @@ function _createTasks() {
 
 
 function _taskListeners() {
-  // window.Engine.on('prerender', _createCanvas.bind(this));
-
   _setInputListener.call(this);
+  
+  this.on('opened', function() {
+    this.backgroundMod.setTransform(Transform.translate(0, 0, 0), {duration: 0}, function() {
+      this.backgroundMod.setOpacity(1, {duration: 1000}, function() {});
+    }.bind(this));
+  }.bind(this));
+  
+  this.on('closed', function() {
+    this.backgroundMod.setTransform(Transform.translate(0, 0, 0), {duration: 0}, function() {
+      this.backgroundMod.setOpacity(0, {duration: 1000}, function() {});
+    }.bind(this));    
+  }.bind(this));
 };
 
 function _setInputListener() {
@@ -180,61 +127,8 @@ function _setInputListener() {
   }.bind(this));    
 };
 
-function _colorTransitionOnLoad() {
-  
-    // if (this.options.title === 'TODAY') {
-  //   _createCanvas.call(this, '#3399FF', 'white',  4);
-  // } else if (this.options.title === "FOCUS") {
-  //   _createCanvas.call(this, '#32CEA8', 'white', 2.5);
-  // } else if (this.options.title === "LATER") {
-  //   _createCanvas.call(this, '#9C7CCB', '#3690FF', 2.5);    
-  // } else {
-  //   this.backgroundSurf = new Surface({
-  //     size: [undefined, undefined]
-  //   });
+function _colorTransitionOnLoad(dir) {
 
-  //   this.backgroundModifier = new Modifier();
-  //   this._add(this.backgroundModifier).add(this.backgroundSurf);
-  // }
-  if (this.options.title === 'TODAY') {
-    this.gradient.set([51, 153, 255, 255, 255, 255], {duration: 2000, curve: 'easeInOut'}, function() {});
-  } else if (this.options.title === 'FOCUS') {
-    this.gradient.set([50, 206, 168, 255, 255, 255], {duration: 2000, curve: 'easeInOut'}, function() {});
-  } else if (this.options.title === 'LATER') {
-    this.gradient.set([156, 124, 203, 54, 144, 255], {duration: 2000, curve: 'easeInOut'}, function() {});    
-  } else {
-    this.gradient.set([50, 206, 168, 255, 255, 255], {duration: 2000}, function() {});    
-  }
 };
 
 module.exports = ContentView;
-
-
-// this.color = new Transitionable([360, 100, 100]);
-
-// window.Engine.on('prerender', _completeColorMod.bind(this));
-
-// for(var i = 0; i < this.taskViews.length; i++) {
-//   _setOneCompleteListener.call(this, this.taskViews[i]);     
-// }
-
-// function _completeColorMod() {
-//   this.backgroundSurf.setProperties({
-//     backgroundColor: 'hsl(145, 63%,' + this.color.get()[2] + '%)'
-//   });
-// };
-
-// function _setOneCompleteListener(surface) {
-  // surface.on('completed', function() {
-  //   this.color.set([145, 63, this.lightness], {
-  //     duration: 250
-  //   }, function() {
-  //     Timer.after(function() {
-  //       this.color.set([145, 63, 100], {
-  //         duration: 250
-  //       }, function() {});      
-  //     }.bind(this), 7);            
-  //   }.bind(this));
-  // }.bind(this));  
-// };
-

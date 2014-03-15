@@ -29,24 +29,29 @@ function _isAndroid() {
 
 function _createTitle() {
   if (this.options.title === "TODAY") {
+    var currColor = (_isAndroid()) ? new Color('#87CEFA').setLightness(80).getHex() : new Color('#87CEFA').getHex() 
+    
     this.titleHeader = new Surface({
       content: '<h1>' + this.options.title + '</h1>',
       properties: {
-        backgroundColor:  new Color('#3399FF').setLightness(60).getHex() 
+        backgroundColor:  currColor
       }
     });
   } else if (this.options.title === "FOCUS") {
+    var currColor = (_isAndroid()) ? new Color('#32CEA8').setLightness(58).getHex() : new Color('#32CEA8').setLightness(50).getHex() 
     this.titleHeader = new Surface({
       content: '<h1>' + this.options.title + '</h1>',
       properties: {
-        backgroundColor: new Color('#32CEA8').setLightness(50).getHex()
+        backgroundColor: currColor
       }
     });        
   } else if (this.options.title === "LATER") {
+    var currColor = (_isAndroid()) ? new Color('#7E82DA').setLightness(68).getHex() : new Color('#8977C6').setLightness(62).getHex() 
+
     this.titleHeader = new Surface({
       content: '<h1>' + this.options.title + '</h1>',
       properties: {
-        backgroundColor: new Color('#9C7CCB').setLightness(65).getHex()
+        backgroundColor: currColor
       }
     });
 
