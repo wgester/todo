@@ -59,7 +59,10 @@ function _createLayout() {
     this.contents = new Surface({
         size:    [window.innerWidth, 60],
         classes: ['task'],
-        content: '<p>' + this.options.text + '</p>'
+        content: '<p>' + this.options.text + '</p>',
+        properties: {
+            webkitUserSelect: 'none'    
+        }
     });
 
     var surfaces = [
