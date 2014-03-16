@@ -21,7 +21,6 @@ function ContentView() {
 
   _setBackground.call(this);
   _createTasks.call(this);
-  // _createInput.call(this);
   _taskListeners.call(this);
 };
 
@@ -54,11 +53,6 @@ function _setBackground() {
   this.backgroundSurf = window.faderSurfaces[index];
   this.backgroundMod = window.faderMods[index];
 };
-
-// function _createInput() {
-//   this.boxContainer = new BoxContainer();
-//   this._add(this.boxContainer);
-// };
 
 function _createTasks() {
   this.tasks = Tasks;
@@ -93,9 +87,7 @@ function _createTasks() {
 };
 
 
-function _taskListeners() {
-  _setInputListener.call(this);
-  
+function _taskListeners() {  
   this.on('opened', function() {
     this.backgroundMod.setTransform(Transform.translate(0, 0, 0), {duration: 0}, function() {
       this.backgroundMod.setOpacity(1, {duration: this.options.gradientDuration}, function() {});
@@ -118,10 +110,15 @@ function _taskListeners() {
     }.bind(this));
   }
   
-  this.on('saveNewTask', function(val) {
-    var newTask = new TaskView({text: val});
-    var node = this.customdragsort;
+  _newTaskListener.call(this);
   
+};
+
+function _newTaskListener() {
+  this.on('saveNewTask', function(val) {
+    var newTask = new TaskItem({text: val});
+    var node = this.customdragsort;
+
     this.customdragsort.push(newTask);
     this.taskViews.push(newTask);
     if(node.getNext()) node = node._next;
@@ -130,36 +127,6 @@ function _taskListeners() {
     newTask.pipe(this.customscrollview);    
     this.customscrollview.pipe(node);
   }.bind(this));
-  
-};
-
-function _setInputListener() {
-  
-  // this.backgroundSurf.on('touchstart', function(e) {
-  //   this.inputToggled = !this.inputToggled;
-  //   var value = this.boxContainer.inputSurf.getValue();
-  //   this.boxContainer.inputSurf.setValue('');
-    
-  //   if (this.inputToggled) {
-  //     this.boxContainer.frontSurf.setProperties({'visibility': 'visible'})
-  //     this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [10, 200, 50]), {duration: this.options.inputDuration});      
-  //   } else if (!this.inputToggled && value.length) {
-  //     this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [10, 150, 50]), {duration: this.options.inputDuration}, function() {
-  //       var newTask = new TaskView({text: value});
-  //       newTask.pipe(this.scrollview);    
-  //       this.taskViews.push(newTask);        
-  //       this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
-  //     }.bind(this));
-  //   } else {
-  //     this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [10, 150, 50]), {duration: this.options.inputDuration}, function() {
-  //       this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
-  //     }.bind(this));
-  //   }
-  // }.bind(this));    
-};
-
-function _colorTransitionOnLoad(dir) {
-
 };
 
 module.exports = ContentView;
