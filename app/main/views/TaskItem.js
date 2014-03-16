@@ -53,8 +53,8 @@ function _createLayout() {
 
     this.deleteBox = new Surface({
         size: [60, 60],
-        classes: ['task'],
-        content: '<img width="60" src="./img/x_icon.png">'
+        classes: ['task', 'delete'],
+        content: '<img width="40" src="./img/x_icon.png">'
     });
 
     this.contents = new Surface({

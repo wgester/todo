@@ -15,8 +15,13 @@ html {
   color: #003156;
   margin: 0;
 }
+
 .layer {
   background-color: #444;
+}
+
+.delete {
+  padding-top: 20px;  
 }
 
 input {
