@@ -6,7 +6,7 @@ var Matrix           = require('famous/transform');
 var Transitionable   = require('famous/transitions/transitionable');
 var HeaderFooter     = require('famous/views/header-footer-layout');
 var Utility          = require('famous/utilities/utility');
-var SequentialLayout = require('famous/views/sequential-layout');
+var SequentialLayout = require('famous/views/sequential-layout'); 
 var ViewSequence     = require('famous/view-sequence');
 var Draggable        = require('famous/modifiers/draggable');
 var Transform        = require('famous/transform');
@@ -34,7 +34,7 @@ TaskItem.prototype = Object.create(View.prototype);
 TaskItem.prototype.constructor = TaskItem;
 
 TaskItem.DEFAULT_OPTIONS = {
-    index: 0,
+    index: null,
     surface: {
         classes: ['task'],
         size: [undefined, 60],
@@ -53,8 +53,8 @@ function _createLayout() {
 
     this.deleteBox = new Surface({
         size: [60, 60],
-        classes: ['task'],
-        content: '<img width="60" src="./img/x_icon.png">'
+        classes: ['task', 'delete'],
+        content: '<img width="40" src="./img/x_icon.png">'
     });
 
     this.contents = new Surface({
@@ -124,9 +124,12 @@ function handleClick() {
 }
 
 function handleStart(data) {
-    this.touched = true;
-    this.touchStart = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
-    this.touchCurrent = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
+  this.touched = true;
+  this.touchStart = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
+  this.touchCurrent = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
+    
+  (this.touchStart[1] < 90) ? this._eventOutput.emit('openInput') : this._eventOutput.emit('closeInput');
+   
 }
 
 function handleMove(data) {

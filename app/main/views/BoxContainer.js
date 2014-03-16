@@ -13,7 +13,7 @@ function BoxContainer(options) {
 function _createInput() {
   this.box = new Box();
   this.boxMod = new Modifier();
-  this.boxMod.setTransform(Transform.move(Transform.rotate(0,0,0), [10, 150, 50]));
+  this.boxMod.setTransform(Transform.move(Transform.rotate(0,0,0), [10, 0, 70]));
   this.inputSurf = this.box.topSurf;
   this.frontSurf = this.box.frontSurf;
   this._add(this.boxMod).add(this.box);            

@@ -4,12 +4,17 @@ var Transform = require('famous/transform');
 var View      = require('famous/view');
 var Color     = require('./Color');
 var Transitionable    = require('famous/transitions/transitionable');
+var Box               = require('./BoxView');
+var BoxContainer      = require('./BoxContainer');
+
 
 function HeaderView() {
   View.apply(this, arguments);
-
+  
   _createTitle.call(this);
+  _createInput.call(this);
   _buttonListener.call(this);
+  _setListeners.call(this);
 }
 
 HeaderView.prototype = Object.create(View.prototype);
@@ -18,7 +23,10 @@ HeaderView.prototype.constructor = HeaderView;
 HeaderView.DEFAULT_OPTIONS = {
   text: null,
   classes: ['title'],
-  title: 'LATER'
+  title: 'LATER',
+  openDuration: 800,
+  closedDuration: 100,
+  inputDuration: 300
 };
 
 function _isAndroid() {
@@ -26,50 +34,67 @@ function _isAndroid() {
   return userAgent.indexOf("android") > -1;
 };
 
+function _createInput() {
+  this.boxContainer = new BoxContainer();
+  this.boxMod = new Modifier({
+    transform: Transform.translate(0, 70, 0)
+  });
+  
+  this._add(this.boxMod).add(this.boxContainer);  
+};
 
 function _createTitle() {
-  if (this.options.title === "TODAY") {
-    var currColor = (_isAndroid()) ? new Color('#87CEFA').setLightness(80).getHex() : new Color('#87CEFA').getHex() 
-    
-    this.titleHeader = new Surface({
-      content: '<h1>' + this.options.title + '</h1>',
-      properties: {
-        backgroundColor:  currColor
-      }
-    });
-  } else if (this.options.title === "FOCUS") {
-    var currColor = (_isAndroid()) ? new Color('#32CEA8').setLightness(58).getHex() : new Color('#32CEA8').setLightness(50).getHex() 
-    this.titleHeader = new Surface({
-      content: '<h1>' + this.options.title + '</h1>',
-      properties: {
-        backgroundColor: currColor
-      }
-    });        
-  } else if (this.options.title === "LATER") {
-    var currColor = (_isAndroid()) ? new Color('#7E82DA').setLightness(68).getHex() : new Color('#8977C6').setLightness(62).getHex() 
-
-    this.titleHeader = new Surface({
-      content: '<h1>' + this.options.title + '</h1>',
-      properties: {
-        backgroundColor: currColor
-      }
-    });
-
-  } else {
-    this.titleHeader = new Surface({
-      content: '<h1>' + this.options.title + '</h1>',
-      properties: {
-        backgroundColor: new Color('#32CEA8').setLightness(50).getHex()
-      }
-    });
-
-  }
-  this._add(this.titleHeader);      
+  this.titleHeader = new Surface({
+    content: '<h1>' + this.options.title + '</h1>',
+    properties: {
+      backgroundColor:  'transparent'
+    }
+  });
+  
+  this.titleMod = new Modifier({
+    opacity: 0
+  });
+  
+  this.options.title === 'FOCUS' && this.titleMod.setOpacity(1, undefined, function() {});
+  
+  this._add(this.titleMod).add(this.titleHeader);      
 };
 
 function _buttonListener() {
   this.titleHeader.on('touchend', function() {
     this._eventOutput.emit('togglePageViewDown');
+  }.bind(this));
+};
+
+function _setListeners() {
+  this.on('opened', function() {
+    this.titleMod.setOpacity(1, {duration: this.options.openDuration}, function() { 
+      this.titleMod.setTransform(Transform.translate(0, 0, 1), {duration: this.options.openDurationf}, function() {});
+    }.bind(this));
+  }.bind(this));
+
+  this.on('closed', function() {
+    this.titleMod.setOpacity(0, {duration: this.options.closedDuration}, function() { 
+      this.titleMod.setTransform(Transform.translate(0, 0, 0), {duration: this.options.closedDuration}, function() {});
+    }.bind(this));
+  }.bind(this));
+
+  _setInputListener.call(this);
+};
+
+function _setInputListener() {
+  this.on('showInput', function(e) {
+    this.boxContainer.frontSurf.setProperties({'visibility': 'visible'})
+    this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [10, 70, 70]), {duration: this.options.inputDuration});      
+  }.bind(this));    
+
+  this.on('hideInput', function() {
+    this.value = this.boxContainer.inputSurf.getValue();
+    this.boxContainer.inputSurf.setValue('');
+    
+    this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [10, 0, 70]), {duration: this.options.inputDuration}, function() {
+      this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
+    }.bind(this));      
   }.bind(this));
 };
 

@@ -3,7 +3,6 @@ var Modifier          = require('famous/modifier');
 var Transform         = require('famous/transform');
 var View              = require('famous/view');
 var Scrollview        = require('famous/views/scrollview');
-var Transitionable    = require('famous/transitions/transitionable');
 var TaskView          = require('./TaskView');
 var Tasks             = require('./data');
 var Box               = require('./BoxView');
@@ -22,7 +21,6 @@ function ContentView() {
 
   _setBackground.call(this);
   _createTasks.call(this);
-  _createInput.call(this);
   _taskListeners.call(this);
 };
 
@@ -32,6 +30,8 @@ ContentView.prototype.constructor = ContentView;
 ContentView.DEFAULT_OPTIONS = {
   title: 'later',
   classes: ['contents'],
+  inputDuration: 300,
+  gradientDuration: 800
 };
 
 function _isAndroid() {
@@ -54,11 +54,6 @@ function _setBackground() {
   this.backgroundMod = window.faderMods[index];
 };
 
-function _createInput() {
-  this.boxContainer = new BoxContainer();
-  this._add(this.boxContainer);
-};
-
 function _createTasks() {
   this.tasks = Tasks;
 
@@ -75,8 +70,9 @@ function _createTasks() {
 
   for(var i = 0; i < this.tasks.length; i++) {
     if (this.tasks[i].page === this.options.title) {
-      var newTask = new TaskItem({text: this.tasks[i].text});
+      var newTask = new TaskItem({text: this.tasks[i].text, index: i});
       this.customdragsort.push(newTask);
+      this.taskViews.push(newTask);
       if(node.getNext()) node = node._next;
       newTask.pipe(node);
       node.pipe(this.customscrollview);
@@ -91,48 +87,46 @@ function _createTasks() {
 };
 
 
-function _taskListeners() {
-  _setInputListener.call(this);
-  
+function _taskListeners() {  
   this.on('opened', function() {
     this.backgroundMod.setTransform(Transform.translate(0, 0, 0), {duration: 0}, function() {
-      this.backgroundMod.setOpacity(1, {duration: 1000}, function() {});
+      this.backgroundMod.setOpacity(1, {duration: this.options.gradientDuration}, function() {});
     }.bind(this));
   }.bind(this));
   
   this.on('closed', function() {
     this.backgroundMod.setTransform(Transform.translate(0, 0, 0), {duration: 0}, function() {
-      this.backgroundMod.setOpacity(0, {duration: 1000}, function() {});
+      this.backgroundMod.setOpacity(0, {duration: this.options.gradientDuration}, function() {});
     }.bind(this));    
   }.bind(this));
+  
+  for(var i =0; i < this.taskViews.length; i++) {
+    this.taskViews[i].on('openInput', function() {
+      this._eventOutput.emit('showInput');
+    }.bind(this));
+
+    this.taskViews[i].on('closeInput', function() {
+      this._eventOutput.emit('hideInput');
+    }.bind(this));
+  }
+  
+  _newTaskListener.call(this);
+  
 };
 
-function _setInputListener() {
-  this.backgroundSurf.on('touchstart', function(e) {
-    this.inputToggled = !this.inputToggled;
-    var value = this.boxContainer.inputSurf.getValue();
-    this.boxContainer.inputSurf.setValue('');
-    
-    if (this.inputToggled) {
-      this.boxContainer.frontSurf.setProperties({'visibility': 'visible'})
-      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [10, 200, 50]), {duration: 300});      
-    } else if (!this.inputToggled && value.length) {
-      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [10, 150, 50]), {duration: 300}, function() {
-        var newTask = new TaskView({text: value});
-        newTask.pipe(this.scrollview);    
-        this.taskViews.push(newTask);        
-        this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
-      }.bind(this));
-    } else {
-      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [10, 150, 50]), {duration: 300}, function() {
-        this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
-      }.bind(this));
-    }
-  }.bind(this));    
-};
+function _newTaskListener() {
+  this.on('saveNewTask', function(val) {
+    var newTask = new TaskItem({text: val});
+    var node = this.customdragsort;
 
-function _colorTransitionOnLoad(dir) {
-
+    this.customdragsort.push(newTask);
+    this.taskViews.push(newTask);
+    if(node.getNext()) node = node._next;
+    newTask.pipe(node);
+    node.pipe(this.customscrollview);
+    newTask.pipe(this.customscrollview);    
+    this.customscrollview.pipe(node);
+  }.bind(this));
 };
 
 module.exports = ContentView;

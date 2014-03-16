@@ -6,14 +6,16 @@ var PageView       = require('./PageView');
 var Lightbox       = require('famous/views/light-box');
 var CanvasSurface  = require('famous/surfaces/canvas-surface');
 var InputSurface   = require("famous/surfaces/input-surface");
-
+var Transitionable    = require('famous/transitions/transitionable');
 
 function AppView() {
   View.apply(this, arguments);
+  this.headerSizeTransitionable = new Transitionable([70]);
+  
   _createGradientSurfaces.call(this);
   _createLightBox.call(this);
   _createAppViews.call(this);
-  _createInputView.call(this);
+  // _createInputView.call(this);
   _renderFocusPage.call(this);
 };
 
@@ -65,18 +67,18 @@ function _createLightBox() {
   this._add(this.lightBox);
 }
 
-function _createInputView() {
-  this.inputSurf = new InputSurface({
-    size: [undefined, 60],
-    properties: {background: 'white', margin: 0, opacity: '1'},
-    classes: ['task']
-  });
-  this.inputSurf.setPlaceholder('here');
-  this.inputMod = new Modifier({
-    transform: Transform.translate(0, 70, -1)
-  }); 
-  this._add(this.inputMod).add(this.inputSurf);
-}
+// function _createInputView() {
+//   this.inputSurf = new InputSurface({
+//     size: [undefined, 60],
+//     properties: {background: 'white', margin: 0, opacity: '1'},
+//     classes: ['task']
+//   });
+//   this.inputSurf.setPlaceholder('here');
+//   this.inputMod = new Modifier({
+//     transform: Transform.translate(0, 70, -1)
+//   }); 
+//   this._add(this.inputMod).add(this.inputSurf);
+// }
 
 function _addPageView(title, previousPage, nextPage) {
 
@@ -94,7 +96,8 @@ function _addPageRelations(page, previousPage, nextPage) {
   this[page + 'View'].nextPage =     nextPage     && this[nextPage + 'View'];
 
   _addEventListeners.call(this, this[page + 'View'], this[page + 'Modifier']);
-}
+};
+
 
 //toggle up
 //outTransition: easeOut
@@ -109,6 +112,8 @@ function _addPageRelations(page, previousPage, nextPage) {
 //inTransform: Transform.translate(0, -600, 1)
 
 function _addEventListeners(newView, newModifier){
+  // window.Engine.on('prerender', )
+  
   newView.on('togglePageViewUp', function() {
     if (newView.nextPage) {
       if (!this.lightBox.optionsForSwipeUp){
@@ -122,7 +127,9 @@ function _addEventListeners(newView, newModifier){
       }
       this.lightBox.show(newView.nextPage);
       newView.nextPage.contents._eventOutput.emit('opened');
+      newView.nextPage.header._eventOutput.emit('opened');
       newView.contents._eventOutput.emit('closed');
+      newView.header._eventOutput.emit('closed');
     }
   }.bind(this));
 
@@ -138,11 +145,14 @@ function _addEventListeners(newView, newModifier){
         this.lightBox.optionsForSwipeUp = false;
       }
       this.lightBox.show(newView.previousPage);
+      
       newView.previousPage.contents._eventOutput.emit('opened');
+      newView.previousPage.header._eventOutput.emit('opened');
       newView.contents._eventOutput.emit('closed');
+      newView.header._eventOutput.emit('closed');
     }
   }.bind(this));
-}
+};
 
 function _createAppViews() {
   _addPageView.call(this, 'FOCUS');
@@ -154,11 +164,11 @@ function _createAppViews() {
   _addPageRelations.call(this, 'TODAY', 'FOCUS', 'LATER');
   _addPageRelations.call(this, 'LATER', 'TODAY', 'NEVER');
   _addPageRelations.call(this, 'NEVER', 'LATER',    null);
-}
+};
 
 function _renderFocusPage() {
   this.lightBox.show(this.FOCUSView);
-}
+};
 
 function _createGradientSurfaces(pages) {
   window.faderSurfaces = [];
@@ -198,12 +208,12 @@ function _colorSurfaces() {
                 300,    // x0
                 0,                              // y0
                 300,    // x1
-                1000         // y1
+                1500         // y1
                 );
       
       if (this.options.colors[i][2]) {
         radial.addColorStop(0, this.options.colors[i][2]);
-        radial.addColorStop(0.99, this.options.colors[i][1]);
+        radial.addColorStop(0.90, this.options.colors[i][1]);
         radial.addColorStop(1, this.options.colors[i][1]);
       } else {
         radial.addColorStop(1, this.options.colors[i][0]);        

@@ -20,9 +20,12 @@ function PageView() {
   View.apply(this, arguments);
   
   this.toggleUpOrDown = 'down';
+  this.headerSizeTransitionable = new Transitionable([70]);
+  
   this.offPage = false;
   _createLayout.call(this);
   _pipeSubviewEventsToAppView.call(this);
+  _setListeners.call(this);
 }
 
 PageView.prototype = Object.create(View.prototype);
@@ -31,7 +34,8 @@ PageView.prototype.constructor = PageView;
 PageView.DEFAULT_OPTIONS = {
   title: 'LATER',
   yPositionToggleThreshold: 250,
-  velocityToggleThreshold: 0.75
+  velocityToggleThreshold: 0.75,
+  headerSizeDuration: 300
 };
 
 function _createLayout() {
@@ -48,9 +52,33 @@ function _createLayout() {
   this._add(this.layout);
 };
 
+function _setHeaderSize() {
+  this.layout.setOptions({headerSize: this.headerSizeTransitionable.get()[0]});
+};
+
 function _pipeSubviewEventsToAppView() {
   this.footer.pipe(this._eventOutput);
   this.header.pipe(this._eventOutput);
 };
+
+function _setListeners() {
+  window.Engine.on('prerender', _setHeaderSize.bind(this));
+  
+  this.contents.on('showInput', function() {
+    this.header._eventOutput.emit('showInput');    
+    this.headerSizeTransitionable.set([120], {duration: this.options.headerSizeDuration}, function() {});
+  }.bind(this));
+
+  this.contents.on('hideInput', function() {
+    this.header._eventOutput.emit('hideInput');   
+    this.headerSizeTransitionable.set([70], {duration: this.options.headerSizeDuration}, function() {
+      if (this.header.value.length) {
+        this.contents._eventOutput.emit('saveNewTask', this.header.value);      
+      }
+    }.bind(this));
+
+  }.bind(this));
+};
+
 
 module.exports = PageView;

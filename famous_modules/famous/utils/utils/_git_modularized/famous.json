@@ -1,0 +1,19 @@
+{
+    "name": "famous/utils/utils",
+    "namespace": "famous/utils",
+    "type": "famous",
+    "description": "",
+    "version": "0.0.1",
+    "repository" : { 
+        "type" : "git", 
+        "url" : "https://github.com/Famous/utils.git"
+    },
+    "keywords": [],
+    "dependencies": {
+        "famous/matrix": "git+ssh://git@github.com:Famous/famous.git#modularized",
+        "famous/utils/time": "git+ssh://git@github.com:Famous/utils.git#modularized"
+    },
+    "scripts": [
+        "index.js"
+    ]
+}
