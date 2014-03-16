@@ -117,7 +117,7 @@ function _taskListeners() {
       this._eventOutput.emit('hideInput');
     }.bind(this));
   }
-  
+    
 };
 
 function _setInputListener() {

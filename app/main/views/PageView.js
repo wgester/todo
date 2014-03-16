@@ -20,6 +20,8 @@ function PageView() {
   View.apply(this, arguments);
   
   this.toggleUpOrDown = 'down';
+  this.headerSizeTransitionable = new Transitionable([70]);
+  
   this.offPage = false;
   _createLayout.call(this);
   _pipeSubviewEventsToAppView.call(this);
@@ -49,20 +51,26 @@ function _createLayout() {
   this._add(this.layout);
 };
 
+function _setHeaderSize() {
+  this.layout.setOptions({headerSize: this.headerSizeTransitionable.get()[0]});
+};
+
 function _pipeSubviewEventsToAppView() {
   this.footer.pipe(this._eventOutput);
   this.header.pipe(this._eventOutput);
 };
 
 function _setListeners() {
+  window.Engine.on('prerender', _setHeaderSize.bind(this));
+  
   this.contents.on('showInput', function() {
-    this.layout.setOptions({headerSize: 120});
     this.header._eventOutput.emit('showInput');    
+    this.headerSizeTransitionable.set([120], {duration: 300}, function() {});
   }.bind(this));
 
   this.contents.on('hideInput', function() {
     this.header._eventOutput.emit('hideInput');   
-    this.layout.setOptions({headerSize: 70});
+    this.headerSizeTransitionable.set([70], {duration: 300}, function() {});
       // var newTask = new TaskView({text: value});
       // newTask.pipe(this.scrollview);    
       // this.taskViews.push(newTask);        
