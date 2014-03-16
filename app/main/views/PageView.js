@@ -70,10 +70,12 @@ function _setListeners() {
 
   this.contents.on('hideInput', function() {
     this.header._eventOutput.emit('hideInput');   
-    this.headerSizeTransitionable.set([70], {duration: 300}, function() {});
-      // var newTask = new TaskView({text: value});
-      // newTask.pipe(this.scrollview);    
-      // this.taskViews.push(newTask);        
+    this.headerSizeTransitionable.set([70], {duration: 300}, function() {
+      if (this.header.value.length) {
+        this.contents._eventOutput.emit('saveNewTask', this.header.value);      
+      }
+    }.bind(this));
+
   }.bind(this));
 };
 

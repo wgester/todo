@@ -117,7 +117,20 @@ function _taskListeners() {
       this._eventOutput.emit('hideInput');
     }.bind(this));
   }
-    
+  
+  this.on('saveNewTask', function(val) {
+    var newTask = new TaskView({text: val});
+    var node = this.customdragsort;
+  
+    this.customdragsort.push(newTask);
+    this.taskViews.push(newTask);
+    if(node.getNext()) node = node._next;
+    newTask.pipe(node);
+    node.pipe(this.customscrollview);
+    newTask.pipe(this.customscrollview);    
+    this.customscrollview.pipe(node);
+  }.bind(this));
+  
 };
 
 function _setInputListener() {
