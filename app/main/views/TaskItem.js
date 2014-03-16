@@ -50,8 +50,7 @@ function _createLayout() {
         classes: ['task'],
         content: '<img width="60" src="./img/check_icon.png">',
         properties: {
-            webkitUserSelect: 'none'//,
-            // boxShadow: '0 2px 2px -1px rgba(0, 0, 0, 0.2)'
+            webkitUserSelect: 'none'
         }
     });
 
@@ -60,8 +59,7 @@ function _createLayout() {
         classes: ['task'],
         content: '<img width="60" src="./img/x_icon.png">',
         properties: {
-            webkitUserSelect: 'none'//,
-            // boxShadow: '0 2px 2px -1px rgba(0, 0, 0, 0.2)'
+            webkitUserSelect: 'none'
         }
     });
 
@@ -70,8 +68,7 @@ function _createLayout() {
         classes: ['task'],
         content: '<p>' + this.options.text + '</p>',
         properties: {
-            webkitUserSelect: 'none'//,
-            // boxShadow: '0 2px 2px -1px rgba(0, 0, 0, 0.2)'
+            webkitUserSelect: 'none'
         }
     });
 
@@ -93,18 +90,12 @@ function _createLayout() {
     
     this.taskItemModifier = new Modifier({
         transform: Matrix.identity,
-        // transform: Transform.translate(-60, 0, 0),
         size: this.options.surface.size
     });
 
     this.draggable = new Draggable({
         projection: 'x',
-        xRange: [-60, 60]//,
-        // snapX: 60,
-        // transition: {
-        //     duration: 300,
-        //     curve: 'easeOut'
-        // }
+        xRange: [-60, 60]
     });
 
     this.contents.pipe(this.draggable);
@@ -200,9 +191,7 @@ function dragmode() {
         duration: 300
     });
 
-    this.contents.setProperties({
-        boxShadow: '0px 0px 5px rgba(0, 0, 0, 20)'
-    });
+    this.contents.addClass('dragging');
 }
 
 function regularmode() {
@@ -214,9 +203,7 @@ function regularmode() {
         this._eventOutput.emit('finishedDragging');
     }.bind(this));
 
-    this.contents.setProperties({
-        boxShadow: 'none'
-    });
+    this.contents.removeClass('dragging');
 }
 
 module.exports = TaskItem;

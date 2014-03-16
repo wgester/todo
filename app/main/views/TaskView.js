@@ -18,16 +18,7 @@ TaskView.DEFAULT_OPTIONS = {
 
 function _addTaskItem(options) {
     this.taskItem = new TaskItem(options);
-    // this.draggable = new Draggable({
-    //     projection: 'x',
-    //     xRange: [-60, 60]//,
-    //     // snapX: 60,
-    //     // transition: {
-    //     //     duration: 300,
-    //     //     curve: 'easeOut'
-    //     // }
-    // });
-
+    
     this.taskItemModifier = new Modifier({
       transform: Transform.translate(-60, 0, 0),
       size: [undefined, 60]
