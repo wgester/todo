@@ -10,8 +10,6 @@ var BoxContainer      = require('./BoxContainer');
 
 function HeaderView() {
   View.apply(this, arguments);
-  this.headerTransitionable = new Transitionable([]);
-  this.inputToggled = false;
   
   _createTitle.call(this);
   _createInput.call(this);
@@ -71,7 +69,7 @@ function _buttonListener() {
 function _setListeners() {
   this.on('opened', function() {
     this.titleMod.setOpacity(1, {duration: this.options.openDuration}, function() { 
-      this.titleMod.setTransform(Transform.translate(0, 0, 1), {duration: this.options.closedDuration}, function() {});
+      this.titleMod.setTransform(Transform.translate(0, 0, 1), {duration: this.options.openDurationf}, function() {});
     }.bind(this));
   }.bind(this));
 
