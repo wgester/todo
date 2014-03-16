@@ -65,8 +65,8 @@ function _setBackground() {
   });
   
   this._add(this.touchMod).add(this.touchSurf);
-
 };
+
 
 function _createTasks() {
   this.tasks = Tasks;
@@ -108,9 +108,10 @@ function _setListeners() {
 };
 
 function _newTaskListener() {
+  var node = this.customdragsort;
+  
   this.on('saveNewTask', function(val) {
     var newTask = new TaskItem({text: val, index: this.taskViews.length + 1});
-    var node = this.customdragsort;
 
     this.customdragsort.push(newTask);
     this.taskViews.push(newTask);
