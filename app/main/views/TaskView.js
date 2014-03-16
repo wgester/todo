@@ -20,7 +20,7 @@ function _addTaskItem(options) {
     this.taskItem = new TaskItem(options);
     
     this.taskItemModifier = new Modifier({
-      transform: Transform.translate(-60, 0, 0),
+      transform: Transform.translate(-200, 0, 0),
       size: [undefined, 60]
     });
 

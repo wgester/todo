@@ -42,13 +42,14 @@ TaskItem.DEFAULT_OPTIONS = {
             webkitUserSelect: 'none'
         }
     },
-    deleteThreshold: -30,
-    checkThreshold: 30
+    deleteCheckWidth: 200,
+    deleteThreshold: -180,
+    checkThreshold: 180
 };
 
 function _createLayout() {
     this.checkBox = new Surface({
-        size: [60, 60],
+        size: [this.options.deleteCheckWidth, 60],
         classes: ['task'],
         content: '<img width="60" src="./img/check_icon.png">',
         properties: {
@@ -57,7 +58,7 @@ function _createLayout() {
     });
 
     this.deleteBox = new Surface({
-        size: [60, 60],
+        size: [this.options.deleteCheckWidth, 60],
         classes: ['task'],
         content: '<img width="60" src="./img/x_icon.png">',
         properties: {
@@ -97,7 +98,7 @@ function _createLayout() {
 
     this.draggable = new Draggable({
         projection: 'x',
-        xRange: [-60, 60]
+        xRange: [-1 * this.options.deleteCheckWidth, this.options.deleteCheckWidth]
     });
 
     this.contents.pipe(this.draggable);
@@ -199,22 +200,28 @@ function dragmode() {
 function replaceTask() {
     this.taskItemModifier.setTransform(Matrix.identity, {
         curve: 'easeOut',
-        duration: 200
+        duration: 100
     }, function() {
         this._eventOutput.emit('editmodeOff');
         this._eventOutput.emit('finishedDragging');
         this.contents.removeClass('dragging');
+        var xPosition = this.draggable.getPosition()[0];
+        if (xPosition > this.options.checkThreshold) {
+            console.log('check me off');
+        } else if (xPosition < this.options.deleteThreshold) {
+            console.log('delete me');
+        } else {
+            this.draggable.setPosition([0, 0], {
+                curve: 'easeOutBounce',
+                duration: 400
+            }, function() {
+                //do nothing
+            }.bind(this));
+        }
+
     }.bind(this));
 
-    var xPosition = this.draggable.getPosition()[0];
 
-    if (xPosition > this.options.checkThreshold) {
-        console.log('check me off');
-    }
-
-    if (xPosition < this.options.deleteThreshold) {
-        console.log('delete me');
-    }
 
 }
 
