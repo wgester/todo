@@ -7,9 +7,11 @@ var Transitionable    = require('famous/transitions/transitionable');
 
 function HeaderView() {
   View.apply(this, arguments);
+  this.headerTransitionable = new Transitionable([]);
 
   _createTitle.call(this);
   _buttonListener.call(this);
+  _setListeners.call(this);
 }
 
 HeaderView.prototype = Object.create(View.prototype);
@@ -64,15 +66,35 @@ function _createTitle() {
         backgroundColor: currColor
       }
     });
-
   }
-  this._add(this.titleHeader);      
+  
+  this.titleMod = new Modifier({
+    opacity: 0,
+    transform: Transform.translate(0, 0, 0)
+  });
+  
+  this._add(this.titleMod).add(this.titleHeader);      
 };
 
 function _buttonListener() {
   this.titleHeader.on('touchend', function() {
     this._eventOutput.emit('togglePageViewDown');
   }.bind(this));
+};
+
+function _setListeners() {
+  this.on('opened', function() {
+    this.titleMod.setOpacity(1, {duration: 800}, function() { 
+      this.titleMod.setTransform(Transform.translate(0, 0, 1), {duration: 800}, function() {});
+    }.bind(this));
+  }.bind(this));
+
+  this.on('closed', function() {
+    this.titleMod.setOpacity(0, {duration: 800}, function() { 
+      this.titleMod.setTransform(Transform.translate(0, 0, 0), {duration: 800}, function() {});
+    }.bind(this));
+  }.bind(this));
+
 };
 
 module.exports = HeaderView;

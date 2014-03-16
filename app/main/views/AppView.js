@@ -122,7 +122,9 @@ function _addEventListeners(newView, newModifier){
       }
       this.lightBox.show(newView.nextPage);
       newView.nextPage.contents._eventOutput.emit('opened');
+      newView.nextPage.header._eventOutput.emit('opened');
       newView.contents._eventOutput.emit('closed');
+      newView.header._eventOutput.emit('closed');
     }
   }.bind(this));
 
@@ -140,6 +142,8 @@ function _addEventListeners(newView, newModifier){
       this.lightBox.show(newView.previousPage);
       newView.previousPage.contents._eventOutput.emit('opened');
       newView.contents._eventOutput.emit('closed');
+      newView.previousPage.header._eventOutput.emit('opened');
+      newView.header._eventOutput.emit('closed');
     }
   }.bind(this));
 }
@@ -154,11 +158,11 @@ function _createAppViews() {
   _addPageRelations.call(this, 'TODAY', 'FOCUS', 'LATER');
   _addPageRelations.call(this, 'LATER', 'TODAY', 'NEVER');
   _addPageRelations.call(this, 'NEVER', 'LATER',    null);
-}
+};
 
 function _renderFocusPage() {
   this.lightBox.show(this.FOCUSView);
-}
+};
 
 function _createGradientSurfaces(pages) {
   window.faderSurfaces = [];

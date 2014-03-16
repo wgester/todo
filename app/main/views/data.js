@@ -9,7 +9,7 @@ var tasks = [
   { text: 'make app', page: 'TODAY'},
   { text: 'eat lunch', page: 'TODAY'},
   // { text: 'be awesome', page: 'FOCUS'},
-  { text: 'eat dinner', page: 'LATER'},
+  // { text: 'eat dinner', page: 'LATER'},
   // { text: 'make an app', page: 'FOCUS'},
   // { text: 'eat lunch', page: 'TODAY'},
   // { text: 'be awesome', page: 'FOCUS'},

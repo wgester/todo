@@ -1,0 +1,22 @@
+{
+    "name": "famous/gl/renderer",
+    "namespace": "famous/gl",
+    "type": "famous",
+    "description": "",
+    "version": "0.0.1",
+    "main": "renderer.js",
+    "repository" : { 
+        "type" : "git", 
+        "url" : "https://github.com/Famous/gl.git"
+    },
+    "keywords": [],
+    "dependencies": {
+        "famous/utils/utils": "git+ssh://git@github.com:Famous/utils.git#modularized",
+        "famous/matrix": "git+ssh://git@github.com:Famous/famous.git#modularized",
+        "famous/engine": "git+ssh://git@github.com:Famous/famous.git#modularized",
+        "famous/gl/shader-maker": "git+ssh://git@github.com:Famous/gl.git#modularized"
+    },
+    "scripts": [
+        "renderer.js"
+    ]
+}

@@ -3,7 +3,6 @@ var Modifier          = require('famous/modifier');
 var Transform         = require('famous/transform');
 var View              = require('famous/view');
 var Scrollview        = require('famous/views/scrollview');
-var Transitionable    = require('famous/transitions/transitionable');
 var TaskView          = require('./TaskView');
 var Tasks             = require('./data');
 var Box               = require('./BoxView');
@@ -32,6 +31,8 @@ ContentView.prototype.constructor = ContentView;
 ContentView.DEFAULT_OPTIONS = {
   title: 'later',
   classes: ['contents'],
+  inputDuration: 300,
+  gradientDuration: 800
 };
 
 function _isAndroid() {
@@ -96,13 +97,13 @@ function _taskListeners() {
   
   this.on('opened', function() {
     this.backgroundMod.setTransform(Transform.translate(0, 0, 0), {duration: 0}, function() {
-      this.backgroundMod.setOpacity(1, {duration: 800}, function() {});
+      this.backgroundMod.setOpacity(1, {duration: this.options.gradientDuration}, function() {});
     }.bind(this));
   }.bind(this));
   
   this.on('closed', function() {
     this.backgroundMod.setTransform(Transform.translate(0, 0, 0), {duration: 0}, function() {
-      this.backgroundMod.setOpacity(0, {duration: 800}, function() {});
+      this.backgroundMod.setOpacity(0, {duration: this.options.gradientDuration}, function() {});
     }.bind(this));    
   }.bind(this));
 };
@@ -115,16 +116,16 @@ function _setInputListener() {
     
     if (this.inputToggled) {
       this.boxContainer.frontSurf.setProperties({'visibility': 'visible'})
-      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [10, 200, 50]), {duration: 300});      
+      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [10, 200, 50]), {duration: this.options.inputDuration});      
     } else if (!this.inputToggled && value.length) {
-      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [10, 150, 50]), {duration: 300}, function() {
+      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [10, 150, 50]), {duration: this.options.inputDuration}, function() {
         var newTask = new TaskView({text: value});
         newTask.pipe(this.scrollview);    
         this.taskViews.push(newTask);        
         this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
       }.bind(this));
     } else {
-      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [10, 150, 50]), {duration: 300}, function() {
+      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [10, 150, 50]), {duration: this.options.inputDuration}, function() {
         this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
       }.bind(this));
     }
