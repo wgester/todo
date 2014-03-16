@@ -21,7 +21,7 @@ function ContentView() {
 
   _setBackground.call(this);
   _createTasks.call(this);
-  _taskListeners.call(this);
+  _setListeners.call(this);
 };
 
 ContentView.prototype = Object.create(View.prototype);
@@ -53,23 +53,18 @@ function _setBackground() {
   this.backgroundSurf = window.faderSurfaces[index];
   this.backgroundMod = window.faderMods[index];
   
-  var emptyList = new Surface({
+  this.touchSurf = new Surface({
     size: [undefined, undefined],
     properties: {
       backgroundColor: 'transparent'
     }
   });
   
-  emptyList.on('touchstart', function() {
-    this.inputToggled = !this.inputToggled;
-    this.inputToggled ? this._eventOutput.emit('showInput') : this._eventOutput.emit('hideInput');
-  }.bind(this));
-  
-  var mod = new Modifier({
+  this.touchMod = new Modifier({
     transform: Transform.translate(0, 0, 0)
   });
   
-  this._add(mod).add(emptyList);
+  this._add(this.touchMod).add(this.touchSurf);
 
 };
 
@@ -106,32 +101,10 @@ function _createTasks() {
 
 };
 
-
-function _taskListeners() {  
-  this.on('opened', function() {
-    this.backgroundMod.setTransform(Transform.translate(0, 0, 0), {duration: 0}, function() {
-      this.backgroundMod.setOpacity(1, {duration: this.options.gradientDuration}, function() {});
-    }.bind(this));
-  }.bind(this));
-  
-  this.on('closed', function() {
-    this.backgroundMod.setTransform(Transform.translate(0, 0, 0), {duration: 0}, function() {
-      this.backgroundMod.setOpacity(0, {duration: this.options.gradientDuration}, function() {});
-    }.bind(this));    
-  }.bind(this));
-  
-  for(var i =0; i < this.taskViews.length; i++) {
-    this.taskViews[i].on('openInput', function() {
-      this._eventOutput.emit('showInput');
-    }.bind(this));
-
-    this.taskViews[i].on('closeInput', function() {
-      this._eventOutput.emit('hideInput');
-    }.bind(this));
-  }
-
+function _setListeners() {    
+  _gradientListener.call(this);  
   _newTaskListener.call(this);
-  
+  _inputListener.call(this);
 };
 
 function _newTaskListener() {
@@ -147,6 +120,37 @@ function _newTaskListener() {
     newTask.pipe(this.customscrollview);    
     this.customscrollview.pipe(node);
     
+  }.bind(this));
+};
+
+function _inputListener() {
+  for(var i =0; i < this.taskViews.length; i++) {
+    this.taskViews[i].on('openInput', function() {
+      this._eventOutput.emit('showInput');
+    }.bind(this));
+
+    this.taskViews[i].on('closeInput', function() {
+      this._eventOutput.emit('hideInput');
+    }.bind(this));
+  }
+  
+  this.touchSurf.on('touchstart', function() {
+    this.inputToggled = !this.inputToggled;
+    this.inputToggled ? this._eventOutput.emit('showInput') : this._eventOutput.emit('hideInput');
+  }.bind(this));
+};
+
+function _gradientListener() {
+  this.on('opened', function() {
+    this.backgroundMod.setTransform(Transform.translate(0, 0, 0), {duration: 0}, function() {
+      this.backgroundMod.setOpacity(1, {duration: this.options.gradientDuration}, function() {});
+    }.bind(this));
+  }.bind(this));
+  
+  this.on('closed', function() {
+    this.backgroundMod.setTransform(Transform.translate(0, 0, 0), {duration: 0}, function() {
+      this.backgroundMod.setOpacity(0, {duration: this.options.gradientDuration}, function() {});
+    }.bind(this));    
   }.bind(this));
 };
 
