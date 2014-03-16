@@ -20,8 +20,13 @@ html {
   background-color: #444;
 }
 
-.delete {
-  padding-top: 20px;  
+.deleteIcon, .checkIcon {
+  position: absolute;
+  width: 60px;
+}
+
+.deleteIcon {
+  right: 0;
 }
 
 input {
@@ -35,7 +40,10 @@ input {
   text-align: center;
   color: transparent;
   font-size: 4em;
+}
 
+.invisible {
+  visibility: hidden;
 }
 
 .task {

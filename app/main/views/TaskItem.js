@@ -36,6 +36,10 @@ TaskItem.DEFAULT_OPTIONS = {
         method: 'spring',
         duration: 200
     },
+    taskItemExitTransition: {
+        curve: 'easeIn',
+        duration: 200
+    },
     dragThreshold: 600
 };
 
@@ -43,7 +47,7 @@ function _createLayout() {
     this.checkBox = new Surface({
         size: [this.options.deleteCheckWidth, 60],
         classes: ['task'],
-        content: '<img width="60" src="./img/check_icon.png">',
+        content: '<img class="checkIcon" src="./img/check_icon.png">',
         properties: {
             webkitUserSelect: 'none'
         }
@@ -52,7 +56,7 @@ function _createLayout() {
     this.deleteBox = new Surface({
         size: [this.options.deleteCheckWidth, 60],
         classes: ['task'],
-        content: '<img width="60" src="./img/x_icon.png">',
+        content: '<img class="deleteIcon" src="./img/x_icon.png">',
         properties: {
             webkitUserSelect: 'none'
         }
@@ -197,13 +201,31 @@ function replaceTask() {
         this.contents.removeClass('dragging');
         var xPosition = this.draggable.getPosition()[0];
         if (xPosition > this.options.xThreshold) {
-            console.log('check me off');
+            _checkOffTask.call(this);
         } else if (xPosition < -1 * this.options.xThreshold) {
-            console.log('delete me');
+            _deleteTask.call(this);
         } else {
-            this.draggable.setPosition([0, 0], this.options.taskItemSpringTransition);
+            _springTaskBack.call(this);
         }
     }.bind(this));
+}
+
+function _checkOffTask() {
+    this.deleteBox.addClass('invisible');
+    this.draggable.setPosition([-1 * this.options.deleteCheckWidth - window.innerWidth, 0], this.options.taskItemExitTransition, function() {
+        console.log('check me off');
+    });
+}
+
+function _deleteTask() {
+    this.checkBox.addClass('invisible');
+    this.draggable.setPosition([this.options.deleteCheckWidth + window.innerWidth, 0], this.options.taskItemExitTransition, function() {
+        console.log('delete me');
+    });
+}
+
+function _springTaskBack() {
+    this.draggable.setPosition([0, 0], this.options.taskItemSpringTransition);
 }
 
 module.exports = TaskItem;

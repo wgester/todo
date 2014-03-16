@@ -13,8 +13,8 @@ TaskView.prototype = Object.create(View.prototype);
 TaskView.prototype.constructor = TaskView;
 
 TaskView.DEFAULT_OPTIONS = {
-    deleteCheckWidth: 200,
-    xThreshold: 180
+    deleteCheckWidth: 100,
+    xThreshold: 85
 };
 
 function _addTaskItem() {
