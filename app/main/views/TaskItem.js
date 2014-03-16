@@ -10,21 +10,11 @@ var SequentialLayout = require('famous/views/sequential-layout');
 var ViewSequence     = require('famous/view-sequence');
 var Draggable        = require('famous/modifiers/draggable');
 var Transform        = require('famous/transform');
-
+var Easing           = require('famous/animation/easing');
 
 function TaskItem(options) {
     View.apply(this, arguments);
-
-    this._optionsManager.patch(TaskItem.DEFAULT_OPTIONS);
-
-    this._optionsManager.patch(options);     
-
-    //Instance properties
-    this.dragThreshold = 600;
-    this.timeTouched   = 0;
-
-    //Private Method calls for opject instantiation
-    // _createSurface.call(this, options);
+    this.timeTouched = 0;
     _createLayout.call(this);
     _bindEvents.call(this);
     _setDate.call(this);
@@ -42,9 +32,11 @@ TaskItem.DEFAULT_OPTIONS = {
             webkitUserSelect: 'none'
         }
     },
-    deleteCheckWidth: 200,
-    deleteThreshold: -180,
-    checkThreshold: 180
+    taskItemSpringTransition: {
+        method: 'spring',
+        duration: 200
+    },
+    dragThreshold: 600
 };
 
 function _createLayout() {
@@ -172,7 +164,7 @@ function _setDate() {
 function checkForDragging(data) {
     if (this.touched) {
         this.timeTouched += this.timeDelta;
-        if (this.timeTouched > this.dragThreshold) {
+        if (this.timeTouched > this.options.dragThreshold) {
             var distance = Math.sqrt(Math.pow((this.touchStart[0] - this.touchCurrent[0]), 2) + Math.pow((this.touchStart[1] - this.touchCurrent[1]), 2));
             if (distance < 25) {
                 this._eventInput.unpipe(this.draggable);
@@ -187,14 +179,12 @@ function checkForDragging(data) {
     }
 }
 
-
 function dragmode() {
+    this.contents.addClass('dragging');
     this.taskItemModifier.setTransform(Matrix.translate(0, 0, 40), {
-        curve: 'easeOutBounce',
+        curve: 'easeOut',
         duration: 300
     });
-
-    this.contents.addClass('dragging');
 }
 
 function replaceTask() {
@@ -206,23 +196,14 @@ function replaceTask() {
         this._eventOutput.emit('finishedDragging');
         this.contents.removeClass('dragging');
         var xPosition = this.draggable.getPosition()[0];
-        if (xPosition > this.options.checkThreshold) {
+        if (xPosition > this.options.xThreshold) {
             console.log('check me off');
-        } else if (xPosition < this.options.deleteThreshold) {
+        } else if (xPosition < -1 * this.options.xThreshold) {
             console.log('delete me');
         } else {
-            this.draggable.setPosition([0, 0], {
-                curve: 'easeOutBounce',
-                duration: 400
-            }, function() {
-                //do nothing
-            }.bind(this));
+            this.draggable.setPosition([0, 0], this.options.taskItemSpringTransition);
         }
-
     }.bind(this));
-
-
-
 }
 
 module.exports = TaskItem;
