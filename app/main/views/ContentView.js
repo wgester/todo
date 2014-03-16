@@ -70,7 +70,7 @@ function _createTasks() {
 
   for(var i = 0; i < this.tasks.length; i++) {
     if (this.tasks[i].page === this.options.title) {
-      var newTask = new TaskItem({text: this.tasks[i].text, index: i});
+      var newTask = new TaskView({text: this.tasks[i].text});
       this.customdragsort.push(newTask);
       this.taskViews.push(newTask);
       if(node.getNext()) node = node._next;
