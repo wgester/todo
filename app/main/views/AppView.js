@@ -10,6 +10,8 @@ var Transitionable    = require('famous/transitions/transitionable');
 
 function AppView() {
   View.apply(this, arguments);
+  this.headerSizeTransitionable = new Transitionable([70]);
+  
   _createGradientSurfaces.call(this);
   _createLightBox.call(this);
   _createAppViews.call(this);
@@ -94,7 +96,8 @@ function _addPageRelations(page, previousPage, nextPage) {
   this[page + 'View'].nextPage =     nextPage     && this[nextPage + 'View'];
 
   _addEventListeners.call(this, this[page + 'View'], this[page + 'Modifier']);
-}
+};
+
 
 //toggle up
 //outTransition: easeOut
@@ -109,6 +112,8 @@ function _addPageRelations(page, previousPage, nextPage) {
 //inTransform: Transform.translate(0, -600, 1)
 
 function _addEventListeners(newView, newModifier){
+  // window.Engine.on('prerender', )
+  
   newView.on('togglePageViewUp', function() {
     if (newView.nextPage) {
       if (!this.lightBox.optionsForSwipeUp){
@@ -147,20 +152,7 @@ function _addEventListeners(newView, newModifier){
       newView.header._eventOutput.emit('closed');
     }
   }.bind(this));
-
-  newView.contents.on('showInput', function() {
-    newView.layout.setOptions({headerSize: 120});
-    newView.header._eventOutput.emit('showInput');    
-  });
-
-  newView.contents.on('hideInput', function() {
-    newView.header._eventOutput.emit('hideInput');   
-    newView.layout.setOptions({headerSize: 70});
-      // var newTask = new TaskView({text: value});
-      // newTask.pipe(this.scrollview);    
-      // this.taskViews.push(newTask);        
-  });
-}
+};
 
 function _createAppViews() {
   _addPageView.call(this, 'FOCUS');

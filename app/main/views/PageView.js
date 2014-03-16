@@ -23,6 +23,7 @@ function PageView() {
   this.offPage = false;
   _createLayout.call(this);
   _pipeSubviewEventsToAppView.call(this);
+  _setListeners.call(this);
 }
 
 PageView.prototype = Object.create(View.prototype);
@@ -52,5 +53,21 @@ function _pipeSubviewEventsToAppView() {
   this.footer.pipe(this._eventOutput);
   this.header.pipe(this._eventOutput);
 };
+
+function _setListeners() {
+  this.contents.on('showInput', function() {
+    this.layout.setOptions({headerSize: 120});
+    this.header._eventOutput.emit('showInput');    
+  }.bind(this));
+
+  this.contents.on('hideInput', function() {
+    this.header._eventOutput.emit('hideInput');   
+    this.layout.setOptions({headerSize: 70});
+      // var newTask = new TaskView({text: value});
+      // newTask.pipe(this.scrollview);    
+      // this.taskViews.push(newTask);        
+  }.bind(this));
+};
+
 
 module.exports = PageView;
