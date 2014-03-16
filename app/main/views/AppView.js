@@ -13,7 +13,7 @@ function AppView() {
   _createGradientSurfaces.call(this);
   _createLightBox.call(this);
   _createAppViews.call(this);
-  _createInputView.call(this);
+  // _createInputView.call(this);
   _renderFocusPage.call(this);
 };
 
@@ -65,18 +65,18 @@ function _createLightBox() {
   this._add(this.lightBox);
 }
 
-function _createInputView() {
-  this.inputSurf = new InputSurface({
-    size: [undefined, 60],
-    properties: {background: 'white', margin: 0, opacity: '1'},
-    classes: ['task']
-  });
-  this.inputSurf.setPlaceholder('here');
-  this.inputMod = new Modifier({
-    transform: Transform.translate(0, 70, -1)
-  }); 
-  this._add(this.inputMod).add(this.inputSurf);
-}
+// function _createInputView() {
+//   this.inputSurf = new InputSurface({
+//     size: [undefined, 60],
+//     properties: {background: 'white', margin: 0, opacity: '1'},
+//     classes: ['task']
+//   });
+//   this.inputSurf.setPlaceholder('here');
+//   this.inputMod = new Modifier({
+//     transform: Transform.translate(0, 70, -1)
+//   }); 
+//   this._add(this.inputMod).add(this.inputSurf);
+// }
 
 function _addPageView(title, previousPage, nextPage) {
 
@@ -141,8 +141,8 @@ function _addEventListeners(newView, newModifier){
       }
       this.lightBox.show(newView.previousPage);
       newView.previousPage.contents._eventOutput.emit('opened');
-      newView.contents._eventOutput.emit('closed');
       newView.previousPage.header._eventOutput.emit('opened');
+      newView.contents._eventOutput.emit('closed');
       newView.header._eventOutput.emit('closed');
     }
   }.bind(this));

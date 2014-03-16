@@ -20,7 +20,9 @@ HeaderView.prototype.constructor = HeaderView;
 HeaderView.DEFAULT_OPTIONS = {
   text: null,
   classes: ['title'],
-  title: 'LATER'
+  title: 'LATER',
+  openDuration: 800,
+  closedDuration: 100
 };
 
 function _isAndroid() {
@@ -30,48 +32,18 @@ function _isAndroid() {
 
 
 function _createTitle() {
-  if (this.options.title === "TODAY") {
-    var currColor = (_isAndroid()) ? new Color('#87CEFA').setLightness(80).getHex() : new Color('#87CEFA').getHex() 
-    
-    this.titleHeader = new Surface({
-      content: '<h1>' + this.options.title + '</h1>',
-      properties: {
-        backgroundColor:  currColor
-      }
-    });
-  } else if (this.options.title === "FOCUS") {
-    var currColor = (_isAndroid()) ? new Color('#32CEA8').setLightness(58).getHex() : new Color('#32CEA8').setLightness(50).getHex() 
-    this.titleHeader = new Surface({
-      content: '<h1>' + this.options.title + '</h1>',
-      properties: {
-        backgroundColor: currColor
-      }
-    });        
-  } else if (this.options.title === "LATER") {
-    var currColor = (_isAndroid()) ? new Color('#7E82DA').setLightness(68).getHex() : new Color('#8977C6').setLightness(62).getHex() 
-
-    this.titleHeader = new Surface({
-      content: '<h1>' + this.options.title + '</h1>',
-      properties: {
-        backgroundColor: currColor
-      }
-    });
-
-  } else {
-    var currColor = (_isAndroid()) ? new Color('#32CEA8').setLightness(58).getHex() : new Color('#32CEA8').setLightness(50).getHex() 
-
-    this.titleHeader = new Surface({
-      content: '<h1>' + this.options.title + '</h1>',
-      properties: {
-        backgroundColor: currColor
-      }
-    });
-  }
+  this.titleHeader = new Surface({
+    content: '<h1>' + this.options.title + '</h1>',
+    properties: {
+      backgroundColor:  'transparent'
+    }
+  });
   
   this.titleMod = new Modifier({
-    opacity: 0,
-    transform: Transform.translate(0, 0, 0)
+    opacity: 0
   });
+  
+  this.options.title === 'FOCUS' && this.titleMod.setOpacity(1, undefined, function() {});
   
   this._add(this.titleMod).add(this.titleHeader);      
 };
@@ -84,14 +56,14 @@ function _buttonListener() {
 
 function _setListeners() {
   this.on('opened', function() {
-    this.titleMod.setOpacity(1, {duration: 800}, function() { 
-      this.titleMod.setTransform(Transform.translate(0, 0, 1), {duration: 800}, function() {});
+    this.titleMod.setOpacity(1, {duration: this.options.openDuration}, function() { 
+      this.titleMod.setTransform(Transform.translate(0, 0, 1), {duration: this.options.closedDuration}, function() {});
     }.bind(this));
   }.bind(this));
 
   this.on('closed', function() {
-    this.titleMod.setOpacity(0, {duration: 800}, function() { 
-      this.titleMod.setTransform(Transform.translate(0, 0, 0), {duration: 800}, function() {});
+    this.titleMod.setOpacity(0, {duration: this.options.closedDuration}, function() { 
+      this.titleMod.setTransform(Transform.translate(0, 0, 0), {duration: this.options.closedDuration}, function() {});
     }.bind(this));
   }.bind(this));
 
