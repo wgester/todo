@@ -52,11 +52,29 @@ function _setBackground() {
   }
   this.backgroundSurf = window.faderSurfaces[index];
   this.backgroundMod = window.faderMods[index];
+  
+  var emptyList = new Surface({
+    size: [undefined, undefined],
+    properties: {
+      backgroundColor: 'transparent'
+    }
+  });
+  
+  emptyList.on('touchstart', function() {
+    this.inputToggled = !this.inputToggled;
+    this.inputToggled ? this._eventOutput.emit('showInput') : this._eventOutput.emit('hideInput');
+  }.bind(this));
+  
+  var mod = new Modifier({
+    transform: Transform.translate(0, 0, 0)
+  });
+  
+  this._add(mod).add(emptyList);
+
 };
 
 function _createTasks() {
   this.tasks = Tasks;
-
   this.taskViews = [];
 
   this.customscrollview = new CustomScrollView();
@@ -67,7 +85,6 @@ function _createTasks() {
   });
   var node = this.customdragsort;
  
-
   for(var i = 0; i < this.tasks.length; i++) {
     if (this.tasks[i].page === this.options.title) {
       var newTask = new TaskView({text: this.tasks[i].text});
@@ -80,10 +97,13 @@ function _createTasks() {
       this.customscrollview.pipe(node);
     }
   }
+  this.scrollMod = new Modifier({
+    transform: Transform.translate(0, 0, 1)
+  });
 
   this.customscrollview.sequenceFrom(this.customdragsort);
+  this._add(this.scrollMod).add(this.customscrollview);    
 
-  this._add(this.customscrollview);
 };
 
 
@@ -109,7 +129,7 @@ function _taskListeners() {
       this._eventOutput.emit('hideInput');
     }.bind(this));
   }
-  
+
   _newTaskListener.call(this);
   
 };
@@ -126,6 +146,7 @@ function _newTaskListener() {
     node.pipe(this.customscrollview);
     newTask.pipe(this.customscrollview);    
     this.customscrollview.pipe(node);
+    
   }.bind(this));
 };
 

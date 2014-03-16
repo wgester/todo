@@ -96,7 +96,8 @@ function _setInputListener() {
   this.inputZOffset = _isAndroid() ? 150 : 70;
 
   this.on('showInput', function(e) {
-    this.boxContainer.frontSurf.setProperties({'visibility': 'visible'});    
+    this.boxContainer.frontSurf.setProperties({'visibility': 'visible'});
+    
     this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [this.inputXOffset, 70, this.inputZOffset]), {duration: this.options.inputDuration});      
   }.bind(this));    
 
