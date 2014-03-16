@@ -1,65 +1,41 @@
-var Surface   = require('famous/surface');
-var Modifier  = require('famous/modifier');
-var Transform = require('famous/transform');
-var View      = require('famous/view');
-var TouchSync = require("famous/input/touch-sync");
-var Draggable = require('famous/modifiers/draggable')
+var Draggable        = require('famous/modifiers/draggable');
+var Transform        = require('famous/transform');
+var View             = require('famous/view');
+var TaskItem         = require('./TaskItem');
+var Modifier         = require('famous/modifier');
 
-function TaskView() {
-  View.apply(this, arguments);
-
-  _createTask.call(this);
-  _setListeners.call(this);
+function TaskView(options) {
+    View.apply(this, arguments);
+    _addTaskItem.call(this, options);
 }
 
 TaskView.prototype = Object.create(View.prototype);
 TaskView.prototype.constructor = TaskView;
 
 TaskView.DEFAULT_OPTIONS = {
-  text: null,
-  classes: ['task']
 };
 
-function _createTask() {
-  this.taskSurf = new Surface({
-    size: [undefined, 60],
-    classes: this.options.classes,
-    content: '<p>' + this.options.text + '</p>',
-    properties: {
-      background: '-webkit-linear-gradient(bottom, rgba(255, 255, 255, 0.8), transparent)'
-    }
-  });
-  // this.taskMod = new Modifier();
-  this.taskSurf.pipe(this._eventOutput);
-  this._add(this.taskSurf);
-};
 
-function _setListeners() {
-  var position = {x: 0, y: 0};  
-  var touchSync = new TouchSync(function() {
-      return [0, 0];
-  });
+function _addTaskItem(options) {
+    this.taskItem = new TaskItem(options);
+    // this.draggable = new Draggable({
+    //     projection: 'x',
+    //     xRange: [-60, 60]//,
+    //     // snapX: 60,
+    //     // transition: {
+    //     //     duration: 300,
+    //     //     curve: 'easeOut'
+    //     // }
+    // });
 
-  this.taskSurf.pipe(touchSync);
-  
-  touchSync.on('start', function(e) {
-    position = {x: 0, y: 0};
-  }.bind(this));
+    this.taskItemModifier = new Modifier({
+      transform: Transform.translate(-60, 0, 0),
+      size: [undefined, 60]
+    });
 
-  touchSync.on("update", function(data) {
-    position.x += data.p[0];
-    position.y += data.p[1]; 
-  }.bind(this));
+    this.taskItem.pipe(this._eventOutput);
 
-  touchSync.on('end', function(data) {
-    if (position.x > 5) {
-      this._eventOutput.emit('completed');
-      // this.taskMod.setTransform(Transform.translate(500, 0, 0), {duration: 500, curve: "easeOut"});
-    } else if (position.x < -5) {
-      this.taskSurf.setProperties({backgroundColor: 'pink'});
-      // this.taskMod.setTransform(Transform.translate(-500, 0, 0), {duration: 500, curve: "easeOut"});            
-    }
-  }.bind(this));
-};
+    this._add(this.taskItemModifier).add(this.taskItem);
+}
 
 module.exports = TaskView;
