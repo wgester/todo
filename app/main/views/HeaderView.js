@@ -92,28 +92,21 @@ function _setListeners() {
 };
 
 function _setInputListener() {
+  this.inputXOffset = _isAndroid() ? 30 : 10;
+  this.inputZOffset = _isAndroid() ? 150 : 70;
+
   this.on('showInput', function(e) {
-    this.boxContainer.frontSurf.setProperties({'visibility': 'visible'})
-    if (_isAndroid()) {
-      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [30, 70, 150]), {duration: this.options.inputDuration});      
-    } else {
-      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [10, 70, 70]), {duration: this.options.inputDuration});            
-    }
+    this.boxContainer.frontSurf.setProperties({'visibility': 'visible'});    
+    this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [this.inputXOffset, 70, this.inputZOffset]), {duration: this.options.inputDuration});      
   }.bind(this));    
 
   this.on('hideInput', function() {
     this.value = this.boxContainer.inputSurf.getValue();
     this.boxContainer.inputSurf.setValue('');
     
-    if (_isAndroid()) {
-      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [30, 0, 150]), {duration: this.options.inputDuration}, function() {
-        this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
-      }.bind(this));            
-    } else {
-      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [10, 0, 70]), {duration: this.options.inputDuration}, function() {
-        this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
-      }.bind(this));                  
-    }
+    this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [this.inputXOffset, 0, this.inputZOffset]), {duration: this.options.inputDuration}, function() {
+      this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
+    }.bind(this));            
     
   }.bind(this));
 };
