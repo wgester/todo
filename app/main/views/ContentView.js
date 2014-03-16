@@ -109,7 +109,7 @@ function _setListeners() {
 
 function _newTaskListener() {
   this.on('saveNewTask', function(val) {
-    var newTask = new TaskItem({text: val});
+    var newTask = new TaskItem({text: val, index: this.taskViews.length -1});
     var node = this.customdragsort;
 
     this.customdragsort.push(newTask);
