@@ -36,9 +36,18 @@ function _isAndroid() {
 
 function _createInput() {
   this.boxContainer = new BoxContainer();
-  this.boxMod = new Modifier({
-    transform: Transform.translate(0, 70, 0)
-  });
+  this.bodMod = new Modifier();
+    
+  if (_isAndroid()) {
+    this.boxMod = new Modifier({
+      transform: Transform.translate(0, 90, 0)
+    });    
+  } else {
+    this.boxMod = new Modifier({
+      transform: Transform.translate(0, 70, 0)
+    });        
+  }
+  
   
   this._add(this.boxMod).add(this.boxContainer);  
 };
@@ -85,16 +94,27 @@ function _setListeners() {
 function _setInputListener() {
   this.on('showInput', function(e) {
     this.boxContainer.frontSurf.setProperties({'visibility': 'visible'})
-    this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [10, 70, 70]), {duration: this.options.inputDuration});      
+    if (_isAndroid()) {
+      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [30, 70, 150]), {duration: this.options.inputDuration});      
+    } else {
+      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [10, 70, 70]), {duration: this.options.inputDuration});            
+    }
   }.bind(this));    
 
   this.on('hideInput', function() {
     this.value = this.boxContainer.inputSurf.getValue();
     this.boxContainer.inputSurf.setValue('');
     
-    this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [10, 0, 70]), {duration: this.options.inputDuration}, function() {
-      this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
-    }.bind(this));      
+    if (_isAndroid()) {
+      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [30, 0, 150]), {duration: this.options.inputDuration}, function() {
+        this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
+      }.bind(this));            
+    } else {
+      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [10, 0, 70]), {duration: this.options.inputDuration}, function() {
+        this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
+      }.bind(this));                  
+    }
+    
   }.bind(this));
 };
 

@@ -66,7 +66,7 @@ function _setListeners() {
   
   this.contents.on('showInput', function() {
     this.header._eventOutput.emit('showInput');    
-    this.headerSizeTransitionable.set([120], {duration: this.options.headerSizeDuration}, function() {});
+    this.headerSizeTransitionable.set([140], {duration: this.options.headerSizeDuration}, function() {});
   }.bind(this));
 
   this.contents.on('hideInput', function() {
