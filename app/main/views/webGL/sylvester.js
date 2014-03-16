@@ -1326,8 +1326,7 @@ Matrix.prototype.make3x3 = function()
                           [this.elements[2][0], this.elements[2][1], this.elements[2][2]]]);
 };
 
-Vector.prototype.flatten = function ()
-{
+Vector.prototype.flatten = function () {
     return this.elements;
 };
 
@@ -1352,8 +1351,7 @@ function mht(m) {
 //
 function makeLookAt(ex, ey, ez,
                     cx, cy, cz,
-                    ux, uy, uz)
-{
+                    ux, uy, uz) {
     var eye = $V([ex, ey, ez]);
     var center = $V([cx, cy, cz]);
     var up = $V([ux, uy, uz]);
@@ -1396,7 +1394,7 @@ function makeOrtho(left, right,
 //
 // gluPerspective
 //
-function makePerspective(fovy, aspect, znear, zfar)
+module.exports.makePerspective = function makePerspective(fovy, aspect, znear, zfar)
 {
     var ymax = znear * Math.tan(fovy * Math.PI / 360.0);
     var ymin = -ymax;
@@ -1429,8 +1427,7 @@ function makeFrustum(left, right,
 //
 // glOrtho
 //
-function makeOrtho(left, right, bottom, top, znear, zfar)
-{
+function makeOrtho(left, right, bottom, top, znear, zfar) {
     var tx = - (right + left) / (right - left);
     var ty = - (top + bottom) / (top - bottom);
     var tz = - (zfar + znear) / (zfar - znear);
@@ -1451,10 +1448,41 @@ var $L = Line.create;
 var $P = Plane.create;
 
 
-
-
 module.exports.Vector = Vector;
 module.exports.Matrix = Matrix;
 module.exports.Line   = Line;
 module.exports.Plane  = Plane;
+
+module.exports.$V = $V;
+module.exports.$M = $M;
+module.exports.$P = $P;
+module.exports.$L = $L;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
