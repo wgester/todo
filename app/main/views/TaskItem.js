@@ -41,7 +41,9 @@ TaskItem.DEFAULT_OPTIONS = {
         properties: {
             webkitUserSelect: 'none'
         }
-    }
+    },
+    deleteThreshold: -30,
+    checkThreshold: 30
 };
 
 function _createLayout() {
@@ -145,7 +147,7 @@ function handleMove(data) {
 
 function handleEnd() {
     this.touched = false;
-    regularmode.call(this);
+    replaceTask.call(this);
     this.timeTouched = 0;
     this._eventInput.pipe(this.draggable);
 }
@@ -194,16 +196,26 @@ function dragmode() {
     this.contents.addClass('dragging');
 }
 
-function regularmode() {
+function replaceTask() {
     this.taskItemModifier.setTransform(Matrix.identity, {
         curve: 'easeOut',
         duration: 200
     }, function() {
         this._eventOutput.emit('editmodeOff');
         this._eventOutput.emit('finishedDragging');
+        this.contents.removeClass('dragging');
     }.bind(this));
 
-    this.contents.removeClass('dragging');
+    var xPosition = this.draggable.getPosition()[0];
+
+    if (xPosition > this.options.checkThreshold) {
+        console.log('check me off');
+    }
+
+    if (xPosition < this.options.deleteThreshold) {
+        console.log('delete me');
+    }
+
 }
 
 module.exports = TaskItem;
