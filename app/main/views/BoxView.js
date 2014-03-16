@@ -45,7 +45,7 @@ function Box(options) {
 
   this.topSurf = new InputSurface({
     size: this.options.face.size,
-    properties: {background: 'white', margin: 0, opacity: '0.2'}
+    properties: {background: 'white', margin: 0, opacity: '0.5'}
   });
 
   var bottomSurf = new Surface(this.options.face);
@@ -66,6 +66,7 @@ Box.DEFAULT_OPTIONS = {
         properties:  {
             margin: 0,
             opacity: 0.5,
+            // backgroundColor: 'gray',
             visibility: 'hidden'
         }
     }

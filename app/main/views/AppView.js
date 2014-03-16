@@ -6,7 +6,7 @@ var PageView       = require('./PageView');
 var Lightbox       = require('famous/views/light-box');
 var CanvasSurface  = require('famous/surfaces/canvas-surface');
 var InputSurface   = require("famous/surfaces/input-surface");
-
+var Transitionable    = require('famous/transitions/transitionable');
 
 function AppView() {
   View.apply(this, arguments);
@@ -140,12 +140,26 @@ function _addEventListeners(newView, newModifier){
         this.lightBox.optionsForSwipeUp = false;
       }
       this.lightBox.show(newView.previousPage);
+      
       newView.previousPage.contents._eventOutput.emit('opened');
       newView.previousPage.header._eventOutput.emit('opened');
       newView.contents._eventOutput.emit('closed');
       newView.header._eventOutput.emit('closed');
     }
   }.bind(this));
+
+  newView.contents.on('showInput', function() {
+    newView.layout.setOptions({headerSize: 120});
+    newView.header._eventOutput.emit('showInput');    
+  });
+
+  newView.contents.on('hideInput', function() {
+    newView.header._eventOutput.emit('hideInput');   
+    newView.layout.setOptions({headerSize: 70});
+      // var newTask = new TaskView({text: value});
+      // newTask.pipe(this.scrollview);    
+      // this.taskViews.push(newTask);        
+  });
 }
 
 function _createAppViews() {

@@ -21,7 +21,7 @@ function ContentView() {
 
   _setBackground.call(this);
   _createTasks.call(this);
-  _createInput.call(this);
+  // _createInput.call(this);
   _taskListeners.call(this);
 };
 
@@ -55,10 +55,10 @@ function _setBackground() {
   this.backgroundMod = window.faderMods[index];
 };
 
-function _createInput() {
-  this.boxContainer = new BoxContainer();
-  this._add(this.boxContainer);
-};
+// function _createInput() {
+//   this.boxContainer = new BoxContainer();
+//   this._add(this.boxContainer);
+// };
 
 function _createTasks() {
   this.tasks = Tasks;
@@ -76,8 +76,9 @@ function _createTasks() {
 
   for(var i = 0; i < this.tasks.length; i++) {
     if (this.tasks[i].page === this.options.title) {
-      var newTask = new TaskItem({text: this.tasks[i].text});
+      var newTask = new TaskItem({text: this.tasks[i].text, index: i});
       this.customdragsort.push(newTask);
+      this.taskViews.push(newTask);
       if(node.getNext()) node = node._next;
       newTask.pipe(node);
       node.pipe(this.customscrollview);
@@ -106,30 +107,42 @@ function _taskListeners() {
       this.backgroundMod.setOpacity(0, {duration: this.options.gradientDuration}, function() {});
     }.bind(this));    
   }.bind(this));
+  
+  for(var i =0; i < this.taskViews.length; i++) {
+    this.taskViews[i].on('openInput', function() {
+      this._eventOutput.emit('showInput');
+    }.bind(this));
+
+    this.taskViews[i].on('closeInput', function() {
+      this._eventOutput.emit('hideInput');
+    }.bind(this));
+  }
+  
 };
 
 function _setInputListener() {
-  this.backgroundSurf.on('touchstart', function(e) {
-    this.inputToggled = !this.inputToggled;
-    var value = this.boxContainer.inputSurf.getValue();
-    this.boxContainer.inputSurf.setValue('');
+  
+  // this.backgroundSurf.on('touchstart', function(e) {
+  //   this.inputToggled = !this.inputToggled;
+  //   var value = this.boxContainer.inputSurf.getValue();
+  //   this.boxContainer.inputSurf.setValue('');
     
-    if (this.inputToggled) {
-      this.boxContainer.frontSurf.setProperties({'visibility': 'visible'})
-      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [10, 200, 50]), {duration: this.options.inputDuration});      
-    } else if (!this.inputToggled && value.length) {
-      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [10, 150, 50]), {duration: this.options.inputDuration}, function() {
-        var newTask = new TaskView({text: value});
-        newTask.pipe(this.scrollview);    
-        this.taskViews.push(newTask);        
-        this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
-      }.bind(this));
-    } else {
-      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [10, 150, 50]), {duration: this.options.inputDuration}, function() {
-        this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
-      }.bind(this));
-    }
-  }.bind(this));    
+  //   if (this.inputToggled) {
+  //     this.boxContainer.frontSurf.setProperties({'visibility': 'visible'})
+  //     this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [10, 200, 50]), {duration: this.options.inputDuration});      
+  //   } else if (!this.inputToggled && value.length) {
+  //     this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [10, 150, 50]), {duration: this.options.inputDuration}, function() {
+  //       var newTask = new TaskView({text: value});
+  //       newTask.pipe(this.scrollview);    
+  //       this.taskViews.push(newTask);        
+  //       this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
+  //     }.bind(this));
+  //   } else {
+  //     this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [10, 150, 50]), {duration: this.options.inputDuration}, function() {
+  //       this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
+  //     }.bind(this));
+  //   }
+  // }.bind(this));    
 };
 
 function _colorTransitionOnLoad(dir) {

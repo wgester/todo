@@ -4,12 +4,17 @@ var Transform = require('famous/transform');
 var View      = require('famous/view');
 var Color     = require('./Color');
 var Transitionable    = require('famous/transitions/transitionable');
+var Box               = require('./BoxView');
+var BoxContainer      = require('./BoxContainer');
+
 
 function HeaderView() {
   View.apply(this, arguments);
   this.headerTransitionable = new Transitionable([]);
-
+  this.inputToggled = false;
+  
   _createTitle.call(this);
+  _createInput.call(this);
   _buttonListener.call(this);
   _setListeners.call(this);
 }
@@ -22,7 +27,8 @@ HeaderView.DEFAULT_OPTIONS = {
   classes: ['title'],
   title: 'LATER',
   openDuration: 800,
-  closedDuration: 100
+  closedDuration: 100,
+  inputDuration: 300
 };
 
 function _isAndroid() {
@@ -30,6 +36,14 @@ function _isAndroid() {
   return userAgent.indexOf("android") > -1;
 };
 
+function _createInput() {
+  this.boxContainer = new BoxContainer();
+  this.boxMod = new Modifier({
+    transform: Transform.translate(0, 70, 0)
+  });
+  
+  this._add(this.boxMod).add(this.boxContainer);  
+};
 
 function _createTitle() {
   this.titleHeader = new Surface({
@@ -67,6 +81,23 @@ function _setListeners() {
     }.bind(this));
   }.bind(this));
 
+  _setInputListener.call(this);
+};
+
+function _setInputListener() {
+  this.on('showInput', function(e) {
+    this.boxContainer.frontSurf.setProperties({'visibility': 'visible'})
+    this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [10, 70, 70]), {duration: this.options.inputDuration});      
+  }.bind(this));    
+
+  this.on('hideInput', function() {
+    this.value = this.boxContainer.inputSurf.getValue();
+    this.boxContainer.inputSurf.setValue('');
+    
+    this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [10, 0, 70]), {duration: this.options.inputDuration}, function() {
+      this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
+    }.bind(this));      
+  }.bind(this));
 };
 
 module.exports = HeaderView;
