@@ -21,7 +21,7 @@ function ContentView() {
 
   _setBackground.call(this);
   _createTasks.call(this);
-  _taskListeners.call(this);
+  _setListeners.call(this);
 };
 
 ContentView.prototype = Object.create(View.prototype);
@@ -52,11 +52,24 @@ function _setBackground() {
   }
   this.backgroundSurf = window.faderSurfaces[index];
   this.backgroundMod = window.faderMods[index];
+  
+  this.touchSurf = new Surface({
+    size: [undefined, undefined],
+    properties: {
+      backgroundColor: 'transparent'
+    }
+  });
+  
+  this.touchMod = new Modifier({
+    transform: Transform.translate(0, 0, 0)
+  });
+  
+  this._add(this.touchMod).add(this.touchSurf);
 };
+
 
 function _createTasks() {
   this.tasks = Tasks;
-
   this.taskViews = [];
 
   this.customscrollview = new CustomScrollView();
@@ -67,10 +80,9 @@ function _createTasks() {
   });
   var node = this.customdragsort;
  
-
   for(var i = 0; i < this.tasks.length; i++) {
     if (this.tasks[i].page === this.options.title) {
-      var newTask = new TaskView({text: this.tasks[i].text});
+      var newTask = new TaskItem({text: this.tasks[i].text, index: i});
       this.customdragsort.push(newTask);
       this.taskViews.push(newTask);
       if(node.getNext()) node = node._next;
@@ -80,26 +92,39 @@ function _createTasks() {
       this.customscrollview.pipe(node);
     }
   }
+  this.scrollMod = new Modifier({
+    transform: Transform.translate(0, 0, 1)
+  });
 
   this.customscrollview.sequenceFrom(this.customdragsort);
+  this._add(this.scrollMod).add(this.customscrollview);    
 
-  this._add(this.customscrollview);
 };
 
+function _setListeners() {    
+  _gradientListener.call(this);  
+  _newTaskListener.call(this);
+  _inputListener.call(this);
+};
 
-function _taskListeners() {  
-  this.on('opened', function() {
-    this.backgroundMod.setTransform(Transform.translate(0, 0, 0), {duration: 0}, function() {
-      this.backgroundMod.setOpacity(1, {duration: this.options.gradientDuration}, function() {});
-    }.bind(this));
-  }.bind(this));
+function _newTaskListener() {
+  var node = this.customdragsort;
   
-  this.on('closed', function() {
-    this.backgroundMod.setTransform(Transform.translate(0, 0, 0), {duration: 0}, function() {
-      this.backgroundMod.setOpacity(0, {duration: this.options.gradientDuration}, function() {});
-    }.bind(this));    
+  this.on('saveNewTask', function(val) {
+    var newTask = new TaskItem({text: val, index: this.taskViews.length + 1});
+
+    this.customdragsort.push(newTask);
+    this.taskViews.push(newTask);
+    if(node.getNext()) node = node._next;
+    newTask.pipe(node);
+    node.pipe(this.customscrollview);
+    newTask.pipe(this.customscrollview);    
+    this.customscrollview.pipe(node);
+    
   }.bind(this));
-  
+};
+
+function _inputListener() {
   for(var i =0; i < this.taskViews.length; i++) {
     this.taskViews[i].on('openInput', function() {
       this._eventOutput.emit('showInput');
@@ -110,22 +135,23 @@ function _taskListeners() {
     }.bind(this));
   }
   
-  _newTaskListener.call(this);
-  
+  this.touchSurf.on('touchstart', function() {
+    this.inputToggled = !this.inputToggled;
+    this.inputToggled ? this._eventOutput.emit('showInput') : this._eventOutput.emit('hideInput');
+  }.bind(this));
 };
 
-function _newTaskListener() {
-  this.on('saveNewTask', function(val) {
-    var newTask = new TaskItem({text: val});
-    var node = this.customdragsort;
-
-    this.customdragsort.push(newTask);
-    this.taskViews.push(newTask);
-    if(node.getNext()) node = node._next;
-    newTask.pipe(node);
-    node.pipe(this.customscrollview);
-    newTask.pipe(this.customscrollview);    
-    this.customscrollview.pipe(node);
+function _gradientListener() {
+  this.on('opened', function() {
+    this.backgroundMod.setTransform(Transform.translate(0, 0, 0), {duration: 0}, function() {
+      this.backgroundMod.setOpacity(1, {duration: this.options.gradientDuration}, function() {});
+    }.bind(this));
+  }.bind(this));
+  
+  this.on('closed', function() {
+    this.backgroundMod.setTransform(Transform.translate(0, 0, 0), {duration: 0}, function() {
+      this.backgroundMod.setOpacity(0, {duration: this.options.gradientDuration}, function() {});
+    }.bind(this));    
   }.bind(this));
 };
 
