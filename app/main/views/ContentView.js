@@ -68,6 +68,19 @@ function _setBackground() {
 
 };
 
+function _addTask(val, index) {
+  var newTask = new TaskItem({text: val, index: index});
+  var node = this.customdragsort;
+
+  this.customdragsort.push(newTask);
+  this.taskViews.push(newTask);
+  if(node.getNext()) node = node._next;
+  newTask.pipe(node);
+  node.pipe(this.customscrollview);
+  newTask.pipe(this.customscrollview);    
+  this.customscrollview.pipe(node);  
+};
+
 function _createTasks() {
   this.tasks = Tasks;
   this.taskViews = [];
@@ -108,18 +121,8 @@ function _setListeners() {
 };
 
 function _newTaskListener() {
-  this.on('saveNewTask', function(val) {
-    var newTask = new TaskItem({text: val, index: this.taskViews.length -1});
-    var node = this.customdragsort;
-
-    this.customdragsort.push(newTask);
-    this.taskViews.push(newTask);
-    if(node.getNext()) node = node._next;
-    newTask.pipe(node);
-    node.pipe(this.customscrollview);
-    newTask.pipe(this.customscrollview);    
-    this.customscrollview.pipe(node);
-    
+  this.on('saveNewTask', function(value) {
+    _addTask.call(this, value, this.taskViews.length);
   }.bind(this));
 };
 
