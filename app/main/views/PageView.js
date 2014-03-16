@@ -34,7 +34,8 @@ PageView.prototype.constructor = PageView;
 PageView.DEFAULT_OPTIONS = {
   title: 'LATER',
   yPositionToggleThreshold: 250,
-  velocityToggleThreshold: 0.75
+  velocityToggleThreshold: 0.75,
+  headerSizeDuration: 300
 };
 
 function _createLayout() {
@@ -65,12 +66,12 @@ function _setListeners() {
   
   this.contents.on('showInput', function() {
     this.header._eventOutput.emit('showInput');    
-    this.headerSizeTransitionable.set([120], {duration: 300}, function() {});
+    this.headerSizeTransitionable.set([120], {duration: this.options.headerSizeDuration}, function() {});
   }.bind(this));
 
   this.contents.on('hideInput', function() {
     this.header._eventOutput.emit('hideInput');   
-    this.headerSizeTransitionable.set([70], {duration: 300}, function() {
+    this.headerSizeTransitionable.set([70], {duration: this.options.headerSizeDuration}, function() {
       if (this.header.value.length) {
         this.contents._eventOutput.emit('saveNewTask', this.header.value);      
       }
