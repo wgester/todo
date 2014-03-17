@@ -14,7 +14,7 @@ TaskView.prototype.constructor = TaskView;
 
 TaskView.DEFAULT_OPTIONS = {
     deleteCheckWidth: 100,
-    xThreshold: 85
+    xThreshold: 95
 };
 
 function _addTaskItem() {
