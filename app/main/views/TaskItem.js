@@ -119,6 +119,7 @@ function handleClick() {
 
 function handleStart(data) {
   this.touched = true;
+  this.distanceThreshold = false;
   this.touchStart = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
   this.touchCurrent = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
     
@@ -129,7 +130,8 @@ function handleStart(data) {
 function handleMove(data) {
     this.touchCurrent = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
     var distance = Math.sqrt(Math.pow((this.touchStart[0] - this.touchCurrent[0]), 2) + Math.pow((this.touchStart[1] - this.touchCurrent[1]), 2));
-    if (distance > 35) {
+    if ((distance > 35) && !this.distanceThreshold) {
+        this.distanceThreshold = true;
         var xDistance = Math.abs(this.touchStart[0] - this.touchCurrent[0]);
         var yDistance = Math.abs(this.touchStart[1] - this.touchCurrent[1]);
         if (xDistance > yDistance) {
