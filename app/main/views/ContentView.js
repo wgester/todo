@@ -72,6 +72,7 @@ function _setBackground() {
 function _createTasks() {
   this.tasks = Tasks;
   this.taskViews = [];
+  this.taskCount = 0;
 
   this.customscrollview = new CustomScrollView();
   this.customdragsort = new DragSort({
@@ -97,6 +98,7 @@ function _createTasks() {
     transform: Transform.translate(0, 0, 1)
   });
 
+  this.taskCount = this.taskViews.length;
   this.customscrollview.sequenceFrom(this.customdragsort);
   this._add(this.scrollMod).add(this.customscrollview);    
 
@@ -112,20 +114,19 @@ function _newTaskListener() {
   var node = this.customdragsort;
   
   this.on('saveNewTask', function(val) {
-    if (this.options.title === 'FOCUS' && this.taskViews.length > 2) {
+    if (this.options.title === 'FOCUS' && this.taskCount > 2) {
       return;
     }
     
     var newTask = new TaskView({text: val});
     this.customdragsort.push(newTask);
-    this.taskViews.push(newTask);
     if(node.getNext()) node = node._next;
     newTask.pipe(node);
     node.pipe(this.customscrollview);
     newTask.pipe(this.customscrollview);    
     this.customscrollview.pipe(node);
     _completionListener.call(this, newTask);
-    
+    this.taskCount++;
   }.bind(this));
 };
 
@@ -160,9 +161,14 @@ function _gradientListener() {
 
 function _completionListener(task) {
   task.on('completed', function() {
+    this.taskCount--;
     // window.completionMod.setOpacity(1, {duration: this.options.completionDuration}, function() {
     //   window.completionMod.setOpacity(0, {duration: this.options.completionDuration}, function () {});
     // }.bind(this));    
+  }.bind(this));
+  
+  task.on('deleted', function() {
+    this.taskCount--;
   }.bind(this));
 };
 
