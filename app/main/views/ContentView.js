@@ -82,7 +82,7 @@ function _createTasks() {
  
   for(var i = 0; i < this.tasks.length; i++) {
     if (this.tasks[i].page === this.options.title) {
-      var newTask = new TaskItem({text: this.tasks[i].text, index: i});
+      var newTask = new TaskView({text: this.tasks[i].text, index: i});
       this.customdragsort.push(newTask);
       this.taskViews.push(newTask);
       if(node.getNext()) node = node._next;
@@ -111,8 +111,7 @@ function _newTaskListener() {
   var node = this.customdragsort;
   
   this.on('saveNewTask', function(val) {
-    var newTask = new TaskItem({text: val, index: this.taskViews.length + 1});
-
+    var newTask = new TaskView({text: val});
     this.customdragsort.push(newTask);
     this.taskViews.push(newTask);
     if(node.getNext()) node = node._next;
