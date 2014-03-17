@@ -45,7 +45,7 @@ function _createInput() {
     });    
   } else {
     this.boxMod = new Modifier({
-      transform: Transform.translate(0, 70, 0)
+      transform: Transform.translate(0, 80, 0)
     });        
   }
   
@@ -108,7 +108,7 @@ function _setInputListener() {
 
     this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [this.inputXOffset, 70, this.inputZOffset]), {duration: this.options.inputDuration});      
   }.bind(this));    
-
+  
   this.on('hideInput', function() {
     this.value = this.boxContainer.inputSurf.getValue();
     this.boxContainer.inputSurf.setValue('');

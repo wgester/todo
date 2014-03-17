@@ -31,6 +31,12 @@ ContentView.DEFAULT_OPTIONS = {
   title: 'later',
   classes: ['contents'],
   inputDuration: 300,
+  views: {
+    'FOCUS': 0,
+    'TODAY': 1,
+    'LATER': 2,
+    'NEVER': 3
+  },
   gradientDuration: 800,
   completionDuration: 500
 };
@@ -41,16 +47,8 @@ function _isAndroid() {
 };
 
 function _setBackground() {
-  var index;
-  if (this.options.title === 'FOCUS') {
-    index = 0;
-  } else if (this.options.title === 'TODAY') {
-    index = 1;
-  } else if (this.options.title === 'LATER') {    
-    index = 2;
-  } else {
-    index = 0;
-  }
+  var index = this.options.views[this.options.title];
+
   this.backgroundSurf = window.faderSurfaces[index];
   this.backgroundMod = window.faderMods[index];
   
