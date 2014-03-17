@@ -6,21 +6,22 @@ var Modifier         = require('famous/modifier');
 
 function TaskView(options) {
     View.apply(this, arguments);
-    _addTaskItem.call(this, options);
+    _addTaskItem.call(this);
 }
 
 TaskView.prototype = Object.create(View.prototype);
 TaskView.prototype.constructor = TaskView;
 
 TaskView.DEFAULT_OPTIONS = {
+    deleteCheckWidth: 100,
+    xThreshold: 95
 };
 
-
-function _addTaskItem(options) {
-    this.taskItem = new TaskItem(options);
+function _addTaskItem() {
+    this.taskItem = new TaskItem(this.options);
     
     this.taskItemModifier = new Modifier({
-      transform: Transform.translate(-60, 0, 0),
+      transform: Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0),
       size: [undefined, 60]
     });
 

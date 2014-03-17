@@ -5,12 +5,14 @@ var Modifier      = require('famous/modifier');
 var Transform     = require('famous/transform');
 var Transitionable = require("famous/transitions/transitionable");
 var WallTransition = require("famous/transitions/wall-transition");
+var SpringTransition = require("famous/transitions/spring-transition");
 var Timer             = require('famous/utilities/timer');
 var CanvasSurface     = require('famous/surfaces/canvas-surface');
 
 var devMode = true;
 
 Transitionable.registerMethod('wall', WallTransition);
+Transitionable.registerMethod('spring', SpringTransition);
 
 var mainCtx = window.Engine.createContext();
 
