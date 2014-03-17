@@ -13,12 +13,13 @@ var Transform        = require('famous/transform');
 var Easing           = require('famous/animation/easing');
 
 function TaskItem(options) {
-    View.apply(this, arguments);
-    this.timeTouched = 0;
-    _createLayout.call(this);
-    _bindEvents.call(this);
-    _setDate.call(this);
-}
+  View.apply(this, arguments);
+  this.timeTouched = 0;
+  _createLayout.call(this);
+  _bindEvents.call(this);
+  _setDate.call(this);
+  this.inputToggled = false;
+}   
 
 TaskItem.prototype = Object.create(View.prototype);
 TaskItem.prototype.constructor = TaskItem;
@@ -124,8 +125,8 @@ function handleStart(data) {
   this.touchStart = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
   this.touchCurrent = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
   
-  (this.touchStart[1] < 90) ?  this._eventOutput.emit('openInput'): this._eventOutput.emit('closeInput');
-     
+  this.touchStart[1] < 90 ? this._eventOutput.emit('openInput') : this._eventOutput.emit('closeInputOrEdit');
+  
 }
 
 function handleMove(data) {

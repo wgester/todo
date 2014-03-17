@@ -125,6 +125,7 @@ function _newTaskListener() {
     newTask.pipe(this.customscrollview); 
     // newTask.pipe(this.customdragsort);    
     this.customscrollview.pipe(node);
+    
     _openInputListener.call(this, newTask);
     _closeInputListener.call(this, newTask);
     _completionListener.call(this, newTask);
@@ -147,13 +148,19 @@ function _inputListeners() {
 
 function _openInputListener(task) {
   task.on('openInput', function() {
+    this.inputToggled = true;
     this._eventOutput.emit('showInput');
   }.bind(this));  
 };
 
 function _closeInputListener(task) {
-  task.on('closeInput', function() {
-    this._eventOutput.emit('hideInput');
+  task.on('closeInputOrEdit', function() {
+    if (this.inputToggled) {
+      this._eventOutput.emit('hideInput');
+      this.inputToggled = false;
+    } else {
+      console.log('edit task')
+    }
   }.bind(this));  
 };
 
