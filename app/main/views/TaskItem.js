@@ -118,6 +118,7 @@ function handleClick() {
 }
 
 function handleStart(data) {
+  this._eventInput.pipe(this.draggable);
   this.touched = true;
   this.distanceThreshold = false;
   this.touchStart = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
