@@ -131,6 +131,7 @@ function handleStart(data) {
 
 function handleMove(data) {
     this.touchCurrent = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
+
     var distance = Math.sqrt(Math.pow((this.touchStart[0] - this.touchCurrent[0]), 2) + Math.pow((this.touchStart[1] - this.touchCurrent[1]), 2));
     if ((distance > 35) && !this.distanceThreshold) {
         this.distanceThreshold = true;
@@ -243,5 +244,6 @@ function _springTaskBack() {
 function saveTask(text) {
   this.contents.setContent('<p>' + text + '</p>');
 };
+
 
 module.exports = TaskItem;

@@ -7,6 +7,10 @@ var Modifier         = require('famous/modifier');
 function TaskView(options) {
     View.apply(this, arguments);
     _addTaskItem.call(this);
+    this.options.transition = {
+    duration: 1300,
+    curve: 'easeInOut' }
+    this.animateIn = animateIn;
 }
 
 TaskView.prototype = Object.create(View.prototype);
@@ -19,7 +23,7 @@ TaskView.DEFAULT_OPTIONS = {
 
 function _addTaskItem() {
     this.taskItem = new TaskItem(this.options);
-    
+
     this.taskItemModifier = new Modifier({
       transform: Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0),
       size: [undefined, 60]
@@ -28,6 +32,16 @@ function _addTaskItem() {
     this.taskItem.pipe(this._eventOutput);
 
     this._add(this.taskItemModifier).add(this.taskItem);
+}
+
+// animation of task
+function animateIn() {
+  console.log('trying to animate')
+  this.taskItemModifier.setTransform(
+      Transform.translate(0, 60, 0),
+      this.options.transition
+  );
+  this.taskItemModifier.setOpacity(1, this.options.transition);
 }
 
 module.exports = TaskView;

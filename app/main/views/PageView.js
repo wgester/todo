@@ -19,14 +19,14 @@ var ContentView       = require('./ContentView');
 
 function PageView() {
   View.apply(this, arguments);
-  
+
   this.toggleUpOrDown = 'down';
   if (this.options.title === 'FOCUS') {
     this.headerSizeTransitionable = new Transitionable([this.options.focusHeader]);
   } else {
     this.headerSizeTransitionable = new Transitionable([this.options.regSmallHeader]);
   }
-  
+
   this.offPage = false;
   _createLayout.call(this);
   _pipeSubviewEventsToAppView.call(this);
@@ -101,9 +101,9 @@ function _createEditLightbox() {
 };
 
 function _createLayout() {
-  
+
   this.layout = new HeaderFooter({
-    headerSize: 70,
+    headerSize: 90,
     footerSize: 40
   });
   this.footer = new FooterView({title: this.options.title});
@@ -126,28 +126,28 @@ function _pipeSubviewEventsToAppView() {
 
 function _setListeners() {
   window.Engine.on('prerender', _setHeaderSize.bind(this));
-  
+
   this.contents.on('showInput', function() {
-    this.header._eventOutput.emit('showInput');    
+    this.header._eventOutput.emit('showInput');
     if (this.options.title !== 'FOCUS') {
       this.headerSizeTransitionable.set([this.options.regBigHeader], {duration: this.options.headerSizeDuration}, function() {});
     }
   }.bind(this));
 
   this.contents.on('hideInput', function() {
-    this.header._eventOutput.emit('hideInput');   
+    this.header._eventOutput.emit('hideInput');
     if (this.options.title !== 'FOCUS') {
       this.headerSizeTransitionable.set([this.options.regSmallHeader], {duration: this.options.headerSizeDuration}, function() {
-        this.header.value.length && this.contents._eventOutput.emit('saveNewTask', this.header.value); 
+        this.header.value.length && this.contents._eventOutput.emit('saveNewTask', this.header.value);
       }.bind(this));
     } else if (this.header.value.length) {
-      this.contents._eventOutput.emit('saveNewTask', this.header.value);      
-    }    
+      this.contents._eventOutput.emit('saveNewTask', this.header.value);
+    }
   }.bind(this));
-  
+
   this.header.on('focusHideInput', function() {
-    this.header._eventOutput.emit('hideInput');   
-    this.header.value.length && this.contents._eventOutput.emit('saveNewTask', this.header.value);          
+    this.header._eventOutput.emit('hideInput');
+    this.header.value.length && this.contents._eventOutput.emit('saveNewTask', this.header.value);
   }.bind(this));
 
   this.contents.on('openEdit', function(options) {
