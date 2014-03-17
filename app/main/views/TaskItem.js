@@ -84,7 +84,7 @@ function _createLayout() {
     this.taskItemLayout = new SequentialLayout();
     this.taskItemLayout.sequenceFrom(this.taskItemViewSequence);
 
-    this.contents.pipe(this._eventInput);
+    this.contents.pipe(this);
     this._eventInput.pipe(this._eventOutput);
     
     this.taskItemModifier = new Modifier({
@@ -97,7 +97,7 @@ function _createLayout() {
         xRange: [-1 * this.options.deleteCheckWidth, this.options.deleteCheckWidth]
     });
 
-    this.contents.pipe(this.draggable);
+    // this.pipe(this.draggable);
     
     this._add(this.taskItemModifier).add(this.draggable).add(this.taskItemLayout);
 }
@@ -135,7 +135,7 @@ function handleMove(data) {
         if (xDistance > yDistance) {
             this._eventOutput.emit('xScroll');
         }
-        if (yDistance > xDistance) {
+        if (yDistance >= xDistance) {
             this._eventOutput.emit('yScroll');
             this._eventInput.unpipe(this.draggable);
         }
