@@ -103,16 +103,17 @@ function _createTasks() {
 function _setListeners() {    
   _gradientListener.call(this);  
   _newTaskListener.call(this);
-  _inputListener.call(this);
+  _inputListeners.call(this);
 };
 
 function _newTaskListener() {
   
   this.on('saveNewTask', function(val) {
-    var node = this.customdragsort;
+    var node = this.customdragsort.find(0);
     if (this.options.title === 'FOCUS' && this.taskCount > 2) {
       return;
     }
+    
     var newTask = new TaskView({text: val});
     this.customdragsort.push(newTask);
     for (var j = 0; j < this.taskCount - 1; j++) {
@@ -124,21 +125,17 @@ function _newTaskListener() {
     newTask.pipe(this.customscrollview); 
     // newTask.pipe(this.customdragsort);    
     this.customscrollview.pipe(node);
+    _openInputListener.call(this, newTask);
+    _closeInputListener.call(this, newTask);
     _completionListener.call(this, newTask);
     this.taskCount++;
   }.bind(this));
 };
 
-function _inputListener() {
+function _inputListeners() {
   for(var i =0; i < this.customdragsort.array.length; i++) {
-    this.customdragsort.array[i].on('openInput', function() {
-      this._eventOutput.emit('showInput');
-    }.bind(this));
-
-    this.customdragsort.array[i].on('closeInput', function() {
-      this._eventOutput.emit('hideInput');
-    }.bind(this));
-    
+    _openInputListener.call(this, this.customdragsort.array[i]);
+    _closeInputListener.call(this, this.customdragsort.array[i]);
     _completionListener.call(this, this.customdragsort.array[i]);
   }
   
@@ -147,6 +144,19 @@ function _inputListener() {
     this.inputToggled ? this._eventOutput.emit('showInput') : this._eventOutput.emit('hideInput');
   }.bind(this));
 };
+
+function _openInputListener(task) {
+  task.on('openInput', function() {
+    this._eventOutput.emit('showInput');
+  }.bind(this));  
+};
+
+function _closeInputListener(task) {
+  task.on('closeInput', function() {
+    this._eventOutput.emit('hideInput');
+  }.bind(this));  
+};
+
 
 function _gradientListener() {
   this.on('opened', function() {
