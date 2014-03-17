@@ -31,7 +31,8 @@ ContentView.DEFAULT_OPTIONS = {
   title: 'later',
   classes: ['contents'],
   inputDuration: 300,
-  gradientDuration: 800
+  gradientDuration: 800,
+  completionDuration: 500
 };
 
 function _isAndroid() {
@@ -123,6 +124,7 @@ function _newTaskListener() {
     node.pipe(this.customscrollview);
     newTask.pipe(this.customscrollview);    
     this.customscrollview.pipe(node);
+    _completionListener.call(this, newTask);
     
   }.bind(this));
 };
@@ -136,6 +138,8 @@ function _inputListener() {
     this.taskViews[i].on('closeInput', function() {
       this._eventOutput.emit('hideInput');
     }.bind(this));
+    
+    _completionListener.call(this, this.taskViews[i]);
   }
   
   this.touchSurf.on('touchstart', function() {
@@ -146,15 +150,19 @@ function _inputListener() {
 
 function _gradientListener() {
   this.on('opened', function() {
-    this.backgroundMod.setTransform(Transform.translate(0, 0, 0), {duration: 0}, function() {
-      this.backgroundMod.setOpacity(1, {duration: this.options.gradientDuration}, function() {});
-    }.bind(this));
+    this.backgroundMod.setOpacity(1, {duration: this.options.gradientDuration}, function() {});
   }.bind(this));
   
   this.on('closed', function() {
-    this.backgroundMod.setTransform(Transform.translate(0, 0, 0), {duration: 0}, function() {
-      this.backgroundMod.setOpacity(0, {duration: this.options.gradientDuration}, function() {});
-    }.bind(this));    
+    this.backgroundMod.setOpacity(0, {duration: this.options.gradientDuration}, function() {});
+  }.bind(this));
+};
+
+function _completionListener(task) {
+  task.on('completed', function() {
+    // window.completionMod.setOpacity(1, {duration: this.options.completionDuration}, function() {
+    //   window.completionMod.setOpacity(0, {duration: this.options.completionDuration}, function () {});
+    // }.bind(this));    
   }.bind(this));
 };
 

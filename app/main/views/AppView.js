@@ -13,6 +13,7 @@ function AppView() {
   this.headerSizeTransitionable = new Transitionable([70]);
   
   _createGradientSurfaces.call(this);
+  _createCompletionSurface.call(this);
   _createLightBox.call(this);
   _createAppViews.call(this);
   // _createInputView.call(this);
@@ -240,7 +241,21 @@ function _colorSurfaces() {
 };
 
 function _createCompletionSurface() {
+  window.completionSurf = new CanvasSurface({
+    size: [window.innerWidth, window.innerHeight],
+    canvasSize: [window.innerWidth*2, window.innerHeight*2],
+    classes: ['famous-surface'],
+    properties: {
+      backgroundColor: '#81EBC4'
+    }
+  });
     
+  window.completionMod = new Modifier({
+    opacity: 0,
+    transform: Transform.translate(0, 0, 0)
+  });      
+  
+  this._add(window.completionMod).add(window.completionSurf);
 };
 
 module.exports = AppView;
