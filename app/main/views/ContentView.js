@@ -71,7 +71,6 @@ function _setBackground() {
 
 function _createTasks() {
   this.tasks = Tasks;
-  this.taskViews = [];
   this.taskCount = 0;
 
   this.customscrollview = new CustomScrollView();
@@ -86,7 +85,6 @@ function _createTasks() {
     if (this.tasks[i].page === this.options.title) {
       var newTask = new TaskView({text: this.tasks[i].text, index: i});
       this.customdragsort.push(newTask);
-      this.taskViews.push(newTask);
       if(node.getNext()) node = node._next;
       newTask.pipe(node);
       node.pipe(this.customscrollview);
@@ -98,7 +96,7 @@ function _createTasks() {
     transform: Transform.translate(0, 0, 1)
   });
 
-  this.taskCount = this.taskViews.length;
+  this.taskCount = this.customdragsort.array.length;
   this.customscrollview.sequenceFrom(this.customdragsort);
   this._add(this.scrollMod).add(this.customscrollview);    
 
@@ -111,15 +109,17 @@ function _setListeners() {
 };
 
 function _newTaskListener() {
-  var node = this.customdragsort;
   
   this.on('saveNewTask', function(val) {
+    var node = this.customdragsort;
     if (this.options.title === 'FOCUS' && this.taskCount > 2) {
       return;
     }
-    
     var newTask = new TaskView({text: val});
     this.customdragsort.push(newTask);
+    for (var j = 0; j < this.taskCount - 1; j++) {
+      node = node._next;
+    }      
     if(node.getNext()) node = node._next;
     newTask.pipe(node);
     node.pipe(this.customscrollview);
@@ -131,16 +131,16 @@ function _newTaskListener() {
 };
 
 function _inputListener() {
-  for(var i =0; i < this.taskViews.length; i++) {
-    this.taskViews[i].on('openInput', function() {
+  for(var i =0; i < this.customdragsort.array.length; i++) {
+    this.customdragsort.array[i].on('openInput', function() {
       this._eventOutput.emit('showInput');
     }.bind(this));
 
-    this.taskViews[i].on('closeInput', function() {
+    this.customdragsort.array[i].on('closeInput', function() {
       this._eventOutput.emit('hideInput');
     }.bind(this));
     
-    _completionListener.call(this, this.taskViews[i]);
+    _completionListener.call(this, this.customdragsort.array[i]);
   }
   
   this.touchSurf.on('touchstart', function() {
