@@ -6,7 +6,7 @@ var Matrix           = require('famous/transform');
 var Transitionable   = require('famous/transitions/transitionable');
 var HeaderFooter     = require('famous/views/header-footer-layout');
 var Utility          = require('famous/utilities/utility');
-var SequentialLayout = require('famous/views/sequential-layout'); 
+var SequentialLayout = require('famous/views/sequential-layout');
 var ViewSequence     = require('famous/view-sequence');
 var Draggable        = require('famous/modifiers/draggable');
 var Transform        = require('famous/transform');
@@ -88,7 +88,7 @@ function _createLayout() {
 
     this.contents.pipe(this);
     this._eventInput.pipe(this._eventOutput);
-    
+
     this.taskItemModifier = new Modifier({
         transform: Matrix.identity,
         size: this.options.surface.size
@@ -100,7 +100,7 @@ function _createLayout() {
     });
 
     // this.pipe(this.draggable);
-    
+
     this._add(this.taskItemModifier).add(this.draggable).add(this.taskItemLayout);
 }
 
@@ -126,7 +126,7 @@ function handleStart(data) {
   this.distanceThreshold = false;
   this.touchStart = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
   this.touchCurrent = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
-  
+
 }
 
 function handleMove(data) {
@@ -151,13 +151,13 @@ function handleEnd() {
     replaceTask.call(this);
     var xDistance = Math.abs(this.touchStart[0] - this.touchCurrent[0]);
     var yDistance = Math.abs(this.touchStart[1] - this.touchCurrent[1]);
-    
+
     if (this.touchStart[1] < 90){
       this._eventOutput.emit('openInput');
     }  else if (xDistance < 10 && yDistance < 10 && this.timeTouched > 0 && this.timeTouched < 200) {
       this._eventOutput.emit('closeInputOrEdit', {text: this.options.text, index: this.options.index});
     }
-    
+
     this.timeTouched = 0;
     this._eventInput.pipe(this.draggable);
 }
@@ -188,7 +188,7 @@ function checkForDragging(data) {
       } else {
         this.touched = false;
       }
-    } 
+    }
   }
 };
 

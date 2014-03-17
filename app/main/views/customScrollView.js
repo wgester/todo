@@ -23,7 +23,7 @@ function shift(data) {
         this.node = this.node.find(data.oldIndex);
     } else if (data.oldIndex === this.node.index) {
         this.node = this.node.find(data.oldIndex + 1);
-    } 
+    }
     this.node.find(data.oldIndex).moveTo(data.newIndex);
     var currentNode = this.node.find(0);
     while (currentNode) {
