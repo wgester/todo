@@ -26,7 +26,8 @@ function _addTaskItem() {
 
     this.taskItemModifier = new Modifier({
       transform: Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0),
-      size: [undefined, 60]
+      size: [undefined, 60],
+      opacity: 0
     });
 
     this.taskItem.pipe(this._eventOutput);
@@ -34,11 +35,11 @@ function _addTaskItem() {
     this._add(this.taskItemModifier).add(this.taskItem);
 }
 
-// animation of task
+/*-----------------------ANIMATION-------------------------------*/
+
 function animateIn() {
-  console.log('trying to animate')
   this.taskItemModifier.setTransform(
-      Transform.translate(0, 60, 0),
+      Transform.translate(-1 * this.options.deleteCheckWidth, -60, 0),
       this.options.transition
   );
   this.taskItemModifier.setOpacity(1, this.options.transition);
