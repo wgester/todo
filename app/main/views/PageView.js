@@ -42,7 +42,7 @@ PageView.DEFAULT_OPTIONS = {
   headerSizeDuration: 300,
   regSmallHeader: 70,
   regBigHeader: 140,
-  focusHeader: 310
+  focusHeader: window.innerHeight / 2
 };
 
 function _createLayout() {

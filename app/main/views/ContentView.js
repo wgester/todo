@@ -113,7 +113,7 @@ function _newTaskListener() {
   this.on('saveNewTask', function(val) {
     var node = this.customdragsort;
     if (this.options.title === 'FOCUS' && this.taskCount > 2) {
-      return;
+      return;fa
     }
     var newTask = new TaskView({text: val});
     this.customdragsort.push(newTask);
