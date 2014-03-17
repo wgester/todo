@@ -84,7 +84,7 @@ function _createLayout() {
     this.taskItemLayout = new SequentialLayout();
     this.taskItemLayout.sequenceFrom(this.taskItemViewSequence);
 
-    this.contents.pipe(this._eventInput);
+    this.contents.pipe(this);
     this._eventInput.pipe(this._eventOutput);
     
     this.taskItemModifier = new Modifier({
@@ -97,7 +97,7 @@ function _createLayout() {
         xRange: [-1 * this.options.deleteCheckWidth, this.options.deleteCheckWidth]
     });
 
-    this.contents.pipe(this.draggable);
+    // this.pipe(this.draggable);
     
     this._add(this.taskItemModifier).add(this.draggable).add(this.taskItemLayout);
 }
@@ -118,7 +118,9 @@ function handleClick() {
 }
 
 function handleStart(data) {
+  this._eventInput.pipe(this.draggable);
   this.touched = true;
+  this.distanceThreshold = false;
   this.touchStart = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
   this.touchCurrent = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
     
@@ -129,13 +131,14 @@ function handleStart(data) {
 function handleMove(data) {
     this.touchCurrent = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
     var distance = Math.sqrt(Math.pow((this.touchStart[0] - this.touchCurrent[0]), 2) + Math.pow((this.touchStart[1] - this.touchCurrent[1]), 2));
-    if (distance > 35) {
+    if ((distance > 35) && !this.distanceThreshold) {
+        this.distanceThreshold = true;
         var xDistance = Math.abs(this.touchStart[0] - this.touchCurrent[0]);
         var yDistance = Math.abs(this.touchStart[1] - this.touchCurrent[1]);
         if (xDistance > yDistance) {
             this._eventOutput.emit('xScroll');
         }
-        if (yDistance > xDistance) {
+        if (yDistance >= xDistance) {
             this._eventOutput.emit('yScroll');
             this._eventInput.unpipe(this.draggable);
         }
