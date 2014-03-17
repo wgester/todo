@@ -210,6 +210,7 @@ function _checkOffTask() {
     this.deleteBox.addClass('invisible');
     this.draggable.setPosition([-1 * this.options.deleteCheckWidth - window.innerWidth, 0], this.options.taskItemExitTransition, function() {
         console.log('check me off');
+        this._eventOutput.emit('completed');
         // this._eventOutput.emit('deleteTask');
     }.bind(this));
 }
@@ -218,6 +219,7 @@ function _deleteTask() {
     this.checkBox.addClass('invisible');
     this.draggable.setPosition([this.options.deleteCheckWidth + window.innerWidth, 0], this.options.taskItemExitTransition, function() {
         console.log('delete me');
+        this._eventOutput.emit('deleted');
         // this._eventOutput.emit('deleteTask');
     }.bind(this));
 }

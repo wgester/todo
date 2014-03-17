@@ -10,7 +10,7 @@ var tasks = [
   { text: 'eat lunch', page: 'TODAY'},
   // { text: 'be awesome', page: 'FOCUS'},
   // { text: 'eat dinner', page: 'LATER'},
-  // { text: 'make an app', page: 'FOCUS'},
+  { text: 'moonlight as catwoman', page: 'FOCUS'},
   // { text: 'eat lunch', page: 'TODAY'},
   // { text: 'be awesome', page: 'FOCUS'},
   // { text: 'eat dinner', page: 'TODAY'},

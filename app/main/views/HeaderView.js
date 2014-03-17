@@ -10,7 +10,8 @@ var BoxContainer      = require('./BoxContainer');
 
 function HeaderView() {
   View.apply(this, arguments);
-  
+  this.inputToggled = false;
+
   _createTitle.call(this);
   _createInput.call(this);
   _buttonListener.call(this);
@@ -95,16 +96,23 @@ function _setInputListener() {
   this.inputXOffset = _isAndroid() ? 30 : 10;
   this.inputZOffset = _isAndroid() ? 150 : 70;
 
+  if (this.options.title === 'FOCUS') {
+    this.titleHeader.on('touchstart', function() {
+      this.inputToggled = !this.inputToggled;
+      (this.inputToggled) ? this._eventOutput.emit('showInput') : this._eventOutput.emit('focusHideInput');
+    }.bind(this));
+  } 
+
   this.on('showInput', function(e) {
     this.boxContainer.frontSurf.setProperties({'visibility': 'visible'});
-    
+
     this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [this.inputXOffset, 70, this.inputZOffset]), {duration: this.options.inputDuration});      
   }.bind(this));    
 
   this.on('hideInput', function() {
     this.value = this.boxContainer.inputSurf.getValue();
     this.boxContainer.inputSurf.setValue('');
-    
+
     this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [this.inputXOffset, 0, this.inputZOffset]), {duration: this.options.inputDuration}, function() {
       this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
     }.bind(this));            

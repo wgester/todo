@@ -20,7 +20,11 @@ function PageView() {
   View.apply(this, arguments);
   
   this.toggleUpOrDown = 'down';
-  this.headerSizeTransitionable = new Transitionable([70]);
+  if (this.options.title === 'FOCUS') {
+    this.headerSizeTransitionable = new Transitionable([this.options.focusHeader]);
+  } else {
+    this.headerSizeTransitionable = new Transitionable([this.options.regSmallHeader]);
+  }
   
   this.offPage = false;
   _createLayout.call(this);
@@ -35,10 +39,14 @@ PageView.DEFAULT_OPTIONS = {
   title: 'LATER',
   yPositionToggleThreshold: 250,
   velocityToggleThreshold: 0.75,
-  headerSizeDuration: 300
+  headerSizeDuration: 300,
+  regSmallHeader: 70,
+  regBigHeader: 140,
+  focusHeader: 310
 };
 
 function _createLayout() {
+  
   this.layout = new HeaderFooter({
     headerSize: 70,
     footerSize: 40
@@ -66,17 +74,25 @@ function _setListeners() {
   
   this.contents.on('showInput', function() {
     this.header._eventOutput.emit('showInput');    
-    this.headerSizeTransitionable.set([140], {duration: this.options.headerSizeDuration}, function() {});
+    if (this.options.title !== 'FOCUS') {
+      this.headerSizeTransitionable.set([this.options.regBigHeader], {duration: this.options.headerSizeDuration}, function() {});
+    }
   }.bind(this));
 
   this.contents.on('hideInput', function() {
     this.header._eventOutput.emit('hideInput');   
-    this.headerSizeTransitionable.set([70], {duration: this.options.headerSizeDuration}, function() {
-      if (this.header.value.length) {
-        this.contents._eventOutput.emit('saveNewTask', this.header.value);      
-      }
-    }.bind(this));
-
+    if (this.options.title !== 'FOCUS') {
+      this.headerSizeTransitionable.set([this.options.regSmallHeader], {duration: this.options.headerSizeDuration}, function() {
+        this.header.value.length && this.contents._eventOutput.emit('saveNewTask', this.header.value); 
+      }.bind(this));
+    } else if (this.header.value.length) {
+      this.contents._eventOutput.emit('saveNewTask', this.header.value);      
+    }    
+  }.bind(this));
+  
+  this.header.on('focusHideInput', function() {
+    this.header._eventOutput.emit('hideInput');   
+    this.header.value.length && this.contents._eventOutput.emit('saveNewTask', this.header.value);          
   }.bind(this));
 };
 

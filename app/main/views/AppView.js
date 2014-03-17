@@ -13,6 +13,7 @@ function AppView() {
   this.headerSizeTransitionable = new Transitionable([70]);
   
   _createGradientSurfaces.call(this);
+  _createCompletionSurface.call(this);
   _createLightBox.call(this);
   _createAppViews.call(this);
   // _createInputView.call(this);
@@ -180,17 +181,12 @@ function _createGradientSurfaces(pages) {
       canvasSize: [window.innerWidth*2, window.innerHeight*2],
       classes: ['famous-surface', 'gradient']
     });
-    if (i === 0) {
-      var backgroundMod = new Modifier({
-        opacity: 1,
-        transform: Transform.translate(0, 0, 0)
-      });      
-    } else {
-      var backgroundMod = new Modifier({
-        opacity: 0,
-        transform: Transform.translate(0, 0, 0)
-      });      
-    }
+    var startOpacity = i === 0 ? 1 : 0;
+    
+    var backgroundMod = new Modifier({
+      opacity: startOpacity,
+      transform: Transform.translate(0, 0, 0)
+    });      
     
     window.faderSurfaces.push(backgroundSurf);
     window.faderMods.push(backgroundMod);
@@ -242,6 +238,24 @@ function _colorSurfaces() {
     colorCanvas.fillStyle = radial;
     colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
   }
+};
+
+function _createCompletionSurface() {
+  window.completionSurf = new CanvasSurface({
+    size: [window.innerWidth, window.innerHeight],
+    canvasSize: [window.innerWidth*2, window.innerHeight*2],
+    classes: ['famous-surface'],
+    properties: {
+      backgroundColor: '#81EBC4'
+    }
+  });
+    
+  window.completionMod = new Modifier({
+    opacity: 0,
+    transform: Transform.translate(0, 0, 0)
+  });      
+  
+  this._add(window.completionMod).add(window.completionSurf);
 };
 
 module.exports = AppView;

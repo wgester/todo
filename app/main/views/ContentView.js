@@ -31,7 +31,8 @@ ContentView.DEFAULT_OPTIONS = {
   title: 'later',
   classes: ['contents'],
   inputDuration: 300,
-  gradientDuration: 800
+  gradientDuration: 800,
+  completionDuration: 500
 };
 
 function _isAndroid() {
@@ -71,6 +72,7 @@ function _setBackground() {
 function _createTasks() {
   this.tasks = Tasks;
   this.taskViews = [];
+  this.taskCount = 0;
 
   this.customscrollview = new CustomScrollView();
   this.customdragsort = new DragSort({
@@ -96,6 +98,7 @@ function _createTasks() {
     transform: Transform.translate(0, 0, 1)
   });
 
+  this.taskCount = this.taskViews.length;
   this.customscrollview.sequenceFrom(this.customdragsort);
   this._add(this.scrollMod).add(this.customscrollview);    
 
@@ -111,15 +114,19 @@ function _newTaskListener() {
   var node = this.customdragsort;
   
   this.on('saveNewTask', function(val) {
+    if (this.options.title === 'FOCUS' && this.taskCount > 2) {
+      return;
+    }
+    
     var newTask = new TaskView({text: val});
     this.customdragsort.push(newTask);
-    this.taskViews.push(newTask);
     if(node.getNext()) node = node._next;
     newTask.pipe(node);
     node.pipe(this.customscrollview);
     newTask.pipe(this.customscrollview);    
     this.customscrollview.pipe(node);
-    
+    _completionListener.call(this, newTask);
+    this.taskCount++;
   }.bind(this));
 };
 
@@ -132,6 +139,8 @@ function _inputListener() {
     this.taskViews[i].on('closeInput', function() {
       this._eventOutput.emit('hideInput');
     }.bind(this));
+    
+    _completionListener.call(this, this.taskViews[i]);
   }
   
   this.touchSurf.on('touchstart', function() {
@@ -142,15 +151,24 @@ function _inputListener() {
 
 function _gradientListener() {
   this.on('opened', function() {
-    this.backgroundMod.setTransform(Transform.translate(0, 0, 0), {duration: 0}, function() {
-      this.backgroundMod.setOpacity(1, {duration: this.options.gradientDuration}, function() {});
-    }.bind(this));
+    this.backgroundMod.setOpacity(1, {duration: this.options.gradientDuration}, function() {});
   }.bind(this));
   
   this.on('closed', function() {
-    this.backgroundMod.setTransform(Transform.translate(0, 0, 0), {duration: 0}, function() {
-      this.backgroundMod.setOpacity(0, {duration: this.options.gradientDuration}, function() {});
-    }.bind(this));    
+    this.backgroundMod.setOpacity(0, {duration: this.options.gradientDuration}, function() {});
+  }.bind(this));
+};
+
+function _completionListener(task) {
+  task.on('completed', function() {
+    this.taskCount--;
+    // window.completionMod.setOpacity(1, {duration: this.options.completionDuration}, function() {
+    //   window.completionMod.setOpacity(0, {duration: this.options.completionDuration}, function () {});
+    // }.bind(this));    
+  }.bind(this));
+  
+  task.on('deleted', function() {
+    this.taskCount--;
   }.bind(this));
 };
 
