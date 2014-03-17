@@ -12,15 +12,17 @@ var InputSurface      = require('famous/surfaces/input-surface');
 var DragSort          = require('famous/views/drag-sort');
 var CustomScrollView  = require('./customScrollView');
 var TaskItem          = require('./TaskItem');
-
+var Color             = require('./Color');
 
 function ContentView() {
   View.apply(this, arguments);
   this.lightness = 75;
   this.inputToggled = false;
-
+  this.editToggled = false;
+  
   _setBackground.call(this);
   _createTasks.call(this);
+  _createEditSurface.call(this);
   _setListeners.call(this);
 };
 
@@ -32,10 +34,10 @@ ContentView.DEFAULT_OPTIONS = {
   classes: ['contents'],
   inputDuration: 300,
   views: {
-    'FOCUS': 0,
-    'TODAY': 1,
-    'LATER': 2,
-    'NEVER': 3
+    'FOCUS': [0],
+    'TODAY': [1],
+    'LATER': [2],
+    'NEVER': [3]
   },
   gradientDuration: 800,
   completionDuration: 500
@@ -47,7 +49,7 @@ function _isAndroid() {
 };
 
 function _setBackground() {
-  var index = this.options.views[this.options.title];
+  var index = this.options.views[this.options.title][0];
 
   this.backgroundSurf = window.faderSurfaces[index];
   this.backgroundMod = window.faderMods[index];
@@ -66,6 +68,19 @@ function _setBackground() {
   this._add(this.touchMod).add(this.touchSurf);
 };
 
+function _createEditSurface() {
+  this.editSurface = new InputSurface({
+    size: [undefined, 60],
+    classes: ['edit', 'task']
+  });
+  
+  this.editMod = new Modifier({
+    transform: Transform.translate(0, 0, -1),
+    opacity: 0
+  });
+  
+  this._add(this.editMod).add(this.editSurface);
+};
 
 function _createTasks() {
   this.tasks = Tasks;
@@ -81,20 +96,20 @@ function _createTasks() {
  
   for(var i = 0; i < this.tasks.length; i++) {
     if (this.tasks[i].page === this.options.title) {
-      var newTask = new TaskView({text: this.tasks[i].text, index: i});
+      var newTask = new TaskView({text: this.tasks[i].text, index: this.taskCount});
       this.customdragsort.push(newTask);
       if(node.getNext()) node = node._next;
       newTask.pipe(node);
       node.pipe(this.customscrollview);
       newTask.pipe(this.customscrollview);    
       this.customscrollview.pipe(node);
+      this.taskCount++;
     }
   }
   this.scrollMod = new Modifier({
     transform: Transform.translate(0, 0, 1)
   });
 
-  this.taskCount = this.customdragsort.array.length;
   this.customscrollview.sequenceFrom(this.customdragsort);
   this._add(this.scrollMod).add(this.customscrollview);    
 
@@ -154,12 +169,30 @@ function _openInputListener(task) {
 };
 
 function _closeInputListener(task) {
-  task.on('closeInputOrEdit', function() {
+  task.on('closeInputOrEdit', function(options) {
     if (this.inputToggled) {
       this._eventOutput.emit('hideInput');
       this.inputToggled = false;
+    } else if (!this.editToggled) {
+      this.editToggled = true;
+      var taskOffset = (options.index * 60) - 10;
+      this.editMod.setTransform(Transform.translate(0, taskOffset, 2), {duration: 0}, function() {
+        this.editSurface.setValue(options.text);
+        this.editMod.setOpacity(1, {duration: 0}, function() {});
+        this.hiddenTask = options.index;
+      }.bind(this));      
     } else {
-      console.log('edit task')
+      this.editToggled = false;
+      this.editMod.setTransform(Transform.translate(0, 0, -1), {duration: 0}, function() {
+        this.editMod.setOpacity(0, {duration: 0}, function() {
+          var savedValue = this.editSurface.getValue();
+          var firstTask = this.customdragsort.array[this.hiddenTask].taskItem;
+          var closedTask = this.customdragsort.array[options.index].taskItem;
+           firstTask._eventOutput.emit('unhide');
+           firstTask._eventOutput.emit('saveTask', savedValue);
+           closedTask._eventOutput.emit('unhide'); 
+        }.bind(this));        
+      }.bind(this));
     }
   }.bind(this));  
 };

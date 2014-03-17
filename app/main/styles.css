@@ -53,6 +53,14 @@ input {
 /*  background: -webkit-linear-gradient(bottom, rgba(255, 255, 255, 0.05), transparent);
 */}
 
+input.edit {
+  color: #003156!important;
+  padding-left: 20px;
+  letter-spacing: 0.3px;
+  font-size: 1.1em;
+  border:none;
+}
+
 .dragging {
   box-shadow: 0px 0px 5px rgba(0, 0, 0, 20);
 }
