@@ -94,6 +94,7 @@ function _createTasks() {
   });
 
   this.customscrollview.sequenceFrom(this.customdragsort);
+  this.customscrollview.pipe(this._eventInput);
   this._add(this.scrollMod).add(this.customscrollview);    
 
 };
