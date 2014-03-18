@@ -212,22 +212,26 @@ ContentView.prototype.animateTasksIn = function(title) {
         var taskObject = scrollview.node.array[task];
         var taskOffset = scrollview._offsets[task];
 
-        if(taskOffset > -60 && taskOffset < window.innerHeight) {
+        if(taskOffset > -10 && taskOffset < window.innerHeight) {
           toShow[taskObject] = true;
 
           if(!this.shown[taskObject] && taskObject) { // if task object hasn't been shown, animate in.
             counter++;
             taskObject.animateIn(counter);
+            // this.shown[taskObject] = true;
           }
         }
       }
     }
 // RESET ANIMATION
-    // for(var taskObj in this.shown) {
-    //   if(!(taskObj in toShow)) {
-    //     taskObj.resetAnimation();
-    //   }
-    // }
+    for(var taskObj in this.shown) {
+      if(taskObj !== "undefined") {
+        if(!(taskObj in toShow)) {
+          taskObj.resetAnimation();
+        }
+
+      }
+    }
     this.shown = toShow;
 
   }.bind(this));
