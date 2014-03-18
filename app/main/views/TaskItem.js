@@ -16,6 +16,7 @@ function TaskItem(options) {
     View.apply(this, arguments);
     this.timeTouched = 0;
     this.page = this.options.page;
+    this.text = this.options.text;
     _createLayout.call(this);
     _bindEvents.call(this);
     _setDate.call(this);
