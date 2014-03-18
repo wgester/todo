@@ -25,7 +25,8 @@ var titleSurf = new Surface({
   classes: ['title'],
   content: '<h1>FOCUS</h1>',
   properties: {
-    backgroundColor: '#32CEA8'
+    backgroundColor: '#32CEA8',
+    paddingLeft: 0
   }
 });
 

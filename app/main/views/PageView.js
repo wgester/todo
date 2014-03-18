@@ -9,6 +9,7 @@ var Timer             = require('famous/utilities/timer');
 var Draggable         = require('famous/modifiers/draggable');
 var HeaderFooter      = require('famous/views/header-footer-layout');
 var Utility           = require('famous/utilities/utility');
+var Color             = require('./Color');
 
 var Tasks             = require('./data');
 var TaskView          = require('./TaskView');
@@ -44,43 +45,58 @@ PageView.DEFAULT_OPTIONS = {
   regSmallHeader: 70,
   regBigHeader: 140,
   focusHeader: window.innerHeight / 2,
-  lightboxAnimation: {
+  editInputAnimation: {
     method: 'spring',
     period: 500,
-    dampingRatio: 0.7
-  }
+    dampingRatio: 0.6
+  },
+  shadowFadeDuration: 200
+  // inputColors: {
+  //   'FOCUS': new Color('#32CEA8').setLightness(80).getHex(),
+  //   'TODAY': new Color('#87CEFA').setLightness(90).getHex(),
+  //   'LATER': new Color('#8977C6').setLightness(70).getHex(),
+  //   'NEVER': new Color('#FA5858').setLightness(80).getHex()
+  // }
 };
 
 function _createEditLightbox() {
   this.editLightBox = new View();
   this.editLBMod = new Modifier({
-    transform: Transform.translate(0, 1850, 2)
+    transform: Transform.translate(0, 0, -10)
   });
   
-  var shadow = new Surface({
+  this.shadow = new Surface({
     size: [undefined, 650],
     classes: ['shadowed']
+  });
+  
+  this.shadowMod = new Modifier({
+    opacity: 0.01
   });
       
   this.editSurface = new InputSurface({
     size: [undefined, 60],
-    classes: ['edit']
+    classes: ['edit'],
+    properties: {
+      backgroundColor: 'white'
+    }
   });
   
   this.editMod = new Modifier({
     origin: [0,0],
+    transform: Transform.translate(0, 600, 0)
   });
   
-  shadow.on('touchend', function() {
+  this.shadow.on('touchstart', function() {
     var editedText = this.editSurface.getValue();
     var editedTask = this.contents.customdragsort.array[this.taskIndex].taskItem;
     editedTask._eventOutput.emit('saveTask', editedText);
-    this.editLBMod.setTransform(Transform.translate(0, 1850, 2),  this.options.lightboxAnimation, function() {});
-
+    _editInputFlyOut.call(this);
+    Timer.after(_lightboxFadeOut.bind(this), 10);
   }.bind(this));
   
   this.editLightBox._add(this.editMod).add(this.editSurface);
-  this.editLightBox._add(shadow);
+  this.editLightBox._add(this.shadowMod).add(this.shadow);
   this._add(this.editLBMod).add(this.editLightBox);
 };
 
@@ -90,7 +106,7 @@ function _createLayout() {
     headerSize: 70,
     footerSize: 40
   });
-  this.footer = new FooterView();
+  this.footer = new FooterView({title: this.options.title});
   this.header = new HeaderView({title: this.options.title});
   this.contents = new ContentView({title: this.options.title})
   this.layout.id["header"].add(this.header);
@@ -137,9 +153,31 @@ function _setListeners() {
   this.contents.on('openEdit', function(options) {
     this.taskIndex = options.index;
     this.editSurface.setValue(options.text);
-    this.editLBMod.setTransform(Transform.translate(0,0,2),  this.options.lightboxAnimation, function() {});
+    _lightboxFadeIn.call(this);
+    Timer.after(_editInputFlyIn.bind(this), 5);
   }.bind(this));
 };
 
+function _lightboxFadeOut() {
+  this.shadowMod.setOpacity(0.01, {duration: this.options.shadowFadeDuration}, function() {
+    this.editLBMod.setTransform(Transform.translate(0, 0, -10),  {duration: 0}, function() {});
+  }.bind(this));
+};
+
+function _lightboxFadeIn() {
+  this.editLBMod.setTransform(Transform.translate(0,0,2),  {duration: 0}, function() {
+    this.shadowMod.setOpacity(1, {duration: this.options.shadowFadeDuration}, function() {});
+  }.bind(this));
+};
+
+function _editInputFlyIn() {
+  this.editTaskOffset = this.options.title === 'FOCUS' ?  window.innerHeight / 2 + this.taskIndex * 60: (this.taskIndex + 1) * 60;
+  this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0));    
+  this.editMod.setTransform(Transform.translate(0,0,0), this.options.editInputAnimation, function() {});  
+};
+
+function _editInputFlyOut() {
+  this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0), {duration: 300}, function() {});
+};
 
 module.exports = PageView;

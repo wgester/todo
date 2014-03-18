@@ -33,6 +33,7 @@ input {
   height: 3em;
   margin-top: 10px;
   margin-left: 0;
+  border-radius: 0;
 }
 
 .title h1 {
@@ -40,6 +41,7 @@ input {
   text-align: center;
   color: transparent;
   font-size: 4em;
+  padding-left: 0;
 }
 
 .invisible {
@@ -63,7 +65,7 @@ input.edit {
 }
 
 .shadowed {
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgb(0, 0, 0);
 }
 
 .dragging {
