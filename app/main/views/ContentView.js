@@ -22,7 +22,7 @@ function ContentView() {
   _setBackground.call(this);
   _createTasks.call(this);
   _setListeners.call(this);
-
+  _animateTasksIn.call(this);
 };
 
 ContentView.prototype = Object.create(View.prototype);
@@ -97,7 +97,7 @@ function _createTasks() {
   this.customscrollview.sequenceFrom(this.customdragsort);
   this.customscrollview.pipe(this._eventInput);
   this._add(this.scrollMod).add(this.customscrollview);
-  this.animateTasksIn.call(this);
+
 };
 
 function _setListeners() {
@@ -194,14 +194,12 @@ toShow: whole task = true
 shown = toShow
 
 */
-ContentView.prototype.animateTasksIn = function() {
-  console.log(this.customscrollview._offsets)
-    if(this.customscrollview.options.page === this.options.title) {
+function _animateTasksIn() {
+  Engine.on('prerender', function(){
         if(this.customscrollview._offsets.keys && !this.customscrollview._offsets.keys.length) return;
         var toShow = {};
         for(var task in this.customscrollview._offsets) {
           if(task !== "undefined"){
-          console.log(this.customscrollview._offsets[task], task)
             if(this.customscrollview._offsets[task] > -60 && this.customscrollview._offsets[task] < window.innerHeight) {
               if(this.customscrollview.node.array[task].options.page === this.options.title) {
                 toShow[this.customscrollview.node.array[task]] = true;
@@ -220,6 +218,9 @@ ContentView.prototype.animateTasksIn = function() {
           }
         }
         shown = toShow;
-    }
+    // }
+  console.log(shown)
+
+  }.bind(this));
 }
 module.exports = ContentView;
