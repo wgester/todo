@@ -113,7 +113,7 @@ function _newTaskListener() {
   this.on('saveNewTask', function(val) {
     var node = this.customdragsort;
     if (this.options.title === 'FOCUS' && this.taskCount > 2) {
-      return;fa
+      return;
     }
     var newTask = new TaskView({text: val});
     this.customdragsort.push(newTask);
@@ -123,7 +123,8 @@ function _newTaskListener() {
     if(node.getNext()) node = node._next;
     newTask.pipe(node);
     node.pipe(this.customscrollview);
-    newTask.pipe(this.customscrollview);    
+    newTask.pipe(this.customscrollview); 
+    // newTask.pipe(this.customdragsort);    
     this.customscrollview.pipe(node);
     _completionListener.call(this, newTask);
     this.taskCount++;
