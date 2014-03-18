@@ -14,6 +14,7 @@
     "famous/physics/engine": "git+ssh://git@github.com:Famous/famous-physics.git#modularized",
     "famous/physics/forces/drag": "git+ssh://git@github.com:Famous/famous-physics.git#modularized",
     "famous/transitions/transitionable": "git+ssh://git@github.com:Famous/famous-transitions.git#modularized",
+    "famous/transitions/drag-transition": "git+ssh://git@github.com:Famous/famous-transitions.git#modularized",
     "famous/transitions/multiple-transition": "git+ssh://git@github.com:Famous/famous-transitions.git#modularized",
     "famous/transitions/tween-transition": "git+ssh://git@github.com:Famous/famous-transitions.git#modularized",
     "famous/utilities/timer": "git+ssh://git@github.com:Famous/famous-utilities.git#modularized",
