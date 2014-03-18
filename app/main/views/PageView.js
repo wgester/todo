@@ -50,13 +50,13 @@ PageView.DEFAULT_OPTIONS = {
     period: 500,
     dampingRatio: 0.6
   },
-  shadowFadeDuration: 200,
-  inputColors: {
-    'FOCUS': new Color('#32CEA8').setLightness(80).getHex(),
-    'TODAY': new Color('#87CEFA').setLightness(90).getHex(),
-    'LATER': new Color('#8977C6').setLightness(70).getHex(),
-    'NEVER': new Color('#FA5858').setLightness(80).getHex()
-  }
+  shadowFadeDuration: 200
+  // inputColors: {
+  //   'FOCUS': new Color('#32CEA8').setLightness(80).getHex(),
+  //   'TODAY': new Color('#87CEFA').setLightness(90).getHex(),
+  //   'LATER': new Color('#8977C6').setLightness(70).getHex(),
+  //   'NEVER': new Color('#FA5858').setLightness(80).getHex()
+  // }
 };
 
 function _createEditLightbox() {
@@ -106,7 +106,7 @@ function _createLayout() {
     headerSize: 70,
     footerSize: 40
   });
-  this.footer = new FooterView();
+  this.footer = new FooterView({title: this.options.title});
   this.header = new HeaderView({title: this.options.title});
   this.contents = new ContentView({title: this.options.title})
   this.layout.id["header"].add(this.header);

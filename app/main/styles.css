@@ -40,6 +40,7 @@ input {
   text-align: center;
   color: transparent;
   font-size: 4em;
+  padding-left: 0;
 }
 
 .invisible {
