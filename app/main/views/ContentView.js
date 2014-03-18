@@ -18,6 +18,8 @@ function ContentView() {
   View.apply(this, arguments);
   this.lightness = 75;
   this.inputToggled = false;
+  this.shown = {};
+
 
   _setBackground.call(this);
   _createTasks.call(this);
@@ -188,9 +190,8 @@ function _completionListener(task) {
   }.bind(this));
 };
 
-var shown = {}
-
 ContentView.prototype.animateTasksIn = function(title) {
+  this.shown = {};
   Engine.on('prerender', function(){
     var toShow = {}; var scrollview;
     if(this.customscrollview.options.page === title) { // only check the right scrollview
@@ -206,22 +207,22 @@ ContentView.prototype.animateTasksIn = function(title) {
         var taskOffset = scrollview._offsets[task];
 
         if(taskOffset > -60 && taskOffset < window.innerHeight) {
-            toShow[taskObject] = true;
+          toShow[taskObject] = true;
 
-          if(!shown[taskObject] && taskObject) { // if task object hasn't been shown, animate in.
+          if(!this.shown[taskObject] && taskObject) { // if task object hasn't been shown, animate in.
             taskObject.animateIn();
           }
         }
       }
     }
 // RESET ANIMATION
-    // for(var taskObj in shown) {
-    //   console.log(shown)
-    //   if(!(taskObj in toShow)) {
-    //     taskObj.reset();
-    //   }
-    // }
-    shown = toShow;
+    for(var taskObj in this.shown) {
+      if(!(taskObj in toShow)) {
+        // console.log('resetting')
+        taskObj.reset();
+      }
+    }
+    this.shown = toShow;
 
   }.bind(this));
 }

@@ -126,6 +126,8 @@ function _addEventListeners(newView, newModifier){
         this.lightBox.optionsForSwipeUp = true;
       }
       this.lightBox.show(newView.nextPage);
+      newView.nextPage.contents.animateTasksIn(newView.nextPage.options.title);
+
       newView.nextPage.contents._eventOutput.emit('opened');
       newView.nextPage.header._eventOutput.emit('opened');
       newView.contents._eventOutput.emit('closed');
@@ -145,6 +147,8 @@ function _addEventListeners(newView, newModifier){
         this.lightBox.optionsForSwipeUp = false;
       }
       this.lightBox.show(newView.previousPage);
+      newView.previousPage.contents.animateTasksIn(newView.previousPage.options.title);
+
 
       newView.previousPage.contents._eventOutput.emit('opened');
       newView.previousPage.header._eventOutput.emit('opened');
@@ -169,6 +173,8 @@ function _createAppViews() {
 
 function _renderFocusPage() {
   this.lightBox.show(this.FOCUSView);
+  this.FOCUSView.contents.animateTasksIn('FOCUS');
+
 };
 
 function _createGradientSurfaces(pages) {

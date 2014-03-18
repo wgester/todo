@@ -25,7 +25,7 @@ function _addTaskItem() {
     this.taskItem = new TaskItem(this.options);
 
     this.taskItemModifier = new Modifier({
-      transform: Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0),
+      transform: Transform.translate(-1 * this.options.deleteCheckWidth, -60, 0),
       size: [undefined, 60],
       opacity: 0.1
     });
@@ -39,10 +39,19 @@ function _addTaskItem() {
 
 function animateIn() {
   this.taskItemModifier.setTransform(
-      Transform.translate(-1 * this.options.deleteCheckWidth, -60, 0),
+      Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0),
       this.options.transition
   );
   this.taskItemModifier.setOpacity(1, this.options.transition);
 }
 
 module.exports = TaskView;
+
+
+function reset() {
+  this.taskItemModifier.setTransform(
+      Transform.translate(-1 * this.options.deleteCheckWidth, -60, 0),
+      this.options.transition
+  );
+  this.taskItemModifier.setOpacity(0.1, this.options.transition);
+}
