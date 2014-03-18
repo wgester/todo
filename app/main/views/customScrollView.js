@@ -4,6 +4,7 @@ var Engine     = require('famous/engine');
 function TableView(options) {
     Scrollview.apply(this, arguments);
     bindEvents.call(this);
+    this.options.page = options.page
 }
 
 function bindEvents() {
@@ -70,5 +71,6 @@ TableView.prototype.emit = function(type, data) {
     if (type == 'update' || type == 'start' || type == 'end' || type == 'swap') this.eventInput.emit(type, data);
     else this.sync.emit(type, data);
 };
+
 
 module.exports = TableView;

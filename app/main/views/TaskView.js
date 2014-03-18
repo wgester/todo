@@ -7,10 +7,14 @@ var Modifier         = require('famous/modifier');
 function TaskView(options) {
     View.apply(this, arguments);
     _addTaskItem.call(this);
+
     this.options.transition = {
-    duration: 1300,
-    curve: 'easeInOut' }
+      duration: 500,
+      curve: 'easeInOut'
+    }
+
     this.animateIn = animateIn;
+    this.reset = reset;
 }
 
 TaskView.prototype = Object.create(View.prototype);
@@ -18,16 +22,19 @@ TaskView.prototype.constructor = TaskView;
 
 TaskView.DEFAULT_OPTIONS = {
     deleteCheckWidth: 100,
-    xThreshold: 95
+    xThreshold: 95,
+    page: 'LATER',
+    text: '',
+    index: 0
 };
 
 function _addTaskItem() {
     this.taskItem = new TaskItem(this.options);
 
     this.taskItemModifier = new Modifier({
-      transform: Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0),
+      transform: Transform.translate(-1 * this.options.deleteCheckWidth, -20, 0),
       size: [undefined, 60],
-      opacity: 0
+      opacity: 0.1
     });
 
     this.taskItem.pipe(this._eventOutput);
@@ -35,14 +42,22 @@ function _addTaskItem() {
     this._add(this.taskItemModifier).add(this.taskItem);
 }
 
-/*-----------------------ANIMATION-------------------------------*/
+/*----------------------------- ANIMATION ------------------------------------------------------*/
 
 function animateIn() {
   this.taskItemModifier.setTransform(
-      Transform.translate(-1 * this.options.deleteCheckWidth, -60, 0),
+      Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0),
       this.options.transition
   );
   this.taskItemModifier.setOpacity(1, this.options.transition);
+}
+
+function reset() {
+  this.taskItemModifier.setTransform(
+    Transform.translate(-1 * this.options.deleteCheckWidth, -20, 0),
+    this.options.transition
+  );
+  this.taskItemModifier.setOpacity(0.1);
 }
 
 module.exports = TaskView;
