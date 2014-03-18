@@ -33,6 +33,7 @@ input {
   height: 3em;
   margin-top: 10px;
   margin-left: 0;
+  border-radius: 0;
 }
 
 .title h1 {

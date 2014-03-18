@@ -92,7 +92,7 @@ function _createEditLightbox() {
     var editedTask = this.contents.customdragsort.array[this.taskIndex].taskItem;
     editedTask._eventOutput.emit('saveTask', editedText);
     _editInputFlyOut.call(this);
-    Timer.after(_lightboxFadeOut.bind(this), 5);
+    Timer.after(_lightboxFadeOut.bind(this), 10);
   }.bind(this));
   
   this.editLightBox._add(this.editMod).add(this.editSurface);
@@ -172,16 +172,12 @@ function _lightboxFadeIn() {
 
 function _editInputFlyIn() {
   this.editTaskOffset = this.options.title === 'FOCUS' ?  window.innerHeight / 2 + this.taskIndex * 60: (this.taskIndex + 1) * 60;
-  this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0), {duration: 0}, function() {
-    console.log('CALLED THIS FUNCTION HERE')
-    this.editMod.setTransform(Transform.translate(0,0,0), this.options.editInputAnimation, function() {});  
-  }.bind(this));
+  this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0));    
+  this.editMod.setTransform(Transform.translate(0,0,0), this.options.editInputAnimation, function() {});  
 };
 
 function _editInputFlyOut() {
-  this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0), {duration: 300}, function() {
-    console.log('CALLED THIS FUNCTION')
-  }.bind(this));
+  this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0), {duration: 300}, function() {});
 };
 
 module.exports = PageView;
