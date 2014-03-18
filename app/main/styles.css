@@ -63,7 +63,7 @@ input.edit {
 }
 
 .shadowed {
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgb(0, 0, 0);
 }
 
 .dragging {
