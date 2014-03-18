@@ -158,7 +158,7 @@ function _closeInputListener(task) {
       this._eventOutput.emit('hideInput');
       this.inputToggled = false;
     } else {
-      this._eventOutput.emit('openEdit');
+      this._eventOutput.emit('openEdit', options);
     }
   }.bind(this));  
 };

@@ -57,8 +57,9 @@ function _createEditLightbox() {
     classes: ['shadowed']
   });
   
-  var editSurface = new InputSurface({
-    size: [undefined, 60]
+  this.editSurface = new InputSurface({
+    size: [undefined, 60],
+    classes: ['edit']
   });
   
   var editMod = new Modifier({
@@ -66,7 +67,16 @@ function _createEditLightbox() {
     transform: Transform.translate(0, 0, 1)
   });
   
-  this.editLightBox._add(editMod).add(editSurface);
+  shadow.on('touchend', function() {
+    var editedText = this.editSurface.getValue();
+    //save value     
+    var editedTask = this.contents.customdragsort.array[this.taskIndex].taskItem;
+    editedTask._eventOutput.emit('saveTask', editedText);
+    //hide lightbox
+    this.editLBMod.setTransform(Transform.translate(0, 1800, 2), {duration: 300}, function() {});
+  }.bind(this));
+  
+  this.editLightBox._add(editMod).add(this.editSurface);
   this.editLightBox._add(shadow);
   this._add(this.editLBMod).add(this.editLightBox);
 };
@@ -121,7 +131,9 @@ function _setListeners() {
     this.header.value.length && this.contents._eventOutput.emit('saveNewTask', this.header.value);          
   }.bind(this));
 
-  this.contents.on('openEdit', function() {
+  this.contents.on('openEdit', function(options) {
+    this.taskIndex = options.index;
+    this.editSurface.setValue(options.text);
     this.editLBMod.setTransform(Transform.translate(0, 0, 2), {duration: 300}, function() {});
   }.bind(this));
 };
