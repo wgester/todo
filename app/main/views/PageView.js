@@ -113,7 +113,6 @@ function _createLayout() {
   this.layout.id["content"].add(this.contents);
   this.layout.id["footer"] .add(Utility.transformInFront).add(this.footer);
   this._add(this.layout);
-  this.contents.animateTasksIn();
 };
 
 function _setHeaderSize() {

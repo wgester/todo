@@ -22,6 +22,7 @@ function ContentView() {
   _setBackground.call(this);
   _createTasks.call(this);
   _setListeners.call(this);
+
 };
 
 ContentView.prototype = Object.create(View.prototype);
@@ -96,7 +97,7 @@ function _createTasks() {
   this.customscrollview.sequenceFrom(this.customdragsort);
   this.customscrollview.pipe(this._eventInput);
   this._add(this.scrollMod).add(this.customscrollview);
-
+  this.animateTasksIn.call(this);
 };
 
 function _setListeners() {
@@ -194,7 +195,7 @@ shown = toShow
 
 */
 ContentView.prototype.animateTasksIn = function() {
-  Engine.on('prerender', function(){
+  console.log(this.customscrollview._offsets)
     if(this.customscrollview.options.page === this.options.title) {
         if(this.customscrollview._offsets.keys && !this.customscrollview._offsets.keys.length) return;
         var toShow = {};
@@ -206,7 +207,7 @@ ContentView.prototype.animateTasksIn = function() {
                 toShow[this.customscrollview.node.array[task]] = true;
               }
               if(!shown[this.customscrollview.node.array[task]] && this.customscrollview.node.array[task]) {
-                this.customscrollview.node.array[task].animateIn(function(){});
+                this.customscrollview.node.array[task].animateIn();
               }
             }
 
@@ -220,7 +221,5 @@ ContentView.prototype.animateTasksIn = function() {
         }
         shown = toShow;
     }
-
-  }.bind(this));
 }
 module.exports = ContentView;
