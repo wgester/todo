@@ -11,7 +11,7 @@ var Transitionable    = require('famous/transitions/transitionable');
 function AppView() {
   View.apply(this, arguments);
   this.headerSizeTransitionable = new Transitionable([70]);
-  
+
   _createGradientSurfaces.call(this);
   _createCompletionSurface.call(this);
   _createLightBox.call(this);
@@ -44,11 +44,11 @@ AppView.DEFAULT_OPTIONS = {
     ['#ffffff', '#FFFFCD', '#87CEFA'],
     ['#3690FF', '#8977C6'],
     ['#F5A9BC', '#FA5858']
-  ] 
+  ]
 };
 
 function _isAndroid() {
-  var userAgent = navigator.userAgent.toLowerCase();  
+  var userAgent = navigator.userAgent.toLowerCase();
   return userAgent.indexOf("android") > -1;
 };
 
@@ -76,7 +76,7 @@ function _createLightBox() {
 //   this.inputSurf.setPlaceholder('here');
 //   this.inputMod = new Modifier({
 //     transform: Transform.translate(0, 70, -1)
-//   }); 
+//   });
 //   this._add(this.inputMod).add(this.inputSurf);
 // }
 
@@ -87,7 +87,7 @@ function _addPageView(title, previousPage, nextPage) {
     transition: this.options.transition,
     wall: this.options.wall
   };
- 
+
   var newView = this[title + 'View'] = new PageView(pageViewOptions);
 }
 
@@ -113,7 +113,7 @@ function _addPageRelations(page, previousPage, nextPage) {
 
 function _addEventListeners(newView, newModifier){
   // window.Engine.on('prerender', )
-  
+
   newView.on('togglePageViewUp', function() {
     if (newView.nextPage) {
       if (!this.lightBox.optionsForSwipeUp){
@@ -126,6 +126,8 @@ function _addEventListeners(newView, newModifier){
         this.lightBox.optionsForSwipeUp = true;
       }
       this.lightBox.show(newView.nextPage);
+      newView.nextPage.contents.animateTasksIn(newView.nextPage.options.title);
+
       newView.nextPage.contents._eventOutput.emit('opened');
       newView.nextPage.header._eventOutput.emit('opened');
       newView.contents._eventOutput.emit('closed');
@@ -145,14 +147,16 @@ function _addEventListeners(newView, newModifier){
         this.lightBox.optionsForSwipeUp = false;
       }
       this.lightBox.show(newView.previousPage);
-      
+      newView.previousPage.contents.animateTasksIn(newView.previousPage.options.title);
+
+
       newView.previousPage.contents._eventOutput.emit('opened');
       newView.previousPage.header._eventOutput.emit('opened');
       newView.contents._eventOutput.emit('closed');
       newView.header._eventOutput.emit('closed');
     }
   }.bind(this));
-    
+
 };
 
 function _createAppViews() {
@@ -169,12 +173,14 @@ function _createAppViews() {
 
 function _renderFocusPage() {
   this.lightBox.show(this.FOCUSView);
+  this.FOCUSView.contents.animateTasksIn('FOCUS');
+
 };
 
 function _createGradientSurfaces(pages) {
   window.faderSurfaces = [];
   window.faderMods = [];
-  
+
   for(var i=0; i < this.options.colors.length; i++){
     var backgroundSurf = new CanvasSurface({
       size: [window.innerWidth, window.innerHeight],
@@ -182,41 +188,41 @@ function _createGradientSurfaces(pages) {
       classes: ['famous-surface', 'gradient']
     });
     var startOpacity = i === 0 ? 1 : 0;
-    
+
     var backgroundMod = new Modifier({
       opacity: startOpacity,
       transform: Transform.translate(0, 0, 0)
-    });      
-    
+    });
+
     window.faderSurfaces.push(backgroundSurf);
     window.faderMods.push(backgroundMod);
     this._add(backgroundMod).add(backgroundSurf);
   }
-  
-  _colorSurfaces.call(this);  
+
+  _colorSurfaces.call(this);
 };
 
 function _colorSurfaces() {
   for(var i = 0; i < window.faderSurfaces.length; i++){
     var colorCanvas = window.faderSurfaces[i].getContext('2d');
     if (_isAndroid()) {
-      var radial = colorCanvas.createLinearGradient( 
+      var radial = colorCanvas.createLinearGradient(
                 300,    // x0
                 0,                              // y0
                 300,    // x1
                 1500         // y1
                 );
-      
+
       if (this.options.colors[i][2]) {
         radial.addColorStop(0, this.options.colors[i][2]);
         radial.addColorStop(0.90, this.options.colors[i][1]);
         radial.addColorStop(1, this.options.colors[i][1]);
       } else {
-        radial.addColorStop(1, this.options.colors[i][0]);        
+        radial.addColorStop(1, this.options.colors[i][0]);
         radial.addColorStop(0, this.options.colors[i][1]);
-      }                
+      }
     } else {
-      var radial = colorCanvas.createRadialGradient( 
+      var radial = colorCanvas.createRadialGradient(
                       300,    // x0
                       1200,         // y0
                       0,   // r0
@@ -225,15 +231,15 @@ function _colorSurfaces() {
                       1400,       // y1
                       1200        // r1
                       );
-       
+
       if (this.options.colors[i][2]) {
         radial.addColorStop(0, this.options.colors[i][0]);
         radial.addColorStop(0.2, this.options.colors[i][1]);
         radial.addColorStop(1, this.options.colors[i][2]);
       } else {
         radial.addColorStop(0, this.options.colors[i][0]);
-        radial.addColorStop(1, this.options.colors[i][1]);        
-      }                
+        radial.addColorStop(1, this.options.colors[i][1]);
+      }
     }
     colorCanvas.fillStyle = radial;
     colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
@@ -249,12 +255,12 @@ function _createCompletionSurface() {
       backgroundColor: '#81EBC4'
     }
   });
-    
+
   window.completionMod = new Modifier({
     opacity: 0,
     transform: Transform.translate(0, 0, 0)
-  });      
-  
+  });
+
   this._add(window.completionMod).add(window.completionSurf);
 };
 

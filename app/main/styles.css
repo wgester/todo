@@ -1,11 +1,11 @@
 
 @font-face {
   font-family: 'museo_sans300';
-  src: url('museosans-300-webfont-webfont.eot');
-/*  src: url('museosans-300-webfont-webfont.eot?#iefix') format('embedded-opentype'),
-       url('museosans-300-webfont-webfont.woff') format('woff'),
-       url('museosans-300-webfont-webfont.ttf') format('truetype'),
-       url('museosans-300-webfont-webfont.svg#museo_sans300') format('svg');
+  src: url('./fonts/museosans-300-webfont-webfont.eot');
+/*  src: url('./fonts/museosans-300-webfont-webfont.eot?#iefix') format('embedded-opentype'),
+       url('./fonts/museosans-300-webfont-webfont.woff') format('woff'),
+       url('./fonts/museosans-300-webfont-webfont.ttf') format('truetype'),
+       url('./fonts/museosans-300-webfont-webfont.svg#museo_sans300') format('svg');
 */  font-weight: normal;
   font-style: normal;
 }
@@ -49,6 +49,7 @@ input {
 }
 
 .task {
+
   box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.2);
   line-height: 60px;
   background-color: rgba(255, 255, 255, 0.07);
@@ -74,11 +75,16 @@ input.edit {
 }
 
 .task p {
+  font-family: helvetica,'museo_sans300';
   padding-left: 20px;
   margin: 0;
   letter-spacing: 0.3px;
   font-size: 1.1em;
   font-weight: 200;
+}
+
+.taskWhite {
+  color: white
 }
 
 .today {
@@ -145,13 +151,13 @@ h1 {
 #box .bottom { -webkit-transform: rotateX( -90deg ) translateZ( 50px ); }
 
 .famous-surface.show-top #box {
-  -webkit-transform: translateZ( -100px ) rotateX( -90deg ); 
+  -webkit-transform: translateZ( -100px ) rotateX( -90deg );
 }
 
 .famous-surface.show-front #box {
-  -webkit-transform: translateZ( -50px ) rotateX( 0deg ) rotateY(5deg); 
+  -webkit-transform: translateZ( -50px ) rotateX( 0deg ) rotateY(5deg);
 }
 
-#box .front  { 
+#box .front  {
   background-color: rgba(128, 128, 128, 0.6);
 }

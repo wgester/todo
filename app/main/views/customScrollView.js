@@ -4,6 +4,7 @@ var Engine     = require('famous/engine');
 function TableView(options) {
     Scrollview.apply(this, arguments);
     bindEvents.call(this);
+    this.options.page = options.page
 }
 
 function bindEvents() {
@@ -23,7 +24,7 @@ function shift(data) {
         this.node = this.node.find(data.oldIndex);
     } else if (data.oldIndex === this.node.index) {
         this.node = this.node.find(data.oldIndex + 1);
-    } 
+    }
     this.node.find(data.oldIndex).moveTo(data.newIndex);
     var currentNode = this.node.find(0);
     while (currentNode) {
@@ -37,6 +38,9 @@ function deleteTask(indexObj) {
         if (this.node.find(this.node.index + 1)) this.node = this.node.find(this.node.index + 1);
     }
     this.node.splice(indexObj.index, 1);
+    console.log(this.node)
+    // this.node.splice(indexObj.index, 1);
+
 }
 
 function swapPage(indexObj) {
@@ -70,5 +74,6 @@ TableView.prototype.emit = function(type, data) {
     if (type == 'update' || type == 'start' || type == 'end' || type == 'swap') this.eventInput.emit(type, data);
     else this.sync.emit(type, data);
 };
+
 
 module.exports = TableView;

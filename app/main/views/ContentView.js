@@ -18,10 +18,13 @@ function ContentView() {
   View.apply(this, arguments);
   this.lightness = 75;
   this.inputToggled = false;
-  
+  this.shown = {};
+
+
   _setBackground.call(this);
   _createTasks.call(this);
   _setListeners.call(this);
+
 };
 
 ContentView.prototype = Object.create(View.prototype);
@@ -42,7 +45,7 @@ ContentView.DEFAULT_OPTIONS = {
 };
 
 function _isAndroid() {
-  var userAgent = navigator.userAgent.toLowerCase();  
+  var userAgent = navigator.userAgent.toLowerCase();
   return userAgent.indexOf("android") > -1;
 };
 
@@ -51,18 +54,18 @@ function _setBackground() {
 
   this.backgroundSurf = window.faderSurfaces[index];
   this.backgroundMod = window.faderMods[index];
-  
+
   this.touchSurf = new Surface({
     size: [undefined, undefined],
     properties: {
       backgroundColor: 'transparent'
     }
   });
-  
+
   this.touchMod = new Modifier({
     transform: Transform.translate(0, 0, 0)
   });
-  
+
   this._add(this.touchMod).add(this.touchSurf);
 };
 
@@ -70,7 +73,7 @@ function _createTasks() {
   this.tasks = Tasks;
   this.taskCount = 0;
 
-  this.customscrollview = new CustomScrollView();
+  this.customscrollview = new CustomScrollView({page: this.options.title});
   this.customdragsort = new DragSort({
     draggable: {
       xRange: [0,0]
@@ -84,7 +87,7 @@ function _createTasks() {
       if(node.getNext()) node = node._next;
       newTask.pipe(node);
       node.pipe(this.customscrollview);
-      newTask.pipe(this.customscrollview);    
+      newTask.pipe(this.customscrollview);
       this.customscrollview.pipe(node);
       this.taskCount++;
     }
@@ -95,36 +98,36 @@ function _createTasks() {
 
   this.customscrollview.sequenceFrom(this.customdragsort);
   this.customscrollview.pipe(this._eventInput);
-  this._add(this.scrollMod).add(this.customscrollview);    
+  this._add(this.scrollMod).add(this.customscrollview);
 
 };
 
-function _setListeners() {    
-  _gradientListener.call(this);  
+function _setListeners() {
+  _gradientListener.call(this);
   _newTaskListener.call(this);
   _inputListeners.call(this);
 };
 
 function _newTaskListener() {
-  
+
   this.on('saveNewTask', function(val) {
     var node = this.customdragsort.find(0);
     if (this.options.title === 'FOCUS' && this.taskCount > 2) {
       return;
     }
-    
-    var newTask = new TaskView({text: val, index: this.taskCount});
+
+    var newTask = new TaskView({text: val, index: this.taskCount, page: this.options.title});
     this.customdragsort.push(newTask);
     for (var j = 0; j < this.taskCount - 1; j++) {
       node = node._next;
-    }      
+    }
     if(node.getNext()) node = node._next;
     newTask.pipe(node);
     node.pipe(this.customscrollview);
-    newTask.pipe(this.customscrollview); 
-    // newTask.pipe(this.customdragsort);    
+    newTask.pipe(this.customscrollview);
+    // newTask.pipe(this.customdragsort);
     this.customscrollview.pipe(node);
-    
+
     _openInputListener.call(this, newTask);
     _closeInputListener.call(this, newTask);
     _completionListener.call(this, newTask);
@@ -138,7 +141,7 @@ function _inputListeners() {
     _closeInputListener.call(this, this.customdragsort.array[i]);
     _completionListener.call(this, this.customdragsort.array[i]);
   }
-  
+
   this.touchSurf.on('touchstart', function() {
     this.inputToggled = !this.inputToggled;
     this.inputToggled ? this._eventOutput.emit('showInput') : this._eventOutput.emit('hideInput');
@@ -149,7 +152,7 @@ function _openInputListener(task) {
   task.on('openInput', function() {
     this.inputToggled = true;
     this._eventOutput.emit('showInput');
-  }.bind(this));  
+  }.bind(this));
 };
 
 function _closeInputListener(task) {
@@ -160,7 +163,7 @@ function _closeInputListener(task) {
     } else {
       this._eventOutput.emit('openEdit', options);
     }
-  }.bind(this));  
+  }.bind(this));
 };
 
 
@@ -168,7 +171,7 @@ function _gradientListener() {
   this.on('opened', function() {
     this.backgroundMod.setOpacity(1, {duration: this.options.gradientDuration}, function() {});
   }.bind(this));
-  
+
   this.on('closed', function() {
     this.backgroundMod.setOpacity(0, {duration: this.options.gradientDuration}, function() {});
   }.bind(this));
@@ -179,12 +182,55 @@ function _completionListener(task) {
     this.taskCount--;
     // window.completionMod.setOpacity(1, {duration: this.options.completionDuration}, function() {
     //   window.completionMod.setOpacity(0, {duration: this.options.completionDuration}, function () {});
-    // }.bind(this));    
+    // }.bind(this));
   }.bind(this));
-  
+
   task.on('deleted', function() {
     this.taskCount--;
   }.bind(this));
 };
+
+
+/* PROBLEMS:
+1. get splice to work
+2. increase timeout for each one, decrease duration so that it comes in later and faster
+*/
+ContentView.prototype.animateTasksIn = function(title) {
+  this.shown = {};
+  var counter = 1;
+  Engine.on('prerender', function(){
+    var toShow = {}; var scrollview;
+    if(this.customscrollview.options.page === title) { // only check the right scrollview
+      scrollview = this.customscrollview;
+    }
+    if(scrollview._offsets[0] === undefined) return; // check if offsets empty
+
+    for(var task in scrollview._offsets) {
+
+      if(task !== "undefined") {
+
+        var taskObject = scrollview.node.array[task];
+        var taskOffset = scrollview._offsets[task];
+
+        if(taskOffset > -60 && taskOffset < window.innerHeight) {
+          toShow[taskObject] = true;
+
+          if(!this.shown[taskObject] && taskObject) { // if task object hasn't been shown, animate in.
+            counter++;
+            taskObject.animateIn(counter);
+          }
+        }
+      }
+    }
+// RESET ANIMATION
+    // for(var taskObj in this.shown) {
+    //   if(!(taskObj in toShow)) {
+    //     taskObj.resetAnimation();
+    //   }
+    // }
+    this.shown = toShow;
+
+  }.bind(this));
+}
 
 module.exports = ContentView;

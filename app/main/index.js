@@ -1,11 +1,11 @@
-window.Engine = require('famous/engine');
-var AppView = require('./views/AppView');
-var Surface = require('famous/surface')
-var Modifier      = require('famous/modifier');
-var Transform     = require('famous/transform');
-var Transitionable = require("famous/transitions/transitionable");
-var WallTransition = require("famous/transitions/wall-transition");
-var SpringTransition = require("famous/transitions/spring-transition");
+window.Engine         = require('famous/engine');
+var AppView           = require('./views/AppView');
+var Surface           = require('famous/surface')
+var Modifier          = require('famous/modifier');
+var Transform         = require('famous/transform');
+var Transitionable    = require("famous/transitions/transitionable");
+var WallTransition    = require("famous/transitions/wall-transition");
+var SpringTransition  = require("famous/transitions/spring-transition");
 var Timer             = require('famous/utilities/timer');
 var CanvasSurface     = require('famous/surfaces/canvas-surface');
 
@@ -44,21 +44,21 @@ var whiteGradientMod = new Modifier({
 var colorCanvas = whiteGradientSurf.getContext('2d');
 
 if (_isAndroid) {
-  var radial = colorCanvas.createLinearGradient( 
+  var radial = colorCanvas.createLinearGradient(
             300 * 0.5 * 2,    // x0
             0,                              // y0
             300 * 0.5 * 2,    // x1
             500 * 2.5         // y1
             );
-  
+
   radial.addColorStop(0, "rgba(255, 255, 255, 0)");
   radial.addColorStop(1, "rgba(255, 255, 255, 1)");
-          
+
   colorCanvas.fillStyle = radial;
   colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
   mainCtx.add(whiteGradientMod).add(whiteGradientSurf);
 } else {
-   radial = colorCanvas.createRadialGradient( 
+   radial = colorCanvas.createRadialGradient(
                   300 * 0.5 * 2,    // x0
                   500 * 2,         // y0
                   0,   // r0
@@ -74,7 +74,7 @@ if (_isAndroid) {
   colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
 
 
-  mainCtx.add(whiteGradientMod).add(whiteGradientSurf); 
+  mainCtx.add(whiteGradientMod).add(whiteGradientSurf);
 }
 
 
@@ -85,7 +85,7 @@ var titleMod = new Modifier({
 
 function _shadowMod() {
   titleSurf.setProperties({
-    textShadow: '0px 0px ' + this.get()[0] + 'px rgba(0, 49, 86, 1)' 
+    textShadow: '0px 0px ' + this.get()[0] + 'px rgba(0, 49, 86, 1)'
   });
 };
 
@@ -93,7 +93,7 @@ function _playShadow() {
   if (devMode ) {
     titleMod.setOpacity(0, function(){});
     var appView = new AppView();
-    mainCtx.add(appView);        
+    mainCtx.add(appView);
     titleMod.setTransform(Transform.translate(0, 0, -100));
   } else {
     this.set([1.5, 100, 50], {duration: 1500}, function() {
@@ -106,22 +106,22 @@ function _playShadow() {
                 mainCtx.add(appView);
                 titleMod.setTransform(Transform.translate(0, 2000, -50), {duration: 0}, function() {
                   titleMod.setOpacity(0, function() {});
-                });                          
+                });
               }, 20);
             });
           }, 7);
         }.bind(this));
       }.bind(this));
-    }.bind(this));    
+    }.bind(this));
   }
 };
 
 function _isAndroid() {
-  var userAgent = navigator.userAgent.toLowerCase();  
+  var userAgent = navigator.userAgent.toLowerCase();
   return userAgent.indexOf("android") > -1;
 };
 
 
 mainCtx.add(titleMod).add(titleSurf);
-window.Engine.on("prerender", _shadowMod.bind(shadowTransitionable));  
+window.Engine.on("prerender", _shadowMod.bind(shadowTransitionable));
 _playShadow.call(shadowTransitionable);

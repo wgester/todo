@@ -19,14 +19,14 @@ var ContentView       = require('./ContentView');
 
 function PageView() {
   View.apply(this, arguments);
-  
+
   this.toggleUpOrDown = 'down';
   if (this.options.title === 'FOCUS') {
     this.headerSizeTransitionable = new Transitionable([this.options.focusHeader]);
   } else {
     this.headerSizeTransitionable = new Transitionable([this.options.regSmallHeader]);
   }
-  
+
   this.offPage = false;
   _createLayout.call(this);
   _pipeSubviewEventsToAppView.call(this);
@@ -64,16 +64,16 @@ function _createEditLightbox() {
   this.editLBMod = new Modifier({
     transform: Transform.translate(0, 0, -10)
   });
-  
+
   this.shadow = new Surface({
     size: [undefined, 650],
     classes: ['shadowed']
   });
-  
+
   this.shadowMod = new Modifier({
     opacity: 0.01
   });
-      
+
   this.editSurface = new InputSurface({
     size: [undefined, 60],
     classes: ['edit'],
@@ -81,27 +81,28 @@ function _createEditLightbox() {
       backgroundColor: 'white'
     }
   });
-  
+
   this.editMod = new Modifier({
     origin: [0,0],
     transform: Transform.translate(0, 600, 0)
   });
-  
+
   this.shadow.on('touchstart', function() {
     var editedText = this.editSurface.getValue();
+    debugger;
     var editedTask = this.contents.customdragsort.array[this.taskIndex].taskItem;
     editedTask._eventOutput.emit('saveTask', editedText);
     _editInputFlyOut.call(this);
     Timer.after(_lightboxFadeOut.bind(this), 10);
   }.bind(this));
-  
+
   this.editLightBox._add(this.editMod).add(this.editSurface);
   this.editLightBox._add(this.shadowMod).add(this.shadow);
   this._add(this.editLBMod).add(this.editLightBox);
 };
 
 function _createLayout() {
-  
+
   this.layout = new HeaderFooter({
     headerSize: 70,
     footerSize: 40
@@ -126,28 +127,28 @@ function _pipeSubviewEventsToAppView() {
 
 function _setListeners() {
   window.Engine.on('prerender', _setHeaderSize.bind(this));
-  
+
   this.contents.on('showInput', function() {
-    this.header._eventOutput.emit('showInput');    
+    this.header._eventOutput.emit('showInput');
     if (this.options.title !== 'FOCUS') {
       this.headerSizeTransitionable.set([this.options.regBigHeader], {duration: this.options.headerSizeDuration}, function() {});
     }
   }.bind(this));
 
   this.contents.on('hideInput', function() {
-    this.header._eventOutput.emit('hideInput');   
+    this.header._eventOutput.emit('hideInput');
     if (this.options.title !== 'FOCUS') {
       this.headerSizeTransitionable.set([this.options.regSmallHeader], {duration: this.options.headerSizeDuration}, function() {
-        this.header.value.length && this.contents._eventOutput.emit('saveNewTask', this.header.value); 
+        this.header.value.length && this.contents._eventOutput.emit('saveNewTask', this.header.value);
       }.bind(this));
     } else if (this.header.value.length) {
-      this.contents._eventOutput.emit('saveNewTask', this.header.value);      
-    }    
+      this.contents._eventOutput.emit('saveNewTask', this.header.value);
+    }
   }.bind(this));
-  
+
   this.header.on('focusHideInput', function() {
-    this.header._eventOutput.emit('hideInput');   
-    this.header.value.length && this.contents._eventOutput.emit('saveNewTask', this.header.value);          
+    this.header._eventOutput.emit('hideInput');
+    this.header.value.length && this.contents._eventOutput.emit('saveNewTask', this.header.value);
   }.bind(this));
 
   this.contents.on('openEdit', function(options) {
@@ -172,8 +173,8 @@ function _lightboxFadeIn() {
 
 function _editInputFlyIn() {
   this.editTaskOffset = this.options.title === 'FOCUS' ?  window.innerHeight / 2 + this.taskIndex * 60: (this.taskIndex + 1) * 60;
-  this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0));    
-  this.editMod.setTransform(Transform.translate(0,0,0), this.options.editInputAnimation, function() {});  
+  this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0));
+  this.editMod.setTransform(Transform.translate(0,0,0), this.options.editInputAnimation, function() {});
 };
 
 function _editInputFlyOut() {
