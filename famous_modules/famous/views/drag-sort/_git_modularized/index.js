@@ -5,6 +5,7 @@ var EventHandler   = require('famous/event-handler');
 var Matrix         = require('famous/transform');
 var Utility        = require('famous/utilities/utility');
 var OptionsManager = require('famous/options-manager');
+var DragTransition = require('famous/transitions/drag-transition');
 
 function DragSort(options) {
     ViewSequence.apply(this, arguments);
@@ -174,17 +175,34 @@ function backwardSwap() {
     }
 }
 
-function handleDragEnd() {
-    if (this.index !== this.currentNode.index) {
-        this._eventOutput.emit('shift', {
-            oldIndex: this.index,
-            newIndex: this.currentNode.index
+function handleDragEnd(data) {
+    if (Math.abs(data.v[1]) > 0.5) {
+        if (data.v[1] > 0) {
+            var v = 1
+        } else {
+            var v = -1
+        }
+        console.log(this)
+        this.draggable._positionState.set(data.p, {
+            method   : 'drag',
+            strength : 0.0001,
+            velocity : [0,v]
+        });
+        this._eventOutput.emit('swapPage', {
+        index: this.index
         });
     } else {
-        this.setPosition([0,0], {
-        duration: 165,
-        curve: 'easeOut'
-    });
+        if (this.index !== this.currentNode.index) {
+            this._eventOutput.emit('shift', {
+                oldIndex: this.index,
+                newIndex: this.currentNode.index
+            });
+        } else {
+            this.setPosition([0,0], {
+            duration: 165,
+            curve: 'easeOut'
+            });
+        }
     }
     this.dragging = false;
     this.modifier.setTransform(Matrix.Identity);

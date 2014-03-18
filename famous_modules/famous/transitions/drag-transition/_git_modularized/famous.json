@@ -1,0 +1,19 @@
+{
+    "name": "famous/transitions/drag-transition",
+    "namespace": "famous/transitions",
+    "type": "famous",
+    "description": "",
+    "version": "0.0.1",
+    "repository" : { 
+        "type" : "git", 
+        "url" : "https://github.com/Famous/famous.git"
+    },
+    "keywords": [],
+    "dependencies": {
+        "famous/physics/engine": "git+ssh://git@github.com:Famous/famous-physics.git#modularized",
+        "famous/physics/forces/drag": "git+ssh://git@github.com:Famous/famous-physics.git#modularized"
+    },
+    "scripts": [
+        "index.js"
+    ]
+}
