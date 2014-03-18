@@ -4,6 +4,8 @@ var TouchSync      = require('famous/input/touch-sync');
 var GenericSync    = require('famous/input/generic-sync');
 var Transitionable = require('famous/transitions/transitionable');
 var EventHandler   = require('famous/event-handler');
+var DragTransition = require('famous/transitions/drag-transition');
+Transitionable.registerMethod('drag', DragTransition);
 
 /**
  * @class Draggable
