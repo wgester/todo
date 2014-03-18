@@ -173,6 +173,7 @@ function _lightboxFadeIn() {
 function _editInputFlyIn() {
   this.editTaskOffset = this.options.title === 'FOCUS' ?  window.innerHeight / 2 + this.taskIndex * 60: (this.taskIndex + 1) * 60;
   this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0), {duration: 0}, function() {
+    console.log('CALLED THIS FUNCTION HERE')
     this.editMod.setTransform(Transform.translate(0,0,0), this.options.editInputAnimation, function() {});  
   }.bind(this));
 };
@@ -180,7 +181,6 @@ function _editInputFlyIn() {
 function _editInputFlyOut() {
   this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0), {duration: 300}, function() {
     console.log('CALLED THIS FUNCTION')
-    this.editMod.setTransform(Transform.translate(0, 600, 0), {duration: 0}, function() {});
   }.bind(this));
 };
 
