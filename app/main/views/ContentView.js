@@ -79,7 +79,7 @@ function _createTasks() {
   var node = this.customdragsort;
   for(var i = 0; i < this.tasks.length; i++) {
     if (this.tasks[i].page === this.options.title) {
-      var newTask = new TaskView({text: this.tasks[i].text, index: this.taskCount});
+      var newTask = new TaskView({text: this.tasks[i].text, index: i, page: this.options.title});
       this.customdragsort.push(newTask);
       if(node.getNext()) node = node._next;
       newTask.pipe(node);
