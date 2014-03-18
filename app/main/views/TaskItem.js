@@ -110,6 +110,7 @@ function _bindEvents() {
     this._eventInput.on('touchend', handleEnd.bind(this));
     this._eventInput.on('click', handleClick.bind(this));
     this.on('saveTask', saveTask.bind(this));
+    this.on('unhide', unhideTask.bind(this));
     Engine.on('prerender', findTimeDeltas.bind(this));
     Engine.on('prerender', checkForDragging.bind(this));
 }
@@ -155,6 +156,7 @@ function handleEnd() {
     if (this.touchStart[1] < 90){
       this._eventOutput.emit('openInput');
     }  else if (xDistance < 10 && yDistance < 10 && this.timeTouched > 0 && this.timeTouched < 200) {
+      this.contents.setProperties({'display': 'none'});
       this._eventOutput.emit('closeInputOrEdit', {text: this.options.text, index: this.options.index});
     }
 
@@ -242,6 +244,10 @@ function _springTaskBack() {
 
 function saveTask(text) {
   this.contents.setContent('<p>' + text + '</p>');
+};
+
+function unhideTask() {
+  this.contents.setProperties({'display': 'block'});
 };
 
 module.exports = TaskItem;

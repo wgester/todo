@@ -106,6 +106,7 @@ function _setListeners() {
   _gradientListener.call(this);
   _newTaskListener.call(this);
   _inputListeners.call(this);
+  _unhideTaskListener.call(this);
 };
 
 function _newTaskListener() {
@@ -161,9 +162,17 @@ function _closeInputListener(task) {
     if (this.inputToggled) {
       this._eventOutput.emit('hideInput');
       this.inputToggled = false;
+      task.taskItem._eventOutput.emit('unhide');
     } else {
       this._eventOutput.emit('openEdit', options);
+      this.editedTask = task.taskItem;
     }
+  }.bind(this));
+};
+
+function _unhideTaskListener() {
+  this.on('unhideEditedTask', function() {
+    this.editedTask._eventOutput.emit('unhide');
   }.bind(this));
 };
 

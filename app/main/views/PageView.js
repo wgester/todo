@@ -51,12 +51,6 @@ PageView.DEFAULT_OPTIONS = {
     dampingRatio: 0.6
   },
   shadowFadeDuration: 200
-  // inputColors: {
-  //   'FOCUS': new Color('#32CEA8').setLightness(80).getHex(),
-  //   'TODAY': new Color('#87CEFA').setLightness(90).getHex(),
-  //   'LATER': new Color('#8977C6').setLightness(70).getHex(),
-  //   'NEVER': new Color('#FA5858').setLightness(80).getHex()
-  // }
 };
 
 function _createEditLightbox() {
@@ -166,7 +160,7 @@ function _lightboxFadeOut() {
 
 function _lightboxFadeIn() {
   this.editLBMod.setTransform(Transform.translate(0,0,2),  {duration: 0}, function() {
-    this.shadowMod.setOpacity(1, {duration: this.options.shadowFadeDuration}, function() {});
+    this.shadowMod.setOpacity(0.7, {duration: this.options.shadowFadeDuration}, function() {});
   }.bind(this));
 };
 
@@ -177,7 +171,9 @@ function _editInputFlyIn() {
 };
 
 function _editInputFlyOut() {
-  this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0), {duration: 300}, function() {});
+  this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0), {duration: 300}, function() {
+    this.contents._eventOutput.emit('unhideEditedTask');
+  }.bind(this));
 };
 
 module.exports = PageView;
