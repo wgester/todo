@@ -13,12 +13,13 @@ var Transform        = require('famous/transform');
 var Easing           = require('famous/animation/easing');
 
 function TaskItem(options) {
-    View.apply(this, arguments);
-    this.timeTouched = 0;
-    _createLayout.call(this);
-    _bindEvents.call(this);
-    _setDate.call(this);
-}
+  View.apply(this, arguments);
+  this.timeTouched = 0;
+  
+  _createLayout.call(this);
+  _bindEvents.call(this);
+  _setDate.call(this);
+}   
 
 TaskItem.prototype = Object.create(View.prototype);
 TaskItem.prototype.constructor = TaskItem;
@@ -107,6 +108,7 @@ function _bindEvents() {
     this._eventInput.on('touchmove', handleMove.bind(this));
     this._eventInput.on('touchend', handleEnd.bind(this));
     this._eventInput.on('click', handleClick.bind(this));
+    this.on('saveTask', saveTask.bind(this));
     Engine.on('prerender', findTimeDeltas.bind(this));
     Engine.on('prerender', checkForDragging.bind(this));
 }
@@ -123,9 +125,7 @@ function handleStart(data) {
   this.distanceThreshold = false;
   this.touchStart = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
   this.touchCurrent = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
-    
-  (this.touchStart[1] < 90) ? this._eventOutput.emit('openInput') : this._eventOutput.emit('closeInput');
-   
+  
 }
 
 function handleMove(data) {
@@ -148,6 +148,13 @@ function handleMove(data) {
 function handleEnd() {
     this.touched = false;
     replaceTask.call(this);
+    
+    if (this.touchStart[1] < 90){
+      this._eventOutput.emit('openInput');
+    }  else if (this.timeTouched > 0 && this.timeTouched < 200) {
+      this._eventOutput.emit('closeInputOrEdit', {text: this.options.text, index: this.options.index});
+    }
+    
     this.timeTouched = 0;
     this._eventInput.pipe(this.draggable);
 }
@@ -160,27 +167,27 @@ function findTimeDeltas() {
 }
 
 function _setDate() {
-    this.now = Date.now();
-    this.lastFrameTime = Date.now();
+  this.now = Date.now();
+  this.lastFrameTime = Date.now();
 }
 
 function checkForDragging(data) {
-    if (this.touched) {
-        this.timeTouched += this.timeDelta;
-        if (this.timeTouched > this.options.dragThreshold) {
-            var distance = Math.sqrt(Math.pow((this.touchStart[0] - this.touchCurrent[0]), 2) + Math.pow((this.touchStart[1] - this.touchCurrent[1]), 2));
-            if (distance < 25) {
-                this._eventInput.unpipe(this.draggable);
-                this.timeTouched = 0;
-                this._eventOutput.emit('editmodeOn');
-                this.touched = false;
-                dragmode.call(this);
-            } else {
-                this.touched = false;
-            }
-        }
+  if (this.touched) {
+    this.timeTouched += this.timeDelta;
+    if (this.timeTouched > this.options.dragThreshold) {
+      var distance = Math.sqrt(Math.pow((this.touchStart[0] - this.touchCurrent[0]), 2) + Math.pow((this.touchStart[1] - this.touchCurrent[1]), 2));
+      if (distance < 25) {
+        this._eventInput.unpipe(this.draggable);
+        this.timeTouched = 0;
+        this._eventOutput.emit('editmodeOn');
+        this.touched = false;
+        dragmode.call(this);
+      } else {
+        this.touched = false;
+      }
     }
-}
+  }
+};
 
 function dragmode() {
     this.contents.addClass('dragging');
@@ -188,7 +195,7 @@ function dragmode() {
         curve: 'easeOut',
         duration: 300
     });
-}
+};
 
 function replaceTask() {
     this.taskItemModifier.setTransform(Matrix.identity, {
@@ -207,7 +214,7 @@ function replaceTask() {
             _springTaskBack.call(this);
         }
     }.bind(this));
-}
+};
 
 function _checkOffTask() {
     this.deleteBox.addClass('invisible');
@@ -216,7 +223,7 @@ function _checkOffTask() {
         this._eventOutput.emit('completed');
         this._eventOutput.emit('deleteTask');
     }.bind(this));
-}
+};
 
 function _deleteTask() {
     this.checkBox.addClass('invisible');
@@ -224,10 +231,14 @@ function _deleteTask() {
         this._eventOutput.emit('deleted');
         this._eventOutput.emit('deleteTask');
     }.bind(this));
-}
+};
 
 function _springTaskBack() {
     this.draggable.setPosition([0, 0], this.options.taskItemSpringTransition);
-}
+};
+
+function saveTask(text) {
+  this.contents.setContent('<p>' + text + '</p>');
+};
 
 module.exports = TaskItem;

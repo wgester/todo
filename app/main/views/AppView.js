@@ -16,7 +16,6 @@ function AppView() {
   _createCompletionSurface.call(this);
   _createLightBox.call(this);
   _createAppViews.call(this);
-  // _createInputView.call(this);
   _renderFocusPage.call(this);
 };
 
@@ -153,6 +152,7 @@ function _addEventListeners(newView, newModifier){
       newView.header._eventOutput.emit('closed');
     }
   }.bind(this));
+    
 };
 
 function _createAppViews() {
