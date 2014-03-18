@@ -22,7 +22,7 @@ function ContentView() {
   _setBackground.call(this);
   _createTasks.call(this);
   _setListeners.call(this);
-  _animateTasksIn.call(this);
+
 };
 
 ContentView.prototype = Object.create(View.prototype);
@@ -189,38 +189,46 @@ function _completionListener(task) {
 };
 
 var shown = {}
-/*
-toShow: whole task = true
-shown = toShow
 
-*/
-function _animateTasksIn() {
-  Engine.on('prerender', function(){
-        if(this.customscrollview._offsets.keys && !this.customscrollview._offsets.keys.length) return;
-        var toShow = {};
-        for(var task in this.customscrollview._offsets) {
-          if(task !== "undefined"){
-            if(this.customscrollview._offsets[task] > -60 && this.customscrollview._offsets[task] < window.innerHeight) {
-              if(this.customscrollview.node.array[task].options.page === this.options.title) {
-                toShow[this.customscrollview.node.array[task]] = true;
-              }
-              if(!shown[this.customscrollview.node.array[task]] && this.customscrollview.node.array[task]) {
-                this.customscrollview.node.array[task].animateIn();
-              }
-            }
+ContentView.prototype.animateTasksIn = function(title) {
+// on taskItem emitting 'yScroll', task moves
+  // Engine.on('prerender', function(){
+    var toShow = {}; var scrollview;
+    console.log('title of customscrollview ', this.customscrollview.options.page)
+    if(this.customscrollview.options.page === title) { // only check the right scrollview
+      scrollview = this.customscrollview;
+    }
+    console.log(scrollview)
+    if(Object.keys(scrollview._offsets).length === 0) return;   // check if offsets empty
 
+    for(var task in scrollview._offsets) {
+      console.log(scrollview._offsets)
+
+      if(task !== "undefined") {
+
+        var taskObject = scrollview.node.array[task];
+        var taskOffset = scrollview._offsets[task];
+
+        if(taskOffset > -60 && taskOffset < window.innerHeight) {
+            toShow[taskObject] = true;
+
+          if(!shown[taskObject] && taskObject) { // if task object hasn't been shown, animate in.
+            taskObject.animateIn();
           }
         }
+      }
+    }
 
-        for(var task in shown) {
-          if(!(task in toShow) && this.customscrollview.node.array[task] && this.customscrollview.node.array[task].options.page === title) {
-            node.array[task].reset();
-          }
-        }
-        shown = toShow;
-    // }
-  console.log(shown)
+    for(var taskObj in shown) {
+      if(!(taskObj in toShow)) {
+        taskObj.reset();
+      }
+    }
+    shown = toShow;
 
-  }.bind(this));
+  // }.bind(this));
 }
+
+
+// }
 module.exports = ContentView;

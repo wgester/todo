@@ -4,7 +4,7 @@ var Engine     = require('famous/engine');
 function TableView(options) {
     Scrollview.apply(this, arguments);
     bindEvents.call(this);
-    this.options.page = options.page;
+    this.options.page = options.page
 }
 
 function bindEvents() {
