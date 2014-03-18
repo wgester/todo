@@ -38,6 +38,9 @@ function deleteTask(indexObj) {
         if (this.node.find(this.node.index + 1)) this.node = this.node.find(this.node.index + 1);
     }
     this.node.splice(indexObj.index, 1);
+    console.log(this.node)
+    // this.node.splice(indexObj.index, 1);
+
 }
 
 function swapPage(indexObj) {

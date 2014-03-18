@@ -190,8 +190,14 @@ function _completionListener(task) {
   }.bind(this));
 };
 
+
+/* PROBLEMS:
+1. get splice to work
+2. increase timeout for each one, decrease duration so that it comes in later and faster
+*/
 ContentView.prototype.animateTasksIn = function(title) {
   this.shown = {};
+  var counter = 1;
   Engine.on('prerender', function(){
     var toShow = {}; var scrollview;
     if(this.customscrollview.options.page === title) { // only check the right scrollview
@@ -210,7 +216,8 @@ ContentView.prototype.animateTasksIn = function(title) {
           toShow[taskObject] = true;
 
           if(!this.shown[taskObject] && taskObject) { // if task object hasn't been shown, animate in.
-            taskObject.animateIn();
+            counter++;
+            taskObject.animateIn(counter);
           }
         }
       }
@@ -218,8 +225,8 @@ ContentView.prototype.animateTasksIn = function(title) {
 // RESET ANIMATION
     for(var taskObj in this.shown) {
       if(!(taskObj in toShow)) {
-        // console.log('resetting')
-        taskObj.reset();
+        console.log(taskObj.options.text, JSON.stringify(taskObj))
+        taskObj.resetAnimation();
       }
     }
     this.shown = toShow;
