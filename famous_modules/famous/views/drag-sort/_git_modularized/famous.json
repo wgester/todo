@@ -16,7 +16,8 @@
         "famous/event-handler": "git+ssh://git@github.com:Famous/famous.git#modularized",
         "famous/utilities/utility": "git+ssh://git@github.com:Famous/famous-utilities.git#modularized",
         "famous/transform": "git+ssh://git@github.com:Famous/famous.git#modularized",
-        "famous/options-manager": "git+ssh://git@github.com:Famous/famous.git#modularized"
+        "famous/options-manager": "git+ssh://git@github.com:Famous/famous.git#modularized",
+        "famous/transitions/drag-transition": "git+ssh://git@github.com:Famous/famous-transitions.git#modularized"
     },
     "scripts": [
         "index.js"

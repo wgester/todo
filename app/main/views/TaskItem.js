@@ -13,13 +13,14 @@ var Transform        = require('famous/transform');
 var Easing           = require('famous/animation/easing');
 
 function TaskItem(options) {
-  View.apply(this, arguments);
-  this.timeTouched = 0;
-  
-  _createLayout.call(this);
-  _bindEvents.call(this);
-  _setDate.call(this);
-}   
+    View.apply(this, arguments);
+    this.timeTouched = 0;
+    this.page = this.options.page;
+    this.text = this.options.text;
+    _createLayout.call(this);
+    _bindEvents.call(this);
+    _setDate.call(this);
+}
 
 TaskItem.prototype = Object.create(View.prototype);
 TaskItem.prototype.constructor = TaskItem;
