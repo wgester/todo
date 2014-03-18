@@ -43,7 +43,11 @@ PageView.DEFAULT_OPTIONS = {
   headerSizeDuration: 300,
   regSmallHeader: 70,
   regBigHeader: 140,
-  focusHeader: window.innerHeight / 2
+  focusHeader: window.innerHeight / 2,
+  lightboxAnimation: {
+    duration: 300,
+    curve: 'easeIn'
+  }
 };
 
 function _createEditLightbox() {
@@ -56,7 +60,7 @@ function _createEditLightbox() {
     size: [undefined, undefined],
     classes: ['shadowed']
   });
-  
+    
   this.editSurface = new InputSurface({
     size: [undefined, 60],
     classes: ['edit']
@@ -73,7 +77,7 @@ function _createEditLightbox() {
     var editedTask = this.contents.customdragsort.array[this.taskIndex].taskItem;
     editedTask._eventOutput.emit('saveTask', editedText);
     //hide lightbox
-    this.editLBMod.setTransform(Transform.translate(0, 1800, 2), {duration: 300}, function() {});
+    this.editLBMod.setTransform(Transform.translate(0, 1800, 2), this.options.lightboxAnimation, function() {});
   }.bind(this));
   
   this.editLightBox._add(editMod).add(this.editSurface);
@@ -134,7 +138,7 @@ function _setListeners() {
   this.contents.on('openEdit', function(options) {
     this.taskIndex = options.index;
     this.editSurface.setValue(options.text);
-    this.editLBMod.setTransform(Transform.translate(0, 0, 2), {duration: 300}, function() {});
+    this.editLBMod.setTransform(Transform.translate(0, 0, 2),  this.options.lightboxAnimation, function() {});
   }.bind(this));
 };
 
