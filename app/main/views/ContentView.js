@@ -77,7 +77,6 @@ function _createTasks() {
     }
   });
   var node = this.customdragsort;
- 
   for(var i = 0; i < this.tasks.length; i++) {
     if (this.tasks[i].page === this.options.title) {
       var newTask = new TaskView({text: this.tasks[i].text, index: this.taskCount});
@@ -113,7 +112,7 @@ function _newTaskListener() {
       return;
     }
     
-    var newTask = new TaskView({text: val});
+    var newTask = new TaskView({text: val, index: this.taskCount});
     this.customdragsort.push(newTask);
     for (var j = 0; j < this.taskCount - 1; j++) {
       node = node._next;

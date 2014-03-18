@@ -46,7 +46,7 @@ PageView.DEFAULT_OPTIONS = {
   focusHeader: window.innerHeight / 2,
   lightboxAnimation: {
     method: 'spring',
-    period: 300,
+    period: 500,
     dampingRatio: 0.7
   }
 };
@@ -54,11 +54,11 @@ PageView.DEFAULT_OPTIONS = {
 function _createEditLightbox() {
   this.editLightBox = new View();
   this.editLBMod = new Modifier({
-    transform: Transform.translate(0, 1800, 2)
+    transform: Transform.translate(0, 1850, 2)
   });
   
   var shadow = new Surface({
-    size: [undefined, undefined],
+    size: [undefined, 650],
     classes: ['shadowed']
   });
       
@@ -75,6 +75,8 @@ function _createEditLightbox() {
     var editedText = this.editSurface.getValue();
     var editedTask = this.contents.customdragsort.array[this.taskIndex].taskItem;
     editedTask._eventOutput.emit('saveTask', editedText);
+    this.editLBMod.setTransform(Transform.translate(0, 1850, 2),  this.options.lightboxAnimation, function() {});
+
   }.bind(this));
   
   this.editLightBox._add(this.editMod).add(this.editSurface);
@@ -91,7 +93,7 @@ function _createLayout() {
   this.footer = new FooterView();
   this.header = new HeaderView({title: this.options.title});
   this.contents = new ContentView({title: this.options.title})
-  this.layout.id["header"] .add(Utility.transformInFront).add(this.header);
+  this.layout.id["header"].add(this.header);
   this.layout.id["content"].add(this.contents);
   this.layout.id["footer"] .add(Utility.transformInFront).add(this.footer);
   this._add(this.layout);
