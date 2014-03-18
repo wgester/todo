@@ -51,16 +51,17 @@ function swapPage(indexObj) {
         currentNode = currentNode.getNext();
     }
     setTimeout(function(){
+        console.log(indexObj)
         if (indexObj.index === this.node.index) {
             if (this.node.find(this.node.index + 1)) this.node = this.node.find(this.node.index + 1);
         }
-        this.node.splice(indexObj.index, 1);
+        this.eventOutput.emit('saveNewTask', {text: this.node.splice(indexObj.index, 1).taskItem.text});
         var currentNode = this.node.find(0);
         while (currentNode) {
             currentNode.setPosition([0,0]);
             currentNode = currentNode.getNext();
         }
-    }.bind(this), 500);
+    }.bind(this), 300);
 }
 
 TableView.prototype = Object.create(Scrollview.prototype);
