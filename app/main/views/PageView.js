@@ -50,6 +50,7 @@ PageView.DEFAULT_OPTIONS = {
     period: 500,
     dampingRatio: 0.7
   },
+  shadowFadeDuration: 200,
   inputColors: {
     'FOCUS': new Color('#32CEA8').setLightness(80).getHex(),
     'TODAY': new Color('#87CEFA').setLightness(90).getHex(),
@@ -66,17 +67,18 @@ function _createEditLightbox() {
   
   this.shadow = new Surface({
     size: [undefined, 650],
-    classes: ['shadowed'],
-    properties: {
-      display: 'none'
-    }
+    classes: ['shadowed']
+  });
+  
+  this.shadowMod = new Modifier({
+    opacity: 0.01
   });
       
   this.editSurface = new InputSurface({
     size: [undefined, 60],
     classes: ['edit'],
     properties: {
-      backgroundColor: this.options.inputColors[this.options.title]
+      backgroundColor: 'white'
     }
   });
   
@@ -85,20 +87,16 @@ function _createEditLightbox() {
     transform: Transform.translate(0, 600, 0)
   });
   
-  this.shadow.on('touchend', function() {
+  this.shadow.on('touchstart', function() {
     var editedText = this.editSurface.getValue();
     var editedTask = this.contents.customdragsort.array[this.taskIndex].taskItem;
     editedTask._eventOutput.emit('saveTask', editedText);
-    this.editMod.setTransform(Transform.translate(0, 600, 0), this.options.lightboxAnimation, function() {
-      this.editLBMod.setTransform(Transform.translate(0, 0, -10),  {duration: 300}, function() {
-        this.shadow.setProperties({'display': 'none'});
-      }.bind(this));
-    }.bind(this));
-
+    _editInputFlyOut.call(this);
+    Timer.after(_lightboxFadeOut.bind(this), 5);
   }.bind(this));
   
   this.editLightBox._add(this.editMod).add(this.editSurface);
-  this.editLightBox._add(this.shadow);
+  this.editLightBox._add(this.shadowMod).add(this.shadow);
   this._add(this.editLBMod).add(this.editLightBox);
 };
 
@@ -155,12 +153,29 @@ function _setListeners() {
   this.contents.on('openEdit', function(options) {
     this.taskIndex = options.index;
     this.editSurface.setValue(options.text);
-    this.editLBMod.setTransform(Transform.translate(0,0,2),  {duration: 300}, function() {
-      this.shadow.setProperties({'display': 'block'});
-      this.editMod.setTransform(Transform.translate(0,0,0), this.options.lightboxAnimation, function() {});
-    }.bind(this));
+    _lightboxFadeIn.call(this);
+    Timer.after(_editInputFlyIn.bind(this), 5);
   }.bind(this));
 };
 
+function _lightboxFadeOut() {
+  this.shadowMod.setOpacity(0.01, {duration: this.options.shadowFadeDuration}, function() {
+    this.editLBMod.setTransform(Transform.translate(0, 0, -10),  {duration: 0}, function() {});
+  }.bind(this));
+};
+
+function _lightboxFadeIn() {
+  this.editLBMod.setTransform(Transform.translate(0,0,2),  {duration: 0}, function() {
+    this.shadowMod.setOpacity(1, {duration: this.options.shadowFadeDuration}, function() {});
+  }.bind(this));
+};
+
+function _editInputFlyIn() {
+  this.editMod.setTransform(Transform.translate(0,0,0), this.options.lightboxAnimation, function() {});  
+};
+
+function _editInputFlyOut() {
+  this.editMod.setTransform(Transform.translate(0, 600, 0), this.options.lightboxAnimation, function() {});
+};
 
 module.exports = PageView;

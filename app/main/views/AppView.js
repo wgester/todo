@@ -43,7 +43,7 @@ AppView.DEFAULT_OPTIONS = {
     ['#ffffff', '#32CEA8'],
     ['#ffffff', '#FFFFCD', '#87CEFA'],
     ['#3690FF', '#8977C6'],
-    ['#F509BC', '#FA5858']
+    ['#F5A9BC', '#FA5858']
   ] 
 };
 
