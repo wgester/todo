@@ -18,11 +18,9 @@ function ContentView() {
   View.apply(this, arguments);
   this.lightness = 75;
   this.inputToggled = false;
-  this.editToggled = false;
   
   _setBackground.call(this);
   _createTasks.call(this);
-  _createEditSurface.call(this);
   _setListeners.call(this);
 };
 
@@ -66,20 +64,6 @@ function _setBackground() {
   });
   
   this._add(this.touchMod).add(this.touchSurf);
-};
-
-function _createEditSurface() {
-  this.editSurface = new InputSurface({
-    size: [undefined, 60],
-    classes: ['edit', 'task']
-  });
-  
-  this.editMod = new Modifier({
-    transform: Transform.translate(0, 0, -1),
-    opacity: 0
-  });
-  
-  this._add(this.editMod).add(this.editSurface);
 };
 
 function _createTasks() {
@@ -173,26 +157,8 @@ function _closeInputListener(task) {
     if (this.inputToggled) {
       this._eventOutput.emit('hideInput');
       this.inputToggled = false;
-    } else if (!this.editToggled) {
-      this.editToggled = true;
-      var taskOffset = (options.index * 60) - 10;
-      this.editMod.setTransform(Transform.translate(0, taskOffset, 2), {duration: 0}, function() {
-        this.editSurface.setValue(options.text);
-        this.editMod.setOpacity(1, {duration: 0}, function() {});
-        this.hiddenTask = options.index;
-      }.bind(this));      
     } else {
-      this.editToggled = false;
-      this.editMod.setTransform(Transform.translate(0, 0, -1), {duration: 0}, function() {
-        this.editMod.setOpacity(0, {duration: 0}, function() {
-          var savedValue = this.editSurface.getValue();
-          var firstTask = this.customdragsort.array[this.hiddenTask].taskItem;
-          var closedTask = this.customdragsort.array[options.index].taskItem;
-           firstTask._eventOutput.emit('unhide');
-           firstTask._eventOutput.emit('saveTask', savedValue);
-           closedTask._eventOutput.emit('unhide'); 
-        }.bind(this));        
-      }.bind(this));
+      this._eventOutput.emit('openEdit');
     }
   }.bind(this));  
 };

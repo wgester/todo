@@ -29,6 +29,7 @@ function PageView() {
   this.offPage = false;
   _createLayout.call(this);
   _pipeSubviewEventsToAppView.call(this);
+  _createEditLightbox.call(this);
   _setListeners.call(this);
 }
 
@@ -43,6 +44,31 @@ PageView.DEFAULT_OPTIONS = {
   regSmallHeader: 70,
   regBigHeader: 140,
   focusHeader: window.innerHeight / 2
+};
+
+function _createEditLightbox() {
+  this.editLightBox = new View();
+  this.editLBMod = new Modifier({
+    transform: Transform.translate(0, 1800, 2)
+  });
+  
+  var shadow = new Surface({
+    size: [undefined, undefined],
+    classes: ['shadowed']
+  });
+  
+  var editSurface = new InputSurface({
+    size: [undefined, 60]
+  });
+  
+  var editMod = new Modifier({
+    origin: [0,0],
+    transform: Transform.translate(0, 0, 1)
+  });
+  
+  this.editLightBox._add(editMod).add(editSurface);
+  this.editLightBox._add(shadow);
+  this._add(this.editLBMod).add(this.editLightBox);
 };
 
 function _createLayout() {
@@ -93,6 +119,10 @@ function _setListeners() {
   this.header.on('focusHideInput', function() {
     this.header._eventOutput.emit('hideInput');   
     this.header.value.length && this.contents._eventOutput.emit('saveNewTask', this.header.value);          
+  }.bind(this));
+
+  this.contents.on('openEdit', function() {
+    this.editLBMod.setTransform(Transform.translate(0, 0, 2), {duration: 300}, function() {});
   }.bind(this));
 };
 

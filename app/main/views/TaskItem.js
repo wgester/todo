@@ -15,10 +15,10 @@ var Easing           = require('famous/animation/easing');
 function TaskItem(options) {
   View.apply(this, arguments);
   this.timeTouched = 0;
+  
   _createLayout.call(this);
   _bindEvents.call(this);
   _setDate.call(this);
-  this.inputToggled = false;
 }   
 
 TaskItem.prototype = Object.create(View.prototype);
@@ -108,7 +108,6 @@ function _bindEvents() {
     this._eventInput.on('touchmove', handleMove.bind(this));
     this._eventInput.on('touchend', handleEnd.bind(this));
     this._eventInput.on('click', handleClick.bind(this));
-    this.on('unhide', unhideTask.bind(this));
     this.on('saveTask', saveTask.bind(this));
     Engine.on('prerender', findTimeDeltas.bind(this));
     Engine.on('prerender', checkForDragging.bind(this));
@@ -126,8 +125,6 @@ function handleStart(data) {
   this.distanceThreshold = false;
   this.touchStart = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
   this.touchCurrent = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
-  
-  this.touchStart[1] < 90 && this._eventOutput.emit('openInput');
   
 }
 
@@ -152,8 +149,9 @@ function handleEnd() {
     this.touched = false;
     replaceTask.call(this);
     
-    if (this.timeTouched > 0 && this.timeTouched < 200) {
-      this.contents.setProperties({visibility: 'hidden'});
+    if (this.touchStart[1] < 90){
+      this._eventOutput.emit('openInput');
+    }  else if (this.timeTouched > 0 && this.timeTouched < 200) {
       this._eventOutput.emit('closeInputOrEdit', {text: this.options.text, index: this.options.index});
     }
     
@@ -237,10 +235,6 @@ function _deleteTask() {
 
 function _springTaskBack() {
     this.draggable.setPosition([0, 0], this.options.taskItemSpringTransition);
-};
-
-function unhideTask() {
-  this.contents.setProperties({visibility: 'visible'});
 };
 
 function saveTask(text) {
