@@ -191,18 +191,14 @@ function _completionListener(task) {
 var shown = {}
 
 ContentView.prototype.animateTasksIn = function(title) {
-// on taskItem emitting 'yScroll', task moves
-  // Engine.on('prerender', function(){
+  Engine.on('prerender', function(){
     var toShow = {}; var scrollview;
-    console.log('title of customscrollview ', this.customscrollview.options.page)
     if(this.customscrollview.options.page === title) { // only check the right scrollview
       scrollview = this.customscrollview;
     }
-    console.log(scrollview)
-    if(Object.keys(scrollview._offsets).length === 0) return;   // check if offsets empty
+    if(scrollview._offsets[0] === undefined) return; // check if offsets empty
 
     for(var task in scrollview._offsets) {
-      console.log(scrollview._offsets)
 
       if(task !== "undefined") {
 
@@ -218,17 +214,16 @@ ContentView.prototype.animateTasksIn = function(title) {
         }
       }
     }
-
-    for(var taskObj in shown) {
-      if(!(taskObj in toShow)) {
-        taskObj.reset();
-      }
-    }
+// RESET ANIMATION
+    // for(var taskObj in shown) {
+    //   console.log(shown)
+    //   if(!(taskObj in toShow)) {
+    //     taskObj.reset();
+    //   }
+    // }
     shown = toShow;
 
-  // }.bind(this));
+  }.bind(this));
 }
 
-
-// }
 module.exports = ContentView;

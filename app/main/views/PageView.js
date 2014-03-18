@@ -29,7 +29,6 @@ function PageView() {
 
   this.offPage = false;
   _createLayout.call(this);
-  console.log(this, this.options.title, this.contents)
   this.contents.animateTasksIn(this.options.title);
 
   _pipeSubviewEventsToAppView.call(this);

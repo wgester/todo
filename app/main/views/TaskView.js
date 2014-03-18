@@ -27,7 +27,7 @@ function _addTaskItem() {
     this.taskItemModifier = new Modifier({
       transform: Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0),
       size: [undefined, 60],
-      opacity: 0
+      opacity: 0.1
     });
 
     this.taskItem.pipe(this._eventOutput);
