@@ -3,7 +3,6 @@ var Engine     = require('famous/engine');
 
 function TableView(options) {
     Scrollview.apply(this, arguments);
-
     bindEvents.call(this);
 }
 
@@ -11,7 +10,7 @@ function bindEvents() {
     this.eventInput.on('shift', shift.bind(this));
     this.eventInput.on('editmodeOn', stopYScroll.bind(this));
     this.eventInput.on('xScroll', stopYScroll.bind(this));
-    this.eventInput.on('deleteTask', deleteTask.bind(this));
+    this.eventInput.on('deleteMe', deleteTask.bind(this));
 }
 
 function stopYScroll() {
@@ -33,6 +32,9 @@ function shift(data) {
 }
 
 function deleteTask(indexObj) {
+    if (indexObj.index === this.node.index) {
+        if (this.node.find(this.node.index + 1)) this.node = this.node.find(this.node.index + 1);
+    }
     this.node.splice(indexObj.index, 1);
 }
 
