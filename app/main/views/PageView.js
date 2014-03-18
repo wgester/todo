@@ -45,8 +45,9 @@ PageView.DEFAULT_OPTIONS = {
   regBigHeader: 140,
   focusHeader: window.innerHeight / 2,
   lightboxAnimation: {
-    duration: 300,
-    curve: 'easeIn'
+    method: 'spring',
+    period: 300,
+    dampingRatio: 0.7
   }
 };
 
@@ -60,25 +61,23 @@ function _createEditLightbox() {
     size: [undefined, undefined],
     classes: ['shadowed']
   });
-    
+      
   this.editSurface = new InputSurface({
     size: [undefined, 60],
     classes: ['edit']
   });
   
-  var editMod = new Modifier({
+  this.editMod = new Modifier({
     origin: [0,0],
-    transform: Transform.translate(0, 0, 1)
   });
   
   shadow.on('touchend', function() {
     var editedText = this.editSurface.getValue();
     var editedTask = this.contents.customdragsort.array[this.taskIndex].taskItem;
     editedTask._eventOutput.emit('saveTask', editedText);
-    this.editLBMod.setTransform(Transform.translate(0, 1800, 2), this.options.lightboxAnimation, function() {});
   }.bind(this));
   
-  this.editLightBox._add(editMod).add(this.editSurface);
+  this.editLightBox._add(this.editMod).add(this.editSurface);
   this.editLightBox._add(shadow);
   this._add(this.editLBMod).add(this.editLightBox);
 };
@@ -136,7 +135,7 @@ function _setListeners() {
   this.contents.on('openEdit', function(options) {
     this.taskIndex = options.index;
     this.editSurface.setValue(options.text);
-    this.editLBMod.setTransform(Transform.translate(0, 0, 2),  this.options.lightboxAnimation, function() {});
+    this.editLBMod.setTransform(Transform.translate(0,0,2),  this.options.lightboxAnimation, function() {});
   }.bind(this));
 };
 
