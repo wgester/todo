@@ -89,6 +89,7 @@ function _createEditLightbox() {
   
   this.shadow.on('touchstart', function() {
     var editedText = this.editSurface.getValue();
+    debugger;
     var editedTask = this.contents.customdragsort.array[this.taskIndex].taskItem;
     editedTask._eventOutput.emit('saveTask', editedText);
     _editInputFlyOut.call(this);

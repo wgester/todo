@@ -149,10 +149,12 @@ function handleMove(data) {
 function handleEnd() {
     this.touched = false;
     replaceTask.call(this);
+    var xDistance = Math.abs(this.touchStart[0] - this.touchCurrent[0]);
+    var yDistance = Math.abs(this.touchStart[1] - this.touchCurrent[1]);
     
     if (this.touchStart[1] < 90){
       this._eventOutput.emit('openInput');
-    }  else if (this.timeTouched > 0 && this.timeTouched < 200) {
+    }  else if (xDistance < 10 && yDistance < 10 && this.timeTouched > 0 && this.timeTouched < 200) {
       this._eventOutput.emit('closeInputOrEdit', {text: this.options.text, index: this.options.index});
     }
     
@@ -186,7 +188,7 @@ function checkForDragging(data) {
       } else {
         this.touched = false;
       }
-    }
+    } 
   }
 };
 
