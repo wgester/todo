@@ -40,7 +40,7 @@ function _addTaskItem() {
 
 function animateIn(counter) {
   this.taskItemModifier.setTransform(
-      Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0), {duration: 250 * counter, curve: 'easeInOut'}
+      Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0), {duration: 180 * counter, curve: 'easeInOut'}
   );
   this.taskItemModifier.setOpacity(1, this.options.transition);
 }

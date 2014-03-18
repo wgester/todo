@@ -223,12 +223,11 @@ ContentView.prototype.animateTasksIn = function(title) {
       }
     }
 // RESET ANIMATION
-    for(var taskObj in this.shown) {
-      if(!(taskObj in toShow)) {
-        console.log(taskObj.options.text, JSON.stringify(taskObj))
-        taskObj.resetAnimation();
-      }
-    }
+    // for(var taskObj in this.shown) {
+    //   if(!(taskObj in toShow)) {
+    //     taskObj.resetAnimation();
+    //   }
+    // }
     this.shown = toShow;
 
   }.bind(this));

@@ -29,7 +29,6 @@ function PageView() {
 
   this.offPage = false;
   _createLayout.call(this);
-
   _pipeSubviewEventsToAppView.call(this);
   _createEditLightbox.call(this);
   _setListeners.call(this);
@@ -87,9 +86,10 @@ function _createEditLightbox() {
     origin: [0,0],
     transform: Transform.translate(0, 600, 0)
   });
-  
+
   this.shadow.on('touchstart', function() {
     var editedText = this.editSurface.getValue();
+    debugger;
     var editedTask = this.contents.customdragsort.array[this.taskIndex].taskItem;
     editedTask._eventOutput.emit('saveTask', editedText);
     _editInputFlyOut.call(this);
@@ -104,7 +104,7 @@ function _createEditLightbox() {
 function _createLayout() {
 
   this.layout = new HeaderFooter({
-    headerSize: 90,
+    headerSize: 70,
     footerSize: 40
   });
   this.footer = new FooterView({title: this.options.title});
