@@ -64,16 +64,16 @@ function _createEditLightbox() {
   this.editLBMod = new Modifier({
     transform: Transform.translate(0, 0, -10)
   });
-  
+
   this.shadow = new Surface({
     size: [undefined, 650],
     classes: ['shadowed']
   });
-  
+
   this.shadowMod = new Modifier({
     opacity: 0.01
   });
-      
+
   this.editSurface = new InputSurface({
     size: [undefined, 60],
     classes: ['edit'],
@@ -81,7 +81,7 @@ function _createEditLightbox() {
       backgroundColor: 'white'
     }
   });
-  
+
   this.editMod = new Modifier({
     origin: [0,0],
     transform: Transform.translate(0, 600, 0)
@@ -94,7 +94,7 @@ function _createEditLightbox() {
     _editInputFlyOut.call(this);
     Timer.after(_lightboxFadeOut.bind(this), 10);
   }.bind(this));
-  
+
   this.editLightBox._add(this.editMod).add(this.editSurface);
   this.editLightBox._add(this.shadowMod).add(this.shadow);
   this._add(this.editLBMod).add(this.editLightBox);
@@ -113,6 +113,7 @@ function _createLayout() {
   this.layout.id["content"].add(this.contents);
   this.layout.id["footer"] .add(Utility.transformInFront).add(this.footer);
   this._add(this.layout);
+  this.contents.animateTasksIn();
 };
 
 function _setHeaderSize() {
@@ -172,8 +173,8 @@ function _lightboxFadeIn() {
 
 function _editInputFlyIn() {
   this.editTaskOffset = this.options.title === 'FOCUS' ?  window.innerHeight / 2 + this.taskIndex * 60: (this.taskIndex + 1) * 60;
-  this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0));    
-  this.editMod.setTransform(Transform.translate(0,0,0), this.options.editInputAnimation, function() {});  
+  this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0));
+  this.editMod.setTransform(Transform.translate(0,0,0), this.options.editInputAnimation, function() {});
 };
 
 function _editInputFlyOut() {

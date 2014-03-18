@@ -70,7 +70,7 @@ function _createTasks() {
   this.tasks = Tasks;
   this.taskCount = 0;
 
-  this.customscrollview = new CustomScrollView();
+  this.customscrollview = new CustomScrollView({page: this.options.title});
   this.customdragsort = new DragSort({
     draggable: {
       xRange: [0,0]
@@ -113,7 +113,7 @@ function _newTaskListener() {
       return;
     }
 
-    var newTask = new TaskView({text: val, index: this.taskCount});
+    var newTask = new TaskView({text: val, index: this.taskCount, page: this.options.title});
     this.customdragsort.push(newTask);
     for (var j = 0; j < this.taskCount - 1; j++) {
       node = node._next;
@@ -187,4 +187,40 @@ function _completionListener(task) {
   }.bind(this));
 };
 
+var shown = {}
+/*
+toShow: whole task = true
+shown = toShow
+
+*/
+ContentView.prototype.animateTasksIn = function() {
+  Engine.on('prerender', function(){
+    if(this.customscrollview.options.page === this.options.title) {
+        if(this.customscrollview._offsets.keys && !this.customscrollview._offsets.keys.length) return;
+        var toShow = {};
+        for(var task in this.customscrollview._offsets) {
+          if(task !== "undefined"){
+          console.log(this.customscrollview._offsets[task], task)
+            if(this.customscrollview._offsets[task] > -60 && this.customscrollview._offsets[task] < window.innerHeight) {
+              if(this.customscrollview.node.array[task].options.page === this.options.title) {
+                toShow[this.customscrollview.node.array[task]] = true;
+              }
+              if(!shown[this.customscrollview.node.array[task]] && this.customscrollview.node.array[task]) {
+                this.customscrollview.node.array[task].animateIn(function(){});
+              }
+            }
+
+          }
+        }
+
+        for(var task in shown) {
+          if(!(task in toShow) && this.customscrollview.node.array[task] && this.customscrollview.node.array[task].options.page === title) {
+            node.array[task].reset();
+          }
+        }
+        shown = toShow;
+    }
+
+  }.bind(this));
+}
 module.exports = ContentView;

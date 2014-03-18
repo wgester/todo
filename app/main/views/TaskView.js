@@ -45,6 +45,7 @@ function _addTaskItem() {
 /*----------------------------- ANIMATION ------------------------------------------------------*/
 
 function animateIn() {
+  console.log('animating')
   this.taskItemModifier.setTransform(
       Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0),
       this.options.transition
@@ -54,7 +55,7 @@ function animateIn() {
 
 function reset() {
   this.taskItemModifier.setTransform(
-    Transform.translate(-1 * this.options.deleteCheckWidth, -20, 0),
+    Transform.translate(-1 * this.options.deleteCheckWidth, 100, 0),
     this.options.transition
   );
   this.taskItemModifier.setOpacity(0.1);

@@ -23,7 +23,7 @@ function _createButton() {
       textAlign: 'center'
     }
   });
-  
+
   this.buttonModifier = new Modifier({
     origin: [0.5, 1]
   });
@@ -34,6 +34,7 @@ function _createButton() {
 function _buttonListener() {
   this.buttonSurf.on('touchend', function() {
     this._eventOutput.emit('togglePageViewUp');
+    console.log()
   }.bind(this));
 };
 
