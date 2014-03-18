@@ -73,10 +73,8 @@ function _createEditLightbox() {
   
   shadow.on('touchend', function() {
     var editedText = this.editSurface.getValue();
-    //save value     
     var editedTask = this.contents.customdragsort.array[this.taskIndex].taskItem;
     editedTask._eventOutput.emit('saveTask', editedText);
-    //hide lightbox
     this.editLBMod.setTransform(Transform.translate(0, 1800, 2), this.options.lightboxAnimation, function() {});
   }.bind(this));
   
