@@ -200,10 +200,10 @@ ContentView.prototype.animateTasksIn = function(title) {
   var counter = 1;
   Engine.on('prerender', function(){
     var toShow = {}; var scrollview;
-    if(this.customscrollview.options.page === title) { // only check the right scrollview
+    if(this.customscrollview.options.page === title) {
       scrollview = this.customscrollview;
     }
-    if(scrollview._offsets[0] === undefined) return; // check if offsets empty
+    if(scrollview._offsets[0] === undefined) return;
 
     for(var task in scrollview._offsets) {
 
@@ -215,10 +215,12 @@ ContentView.prototype.animateTasksIn = function(title) {
         if(taskOffset > -10 && taskOffset < window.innerHeight) {
           toShow[taskObject] = true;
 
-          if(!this.shown[taskObject] && taskObject) { // if task object hasn't been shown, animate in.
+          if(!this.shown[taskObject] && taskObject) {
             counter++;
-            taskObject.animateIn(counter);
-            // this.shown[taskObject] = true;
+            setTimeout(function(){
+              taskObject.animateIn(counter);
+              console.log('animating, counter: ', counter)
+              this.shown[taskObject] = true;}.bind(this), 300);
           }
         }
       }

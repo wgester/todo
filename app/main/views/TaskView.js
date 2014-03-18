@@ -10,6 +10,8 @@ function TaskView(options) {
     this.options.transition = {
     duration: 1300,
     curve: 'easeInOut' };
+    this.animateIn = animateIn;
+    this.resetAnimation = resetAnimation;
 }
 
 TaskView.prototype = Object.create(View.prototype);
@@ -28,28 +30,32 @@ function _addTaskItem() {
       size: [undefined, 60],
       opacity: 0.1
     });
-    this.animateIn(3);
+
     this.taskItem.pipe(this._eventOutput);
 
     this._add(this.taskItemModifier).add(this.taskItem);
+    this.taskItemModifier.setTransform(Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0),
+    {duration: 300, curve: 'easeInOut'}, function() {});
+    this.taskItemModifier.setOpacity(1, this.options.transition, function() {});
 }
 
 /*-----------------------ANIMATION-------------------------------*/
 
-TaskView.prototype.animateIn = function(counter) {
+function animateIn(counter) {
   this.taskItemModifier.setTransform(
-      Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0), {duration: 180 * counter, curve: 'easeInOut'}
-  );
-  console.log(counter)
-  this.taskItemModifier.setOpacity(1, this.options.transition);
+      Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0),
+      {duration: 180 * counter, curve: 'easeInOut'}, function() {});
+
+  this.taskItemModifier.setOpacity(1, this.options.transition, function() {});
 }
 
 
-TaskView.prototype.resetAnimation = function() {
+function resetAnimation() {
   this.taskItemModifier.setTransform(
       Transform.translate(-1 * this.options.deleteCheckWidth, 1000, 0),
-      this.options.transition
-  );
-  this.taskItemModifier.setOpacity(0.1, this.options.transition);
+      this.options.transition, function() {});
+  this.taskItemModifier.setOpacity(0.1, this.options.transition, function() {});
 }
+
+
 module.exports = TaskView;
