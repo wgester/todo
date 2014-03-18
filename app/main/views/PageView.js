@@ -45,10 +45,10 @@ PageView.DEFAULT_OPTIONS = {
   regSmallHeader: 70,
   regBigHeader: 140,
   focusHeader: window.innerHeight / 2,
-  lightboxAnimation: {
+  editInputAnimation: {
     method: 'spring',
     period: 500,
-    dampingRatio: 0.7
+    dampingRatio: 0.6
   },
   shadowFadeDuration: 200,
   inputColors: {
@@ -171,11 +171,17 @@ function _lightboxFadeIn() {
 };
 
 function _editInputFlyIn() {
-  this.editMod.setTransform(Transform.translate(0,0,0), this.options.lightboxAnimation, function() {});  
+  this.editTaskOffset = this.options.title === 'FOCUS' ?  window.innerHeight / 2 + this.taskIndex * 60: (this.taskIndex + 1) * 60;
+  this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0), {duration: 0}, function() {
+    this.editMod.setTransform(Transform.translate(0,0,0), this.options.editInputAnimation, function() {});  
+  }.bind(this));
 };
 
 function _editInputFlyOut() {
-  this.editMod.setTransform(Transform.translate(0, 600, 0), this.options.lightboxAnimation, function() {});
+  this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0), {duration: 300}, function() {
+    console.log('CALLED THIS FUNCTION')
+    this.editMod.setTransform(Transform.translate(0, 600, 0), {duration: 0}, function() {});
+  }.bind(this));
 };
 
 module.exports = PageView;
