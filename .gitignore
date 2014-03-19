@@ -1,1 +1,10 @@
 build
+focus/www/css
+focus/www/fonts
+focus/www/img
+focus/www/js
+focus/www/build.css
+focus/www/build.js
+focus/platforms
+focus/merges
+focus/hooks

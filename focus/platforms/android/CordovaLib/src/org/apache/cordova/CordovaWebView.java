@@ -243,6 +243,7 @@ public class CordovaWebView extends WebView {
         if (shouldRequestFocusOnInit()) {
 			this.requestFocusFromTouch();
 		}
+
 		// Enable JavaScript
         WebSettings settings = this.getSettings();
         settings.setJavaScriptEnabled(true);

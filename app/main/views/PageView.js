@@ -10,8 +10,7 @@ var Draggable         = require('famous/modifiers/draggable');
 var HeaderFooter      = require('famous/views/header-footer-layout');
 var Utility           = require('famous/utilities/utility');
 var Color             = require('./Color');
-
-var Tasks             = require('./data');
+var Tasks             = window._taskData || [];
 var TaskView          = require('./TaskView');
 var HeaderView        = require('./HeaderView');
 var FooterView        = require('./FooterView');
@@ -43,8 +42,8 @@ PageView.DEFAULT_OPTIONS = {
   yPositionToggleThreshold: 250,
   velocityToggleThreshold: 0.75,
   headerSizeDuration: 300,
-  regSmallHeader: 70,
-  regBigHeader: 140,
+  regSmallHeader: 90,
+  regBigHeader: 160,
   focusHeader: window.innerHeight / 2,
   editInputAnimation: {
     method: 'spring',
@@ -157,7 +156,7 @@ function _setListeners() {
 };
 
 function _lightboxFadeOut() {
-  this.editLBMod.setOpacity(0.01, {duration: 200}, function() {
+  this.editLBMod.setOpacity(0.01, {duration: 400}, function() {
     this.editLBMod.setTransform(Transform.translate(0, 0, -10));
   }.bind(this));
 };
@@ -169,12 +168,16 @@ function _lightboxFadeIn() {
 };
 
 function _editInputFlyIn() {
-  this.editTaskOffset = this.options.title === 'FOCUS' ?  window.innerHeight / 2 + this.taskIndex * 60 - 8: (this.taskIndex + 1) * 60 - 8;
+  this.editTaskOffset = this.options.title === 'FOCUS' ?  window.innerHeight / 2 + this.taskIndex * 60 - 10: (this.taskIndex + 1) * 60 - 10;
   this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0));
-  this.editMod.setTransform(Transform.translate(0,20,0), this.options.editInputAnimation, function() {});
+  this.editMod.setTransform(Transform.translate(0,20,0), this.options.editInputAnimation, function() {
+    this.editSurface.focus();
+    SoftKeyboard && SoftKeyboard.show();
+  }.bind(this));  
 };
 
 function _editInputFlyOut() {
+  SoftKeyboard && SoftKeyboard.hide();
   this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0), {duration: 300}, function() {
     this.contents._eventOutput.emit('unhideEditedTask');
   }.bind(this));
