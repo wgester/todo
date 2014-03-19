@@ -34,7 +34,7 @@ function _addTaskItem() {
     this.taskItem.pipe(this._eventOutput);
 
     this._add(this.taskItemModifier).add(this.taskItem);
-}
+};
 
 /*-----------------------ANIMATION-------------------------------*/
 
@@ -57,8 +57,9 @@ function resetAnimation(title) {
   this.taskItemModifier.setOpacity(0.1, {duration:0}, function() {});
   this.taskItemModifier.setTransform(
       Transform.translate(-1 * this.options.deleteCheckWidth, 1000, 0),
-      {duration:0}, function() {});
-}
+      this.options.transition, function() {});
+  this.taskItemModifier.setOpacity(0.1, this.options.transition, function() {});
+};
 
 
 module.exports = TaskView;

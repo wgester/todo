@@ -198,6 +198,7 @@ function checkForDragging(data) {
 
 function dragmode() {
     this.contents.addClass('dragging');
+    console.log(this.contents.properties);
     this.taskItemModifier.setTransform(Matrix.translate(0, 0, 40), {
         curve: 'easeOut',
         duration: 300
