@@ -34,10 +34,6 @@ function _addTaskItem() {
     this.taskItem.pipe(this._eventOutput);
 
     this._add(this.taskItemModifier).add(this.taskItem);
-    //
-    // this.taskItemModifier.setTransform(Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0),
-    // {duration: 300, curve: 'easeInOut'}, function() {});
-    // this.taskItemModifier.setOpacity(1, this.options.transition, function() {});
 }
 
 /*-----------------------ANIMATION-------------------------------*/
