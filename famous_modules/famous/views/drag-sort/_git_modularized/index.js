@@ -189,8 +189,9 @@ function handleDragEnd(data) {
             velocity : [0,v]
         });
         this._eventOutput.emit('swapPage', {
-        index: this.index,
-        page: this.array[this.index].taskItem.page
+            index: this.index,
+            page: this.array[this.index].taskItem.page,
+            direction: v
         });
     } else {
         if (this.index !== this.currentNode.index) {

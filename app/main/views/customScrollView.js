@@ -61,11 +61,10 @@ function swapPage(indexObj) {
         currentNode = currentNode.getNext();
     }
     setTimeout(function(){
-        console.log(indexObj)
         if (indexObj.index === this.node.index) {
             if (this.node.find(this.node.index + 1)) this.node = this.node.find(this.node.index + 1);
         }
-        this.eventOutput.emit('saveNewTask', {text: this.node.splice(indexObj.index, 1).taskItem.text});
+        this.eventOutput.emit('saveNewTask', {page: indexObj.page, text: this.node.splice(indexObj.index, 1).taskItem.text, direction: indexObj.direction});
         var currentNode = this.node.find(0);
         while (currentNode) {
             currentNode.array[currentNode.index].taskItem.index = currentNode.index;

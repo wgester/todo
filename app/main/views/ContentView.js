@@ -14,11 +14,12 @@ var CustomScrollView  = require('./customScrollView');
 var TaskItem          = require('./TaskItem');
 var Color             = require('./Color');
 
-function ContentView() {
+function ContentView(options) {
   View.apply(this, arguments);
   this.lightness = 75;
   this.inputToggled = false;
   this.shown = {};
+  this.title = this.options.title;
 
 
   _setBackground.call(this);
@@ -88,6 +89,7 @@ function _createTasks() {
       newTask.pipe(node);
       node.pipe(this.customscrollview);
       newTask.pipe(this.customscrollview);
+      newTask.pipe(this._eventInput);
       this.customscrollview.pipe(node);
       this.taskCount++;
     }
@@ -107,6 +109,42 @@ function _setListeners() {
   _newTaskListener.call(this);
   _inputListeners.call(this);
   _unhideTaskListener.call(this);
+  this._eventInput.on('swapPages', _createNewTask.bind(this));
+};
+
+function _createNewTask(data) {
+  var pages = {
+    'FOCUS': 0,
+    'TODAY': 1,
+    'LATER': 2,
+    'NEVER': 3
+  }
+  if (pages[this.title] === (pages[data.page] + data.direction)) {
+    console.log(data, this)
+
+    var node = this.customdragsort.find(0);
+    if (this.title === 'FOCUS' && this.taskCount > 2) {
+      return;
+    }
+    var newIndex = this.customdragsort.array.length;
+    var newTask = new TaskView({text: data.text, index: newIndex, page: this.title});
+    this.customdragsort.push(newTask);
+    for (var j = 0; j < this.newIndex - 1; j++) {
+      node = node._next;
+    }
+    if(node.getNext()) node = node._next;
+    newTask.pipe(node);
+    node.pipe(this.customscrollview);
+    newTask.pipe(this.customscrollview);
+    // newTask.pipe(this.customdragsort);
+    this.customscrollview.pipe(node);
+
+    _openInputListener.call(this, newTask);
+    _closeInputListener.call(this, newTask);
+    _completionListener.call(this, newTask);
+    newTask.animateIn(3);
+  }
+
 };
 
 function _newTaskListener() {
