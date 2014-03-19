@@ -113,6 +113,8 @@ function _addPageRelations(page, previousPage, nextPage) {
 
 function _addEventListeners(newView, newModifier){
   // window.Engine.on('prerender', )
+  this._eventOutput.pipe(newView._eventInput);
+  newView._eventOutput.on('saveNewTask', function(text) {this._eventOutput.emit('swapPages', text)}.bind(this));
 
   newView.on('togglePageViewUp', function() {
     if (newView.nextPage) {
