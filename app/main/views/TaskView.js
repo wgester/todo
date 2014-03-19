@@ -30,7 +30,7 @@ function _addTaskItem() {
       size: [undefined, 60],
       opacity: 0.1
     });
-
+    
     this.taskItem.pipe(this._eventOutput);
 
     this._add(this.taskItemModifier).add(this.taskItem);
@@ -41,13 +41,13 @@ function _addTaskItem() {
 
 function animateIn(counter) {
   this.taskItemModifier.setTransform(
-      Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0), {duration: 180 * counter, curve: 'easeInOut'}
+      Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0), {duration: 180 * counter, curve: 'easeInOut'}, function() {}
   );
-  this.taskItemModifier.setOpacity(1, this.options.transition);
+  this.taskItemModifier.setOpacity(1, this.options.transition, function() {});
 }
 
-function resetAnimation(counter) {
-  console.log(counter)
+function resetAnimation() {
+  console.log('reset')
   this.taskItemModifier.setOpacity(0.1, this.options.transition, function() {});
   this.taskItemModifier.setTransform(
       Transform.translate(-1 * this.options.deleteCheckWidth, 1000, 0),

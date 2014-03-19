@@ -43,7 +43,8 @@ AppView.DEFAULT_OPTIONS = {
     ['#ffffff', '#32CEA8'],
     ['#ffffff', '#FFFFCD', '#87CEFA'],
     ['#3690FF', '#8977C6'],
-    ['#F5A9BC', '#FA5858']
+    ['#F5A9BC', '#FA5858'],
+    ['#81F781', '#ffffff']
   ]
 };
 
@@ -249,16 +250,10 @@ function _colorSurfaces() {
   }
 };
 
-function _createCompletionSurface() {
-  window.completionSurf = new CanvasSurface({
-    size: [window.innerWidth, window.innerHeight],
-    canvasSize: [window.innerWidth*2, window.innerHeight*2],
-    classes: ['famous-surface'],
-    properties: {
-      backgroundColor: '#81EBC4'
-    }
-  });
 
+function _createCompletionSurface() {
+
+  window.completionSurf = window.faderSurfaces[4];
   window.completionMod = new Modifier({
     opacity: 0,
     transform: Transform.translate(0, 0, 0)
