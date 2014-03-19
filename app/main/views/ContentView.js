@@ -132,6 +132,7 @@ function _newTaskListener() {
     _closeInputListener.call(this, newTask);
     _completionListener.call(this, newTask);
     this.taskCount++;
+    newTask.animateIn(3);
   }.bind(this));
 };
 
@@ -200,14 +201,13 @@ ContentView.prototype.animateTasksIn = function(title) {
   var counter = 1;
   Engine.on('prerender', function(){
     var toShow = {}; var scrollview;
-    if(this.customscrollview.options.page === title) {
-      scrollview = this.customscrollview;
-    }
+    if(this.customscrollview.options.page === title) scrollview = this.customscrollview;
+
     if(scrollview._offsets[0] === undefined) return;
 
     for(var task in scrollview._offsets) {
 
-      if(task !== "undefined") {
+        if(task !== "undefined") {
 
         var taskObject = scrollview.node.array[task];
         var taskOffset = scrollview._offsets[task];
@@ -217,15 +217,15 @@ ContentView.prototype.animateTasksIn = function(title) {
 
           if(!this.shown[taskObject] && taskObject) {
             counter++;
-            setTimeout(function(){
-              taskObject.animateIn(counter);
-              console.log('animating, counter: ', counter)
-              this.shown[taskObject] = true;}.bind(this), 300);
+            taskObject.animateIn(counter);
+            // this.shown[taskObject] = true;
           }
         }
       }
-    }
-// RESET ANIMATION
+
+  }
+
+    // RESET ANIMATION
     for(var taskObj in this.shown) {
       if(taskObj !== "undefined") {
         if(!(taskObj in toShow)) {

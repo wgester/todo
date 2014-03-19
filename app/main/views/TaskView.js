@@ -34,21 +34,21 @@ function _addTaskItem() {
     this.taskItem.pipe(this._eventOutput);
 
     this._add(this.taskItemModifier).add(this.taskItem);
-    this.taskItemModifier.setTransform(Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0),
-    {duration: 300, curve: 'easeInOut'}, function() {});
-    this.taskItemModifier.setOpacity(1, this.options.transition, function() {});
+    //
+    // this.taskItemModifier.setTransform(Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0),
+    // {duration: 300, curve: 'easeInOut'}, function() {});
+    // this.taskItemModifier.setOpacity(1, this.options.transition, function() {});
 }
 
 /*-----------------------ANIMATION-------------------------------*/
 
+
 function animateIn(counter) {
   this.taskItemModifier.setTransform(
-      Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0),
-      {duration: 180 * counter, curve: 'easeInOut'}, function() {});
-
-  this.taskItemModifier.setOpacity(1, this.options.transition, function() {});
+      Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0), {duration: 180 * counter, curve: 'easeInOut'}
+  );
+  this.taskItemModifier.setOpacity(1, this.options.transition);
 }
-
 
 function resetAnimation() {
   this.taskItemModifier.setTransform(
