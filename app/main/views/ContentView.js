@@ -129,7 +129,7 @@ function _createNewTask(data) {
     var newIndex = this.customdragsort.array.length;
     var newTask = new TaskView({text: data.text, index: newIndex, page: this.title});
     this.customdragsort.push(newTask);
-    for (var j = 0; j < this.newIndex - 1; j++) {
+    for (var j = 0; j < newIndex - 1; j++) {
       node = node._next;
     }
     if(node.getNext()) node = node._next;
