@@ -18,7 +18,8 @@ function ContentView(options) {
   View.apply(this, arguments);
   this.lightness = 75;
   this.inputToggled = false;
-  this.shown = [];
+  this.shown = {};
+  this.scrolled = false;
   this.title = this.options.title;
 
 
@@ -92,6 +93,7 @@ function _createTasks() {
       newTask.pipe(this._eventInput);
       this.customscrollview.pipe(node);
       this.taskCount++;
+      console.loG
     }
   }
   this.scrollMod = new Modifier({
@@ -273,7 +275,7 @@ ContentView.prototype.animateTasksIn = function(title) {
   var counter = 1;
   Engine.on('prerender', function() {
 
-    var willShow = []; var scrollview;
+    var toShow = {}; var scrollview;
     if(this.customscrollview.options.page === title) scrollview = this.customscrollview;
 
     if(scrollview._offsets[0] === undefined) return;
@@ -281,24 +283,32 @@ ContentView.prototype.animateTasksIn = function(title) {
     for(var task in scrollview._offsets) {
         if(task !== "undefined") {
 
-        var taskObject = scrollview.node.array[task];
+        // var taskObject = scrollview.node.array[task];
         var taskOffset = scrollview._offsets[task];
 
-        if((taskOffset > -10) && (taskOffset < window.innerHeight) && (this.shown.indexOf(taskObject) === -1)) {
-          willShow.push(taskObject)
-          counter++;
-          taskObject.animateIn(counter);
+
+        if((taskOffset > -10) && (taskOffset < window.innerHeight) && this.shown[task] !== title) {
+          toShow[task] = title;
+          if(scrollview.node.array[task]) {
+            counter++;
+            scrollview.node.array[task].animateIn(counter);
+          }
         }
       }
     };
-    for(var t = 0; t < this.shown.length; t++) {
-      // value doesn't exist in willShow, but exists in this.shown
-      if((willShow.indexOf(this.shown[t]) < 0) && (this.shown.indexOf(this.shown[t]) > -1)) {
-        this.shown[t].resetAnimation();
+//     only run reset if scrolled or
+    if(this.scrolled){
+      for(var task in this.shown) {
+        if(toShow[task] !== title && scrollview.node.array[task]) {
+          scrollview.node.array[task].resetAnimation();
+        }
       }
+
     }
 
-    this.shown = willShow; // if task is in shown, it's been animated in
+    this.shown = toShow; // if task is in shown, it's been animated in
+
+
 
   }.bind(this));
 }
