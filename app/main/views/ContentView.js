@@ -230,7 +230,7 @@ ContentView.prototype.animateTasksIn = function(title) {
   };
 
   for(var taskObj in this.shown) {
-    if(toShow[taskObj] === undefined && !taskObj) {
+    if(!toShow[taskObj] && !taskObj) {
     console.log('in reset')
       taskObj.resetAnimation();
     }
