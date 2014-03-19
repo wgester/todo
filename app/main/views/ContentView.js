@@ -135,10 +135,7 @@ ContentView.prototype._newScrollView = function(data, newIndex) {
   this.customscrollview.sequenceFrom(this.customdragsort);
   this.customscrollview.pipe(this._eventInput);
   this._add(this.scrollMod).add(this.customscrollview);
-  _openInputListener.call(this, newTask);
-  _closeInputListener.call(this, newTask);
-  _completionListener.call(this, newTask);
-  newTask.animateIn(3);
+  _activateTasks.call(this, newTask);
 }
 
 ContentView.prototype._addToList = function(data, newIndex, node) {
@@ -154,7 +151,10 @@ ContentView.prototype._addToList = function(data, newIndex, node) {
       newTask.pipe(this.customscrollview);
 
       this.customscrollview.pipe(node);
+      _activateTasks.call(this, newTask);
+}
 
+function _activateTasks(newTask) {
       _openInputListener.call(this, newTask);
       _closeInputListener.call(this, newTask);
       _completionListener.call(this, newTask);
