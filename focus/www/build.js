@@ -9028,6 +9028,7 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
                     this.lightBox.optionsForSwipeUp = false;
                 }
                 this.lightBox.show(newView.previousPage);
+                console.log(newView.previousPage.options.title);
                 newView.previousPage.contents.animateTasksIn(newView.previousPage.options.title);
                 newView.previousPage.contents._eventOutput.emit("opened");
                 newView.previousPage.header._eventOutput.emit("opened");
@@ -9577,7 +9578,7 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
     var View = require("famous/view");
     var Scrollview = require("famous/views/scrollview");
     var TaskView = require("./TaskView");
-    var Tasks = window._taskData;
+    var Tasks = window._taskData || [];
     var Box = require("./BoxView");
     var BoxContainer = require("./BoxContainer");
     var Timer = require("famous/utilities/timer");
@@ -9754,12 +9755,7 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
             this.taskCount--;
         }.bind(this));
     }
-    /* PROBLEMS:
-    1. get splice to work
-    2. increase timeout for each one, decrease duration so that it comes in later and faster
-    */
     ContentView.prototype.animateTasksIn = function(title) {
-        this.shown = {};
         var counter = 1;
         Engine.on("prerender", function() {
             var toShow = {};
@@ -9779,15 +9775,15 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
                     }
                 }
             }
-            // RESET ANIMATION
             for (var taskObj in this.shown) {
-                if (taskObj !== undefined) {
-                    if (!(taskObj in toShow)) {
-                        taskObj.resetAnimation();
-                    }
+                if (!toShow[taskObj] && !taskObj) {
+                    console.log("in reset");
+                    taskObj.resetAnimation();
                 }
             }
             this.shown = toShow;
+            // if task is in shown, it's been animated in
+            toShow = {};
         }.bind(this));
     };
     module.exports = ContentView;
@@ -9953,7 +9949,7 @@ require.register("app/main/views/ListView.js", function(exports, require, module
     var Transform = require("famous/transform");
     var Transitionable = require("famous/transitions/transitionable");
     var TaskView = require("./TaskView");
-    var Tasks = window._taskData;
+    var Tasks = window._taskData || [];
     var InputSurface = require("famous/surfaces/input-surface");
     var Timer = require("famous/utilities/timer");
     function ListView() {
@@ -10097,7 +10093,7 @@ require.register("app/main/views/PageView.js", function(exports, require, module
     var HeaderFooter = require("famous/views/header-footer-layout");
     var Utility = require("famous/utilities/utility");
     var Color = require("./Color");
-    var Tasks = window._taskData;
+    var Tasks = window._taskData || [];
     var TaskView = require("./TaskView");
     var HeaderView = require("./HeaderView");
     var FooterView = require("./FooterView");
@@ -10550,9 +10546,10 @@ require.register("app/main/views/TaskView.js", function(exports, require, module
         });
         this.taskItemModifier.setOpacity(1, this.options.transition);
     }
-    function resetAnimation() {
-        this.taskItemModifier.setTransform(Transform.translate(-1 * this.options.deleteCheckWidth, 1e3, 0), this.options.transition, function() {});
+    function resetAnimation(counter) {
+        console.log(counter);
         this.taskItemModifier.setOpacity(.1, this.options.transition, function() {});
+        this.taskItemModifier.setTransform(Transform.translate(-1 * this.options.deleteCheckWidth, 1e3, 0), this.options.transition, function() {});
     }
     module.exports = TaskView;
 }.bind(this));
