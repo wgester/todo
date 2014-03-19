@@ -167,10 +167,10 @@ function _createNewTask(data) {
     'LATER': 2,
     'NEVER': 3
   }
+  if (this.options.title === 'FOCUS' && this.taskCount > 2) {
+    return;
+  }
   if (pages[this.title] === (pages[data.page] + data.direction)) {
-    if (this.options.title === 'FOCUS' && this.taskCount > 2) {
-      return;
-    }
     
     var node = this.customscrollview.node;
     var newIndex = this.customdragsort.array.length;
