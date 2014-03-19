@@ -13,7 +13,6 @@ var tasks = [
   { text: 'eat dinner', page: 'LATER'},
   { text: 'eat dinner', page: 'LATER'},
   { text: 'eat dinner', page: 'LATER'},
-  { text: 'eat dinner', page: 'LATER'},
   { text: 'eat lunch', page: 'TODAY'},
   { text: 'eat dinner', page: 'TODAY'},
   { text: 'eat lunch', page: 'TODAY'},

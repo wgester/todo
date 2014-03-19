@@ -132,6 +132,7 @@ function _newTaskListener() {
     _closeInputListener.call(this, newTask);
     _completionListener.call(this, newTask);
     this.taskCount++;
+    newTask.animateIn(3);
   }.bind(this));
 };
 
@@ -200,34 +201,39 @@ ContentView.prototype.animateTasksIn = function(title) {
   var counter = 1;
   Engine.on('prerender', function(){
     var toShow = {}; var scrollview;
-    if(this.customscrollview.options.page === title) { // only check the right scrollview
-      scrollview = this.customscrollview;
-    }
-    if(scrollview._offsets[0] === undefined) return; // check if offsets empty
+    if(this.customscrollview.options.page === title) scrollview = this.customscrollview;
+
+    if(scrollview._offsets[0] === undefined) return;
 
     for(var task in scrollview._offsets) {
 
-      if(task !== "undefined") {
+        if(task !== "undefined") {
 
         var taskObject = scrollview.node.array[task];
         var taskOffset = scrollview._offsets[task];
 
-        if(taskOffset > -60 && taskOffset < window.innerHeight) {
+        if(taskOffset > -10 && taskOffset < window.innerHeight) {
           toShow[taskObject] = true;
 
-          if(!this.shown[taskObject] && taskObject) { // if task object hasn't been shown, animate in.
+          if(!this.shown[taskObject] && taskObject) {
             counter++;
             taskObject.animateIn(counter);
+            // this.shown[taskObject] = true;
           }
         }
       }
+
+  }
+
+    // RESET ANIMATION
+    for(var taskObj in this.shown) {
+      if(taskObj !== "undefined") {
+        if(!(taskObj in toShow)) {
+          taskObj.resetAnimation();
+        }
+
+      }
     }
-// RESET ANIMATION
-    // for(var taskObj in this.shown) {
-    //   if(!(taskObj in toShow)) {
-    //     taskObj.resetAnimation();
-    //   }
-    // }
     this.shown = toShow;
 
   }.bind(this));
