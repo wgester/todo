@@ -35,11 +35,11 @@ function shift(data) {
 }
 
 function deleteTask(indexObj) {
+    console.log(this.node.getAllLinkedNodes());
     if (indexObj.index === this.node.index) {
-        if (this.node.find(this.node.index + 1)) this.node = this.node.find(this.node.index + 1);
+        if (this.node._next) this.node = this.node._next;
     }
     this.node.splice(indexObj.index, 1);
-    
     var currentNode = this.node.find(0);
     if (currentNode.array.length) {
         while (currentNode) {
@@ -48,7 +48,6 @@ function deleteTask(indexObj) {
             currentNode = currentNode.getNext();
         }
     }
-
 }
 
 function swapPage(indexObj) {
