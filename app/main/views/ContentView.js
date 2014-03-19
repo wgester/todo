@@ -230,23 +230,15 @@ ContentView.prototype.animateTasksIn = function(title) {
   };
 
   for(var taskObj in this.shown) {
-    if(!(taskObj in toShow) && !taskObj) {
+    if(toShow[taskObj] === undefined && !taskObj) {
+    console.log('in reset')
       taskObj.resetAnimation();
     }
-
   }
 
-    // RESET ANIMATION
-    for(var taskObj in this.shown) {
-      if(taskObj !== undefined) {
-        if(!(taskObj in toShow)) {
-          taskObj.resetAnimation();
-        }
+  this.shown = toShow; // if task is in shown, it's been animated in
 
-      }
-    }
-    this.shown = toShow;
-
+  toShow = {};
   }.bind(this));
 }
 
