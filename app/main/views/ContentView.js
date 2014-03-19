@@ -158,15 +158,19 @@ function _openInputListener(task) {
 };
 
 function _closeInputListener(task) {
-  task.on('closeInputOrEdit', function(options) {
+  task.on('closeInputOrEdit', function() {
     if (this.inputToggled) {
       this._eventOutput.emit('hideInput');
       this.inputToggled = false;
       task.taskItem._eventOutput.emit('unhide');
     } else {
-      this._eventOutput.emit('openEdit', options);
-      this.editedTask = task.taskItem;
+      task.taskItem._eventOutput.emit('transformTask');
     }
+  }.bind(this));
+  
+  task.on('openLightbox', function(options) {
+    this._eventOutput.emit('openEdit', options);
+    this.editedTask = task.taskItem;    
   }.bind(this));
 };
 
@@ -236,7 +240,7 @@ ContentView.prototype.animateTasksIn = function(title) {
 
     // RESET ANIMATION
     for(var taskObj in this.shown) {
-      if(taskObj !== "undefined") {
+      if(taskObj !== undefined) {
         if(!(taskObj in toShow)) {
           taskObj.resetAnimation();
         }

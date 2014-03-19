@@ -111,6 +111,7 @@ function _bindEvents() {
     this._eventInput.on('touchend', handleEnd.bind(this));
     this._eventInput.on('click', handleClick.bind(this));
     this.on('saveTask', saveTask.bind(this));
+    this.on('transformTask', transformTask.bind(this));
     this.on('unhide', unhideTask.bind(this));
     Engine.on('prerender', findTimeDeltas.bind(this));
     Engine.on('prerender', checkForDragging.bind(this));
@@ -157,14 +158,7 @@ function handleEnd() {
     if (this.touchStart[1] < 90){
       this._eventOutput.emit('openInput');
     }  else if (xDistance < 10 && yDistance < 10 && this.timeTouched > 0 && this.timeTouched < 200) {      
-      this.contents.setProperties({'backgroundColor': 'white'});
-        this.taskItemModifier.setTransform(Matrix.translate(0, 0, 40), {curve: 'easeOut', duration: 300}, function() {
-          this._eventOutput.emit('closeInputOrEdit', {text: this.options.text, index: this.options.index});        
-          // this.taskItemModifier.setOpacity(0.01, {duration: 500}, function() {});
-          Timer.after(function() {
-            this.contents.setProperties({'display': 'none'});
-          }.bind(this), 5);
-        }.bind(this));
+      this._eventOutput.emit('closeInputOrEdit', {text: this.options.text, index: this.options.index});      
     }
 
     this.timeTouched = 0;
@@ -258,6 +252,16 @@ function unhideTask() {
   this.taskItemModifier.setTransform(Matrix.translate(0, 0, 0), {curve: 'easeOut', duration: 300}, function() { 
     this.contents.setProperties({'backgroundColor': 'transparent'});
   }.bind(this));  
+};
+
+function transformTask() {
+  this.contents.setProperties({'backgroundColor': 'white'});
+    this.taskItemModifier.setTransform(Matrix.translate(0, 0, 40), {curve: 'easeOut', duration: 300}, function() {
+      this._eventOutput.emit('openLightbox', {text: this.options.text, index: this.options.index});        
+      Timer.after(function() {
+        this.contents.setProperties({'display': 'none'});
+      }.bind(this), 5);
+    }.bind(this));  
 };
 
 module.exports = TaskItem;
