@@ -144,7 +144,6 @@ ContentView.prototype._addToList = function(data, newIndex, node) {
       for (var j = 0; j < newIndex - 1; j++) {
         node = node._next;
       }
-      console.log(this.customdragsort)
       if(node.getNext()) node = node._next;
       newTask.pipe(node);
       node.pipe(this.customscrollview);
@@ -173,7 +172,7 @@ function _createNewTask(data) {
       return;
     }
     
-    var node = this.customdragsort.find(0);
+    var node = this.customscrollview.node;
     var newIndex = this.customdragsort.array.length;
     if (!newIndex) {
       this._newScrollView(data, newIndex);
@@ -192,7 +191,7 @@ function _newTaskListener() {
       return;
     }
     
-    var node = this.customdragsort.find(0);
+    var node = this.customscrollview.node;
     var newIndex = this.customdragsort.array.length;
     if (!newIndex) {
       this._newScrollView({text: val}, newIndex);
@@ -260,7 +259,6 @@ function _gradientListener() {
 function _completionListener(task) {
   task.on('completed', function() {
     this.taskCount--;
-    console.log(this.tasks[0])
     window.completionMod.setOpacity(0.8, {duration: this.options.completionDuration}, function() {
       window.completionMod.setOpacity(0, {duration: 2000}, function () {});
     }.bind(this));
