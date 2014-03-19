@@ -250,7 +250,7 @@ function saveTask(text) {
 function unhideTask() {
   this.contents.setProperties({'display': 'block'});
   this.taskItemModifier.setTransform(Matrix.translate(0, 0, 0), {curve: 'easeOut', duration: 300}, function() { 
-    this.contents.setProperties({'backgroundColor': 'transparent'});
+    this.contents.setProperties({'backgroundColor': 'rgba(255, 255, 255, 0.07)'});
   }.bind(this));  
 };
 
