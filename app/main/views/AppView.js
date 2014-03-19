@@ -6,7 +6,7 @@ var PageView       = require('./PageView');
 var Lightbox       = require('famous/views/light-box');
 var CanvasSurface  = require('famous/surfaces/canvas-surface');
 var InputSurface   = require("famous/surfaces/input-surface");
-var Transitionable    = require('famous/transitions/transitionable');
+var Transitionable = require('famous/transitions/transitionable');
 
 function AppView() {
   View.apply(this, arguments);

@@ -30,7 +30,7 @@ function _addTaskItem() {
       size: [undefined, 60],
       opacity: 0.1
     });
-    
+
     this.taskItem.pipe(this._eventOutput);
 
     this._add(this.taskItemModifier).add(this.taskItem);

@@ -281,13 +281,12 @@ ContentView.prototype.animateTasksIn = function(title) {
     if(scrollview._offsets[0] === undefined) return;
 
     for(var task in scrollview._offsets) {
-        if(task !== "undefined") {
 
-        // var taskObject = scrollview.node.array[task];
-        var taskOffset = scrollview._offsets[task];
+      if(task !== "undefined") {
 
+        var taskOffset = scrollview._offsets[task]; // var taskObject = scrollview.node.array[task];
 
-        if((taskOffset > -10) && (taskOffset < window.innerHeight) && this.shown[task] !== title) {
+        if((taskOffset > -10) && (taskOffset < window.innerHeight) && (this.shown[task] !== title)) {
           toShow[task] = title;
           if(scrollview.node.array[task]) {
             counter++;
@@ -295,16 +294,16 @@ ContentView.prototype.animateTasksIn = function(title) {
           }
         }
       }
-    };
-//     only run reset if scrolled or
-    if(this.scrolled){
+    }
+//     if page changed
+  if(this.scrolled){
       for(var task in this.shown) {
         if(toShow[task] !== title && scrollview.node.array[task]) {
           scrollview.node.array[task].resetAnimation();
         }
       }
+  }
 
-    }
 
     this.shown = toShow; // if task is in shown, it's been animated in
 
