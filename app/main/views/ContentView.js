@@ -277,7 +277,6 @@ ContentView.prototype.animateTasksIn = function(title) {
     if(this.customscrollview.options.page === title) scrollview = this.customscrollview;
 
     if(scrollview._offsets[0] === undefined) return;
-    //if task is moved, if task is added
 
     for(var task in scrollview._offsets) {
         if(task !== "undefined") {
@@ -287,7 +286,7 @@ ContentView.prototype.animateTasksIn = function(title) {
 
         if((taskOffset > -10) && (taskOffset < window.innerHeight) && !this.shown[taskObject]) {
           toShow[taskObject] = true;
-
+          console.log(taskObject.options)  // << taskObject is actual objects here
           if(!this.shown[taskObject] && taskObject) {
             counter++;
             taskObject.animateIn(counter);
@@ -301,10 +300,13 @@ ContentView.prototype.animateTasksIn = function(title) {
     //     taskObj.resetAnimation();
     //   }
     // }
+    for(var task in toShow) {
+      console.log(task) // << task is not a real object here. task.options is undefined
+      this.shown[task] = true;
+    }
+    // this.shown = toShow; // if task is in shown, it's been animated in
 
-    this.shown = toShow; // if task is in shown, it's been animated in
-
-    toShow = {};
+    // toShow = {};
 
 
   }.bind(this));
