@@ -117,6 +117,8 @@ function _addEventListeners(newView, newModifier){
   newView._eventOutput.on('moveTaskToNewPage', function(text) {this._eventOutput.emit('swapPages', text)}.bind(this));
 
   newView.on('togglePageViewUp', function() {
+    newView.contents.resetAnimations(newView.options.title);
+    console.log('reset animations for ',newView.options.title)
     if (newView.nextPage) {
       if (!this.lightBox.optionsForSwipeUp){
         this.lightBox.setOptions({
@@ -128,8 +130,6 @@ function _addEventListeners(newView, newModifier){
         this.lightBox.optionsForSwipeUp = true;
       }
       this.lightBox.show(newView.nextPage);
-      // newView.contents.resetAnimations(newView.options.title);
-      // console.log('reset animations for ',newView.options.title)
       newView.nextPage.contents.animateTasksIn(newView.nextPage.options.title);
 
       newView.nextPage.contents._eventOutput.emit('opened');
@@ -140,6 +140,8 @@ function _addEventListeners(newView, newModifier){
   }.bind(this));
 
   newView.on('togglePageViewDown', function() {
+    console.log('reset animations for ',newView.options.title)
+    newView.contents.resetAnimations(newView.options.title);
     if (newView.previousPage) {
       if (this.lightBox.optionsForSwipeUp)  {
         this.lightBox.setOptions({
@@ -151,9 +153,6 @@ function _addEventListeners(newView, newModifier){
         this.lightBox.optionsForSwipeUp = false;
       }
       this.lightBox.show(newView.previousPage);
-      // console.log('reset animations for ',newView.options.title)
-      //
-      // newView.contents.resetAnimations(newView.options.title);
       newView.previousPage.contents.animateTasksIn(newView.previousPage.options.title);
 
       newView.previousPage.contents._eventOutput.emit('opened');

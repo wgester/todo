@@ -319,16 +319,11 @@ ContentView.prototype.animateTasksIn = function(title) {
         if(scrollview.node.array[task]) {
           counter++;
           scrollview.node.array[task].animateIn(counter);
-        }
+          this.toShow[task] = undefined;
+         }
       }
     }
   }
-  // if(this.scrolled){
-    for(var task in this.shown) {
-      if(this.toShow[task] !== title && scrollview.node.array[task]) {
-        scrollview.node.array[task].resetAnimation();
-      }
-    }
 
   this.shown = this.toShow; // if task is in shown, it's been animated in
 
@@ -341,11 +336,12 @@ ContentView.prototype.resetAnimations = function(title) {
   if(this.customscrollview.options.page === title) scrollview = this.customscrollview;
 
   for(var task in this.shown) {
+    console.log('in reset, for loop')
     if(this.toShow[task] !== title && scrollview.node.array[task]) {
+      console.log('resetting ', title)
       scrollview.node.array[task].resetAnimation();
     }
   }
-  this.toShow = {};
 }
 
 
