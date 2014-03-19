@@ -18,6 +18,7 @@ function TaskItem(options) {
     this.timeTouched = 0;
     this.page = this.options.page;
     this.text = this.options.text;
+    this.index = this.options.index;
     _createLayout.call(this);
     _bindEvents.call(this);
     _setDate.call(this);
@@ -244,6 +245,7 @@ function _springTaskBack() {
 };
 
 function saveTask(text) {
+  this.text = text;
   this.contents.setContent('<p>' + text + '</p>');
 };
 
@@ -257,7 +259,7 @@ function unhideTask() {
 function transformTask() {
   this.contents.setProperties({'backgroundColor': 'white'});
     this.taskItemModifier.setTransform(Matrix.translate(0, 0, 40), {curve: 'easeOut', duration: 300}, function() {
-      this._eventOutput.emit('openLightbox', {text: this.options.text, index: this.options.index});        
+      this._eventOutput.emit('openLightbox', {text: this.text, index: this.index});        
       Timer.after(function() {
         this.contents.setProperties({'display': 'none'});
       }.bind(this), 5);
