@@ -18,7 +18,7 @@ function ContentView(options) {
   View.apply(this, arguments);
   this.lightness = 75;
   this.inputToggled = false;
-  this.shown = {};
+  this.shown = [];
   this.title = this.options.title;
 
 
@@ -273,7 +273,7 @@ ContentView.prototype.animateTasksIn = function(title) {
   var counter = 1;
   Engine.on('prerender', function() {
 
-    var toShow = {}; var scrollview;
+    var willShow = []; var scrollview;
     if(this.customscrollview.options.page === title) scrollview = this.customscrollview;
 
     if(scrollview._offsets[0] === undefined) return;
@@ -284,30 +284,21 @@ ContentView.prototype.animateTasksIn = function(title) {
         var taskObject = scrollview.node.array[task];
         var taskOffset = scrollview._offsets[task];
 
-        if((taskOffset > -10) && (taskOffset < window.innerHeight) && !this.shown[taskObject]) {
-          toShow[taskObject] = true;
-          console.log(taskObject.options)  // << taskObject is actual objects here
-          if(!this.shown[taskObject] && taskObject) {
-            counter++;
-            taskObject.animateIn(counter);
-          }
+        if((taskOffset > -10) && (taskOffset < window.innerHeight) && (this.shown.indexOf(taskObject) === -1)) {
+          willShow.push(taskObject)
+          counter++;
+          taskObject.animateIn(counter);
         }
       }
     };
-    // for(var taskObj in this.shown) {
-    //   if(!toShow[taskObj] && taskObj) {
-    //     console.log(taskObj)
-    //     taskObj.resetAnimation();
-    //   }
-    // }
-    for(var task in toShow) {
-      console.log(task) // << task is not a real object here. task.options is undefined
-      this.shown[task] = true;
+    for(var t = 0; t < this.shown.length; t++) {
+      // value doesn't exist in willShow, but exists in this.shown
+      if((willShow.indexOf(this.shown[t]) < 0) && (this.shown.indexOf(this.shown[t]) > -1)) {
+        this.shown[t].resetAnimation();
+      }
     }
-    // this.shown = toShow; // if task is in shown, it's been animated in
 
-    // toShow = {};
-
+    this.shown = willShow; // if task is in shown, it's been animated in
 
   }.bind(this));
 }
