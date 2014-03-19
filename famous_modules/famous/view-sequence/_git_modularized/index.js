@@ -114,8 +114,8 @@ ViewSequence.prototype.splice = function(index, howMany, addedNodes) {
             nextNode = insertionNode._next;
             previousNode = insertionNode._prev;
 
-            nextNode._prev = previousNode;
-            previousNode._next = nextNode;
+            if (nextNode) nextNode._prev = previousNode;
+            if (previousNode) previousNode._next = nextNode;
 
             insertionNode = nextNode;
         }
@@ -131,6 +131,7 @@ ViewSequence.prototype.splice = function(index, howMany, addedNodes) {
         }
 
         var head = this.find(0);
+        if (!head) head = this.find(1);
 
         i = 0;
         while (head) {

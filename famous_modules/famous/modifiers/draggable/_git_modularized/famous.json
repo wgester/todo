@@ -15,7 +15,8 @@
         "famous/event-handler": "git+ssh://git@github.com:Famous/famous.git#modularized",
         "famous/input/mouse-sync": "git+ssh://git@github.com:Famous/famous-sync.git#modularized",
         "famous/input/touch-sync": "git+ssh://git@github.com:Famous/famous-sync.git#modularized",
-        "famous/input/generic-sync": "git+ssh://git@github.com:Famous/famous-sync.git#modularized"
+        "famous/input/generic-sync": "git+ssh://git@github.com:Famous/famous-sync.git#modularized",
+        "famous/transitions/drag-transition": "git+ssh://git@github.com:Famous/famous-transitions.git#modularized"
     },
     "scripts": [
         "index.js"

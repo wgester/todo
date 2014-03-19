@@ -3,7 +3,6 @@ var Modifier          = require('famous/modifier');
 var Transform         = require('famous/transform');
 var View              = require('famous/view');
 var Scrollview        = require('famous/views/scrollview');
-var Transitionable    = require('famous/transitions/transitionable');
 var TaskView          = require('./TaskView');
 var Tasks             = require('./data');
 var Box               = require('./BoxView');
@@ -13,17 +12,20 @@ var InputSurface      = require('famous/surfaces/input-surface');
 var DragSort          = require('famous/views/drag-sort');
 var CustomScrollView  = require('./customScrollView');
 var TaskItem          = require('./TaskItem');
+var Color             = require('./Color');
 
-
-function ContentView() {
+function ContentView(options) {
   View.apply(this, arguments);
   this.lightness = 75;
   this.inputToggled = false;
+  this.shown = {};
+  this.title = this.options.title;
+
 
   _setBackground.call(this);
   _createTasks.call(this);
-  _createInput.call(this);
-  _taskListeners.call(this);
+  _setListeners.call(this);
+
 };
 
 ContentView.prototype = Object.create(View.prototype);
@@ -32,103 +34,256 @@ ContentView.prototype.constructor = ContentView;
 ContentView.DEFAULT_OPTIONS = {
   title: 'later',
   classes: ['contents'],
+  inputDuration: 300,
+  views: {
+    'FOCUS': [0],
+    'TODAY': [1],
+    'LATER': [2],
+    'NEVER': [3]
+  },
+  gradientDuration: 800,
+  completionDuration: 500
 };
 
 function _isAndroid() {
-  var userAgent = navigator.userAgent.toLowerCase();  
+  var userAgent = navigator.userAgent.toLowerCase();
   return userAgent.indexOf("android") > -1;
 };
 
 function _setBackground() {
-  var index;
-  if (this.options.title === 'FOCUS') {
-    index = 0;
-  } else if (this.options.title === 'TODAY') {
-    index = 1;
-  } else if (this.options.title === 'LATER') {    
-    index = 2;
-  } else {
-    index = 0;
-  }
+  var index = this.options.views[this.options.title][0];
+
   this.backgroundSurf = window.faderSurfaces[index];
   this.backgroundMod = window.faderMods[index];
-};
 
-function _createInput() {
-  this.boxContainer = new BoxContainer();
-  this._add(this.boxContainer);
+  this.touchSurf = new Surface({
+    size: [undefined, undefined],
+    properties: {
+      backgroundColor: 'transparent'
+    }
+  });
+
+  this.touchMod = new Modifier({
+    transform: Transform.translate(0, 0, 0)
+  });
+
+  this._add(this.touchMod).add(this.touchSurf);
 };
 
 function _createTasks() {
   this.tasks = Tasks;
+  this.taskCount = 0;
 
-  this.taskViews = [];
-
-  this.customscrollview = new CustomScrollView();
-  this.customdragsort = new DragSort();
+  this.customscrollview = new CustomScrollView({page: this.options.title});
+  this.customdragsort = new DragSort({
+    draggable: {
+      xRange: [0,0]
+    }
+  });
   var node = this.customdragsort;
-
-
   for(var i = 0; i < this.tasks.length; i++) {
     if (this.tasks[i].page === this.options.title) {
-      var newTask = new TaskItem({text: this.tasks[i].text});
+      var newTask = new TaskView({text: this.tasks[i].text, index: this.taskCount, page: this.options.title});
       this.customdragsort.push(newTask);
       if(node.getNext()) node = node._next;
       newTask.pipe(node);
       node.pipe(this.customscrollview);
-      newTask.pipe(this.customscrollview);    
+      newTask.pipe(this.customscrollview);
+      newTask.pipe(this._eventInput);
       this.customscrollview.pipe(node);
+      this.taskCount++;
     }
   }
+  this.scrollMod = new Modifier({
+    transform: Transform.translate(0, 0, 1)
+  });
 
   this.customscrollview.sequenceFrom(this.customdragsort);
+  this.customscrollview.pipe(this._eventInput);
+  this._add(this.scrollMod).add(this.customscrollview);
 
-  this._add(this.customscrollview);
+};
+
+function _setListeners() {
+  _gradientListener.call(this);
+  _newTaskListener.call(this);
+  _inputListeners.call(this);
+  _unhideTaskListener.call(this);
+  this._eventInput.on('swapPages', _createNewTask.bind(this));
+};
+
+function _createNewTask(data) {
+  var pages = {
+    'FOCUS': 0,
+    'TODAY': 1,
+    'LATER': 2,
+    'NEVER': 3
+  }
+  if (pages[this.title] === (pages[data.page] + data.direction)) {
+    console.log(data, this)
+
+    var node = this.customdragsort.find(0);
+    if (this.title === 'FOCUS' && this.taskCount > 2) {
+      return;
+    }
+    var newIndex = this.customdragsort.array.length;
+    var newTask = new TaskView({text: data.text, index: newIndex, page: this.title});
+    this.customdragsort.push(newTask);
+    for (var j = 0; j < newIndex - 1; j++) {
+      node = node._next;
+    }
+    if(node.getNext()) node = node._next;
+    newTask.pipe(node);
+    node.pipe(this.customscrollview);
+    newTask.pipe(this.customscrollview);
+    // newTask.pipe(this.customdragsort);
+    this.customscrollview.pipe(node);
+
+    _openInputListener.call(this, newTask);
+    _closeInputListener.call(this, newTask);
+    _completionListener.call(this, newTask);
+    newTask.animateIn(3);
+  }
+
+};
+
+function _newTaskListener() {
+
+  this.on('saveNewTask', function(val) {
+    var node = this.customdragsort.find(0);
+    if (this.options.title === 'FOCUS' && this.taskCount > 2) {
+      return;
+    }
+    var newIndex = this.customdragsort.array.length;
+    var newTask = new TaskView({text: val, index: newIndex, page: this.options.title});
+    this.customdragsort.push(newTask);
+    for (var j = 0; j < newIndex - 1; j++) {
+      node = node._next;
+    }
+    if(node.getNext()) node = node._next;
+    newTask.pipe(node);
+    node.pipe(this.customscrollview);
+    newTask.pipe(this.customscrollview);
+    // newTask.pipe(this.customdragsort);
+    this.customscrollview.pipe(node);
+
+    _openInputListener.call(this, newTask);
+    _closeInputListener.call(this, newTask);
+    _completionListener.call(this, newTask);
+    this.taskCount++;
+    newTask.animateIn(3);
+  }.bind(this));
+
+};
+
+function _inputListeners() {
+  for(var i =0; i < this.customdragsort.array.length; i++) {
+    _openInputListener.call(this, this.customdragsort.array[i]);
+    _closeInputListener.call(this, this.customdragsort.array[i]);
+    _completionListener.call(this, this.customdragsort.array[i]);
+  }
+
+  this.touchSurf.on('touchstart', function() {
+    this.inputToggled = !this.inputToggled;
+    this.inputToggled ? this._eventOutput.emit('showInput') : this._eventOutput.emit('hideInput');
+  }.bind(this));
+};
+
+function _openInputListener(task) {
+  task.on('openInput', function() {
+    this.inputToggled = true;
+    this._eventOutput.emit('showInput');
+  }.bind(this));
+};
+
+function _closeInputListener(task) {
+  task.on('closeInputOrEdit', function() {
+    if (this.inputToggled) {
+      this._eventOutput.emit('hideInput');
+      this.inputToggled = false;
+    } else {
+      task.taskItem._eventOutput.emit('transformTask');
+    }
+  }.bind(this));
+
+  task.on('openLightbox', function(options) {
+    this._eventOutput.emit('openEdit', options);
+    this.editedTask = task.taskItem;
+  }.bind(this));
+};
+
+function _unhideTaskListener() {
+  this.on('unhideEditedTask', function() {
+    this.editedTask._eventOutput.emit('unhide');
+  }.bind(this));
 };
 
 
-function _taskListeners() {
-  _setInputListener.call(this);
-  
+function _gradientListener() {
   this.on('opened', function() {
-    this.backgroundMod.setTransform(Transform.translate(0, 0, 0), {duration: 0}, function() {
-      this.backgroundMod.setOpacity(1, {duration: 1000}, function() {});
+    this.backgroundMod.setOpacity(1, {duration: this.options.gradientDuration}, function() {});
+  }.bind(this));
+
+  this.on('closed', function() {
+    this.backgroundMod.setOpacity(0, {duration: this.options.gradientDuration}, function() {});
+  }.bind(this));
+};
+
+function _completionListener(task) {
+  task.on('completed', function() {
+    this.taskCount--;
+    console.log(this.tasks[0])
+    window.completionMod.setOpacity(0.8, {duration: this.options.completionDuration}, function() {
+      window.completionMod.setOpacity(0, {duration: 2000}, function () {});
     }.bind(this));
   }.bind(this));
-  
-  this.on('closed', function() {
-    this.backgroundMod.setTransform(Transform.translate(0, 0, 0), {duration: 0}, function() {
-      this.backgroundMod.setOpacity(0, {duration: 1000}, function() {});
-    }.bind(this));    
+
+  task.on('deleted', function() {
+    this.taskCount--;
   }.bind(this));
 };
 
-function _setInputListener() {
-  this.backgroundSurf.on('touchstart', function(e) {
-    this.inputToggled = !this.inputToggled;
-    var value = this.boxContainer.inputSurf.getValue();
-    this.boxContainer.inputSurf.setValue('');
-    
-    if (this.inputToggled) {
-      this.boxContainer.frontSurf.setProperties({'visibility': 'visible'})
-      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [10, 200, 50]), {duration: 300});      
-    } else if (!this.inputToggled && value.length) {
-      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [10, 150, 50]), {duration: 300}, function() {
-        var newTask = new TaskView({text: value});
-        newTask.pipe(this.scrollview);    
-        this.taskViews.push(newTask);        
-        this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
-      }.bind(this));
-    } else {
-      this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [10, 150, 50]), {duration: 300}, function() {
-        this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
-      }.bind(this));
-    }
-  }.bind(this));    
-};
+ContentView.prototype.animateTasksIn = function(title) {
+  var counter = 1;
+  Engine.on('prerender', function() {
 
-function _colorTransitionOnLoad(dir) {
+    var toShow = {}; var scrollview;
+    if(this.customscrollview.options.page === title) scrollview = this.customscrollview;
 
-};
+    if(scrollview._offsets[0] === undefined) return;
+    //if task is moved, if task is added
+
+    for(var task in scrollview._offsets) {
+        if(task !== "undefined") {
+
+        var taskObject = scrollview.node.array[task];
+        var taskOffset = scrollview._offsets[task];
+
+        if((taskOffset > -10) && (taskOffset < window.innerHeight) && !this.shown[taskObject]) {
+          toShow[taskObject] = true;
+
+          if(!this.shown[taskObject] && taskObject) {
+            counter++;
+            taskObject.animateIn(counter);
+          }
+        }
+      }
+    };
+    // for(var taskObj in this.shown) {
+    //   if(!toShow[taskObj] && taskObj) {
+    //     console.log(taskObj)
+    //     taskObj.resetAnimation();
+    //   }
+    // }
+
+    this.shown = toShow; // if task is in shown, it's been animated in
+
+    toShow = {};
+
+
+  }.bind(this));
+}
+
+
 
 module.exports = ContentView;

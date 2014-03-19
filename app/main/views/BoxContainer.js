@@ -10,10 +10,15 @@ function BoxContainer(options) {
   _createInput.call(this);
 };
 
+function _isAndroid() {
+  var userAgent = navigator.userAgent.toLowerCase();  
+  return userAgent.indexOf("android") > -1;
+};
+
 function _createInput() {
   this.box = new Box();
   this.boxMod = new Modifier();
-  this.boxMod.setTransform(Transform.move(Transform.rotate(0,0,0), [10, 150, 50]));
+  (_isAndroid()) ? this.boxMod.setTransform(Transform.move(Transform.rotate(0,0,0), [30, 0, 150])) : this.boxMod.setTransform(Transform.move(Transform.rotate(0,0,0), [10, 0, 70]));
   this.inputSurf = this.box.topSurf;
   this.frontSurf = this.box.frontSurf;
   this._add(this.boxMod).add(this.box);            
