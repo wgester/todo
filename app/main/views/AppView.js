@@ -147,6 +147,7 @@ function _addEventListeners(newView, newModifier){
         this.lightBox.optionsForSwipeUp = false;
       }
       this.lightBox.show(newView.previousPage);
+      console.log(newView.previousPage.options.title)
       newView.previousPage.contents.animateTasksIn(newView.previousPage.options.title);
 
 
