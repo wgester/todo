@@ -41,11 +41,11 @@ function _createInput() {
 
   if (_isAndroid()) {
     this.boxMod = new Modifier({
-      transform: Transform.translate(0, 110, 0)
+      transform: Transform.translate(0, 100, 0)
     });
   } else {
     this.boxMod = new Modifier({
-      transform: Transform.translate(0, 100, 0)
+      transform: Transform.translate(0, 90, 0)
     });
   }
 
@@ -63,7 +63,7 @@ function _createTitle() {
 
   this.titleMod = new Modifier({
     opacity: 0,
-    transform: Transform.translate(0, 20, 0)
+    transform: Transform.translate(0, 10, 0)
   });
 
   this.options.title === 'FOCUS' && this.titleMod.setOpacity(1, undefined, function() {});
@@ -80,13 +80,13 @@ function _buttonListener() {
 function _setListeners() {
   this.on('opened', function() {
     this.titleMod.setOpacity(1, {duration: this.options.openDuration}, function() {
-      this.titleMod.setTransform(Transform.translate(0, 20, 1), {duration: this.options.openDurationf}, function() {});
+      this.titleMod.setTransform(Transform.translate(0, 10, 1), {duration: this.options.openDurationf}, function() {});
     }.bind(this));
   }.bind(this));
 
   this.on('closed', function() {
     this.titleMod.setOpacity(0, {duration: this.options.closedDuration}, function() {
-      this.titleMod.setTransform(Transform.translate(0, 20, 0), {duration: this.options.closedDuration}, function() {});
+      this.titleMod.setTransform(Transform.translate(0, 10, 0), {duration: this.options.closedDuration}, function() {});
     }.bind(this));
   }.bind(this));
 
