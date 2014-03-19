@@ -172,13 +172,11 @@ function _editInputFlyIn() {
   this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0));
   this.editMod.setTransform(Transform.translate(0,20,0), this.options.editInputAnimation, function() {
     this.editSurface.focus();
-    alert(SoftKeyboard);
     SoftKeyboard && SoftKeyboard.show();
   }.bind(this));  
 };
 
 function _editInputFlyOut() {
-  alert(SoftKeyboard);
   SoftKeyboard && SoftKeyboard.hide();
   this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0), {duration: 300}, function() {
     this.contents._eventOutput.emit('unhideEditedTask');
