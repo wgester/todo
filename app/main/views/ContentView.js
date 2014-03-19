@@ -233,19 +233,9 @@ function _completionListener(task) {
   task.on('completed', function() {
     this.taskCount--;
     console.log(this.tasks[0])
-    for(var task = 0; task < this.customscrollview.node.array.length; task++) {
-      var thisTask = this.customscrollview.node.array[task].taskItem.contents
-      thisTask.setProperties({color: '#81F781'}, function(){
-        setTimeout(function(){thisTask.setProperties({color: '#003156'}), 1000}.bind(this))
-      })
-
-    }
-    // for(var i = 0; i < this.tasks.length; i++){
-    //   this.tasks[i].setProperties({color: 'green'})
-    // }
-    // window.completionMod.setOpacity(1, {duration: this.options.completionDuration}, function() {
-    //   window.completionMod.setOpacity(0, {duration: 2000}, function () {});
-    // }.bind(this));
+    window.completionMod.setOpacity(0.8, {duration: this.options.completionDuration}, function() {
+      window.completionMod.setOpacity(0, {duration: 2000}, function () {});
+    }.bind(this));
   }.bind(this));
 
   task.on('deleted', function() {

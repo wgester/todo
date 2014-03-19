@@ -249,6 +249,7 @@ function _colorSurfaces() {
   }
 };
 
+
 function _createCompletionSurface() {
   window.completionSurf = new CanvasSurface({
     size: [window.innerWidth, window.innerHeight],
