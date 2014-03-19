@@ -74,7 +74,7 @@ function _createTasks() {
   this.tasks = Tasks;
   this.taskCount = 0;
 
-  this.customscrollview = new CustomScrollView({page: this.options.title});
+  this.customscrollview = new CustomScrollView({page: this.title});
   this.customdragsort = new DragSort({
     draggable: {
       xRange: [0,0]
@@ -123,10 +123,14 @@ function _createNewTask(data) {
     console.log(data, this)
 
     var node = this.customdragsort.find(0);
+
     if (this.title === 'FOCUS' && this.taskCount > 2) {
       return;
     }
     var newIndex = this.customdragsort.array.length;
+    if (!newIndex) {
+      node = this.customdragsort;
+    }
     var newTask = new TaskView({text: data.text, index: newIndex, page: this.title});
     this.customdragsort.push(newTask);
     for (var j = 0; j < newIndex - 1; j++) {
@@ -136,7 +140,8 @@ function _createNewTask(data) {
     newTask.pipe(node);
     node.pipe(this.customscrollview);
     newTask.pipe(this.customscrollview);
-    // newTask.pipe(this.customdragsort);
+    newTask.pipe(this._eventInput);
+    
     this.customscrollview.pipe(node);
 
     _openInputListener.call(this, newTask);
@@ -150,28 +155,61 @@ function _createNewTask(data) {
 function _newTaskListener() {
 
   this.on('saveNewTask', function(val) {
-    var node = this.customdragsort.find(0);
     if (this.options.title === 'FOCUS' && this.taskCount > 2) {
       return;
     }
+    
+    var node = this.customdragsort.find(0);
     var newIndex = this.customdragsort.array.length;
-    var newTask = new TaskView({text: val, index: newIndex, page: this.options.title});
-    this.customdragsort.push(newTask);
-    for (var j = 0; j < newIndex - 1; j++) {
-      node = node._next;
-    }
-    if(node.getNext()) node = node._next;
-    newTask.pipe(node);
-    node.pipe(this.customscrollview);
-    newTask.pipe(this.customscrollview);
-    // newTask.pipe(this.customdragsort);
-    this.customscrollview.pipe(node);
+    if (!newIndex) {
+      this.customscrollview = new CustomScrollView({page: this.title});
+      this.customdragsort = new DragSort({
+        draggable: {
+          xRange: [0,0]
+        }
+      });
+      var node = this.customdragsort;
+      var newTask = new TaskView({text: val, index: newIndex, page: this.options.title});
+      this.customdragsort.push(newTask);
+      if(node.getNext()) node = node._next;
+      newTask.pipe(node);
+      node.pipe(this.customscrollview);
+      newTask.pipe(this.customscrollview);
+      newTask.pipe(this._eventInput);
+      this.customscrollview.pipe(node);
+      this.scrollMod = new Modifier({
+        transform: Transform.translate(0, 0, 1)
+      });
 
-    _openInputListener.call(this, newTask);
-    _closeInputListener.call(this, newTask);
-    _completionListener.call(this, newTask);
-    this.taskCount++;
-    newTask.animateIn(3);
+      this.customscrollview.sequenceFrom(this.customdragsort);
+      this.customscrollview.pipe(this._eventInput);
+      this._add(this.scrollMod).add(this.customscrollview);
+      _openInputListener.call(this, newTask);
+      _closeInputListener.call(this, newTask);
+      _completionListener.call(this, newTask);
+      newTask.animateIn(3);
+        
+    } else {
+      var newTask = new TaskView({text: val, index: newIndex, page: this.options.title});
+      this.customdragsort.push(newTask);
+      for (var j = 0; j < newIndex - 1; j++) {
+        node = node._next;
+      }
+      console.log(this.customdragsort)
+      if(node.getNext()) node = node._next;
+      newTask.pipe(node);
+      node.pipe(this.customscrollview);
+      newTask.pipe(this.customscrollview);
+
+      // newTask.pipe(this.customdragsort);
+      this.customscrollview.pipe(node);
+
+      _openInputListener.call(this, newTask);
+      _closeInputListener.call(this, newTask);
+      _completionListener.call(this, newTask);
+      this.taskCount++;
+      newTask.animateIn(3);
+    }
   }.bind(this));
 
 };
