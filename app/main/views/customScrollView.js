@@ -28,6 +28,7 @@ function shift(data) {
     this.node.find(data.oldIndex).moveTo(data.newIndex);
     var currentNode = this.node.find(0);
     while (currentNode) {
+        currentNode.array[currentNode.index].taskItem.index = currentNode.index;
         currentNode.setPosition([0,0]);
         currentNode = currentNode.getNext();
     }
@@ -38,8 +39,13 @@ function deleteTask(indexObj) {
         if (this.node.find(this.node.index + 1)) this.node = this.node.find(this.node.index + 1);
     }
     this.node.splice(indexObj.index, 1);
-    console.log(this.node)
-    // this.node.splice(indexObj.index, 1);
+    
+    var currentNode = this.node.find(0);
+    while (currentNode) {
+        currentNode.array[currentNode.index].taskItem.index = currentNode.index;
+        currentNode.setPosition([0,0]);
+        currentNode = currentNode.getNext();
+    }
 
 }
 
@@ -62,6 +68,7 @@ function swapPage(indexObj) {
         this.eventOutput.emit('saveNewTask', {text: this.node.splice(indexObj.index, 1).taskItem.text});
         var currentNode = this.node.find(0);
         while (currentNode) {
+            currentNode.array[currentNode.index].taskItem.index = currentNode.index;
             currentNode.setPosition([0,0]);
             currentNode = currentNode.getNext();
         }
