@@ -166,10 +166,10 @@ function _closeInputListener(task) {
       task.taskItem._eventOutput.emit('transformTask');
     }
   }.bind(this));
-  
+
   task.on('openLightbox', function(options) {
     this._eventOutput.emit('openEdit', options);
-    this.editedTask = task.taskItem;    
+    this.editedTask = task.taskItem;
   }.bind(this));
 };
 
@@ -203,15 +203,9 @@ function _completionListener(task) {
   }.bind(this));
 };
 
-
-/* PROBLEMS:
-1. get splice to work
-2. increase timeout for each one, decrease duration so that it comes in later and faster
-*/
 ContentView.prototype.animateTasksIn = function(title) {
-  this.shown = {};
   var counter = 1;
-  Engine.on('prerender', function(){
+  Engine.on('prerender', function() {
     var toShow = {}; var scrollview;
     if(this.customscrollview.options.page === title) scrollview = this.customscrollview;
 
@@ -230,10 +224,15 @@ ContentView.prototype.animateTasksIn = function(title) {
           if(!this.shown[taskObject] && taskObject) {
             counter++;
             taskObject.animateIn(counter);
-            // this.shown[taskObject] = true;
           }
         }
       }
+  };
+
+  for(var taskObj in this.shown) {
+    if(!(taskObj in toShow) && !taskObj) {
+      taskObj.resetAnimation();
+    }
 
   }
 
@@ -250,5 +249,7 @@ ContentView.prototype.animateTasksIn = function(title) {
 
   }.bind(this));
 }
+
+
 
 module.exports = ContentView;
