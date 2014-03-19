@@ -253,9 +253,9 @@ function _createCompletionSurface() {
   window.completionSurf = new CanvasSurface({
     size: [window.innerWidth, window.innerHeight],
     canvasSize: [window.innerWidth*2, window.innerHeight*2],
-    classes: ['famous-surface'],
+    classes: ['famous-surface', 'COMPLETE'],
     properties: {
-      backgroundColor: '#81EBC4'
+      backgroundColor: '#81F781'
     }
   });
 

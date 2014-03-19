@@ -173,6 +173,7 @@ function _newTaskListener() {
     this.taskCount++;
     newTask.animateIn(3);
   }.bind(this));
+
 };
 
 function _inputListeners() {
@@ -231,8 +232,19 @@ function _gradientListener() {
 function _completionListener(task) {
   task.on('completed', function() {
     this.taskCount--;
+    console.log(this.tasks[0])
+    for(var task = 0; task < this.customscrollview.node.array.length; task++) {
+      var thisTask = this.customscrollview.node.array[task].taskItem.contents
+      thisTask.setProperties({color: '#81F781'}, function(){
+        setTimeout(function(){thisTask.setProperties({color: '#003156'}), 1000}.bind(this))
+      })
+
+    }
+    // for(var i = 0; i < this.tasks.length; i++){
+    //   this.tasks[i].setProperties({color: 'green'})
+    // }
     // window.completionMod.setOpacity(1, {duration: this.options.completionDuration}, function() {
-    //   window.completionMod.setOpacity(0, {duration: this.options.completionDuration}, function () {});
+    //   window.completionMod.setOpacity(0, {duration: 2000}, function () {});
     // }.bind(this));
   }.bind(this));
 
@@ -244,19 +256,20 @@ function _completionListener(task) {
 ContentView.prototype.animateTasksIn = function(title) {
   var counter = 1;
   Engine.on('prerender', function() {
+
     var toShow = {}; var scrollview;
     if(this.customscrollview.options.page === title) scrollview = this.customscrollview;
 
     if(scrollview._offsets[0] === undefined) return;
+    //if task is moved, if task is added
 
     for(var task in scrollview._offsets) {
-
         if(task !== "undefined") {
 
         var taskObject = scrollview.node.array[task];
         var taskOffset = scrollview._offsets[task];
 
-        if(taskOffset > -10 && taskOffset < window.innerHeight) {
+        if((taskOffset > -10) && (taskOffset < window.innerHeight) && !this.shown[taskObject]) {
           toShow[taskObject] = true;
 
           if(!this.shown[taskObject] && taskObject) {
@@ -265,31 +278,19 @@ ContentView.prototype.animateTasksIn = function(title) {
           }
         }
       }
-  };
-
-  for(var taskObj in this.shown) {
-    if(!toShow[taskObj] && !taskObj) {
-    console.log('in reset')
-      taskObj.resetAnimation();
-    }
-  }
-
-
-  this.shown = toShow; // if task is in shown, it's been animated in
-
-    // RESET ANIMATION
+    };
     // for(var taskObj in this.shown) {
-    //   if(taskObj !== undefined) {
-    //     if(!(taskObj in toShow)) {
-    //       taskObj.resetAnimation();
-    //     }
-
+    //   if(!toShow[taskObj] && taskObj) {
+    //     console.log(taskObj)
+    //     taskObj.resetAnimation();
     //   }
     // }
-    this.shown = toShow;
+
+    this.shown = toShow; // if task is in shown, it's been animated in
+
+    toShow = {};
 
 
-  toShow = {};
   }.bind(this));
 }
 

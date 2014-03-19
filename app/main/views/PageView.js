@@ -21,7 +21,7 @@ function PageView() {
   View.apply(this, arguments);
 
   this.toggleUpOrDown = 'down';
-  
+
   if (this.options.title === 'FOCUS') {
     this.headerSizeTransitionable = new Transitionable([this.options.focusHeader]);
   } else {
@@ -65,9 +65,9 @@ function _createEditLightbox() {
     size: [undefined, 650],
     classes: ['shadowed']
   });
-  
+
   this.shadowMod = new Modifier();
-      
+
   this.editSurface = new InputSurface({
     size: [undefined, 60],
     classes: ['edit'],
@@ -171,7 +171,7 @@ function _lightboxFadeIn() {
 function _editInputFlyIn() {
   this.editTaskOffset = this.options.title === 'FOCUS' ?  window.innerHeight / 2 + this.taskIndex * 60 - 8: (this.taskIndex + 1) * 60 - 8;
   this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0));
-  this.editMod.setTransform(Transform.translate(0,20,0), this.options.editInputAnimation, function() {});  
+  this.editMod.setTransform(Transform.translate(0,20,0), this.options.editInputAnimation, function() {});
 };
 
 function _editInputFlyOut() {
