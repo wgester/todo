@@ -3340,6 +3340,7 @@ require.register("famous_modules/famous/surfaces/input-surface/_git_modularized/
         this._value = options.value || "";
         this._type = options.type || "text";
         Surface.apply(this, arguments);
+        this.on("click", this.focus.bind(this));
     }
     InputSurface.prototype = Object.create(Surface.prototype);
     InputSurface.prototype.elementType = "input";
@@ -3396,6 +3397,15 @@ require.register("famous_modules/famous/surfaces/input-surface/_git_modularized/
         if (this._placeholder !== "") target.placeholder = this._placeholder;
         target.value = this._value;
         target.type = this._type;
+    };
+    /**
+     * @name InputSurface#focus
+     * Focus on the current input, pulling up the keyboard on mobile.
+     * @returns this, allowing method chaining.
+     */
+    InputSurface.prototype.focus = function() {
+        if (this._currTarget) this._currTarget.focus();
+        return this;
     };
     module.exports = InputSurface;
 }.bind(this));
@@ -8908,6 +8918,8 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
     function AppView() {
         View.apply(this, arguments);
         this.headerSizeTransitionable = new Transitionable([ 70 ]);
+        //resume event is fired when the app is reopened from background status on the phone
+        // document.addEventListener("resume", _renderFocusPage.bind(this));
         _createGradientSurfaces.call(this);
         _createCompletionSurface.call(this);
         _createLightBox.call(this);
@@ -9567,7 +9579,7 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
     var View = require("famous/view");
     var Scrollview = require("famous/views/scrollview");
     var TaskView = require("./TaskView");
-    var Tasks = require("./data");
+    var Tasks = window._taskData;
     var Box = require("./BoxView");
     var BoxContainer = require("./BoxContainer");
     var Timer = require("famous/utilities/timer");
@@ -9658,6 +9670,7 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
         _gradientListener.call(this);
         _newTaskListener.call(this);
         _inputListeners.call(this);
+        _unhideTaskListener.call(this);
     }
     function _newTaskListener() {
         this.on("saveNewTask", function(val) {
@@ -9684,6 +9697,7 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
             _closeInputListener.call(this, newTask);
             _completionListener.call(this, newTask);
             this.taskCount++;
+            newTask.animateIn(3);
         }.bind(this));
     }
     function _inputListeners() {
@@ -9704,13 +9718,22 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
         }.bind(this));
     }
     function _closeInputListener(task) {
-        task.on("closeInputOrEdit", function(options) {
+        task.on("closeInputOrEdit", function() {
             if (this.inputToggled) {
                 this._eventOutput.emit("hideInput");
                 this.inputToggled = false;
             } else {
-                this._eventOutput.emit("openEdit", options);
+                task.taskItem._eventOutput.emit("transformTask");
             }
+        }.bind(this));
+        task.on("openLightbox", function(options) {
+            this._eventOutput.emit("openEdit", options);
+            this.editedTask = task.taskItem;
+        }.bind(this));
+    }
+    function _unhideTaskListener() {
+        this.on("unhideEditedTask", function() {
+            this.editedTask._eventOutput.emit("unhide");
         }.bind(this));
     }
     function _gradientListener() {
@@ -9743,20 +9766,15 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
         Engine.on("prerender", function() {
             var toShow = {};
             var scrollview;
-            if (this.customscrollview.options.page === title) {
-                // only check the right scrollview
-                scrollview = this.customscrollview;
-            }
+            if (this.customscrollview.options.page === title) scrollview = this.customscrollview;
             if (scrollview._offsets[0] === undefined) return;
-            // check if offsets empty
             for (var task in scrollview._offsets) {
                 if (task !== "undefined") {
                     var taskObject = scrollview.node.array[task];
                     var taskOffset = scrollview._offsets[task];
-                    if (taskOffset > -60 && taskOffset < window.innerHeight) {
+                    if (taskOffset > -10 && taskOffset < window.innerHeight) {
                         toShow[taskObject] = true;
                         if (!this.shown[taskObject] && taskObject) {
-                            // if task object hasn't been shown, animate in.
                             counter++;
                             taskObject.animateIn(counter);
                         }
@@ -9764,11 +9782,13 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
                 }
             }
             // RESET ANIMATION
-            // for(var taskObj in this.shown) {
-            //   if(!(taskObj in toShow)) {
-            //     taskObj.resetAnimation();
-            //   }
-            // }
+            for (var taskObj in this.shown) {
+                if (taskObj !== undefined) {
+                    if (!(taskObj in toShow)) {
+                        taskObj.resetAnimation();
+                    }
+                }
+            }
             this.shown = toShow;
         }.bind(this));
     };
@@ -9847,11 +9867,11 @@ require.register("app/main/views/HeaderView.js", function(exports, require, modu
         this.bodMod = new Modifier();
         if (_isAndroid()) {
             this.boxMod = new Modifier({
-                transform: Transform.translate(0, 90, 0)
+                transform: Transform.translate(0, 110, 0)
             });
         } else {
             this.boxMod = new Modifier({
-                transform: Transform.translate(0, 80, 0)
+                transform: Transform.translate(0, 100, 0)
             });
         }
         this._add(this.boxMod).add(this.boxContainer);
@@ -9864,7 +9884,8 @@ require.register("app/main/views/HeaderView.js", function(exports, require, modu
             }
         });
         this.titleMod = new Modifier({
-            opacity: 0
+            opacity: 0,
+            transform: Transform.translate(0, 20, 0)
         });
         this.options.title === "FOCUS" && this.titleMod.setOpacity(1, undefined, function() {});
         this._add(this.titleMod).add(this.titleHeader);
@@ -9879,7 +9900,7 @@ require.register("app/main/views/HeaderView.js", function(exports, require, modu
             this.titleMod.setOpacity(1, {
                 duration: this.options.openDuration
             }, function() {
-                this.titleMod.setTransform(Transform.translate(0, 0, 1), {
+                this.titleMod.setTransform(Transform.translate(0, 20, 1), {
                     duration: this.options.openDurationf
                 }, function() {});
             }.bind(this));
@@ -9888,7 +9909,7 @@ require.register("app/main/views/HeaderView.js", function(exports, require, modu
             this.titleMod.setOpacity(0, {
                 duration: this.options.closedDuration
             }, function() {
-                this.titleMod.setTransform(Transform.translate(0, 0, 0), {
+                this.titleMod.setTransform(Transform.translate(0, 20, 0), {
                     duration: this.options.closedDuration
                 }, function() {});
             }.bind(this));
@@ -10078,7 +10099,7 @@ require.register("app/main/views/PageView.js", function(exports, require, module
     var HeaderFooter = require("famous/views/header-footer-layout");
     var Utility = require("famous/utilities/utility");
     var Color = require("./Color");
-    var Tasks = require("./data");
+    var Tasks = window._taskData;
     var TaskView = require("./TaskView");
     var HeaderView = require("./HeaderView");
     var FooterView = require("./FooterView");
@@ -10104,28 +10125,27 @@ require.register("app/main/views/PageView.js", function(exports, require, module
         yPositionToggleThreshold: 250,
         velocityToggleThreshold: .75,
         headerSizeDuration: 300,
-        regSmallHeader: 70,
-        regBigHeader: 140,
+        regSmallHeader: 90,
+        regBigHeader: 160,
         focusHeader: window.innerHeight / 2,
         editInputAnimation: {
             method: "spring",
             period: 500,
             dampingRatio: .6
         },
-        shadowFadeDuration: 200
+        shadowFadeDuration: 300
     };
     function _createEditLightbox() {
         this.editLightBox = new View();
         this.editLBMod = new Modifier({
-            transform: Transform.translate(0, 0, -10)
+            transform: Transform.translate(0, 0, -10),
+            opacity: .01
         });
         this.shadow = new Surface({
             size: [ undefined, 650 ],
             classes: [ "shadowed" ]
         });
-        this.shadowMod = new Modifier({
-            opacity: .01
-        });
+        this.shadowMod = new Modifier();
         this.editSurface = new InputSurface({
             size: [ undefined, 60 ],
             classes: [ "edit" ],
@@ -10139,7 +10159,6 @@ require.register("app/main/views/PageView.js", function(exports, require, module
         });
         this.shadow.on("touchstart", function() {
             var editedText = this.editSurface.getValue();
-            debugger;
             var editedTask = this.contents.customdragsort.array[this.taskIndex].taskItem;
             editedTask._eventOutput.emit("saveTask", editedText);
             _editInputFlyOut.call(this);
@@ -10207,36 +10226,38 @@ require.register("app/main/views/PageView.js", function(exports, require, module
             this.taskIndex = options.index;
             this.editSurface.setValue(options.text);
             _lightboxFadeIn.call(this);
-            Timer.after(_editInputFlyIn.bind(this), 5);
+            _editInputFlyIn.call(this);
         }.bind(this));
     }
     function _lightboxFadeOut() {
-        this.shadowMod.setOpacity(.01, {
-            duration: this.options.shadowFadeDuration
+        this.editLBMod.setOpacity(.01, {
+            duration: 400
         }, function() {
-            this.editLBMod.setTransform(Transform.translate(0, 0, -10), {
-                duration: 0
-            }, function() {});
+            this.editLBMod.setTransform(Transform.translate(0, 0, -10));
         }.bind(this));
     }
     function _lightboxFadeIn() {
         this.editLBMod.setTransform(Transform.translate(0, 0, 2), {
             duration: 0
         }, function() {
-            this.shadowMod.setOpacity(1, {
-                duration: this.options.shadowFadeDuration
+            this.editLBMod.setOpacity(1, {
+                duration: this.shadowFadeDuration
             }, function() {});
         }.bind(this));
     }
     function _editInputFlyIn() {
-        this.editTaskOffset = this.options.title === "FOCUS" ? window.innerHeight / 2 + this.taskIndex * 60 : (this.taskIndex + 1) * 60;
+        this.editTaskOffset = this.options.title === "FOCUS" ? window.innerHeight / 2 + this.taskIndex * 60 - 8 : (this.taskIndex + 1) * 60 - 8;
         this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0));
-        this.editMod.setTransform(Transform.translate(0, 40, 0), this.options.editInputAnimation, function() {});
+        this.editMod.setTransform(Transform.translate(0, 20, 0), this.options.editInputAnimation, function() {
+            this.editSurface.focus();
+        }.bind(this));
     }
     function _editInputFlyOut() {
         this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0), {
             duration: 300
-        }, function() {});
+        }, function() {
+            this.contents._eventOutput.emit("unhideEditedTask");
+        }.bind(this));
     }
     module.exports = PageView;
 }.bind(this));
@@ -10255,6 +10276,7 @@ require.register("app/main/views/TaskItem.js", function(exports, require, module
     var Draggable = require("famous/modifiers/draggable");
     var Transform = require("famous/transform");
     var Easing = require("famous/animation/easing");
+    var Timer = require("famous/utilities/timer");
     function TaskItem(options) {
         View.apply(this, arguments);
         this.timeTouched = 0;
@@ -10336,6 +10358,8 @@ require.register("app/main/views/TaskItem.js", function(exports, require, module
         this._eventInput.on("touchend", handleEnd.bind(this));
         this._eventInput.on("click", handleClick.bind(this));
         this.on("saveTask", saveTask.bind(this));
+        this.on("transformTask", transformTask.bind(this));
+        this.on("unhide", unhideTask.bind(this));
         Engine.on("prerender", findTimeDeltas.bind(this));
         Engine.on("prerender", checkForDragging.bind(this));
     }
@@ -10453,6 +10477,38 @@ require.register("app/main/views/TaskItem.js", function(exports, require, module
     function saveTask(text) {
         this.contents.setContent("<p>" + text + "</p>");
     }
+    function unhideTask() {
+        this.contents.setProperties({
+            display: "block"
+        });
+        this.taskItemModifier.setTransform(Matrix.translate(0, 0, 0), {
+            curve: "easeOut",
+            duration: 300
+        }, function() {
+            this.contents.setProperties({
+                backgroundColor: "rgba(255, 255, 255, 0.07)"
+            });
+        }.bind(this));
+    }
+    function transformTask() {
+        this.contents.setProperties({
+            backgroundColor: "white"
+        });
+        this.taskItemModifier.setTransform(Matrix.translate(0, 0, 40), {
+            curve: "easeOut",
+            duration: 300
+        }, function() {
+            this._eventOutput.emit("openLightbox", {
+                text: this.options.text,
+                index: this.options.index
+            });
+            Timer.after(function() {
+                this.contents.setProperties({
+                    display: "none"
+                });
+            }.bind(this), 5);
+        }.bind(this));
+    }
     module.exports = TaskItem;
 }.bind(this));
 
@@ -10460,8 +10516,8 @@ require.register("app/main/views/TaskView.js", function(exports, require, module
     var Draggable = require("famous/modifiers/draggable");
     var Transform = require("famous/transform");
     var View = require("famous/view");
-    var TaskItem = require("./TaskItem");
     var Modifier = require("famous/modifier");
+    var TaskItem = require("./TaskItem");
     function TaskView(options) {
         View.apply(this, arguments);
         _addTaskItem.call(this);
@@ -10470,7 +10526,7 @@ require.register("app/main/views/TaskView.js", function(exports, require, module
             curve: "easeInOut"
         };
         this.animateIn = animateIn;
-        this.reset = resetAnimation;
+        this.resetAnimation = resetAnimation;
     }
     TaskView.prototype = Object.create(View.prototype);
     TaskView.prototype.constructor = TaskView;
@@ -10496,11 +10552,11 @@ require.register("app/main/views/TaskView.js", function(exports, require, module
         });
         this.taskItemModifier.setOpacity(1, this.options.transition);
     }
-    module.exports = TaskView;
     function resetAnimation() {
-        this.taskItemModifier.setTransform(Transform.translate(-1 * this.options.deleteCheckWidth, 200, 0), this.options.transition);
-        this.taskItemModifier.setOpacity(.1, this.options.transition);
+        this.taskItemModifier.setTransform(Transform.translate(-1 * this.options.deleteCheckWidth, 1e3, 0), this.options.transition, function() {});
+        this.taskItemModifier.setOpacity(.1, this.options.transition, function() {});
     }
+    module.exports = TaskView;
 }.bind(this));
 
 require.register("app/main/views/colorData.js", function(exports, require, module) {
@@ -10616,9 +10672,6 @@ require.register("app/main/views/data.js", function(exports, require, module) {
     }, {
         text: "eat dinner",
         page: "TODAY"
-    }, {
-        text: "eat dinner",
-        page: "LATER"
     }, {
         text: "eat dinner",
         page: "LATER"
@@ -12355,7 +12408,6 @@ require.config({
             "famous/view": "famous_modules/famous/view/_git_modularized/index.js",
             "famous/views/scrollview": "famous_modules/famous/views/scrollview/_git_modularized/index.js",
             "./TaskView": "app/main/views/TaskView.js",
-            "./data": "app/main/views/data.js",
             "./BoxView": "app/main/views/BoxView.js",
             "./BoxContainer": "app/main/views/BoxContainer.js",
             "famous/utilities/timer": "famous_modules/famous/utilities/timer/_git_modularized/index.js",
@@ -12405,7 +12457,6 @@ require.config({
             "famous/views/header-footer-layout": "famous_modules/famous/views/header-footer-layout/_git_modularized/index.js",
             "famous/utilities/utility": "famous_modules/famous/utilities/utility/_git_modularized/index.js",
             "./Color": "app/main/views/Color.js",
-            "./data": "app/main/views/data.js",
             "./TaskView": "app/main/views/TaskView.js",
             "./HeaderView": "app/main/views/HeaderView.js",
             "./FooterView": "app/main/views/FooterView.js",
@@ -12423,14 +12474,15 @@ require.config({
             "famous/views/sequential-layout": "famous_modules/famous/views/sequential-layout/_git_modularized/index.js",
             "famous/view-sequence": "famous_modules/famous/view-sequence/_git_modularized/index.js",
             "famous/modifiers/draggable": "famous_modules/famous/modifiers/draggable/_git_modularized/index.js",
-            "famous/animation/easing": "famous_modules/famous/animation/easing/_git_modularized/index.js"
+            "famous/animation/easing": "famous_modules/famous/animation/easing/_git_modularized/index.js",
+            "famous/utilities/timer": "famous_modules/famous/utilities/timer/_git_modularized/index.js"
         },
         "app/main/views/TaskView.js": {
             "famous/modifiers/draggable": "famous_modules/famous/modifiers/draggable/_git_modularized/index.js",
             "famous/transform": "famous_modules/famous/transform/_git_modularized/index.js",
             "famous/view": "famous_modules/famous/view/_git_modularized/index.js",
-            "./TaskItem": "app/main/views/TaskItem.js",
-            "famous/modifier": "famous_modules/famous/modifier/_git_modularized/index.js"
+            "famous/modifier": "famous_modules/famous/modifier/_git_modularized/index.js",
+            "./TaskItem": "app/main/views/TaskItem.js"
         },
         "app/main/views/colorData.js": {},
         "app/main/views/customScrollView.js": {

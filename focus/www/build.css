@@ -94,6 +94,7 @@ input {
   margin-top: 10px;
   margin-left: 0;
   border-radius: 0;
+  -webkit-transition: background-color 1s;
 }
 
 .title h1 {
@@ -113,7 +114,7 @@ input {
   box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.2);
   line-height: 60px;
   background-color: rgba(255, 255, 255, 0.07);
-  -webkit-transition: background-color 1s;
+  -webkit-transition: background-color 0.8s;
 /*  background: -webkit-linear-gradient(bottom, rgba(255, 255, 255, 0.05), transparent);
 */}
 
@@ -121,18 +122,20 @@ input.edit {
   color: #003156!important;
   padding-left: 20px;
   letter-spacing: 0.3px;
-  font-size: 1em;
+  font-size: 1.1em;
   border:none;
 }
 
 .shadowed {
-  background-color: rgb(0, 0, 0);
+  background-color: rgba(0, 0, 0, 0.7);
 }
 
 .dragging {
   box-shadow: 0px 0px 5px rgba(0, 0, 0, 20);
   background-color: rgba(255, 255, 255, 0.5);  
 }
+
+ 
 
 .task p {
   font-family: helvetica,'museo_sans300';

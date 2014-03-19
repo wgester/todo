@@ -17,7 +17,7 @@
 document.addEventListener("deviceready", _startApp, false);
 
 function _startApp() {
-    _famous();
+    // _famous();
     _accessFileSystem();
 }
 
@@ -43,6 +43,7 @@ function _gotReader(file) {
     window._FileReader = new FileReader();
     window._FileReader.onloadend = function(evt) {
         window._taskData = JSON.parse(evt.target.result);
+        _famous();
     }
     window.FileReader = {
         read: function() {
@@ -57,7 +58,8 @@ function _gotWriter(writer) {
         window.FileReader.read();
     };
     window.FileWriter = writer;
-    window.FileWriter.write('[{"text":"make an app","page":"FOCUS"},{"text":"moonlight as catwoman","page":"FOCUS"},{"text":"find phone","page":"TODAY"},{"text":"be awesome","page":"TODAY"},{"text":"make app, heeeere","page":"TODAY"},{"text":"eat lunch","page":"TODAY"},{"text":"eat dinner","page":"TODAY"},{"text":"eat dinner","page":"LATER"},{"text":"eat dinner","page":"LATER"},{"text":"eat dinner","page":"LATER"},{"text":"eat dinner","page":"LATER"},{"text":"eat dinner","page":"LATER"},{"text":"eat dinner","page":"LATER"},{"text":"eat lunch","page":"TODAY"},{"text":"eat dinner","page":"TODAY"},{"text":"eat lunch","page":"TODAY"},{"text":"eat dinner","page":"NEVER"},{"text":"eat lunch","page":"NEVER"},{"text":"eat dinner","page":"NEVER"},{"text":"finish work","page":"TODAY"}]');
+    window.FileWriter.write('[]');
+    window.FileReader.read();
 }
 
 function _fail(evt) {

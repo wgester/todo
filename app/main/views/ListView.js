@@ -4,7 +4,7 @@ var View           = require('famous/view');
 var Transform      = require('famous/transform');
 var Transitionable = require("famous/transitions/transitionable");
 var TaskView       = require('./TaskView');
-var Tasks          = require('./data');
+var Tasks          = window._taskData;
 var InputSurface   = require('famous/surfaces/input-surface');
 var Timer          = require('famous/utilities/timer');
 
