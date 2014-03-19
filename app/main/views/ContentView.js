@@ -162,7 +162,6 @@ function _closeInputListener(task) {
     if (this.inputToggled) {
       this._eventOutput.emit('hideInput');
       this.inputToggled = false;
-      task.taskItem._eventOutput.emit('unhide');
     } else {
       task.taskItem._eventOutput.emit('transformTask');
     }
