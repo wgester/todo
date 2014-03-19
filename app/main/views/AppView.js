@@ -253,14 +253,6 @@ function _colorSurfaces() {
 
 function _createCompletionSurface() {
 
-  window.completionSurf = new CanvasSurface({
-    size: [window.innerWidth, window.innerHeight],
-    canvasSize: [window.innerWidth*2, window.innerHeight*2],
-    classes: ['famous-surface', 'COMPLETE'],
-    properties: {
-      backgroundColor: '#11FF00'
-    }
-  });
   window.completionSurf = window.faderSurfaces[4];
   window.completionMod = new Modifier({
     opacity: 0,
