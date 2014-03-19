@@ -7888,7 +7888,8 @@ require.register("famous_modules/famous/views/drag-sort/_git_modularized/index.j
             });
             this._eventOutput.emit("swapPage", {
                 index: this.index,
-                page: this.array[this.index].taskItem.page
+                page: this.array[this.index].taskItem.page,
+                direction: v
             });
         } else {
             if (this.index !== this.currentNode.index) {
@@ -8758,7 +8759,7 @@ require.register("app/main/index.js", function(exports, require, module) {
     var SpringTransition = require("famous/transitions/spring-transition");
     var Timer = require("famous/utilities/timer");
     var CanvasSurface = require("famous/surfaces/canvas-surface");
-    var devMode = true;
+    var devMode = false;
     Transitionable.registerMethod("wall", WallTransition);
     Transitionable.registerMethod("spring", SpringTransition);
     var mainCtx = window.Engine.createContext();
@@ -8943,7 +8944,7 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
         noTransition: {
             duration: 0
         },
-        colors: [ [ "#ffffff", "#32CEA8" ], [ "#ffffff", "#FFFFCD", "#87CEFA" ], [ "#3690FF", "#8977C6" ], [ "#F5A9BC", "#FA5858" ] ]
+        colors: [ [ "#ffffff", "#32CEA8" ], [ "#ffffff", "#FFFFCD", "#87CEFA" ], [ "#3690FF", "#8977C6" ], [ "#F5A9BC", "#FA5858" ], [ "#81F781", "#E0F8E6" ] ]
     };
     function _isAndroid() {
         var userAgent = navigator.userAgent.toLowerCase();
@@ -8997,6 +8998,10 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
     //inTransform: Transform.translate(0, -600, 1)
     function _addEventListeners(newView, newModifier) {
         // window.Engine.on('prerender', )
+        this._eventOutput.pipe(newView._eventInput);
+        newView._eventOutput.on("saveNewTask", function(text) {
+            this._eventOutput.emit("swapPages", text);
+        }.bind(this));
         newView.on("togglePageViewUp", function() {
             if (newView.nextPage) {
                 if (!this.lightBox.optionsForSwipeUp) {
@@ -9108,14 +9113,7 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
         }
     }
     function _createCompletionSurface() {
-        window.completionSurf = new CanvasSurface({
-            size: [ window.innerWidth, window.innerHeight ],
-            canvasSize: [ window.innerWidth * 2, window.innerHeight * 2 ],
-            classes: [ "famous-surface" ],
-            properties: {
-                backgroundColor: "#81EBC4"
-            }
-        });
+        window.completionSurf = window.faderSurfaces[4];
         window.completionMod = new Modifier({
             opacity: 0,
             transform: Transform.translate(0, 0, 0)
@@ -9587,11 +9585,12 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
     var CustomScrollView = require("./customScrollView");
     var TaskItem = require("./TaskItem");
     var Color = require("./Color");
-    function ContentView() {
+    function ContentView(options) {
         View.apply(this, arguments);
         this.lightness = 75;
         this.inputToggled = false;
         this.shown = {};
+        this.title = this.options.title;
         _setBackground.call(this);
         _createTasks.call(this);
         _setListeners.call(this);
@@ -9654,6 +9653,7 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
                 newTask.pipe(node);
                 node.pipe(this.customscrollview);
                 newTask.pipe(this.customscrollview);
+                newTask.pipe(this._eventInput);
                 this.customscrollview.pipe(node);
                 this.taskCount++;
             }
@@ -9670,6 +9670,42 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
         _newTaskListener.call(this);
         _inputListeners.call(this);
         _unhideTaskListener.call(this);
+        this._eventInput.on("swapPages", _createNewTask.bind(this));
+    }
+    function _createNewTask(data) {
+        var pages = {
+            FOCUS: 0,
+            TODAY: 1,
+            LATER: 2,
+            NEVER: 3
+        };
+        if (pages[this.title] === pages[data.page] + data.direction) {
+            console.log(data, this);
+            var node = this.customdragsort.find(0);
+            if (this.title === "FOCUS" && this.taskCount > 2) {
+                return;
+            }
+            var newIndex = this.customdragsort.array.length;
+            var newTask = new TaskView({
+                text: data.text,
+                index: newIndex,
+                page: this.title
+            });
+            this.customdragsort.push(newTask);
+            for (var j = 0; j < newIndex - 1; j++) {
+                node = node._next;
+            }
+            if (node.getNext()) node = node._next;
+            newTask.pipe(node);
+            node.pipe(this.customscrollview);
+            newTask.pipe(this.customscrollview);
+            // newTask.pipe(this.customdragsort);
+            this.customscrollview.pipe(node);
+            _openInputListener.call(this, newTask);
+            _closeInputListener.call(this, newTask);
+            _completionListener.call(this, newTask);
+            newTask.animateIn(3);
+        }
     }
     function _newTaskListener() {
         this.on("saveNewTask", function(val) {
@@ -9677,13 +9713,14 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
             if (this.options.title === "FOCUS" && this.taskCount > 2) {
                 return;
             }
+            var newIndex = this.customdragsort.array.length;
             var newTask = new TaskView({
                 text: val,
-                index: this.taskCount,
+                index: newIndex,
                 page: this.options.title
             });
             this.customdragsort.push(newTask);
-            for (var j = 0; j < this.taskCount - 1; j++) {
+            for (var j = 0; j < newIndex - 1; j++) {
                 node = node._next;
             }
             if (node.getNext()) node = node._next;
@@ -9750,6 +9787,14 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
     function _completionListener(task) {
         task.on("completed", function() {
             this.taskCount--;
+            console.log(this.tasks[0]);
+            window.completionMod.setOpacity(.8, {
+                duration: this.options.completionDuration
+            }, function() {
+                window.completionMod.setOpacity(0, {
+                    duration: 2e3
+                }, function() {});
+            }.bind(this));
         }.bind(this));
         task.on("deleted", function() {
             this.taskCount--;
@@ -9762,11 +9807,12 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
             var scrollview;
             if (this.customscrollview.options.page === title) scrollview = this.customscrollview;
             if (scrollview._offsets[0] === undefined) return;
+            //if task is moved, if task is added
             for (var task in scrollview._offsets) {
                 if (task !== "undefined") {
                     var taskObject = scrollview.node.array[task];
                     var taskOffset = scrollview._offsets[task];
-                    if (taskOffset > -10 && taskOffset < window.innerHeight) {
+                    if (taskOffset > -10 && taskOffset < window.innerHeight && !this.shown[taskObject]) {
                         toShow[taskObject] = true;
                         if (!this.shown[taskObject] && taskObject) {
                             counter++;
@@ -9775,12 +9821,12 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
                     }
                 }
             }
-            for (var taskObj in this.shown) {
-                if (!toShow[taskObj] && !taskObj) {
-                    console.log("in reset");
-                    taskObj.resetAnimation();
-                }
-            }
+            // for(var taskObj in this.shown) {
+            //   if(!toShow[taskObj] && taskObj) {
+            //     console.log(taskObj)
+            //     taskObj.resetAnimation();
+            //   }
+            // }
             this.shown = toShow;
             // if task is in shown, it's been animated in
             toShow = {};
@@ -10191,6 +10237,8 @@ require.register("app/main/views/PageView.js", function(exports, require, module
         this.header.pipe(this._eventOutput);
     }
     function _setListeners() {
+        this.contents._eventInput.pipe(this._eventOutput);
+        this._eventInput.pipe(this.contents._eventInput);
         window.Engine.on("prerender", _setHeaderSize.bind(this));
         this.contents.on("showInput", function() {
             this.header._eventOutput.emit("showInput");
@@ -10244,9 +10292,11 @@ require.register("app/main/views/PageView.js", function(exports, require, module
         this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0));
         this.editMod.setTransform(Transform.translate(0, 20, 0), this.options.editInputAnimation, function() {
             this.editSurface.focus();
+            SoftKeyboard && SoftKeyboard.show();
         }.bind(this));
     }
     function _editInputFlyOut() {
+        SoftKeyboard && SoftKeyboard.hide();
         this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0), {
             duration: 300
         }, function() {
@@ -10276,6 +10326,7 @@ require.register("app/main/views/TaskItem.js", function(exports, require, module
         this.timeTouched = 0;
         this.page = this.options.page;
         this.text = this.options.text;
+        this.index = this.options.index;
         _createLayout.call(this);
         _bindEvents.call(this);
         _setDate.call(this);
@@ -10454,6 +10505,7 @@ require.register("app/main/views/TaskItem.js", function(exports, require, module
         this.deleteBox.addClass("invisible");
         this.draggable.setPosition([ -1 * this.options.deleteCheckWidth - window.innerWidth, 0 ], this.options.taskItemExitTransition, function() {
             console.log("check me off");
+            navigator.notification.vibrate();
             this._eventOutput.emit("completed");
             this._eventOutput.emit("deleteTask");
         }.bind(this));
@@ -10461,6 +10513,7 @@ require.register("app/main/views/TaskItem.js", function(exports, require, module
     function _deleteTask() {
         this.checkBox.addClass("invisible");
         this.draggable.setPosition([ this.options.deleteCheckWidth + window.innerWidth, 0 ], this.options.taskItemExitTransition, function() {
+            navigator.notification.vibrate();
             this._eventOutput.emit("deleted");
             this._eventOutput.emit("deleteTask");
         }.bind(this));
@@ -10469,6 +10522,7 @@ require.register("app/main/views/TaskItem.js", function(exports, require, module
         this.draggable.setPosition([ 0, 0 ], this.options.taskItemSpringTransition);
     }
     function saveTask(text) {
+        this.text = text;
         this.contents.setContent("<p>" + text + "</p>");
     }
     function unhideTask() {
@@ -10493,8 +10547,8 @@ require.register("app/main/views/TaskItem.js", function(exports, require, module
             duration: 300
         }, function() {
             this._eventOutput.emit("openLightbox", {
-                text: this.options.text,
-                index: this.options.index
+                text: this.text,
+                index: this.index
             });
             Timer.after(function() {
                 this.contents.setProperties({
@@ -10543,11 +10597,11 @@ require.register("app/main/views/TaskView.js", function(exports, require, module
         this.taskItemModifier.setTransform(Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0), {
             duration: 180 * counter,
             curve: "easeInOut"
-        });
-        this.taskItemModifier.setOpacity(1, this.options.transition);
+        }, function() {});
+        this.taskItemModifier.setOpacity(1, this.options.transition, function() {});
     }
-    function resetAnimation(counter) {
-        console.log(counter);
+    function resetAnimation() {
+        console.log("reset");
         this.taskItemModifier.setOpacity(.1, this.options.transition, function() {});
         this.taskItemModifier.setTransform(Transform.translate(-1 * this.options.deleteCheckWidth, 1e3, 0), this.options.transition, function() {});
     }
@@ -10598,6 +10652,7 @@ require.register("app/main/views/customScrollView.js", function(exports, require
         this.node.find(data.oldIndex).moveTo(data.newIndex);
         var currentNode = this.node.find(0);
         while (currentNode) {
+            currentNode.array[currentNode.index].taskItem.index = currentNode.index;
             currentNode.setPosition([ 0, 0 ]);
             currentNode = currentNode.getNext();
         }
@@ -10607,7 +10662,12 @@ require.register("app/main/views/customScrollView.js", function(exports, require
             if (this.node.find(this.node.index + 1)) this.node = this.node.find(this.node.index + 1);
         }
         this.node.splice(indexObj.index, 1);
-        console.log(this.node);
+        var currentNode = this.node.find(0);
+        while (currentNode) {
+            currentNode.array[currentNode.index].taskItem.index = currentNode.index;
+            currentNode.setPosition([ 0, 0 ]);
+            currentNode = currentNode.getNext();
+        }
     }
     function swapPage(indexObj) {
         var currentNode = this.node.find(0);
@@ -10621,15 +10681,17 @@ require.register("app/main/views/customScrollView.js", function(exports, require
             currentNode = currentNode.getNext();
         }
         setTimeout(function() {
-            console.log(indexObj);
             if (indexObj.index === this.node.index) {
                 if (this.node.find(this.node.index + 1)) this.node = this.node.find(this.node.index + 1);
             }
             this.eventOutput.emit("saveNewTask", {
-                text: this.node.splice(indexObj.index, 1).taskItem.text
+                page: indexObj.page,
+                text: this.node.splice(indexObj.index, 1).taskItem.text,
+                direction: indexObj.direction
             });
             var currentNode = this.node.find(0);
             while (currentNode) {
+                currentNode.array[currentNode.index].taskItem.index = currentNode.index;
                 currentNode.setPosition([ 0, 0 ]);
                 currentNode = currentNode.getNext();
             }
