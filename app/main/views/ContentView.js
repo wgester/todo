@@ -18,14 +18,16 @@ function ContentView(options) {
   View.apply(this, arguments);
   this.lightness = 75;
   this.inputToggled = false;
-  this.shown = {};
-  this.scrolled = false;
   this.title = this.options.title;
 
-
+  this.shown = {}; this.toShow = {};
+  this.scrolled = false;
+  _setUpOffsets.call(this);
+  _monitorOffsets.call(this);
   _setBackground.call(this);
   _createTasks.call(this);
   _setListeners.call(this);
+  // this.animateTasksIn(this.title);
 
 };
 
@@ -50,6 +52,15 @@ function _isAndroid() {
   var userAgent = navigator.userAgent.toLowerCase();
   return userAgent.indexOf("android") > -1;
 };
+
+function _setUpOffsets() {
+  this.offsets = [];
+  this.focusOffsets = {};
+  this.todayOffsets = {};
+  this.laterOffsets = {};
+  this.neverOffsets = {};
+  this.offsets.push(this.focusOffsets, this.todayOffsets, this.laterOffsets, this.neverOffsets);
+}
 
 function _setBackground() {
   var index = this.options.views[this.options.title][0];
@@ -173,12 +184,12 @@ function _createNewTask(data) {
     return;
   }
   if (pages[this.title] === (pages[data.page] + data.direction)) {
-    
+
     var node = this.customscrollview.node;
     var newIndex = this.customdragsort.array.length;
     if (!newIndex) {
       this._newScrollView(data, newIndex);
-        
+
     } else {
       this._addToList(data, newIndex, node);
     }
@@ -192,12 +203,12 @@ function _newTaskListener() {
     if (this.options.title === 'FOCUS' && this.taskCount > 2) {
       return;
     }
-    
+
     var node = this.customscrollview.node;
     var newIndex = this.customdragsort.array.length;
     if (!newIndex) {
       this._newScrollView({text: val}, newIndex);
-        
+
     } else {
       this._addToList({text: val}, newIndex, node);
     }
@@ -271,45 +282,70 @@ function _completionListener(task) {
   }.bind(this));
 };
 
-ContentView.prototype.animateTasksIn = function(title) {
-  var counter = 1;
-  Engine.on('prerender', function() {
+function _monitorOffsets() { // use this function to store the offsets, use animate tasks to walk through the offsets
+  var index = getTitleIndex(this.title); var scrollview;
 
-    var toShow = {}; var scrollview;
-    if(this.customscrollview.options.page === title) scrollview = this.customscrollview;
+  Engine.on('prerender', function(){
+    if(this.customscrollview.options.page === this.title) scrollview = this.customscrollview;
 
     if(scrollview._offsets[0] === undefined) return;
 
     for(var task in scrollview._offsets) {
+      // only store the right task offset in the right object
+      this.offsets[index][task] = task;
+    }
 
-      if(task !== "undefined") {
+  }.bind(this));
+}
 
-        var taskOffset = scrollview._offsets[task]; // var taskObject = scrollview.node.array[task];
+function getTitleIndex(title) {
+  var titles = {'FOCUS':0, 'TODAY':1, 'LATER':2, 'NEVER':3};
+  return titles[title]
+};
 
-        if((taskOffset > -10) && (taskOffset < window.innerHeight) && (this.shown[task] !== title)) {
-          toShow[task] = title;
-          if(scrollview.node.array[task]) {
-            counter++;
-            scrollview.node.array[task].animateIn(counter);
-          }
+
+ContentView.prototype.animateTasksIn = function(title) {
+  var counter = 1; var index = getTitleIndex(title); var scrollview;
+  // console.log(index, this.offsets[index])
+  if(this.customscrollview.options.page === title) scrollview = this.customscrollview;
+
+  for(var task in this.offsets[index]) {
+    if(task !== "undefined") {
+
+      var taskOffset = this.offsets[index][task]; // var taskObject = scrollview.node.array[task];
+
+      if((taskOffset > -10) && (taskOffset < window.innerHeight) && (this.shown[task] !== title)) {
+        this.toShow[task] = title;
+        if(scrollview.node.array[task]) {
+          counter++;
+          scrollview.node.array[task].animateIn(counter);
         }
       }
     }
-//     if page changed
-  if(this.scrolled){
-      for(var task in this.shown) {
-        if(toShow[task] !== title && scrollview.node.array[task]) {
-          scrollview.node.array[task].resetAnimation();
-        }
+  }
+  // if(this.scrolled){
+    for(var task in this.shown) {
+      if(this.toShow[task] !== title && scrollview.node.array[task]) {
+        scrollview.node.array[task].resetAnimation();
       }
+    }
+
+  this.shown = this.toShow; // if task is in shown, it's been animated in
+
+
+
   }
 
+ContentView.prototype.resetAnimations = function(title) {
+  var scrollview;
+  if(this.customscrollview.options.page === title) scrollview = this.customscrollview;
 
-    this.shown = toShow; // if task is in shown, it's been animated in
-
-
-
-  }.bind(this));
+  for(var task in this.shown) {
+    if(this.toShow[task] !== title && scrollview.node.array[task]) {
+      scrollview.node.array[task].resetAnimation();
+    }
+  }
+  this.toShow = {};
 }
 
 
