@@ -43,8 +43,8 @@ PageView.DEFAULT_OPTIONS = {
   yPositionToggleThreshold: 250,
   velocityToggleThreshold: 0.75,
   headerSizeDuration: 300,
-  regSmallHeader: 70,
-  regBigHeader: 140,
+  regSmallHeader: 90,
+  regBigHeader: 160,
   focusHeader: window.innerHeight / 2,
   editInputAnimation: {
     method: 'spring',
@@ -157,7 +157,7 @@ function _setListeners() {
 };
 
 function _lightboxFadeOut() {
-  this.editLBMod.setOpacity(0.01, {duration: 500}, function() {
+  this.editLBMod.setOpacity(0.01, {duration: 400}, function() {
     this.editLBMod.setTransform(Transform.translate(0, 0, -10));
   }.bind(this));
 };
@@ -171,7 +171,9 @@ function _lightboxFadeIn() {
 function _editInputFlyIn() {
   this.editTaskOffset = this.options.title === 'FOCUS' ?  window.innerHeight / 2 + this.taskIndex * 60 - 8: (this.taskIndex + 1) * 60 - 8;
   this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0));
-  this.editMod.setTransform(Transform.translate(0,20,0), this.options.editInputAnimation, function() {});
+  this.editMod.setTransform(Transform.translate(0,20,0), this.options.editInputAnimation, function() {
+    this.editSurface.focus();
+  }.bind(this));  
 };
 
 function _editInputFlyOut() {
