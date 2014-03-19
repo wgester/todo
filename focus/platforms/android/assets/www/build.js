@@ -10244,9 +10244,11 @@ require.register("app/main/views/PageView.js", function(exports, require, module
         this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0));
         this.editMod.setTransform(Transform.translate(0, 20, 0), this.options.editInputAnimation, function() {
             this.editSurface.focus();
+            SoftKeyboard && SoftKeyboard.show();
         }.bind(this));
     }
     function _editInputFlyOut() {
+        SoftKeyboard && SoftKeyboard.hide();
         this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0), {
             duration: 300
         }, function() {

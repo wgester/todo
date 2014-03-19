@@ -7,6 +7,9 @@
     <feature name="Vibration">
         <param name="android-package" value="org.apache.cordova.vibration.Vibration" />
     </feature>
+    <feature name="SoftKeyboard">
+        <param name="android-package" value="de.phonostar.SoftKeyboard" />
+    </feature>
     <name>Focus</name>
     <description>
         A sample Apache Cordova application that responds to the deviceready event.

@@ -142,13 +142,21 @@ module.exports = [
         "merges": [
             "navigator.notification"
         ]
+    },
+    {
+        "file": "plugins/de.phonostar.softkeyboard/www/softkeyboard.js",
+        "id": "de.phonostar.softkeyboard.SoftKeyboard",
+        "clobbers": [
+            "SoftKeyboard"
+        ]
     }
 ];
 module.exports.metadata = 
 // TOP OF METADATA
 {
     "org.apache.cordova.file": "1.0.1",
-    "org.apache.cordova.vibration": "0.3.7"
+    "org.apache.cordova.vibration": "0.3.7",
+    "de.phonostar.softkeyboard": "0.1"
 }
 // BOTTOM OF METADATA
 });

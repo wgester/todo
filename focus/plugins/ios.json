@@ -28,6 +28,9 @@
         },
         "org.apache.cordova.vibration": {
             "PACKAGE_NAME": "com.focusinc.focus"
+        },
+        "de.phonostar.softkeyboard": {
+            "PACKAGE_NAME": "com.focusinc.focus"
         }
     },
     "dependent_plugins": {}

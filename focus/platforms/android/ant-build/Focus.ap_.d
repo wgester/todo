@@ -35,8 +35,11 @@
 /Users/adamcmiel/Documents/famous/todo/focus/platforms/android/assets/www/img/redXClearBackground.png \
 /Users/adamcmiel/Documents/famous/todo/focus/platforms/android/assets/www/img/x_icon.png \
 /Users/adamcmiel/Documents/famous/todo/focus/platforms/android/assets/www/js/index.js \
+/Users/adamcmiel/Documents/famous/todo/focus/platforms/android/assets/www/plugins/de.phonostar.softkeyboard \
 /Users/adamcmiel/Documents/famous/todo/focus/platforms/android/assets/www/plugins/org.apache.cordova.file \
 /Users/adamcmiel/Documents/famous/todo/focus/platforms/android/assets/www/plugins/org.apache.cordova.vibration \
+/Users/adamcmiel/Documents/famous/todo/focus/platforms/android/assets/www/plugins/de.phonostar.softkeyboard/www \
+/Users/adamcmiel/Documents/famous/todo/focus/platforms/android/assets/www/plugins/de.phonostar.softkeyboard/www/softkeyboard.js \
 /Users/adamcmiel/Documents/famous/todo/focus/platforms/android/assets/www/plugins/org.apache.cordova.file/www \
 /Users/adamcmiel/Documents/famous/todo/focus/platforms/android/assets/www/plugins/org.apache.cordova.file/www/android \
 /Users/adamcmiel/Documents/famous/todo/focus/platforms/android/assets/www/plugins/org.apache.cordova.file/www/DirectoryEntry.js \

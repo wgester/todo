@@ -6,6 +6,7 @@
 /Users/adamcmiel/Documents/famous/todo/focus/platforms/android/ant-build/classes/com/focusinc/focus/R$string.class \
 /Users/adamcmiel/Documents/famous/todo/focus/platforms/android/ant-build/classes/com/focusinc/focus/R$xml.class \
 /Users/adamcmiel/Documents/famous/todo/focus/platforms/android/ant-build/classes/com/focusinc/focus/R.class \
+/Users/adamcmiel/Documents/famous/todo/focus/platforms/android/ant-build/classes/de/phonostar/SoftKeyboard.class \
 /Users/adamcmiel/Documents/famous/todo/focus/platforms/android/ant-build/classes/org/apache/cordova/file/ContentFilesystem.class \
 /Users/adamcmiel/Documents/famous/todo/focus/platforms/android/ant-build/classes/org/apache/cordova/file/DirectoryManager.class \
 /Users/adamcmiel/Documents/famous/todo/focus/platforms/android/ant-build/classes/org/apache/cordova/file/EncodingException.class \
