@@ -269,7 +269,7 @@ function transformTask() {
 };
 
 function vibrate() {
-    navigator.notification.vibrate(300);
+    window.vibrate(300);
 }
 
 module.exports = TaskItem;
