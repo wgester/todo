@@ -119,6 +119,10 @@ function _pipeSubviewEventsToAppView() {
 };
 
 function _setListeners() {
+  this.contents._eventInput.pipe(this._eventOutput);
+  this._eventInput.pipe(this.contents._eventInput);
+
+
   window.Engine.on('prerender', _setHeaderSize.bind(this));
 
   this.contents.on('showInput', function() {
