@@ -8918,8 +8918,6 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
     function AppView() {
         View.apply(this, arguments);
         this.headerSizeTransitionable = new Transitionable([ 70 ]);
-        //resume event is fired when the app is reopened from background status on the phone
-        // document.addEventListener("resume", _renderFocusPage.bind(this));
         _createGradientSurfaces.call(this);
         _createCompletionSurface.call(this);
         _createLightBox.call(this);
@@ -9867,11 +9865,11 @@ require.register("app/main/views/HeaderView.js", function(exports, require, modu
         this.bodMod = new Modifier();
         if (_isAndroid()) {
             this.boxMod = new Modifier({
-                transform: Transform.translate(0, 110, 0)
+                transform: Transform.translate(0, 100, 0)
             });
         } else {
             this.boxMod = new Modifier({
-                transform: Transform.translate(0, 100, 0)
+                transform: Transform.translate(0, 90, 0)
             });
         }
         this._add(this.boxMod).add(this.boxContainer);
@@ -9885,7 +9883,7 @@ require.register("app/main/views/HeaderView.js", function(exports, require, modu
         });
         this.titleMod = new Modifier({
             opacity: 0,
-            transform: Transform.translate(0, 20, 0)
+            transform: Transform.translate(0, 10, 0)
         });
         this.options.title === "FOCUS" && this.titleMod.setOpacity(1, undefined, function() {});
         this._add(this.titleMod).add(this.titleHeader);
@@ -9900,7 +9898,7 @@ require.register("app/main/views/HeaderView.js", function(exports, require, modu
             this.titleMod.setOpacity(1, {
                 duration: this.options.openDuration
             }, function() {
-                this.titleMod.setTransform(Transform.translate(0, 20, 1), {
+                this.titleMod.setTransform(Transform.translate(0, 10, 1), {
                     duration: this.options.openDurationf
                 }, function() {});
             }.bind(this));
@@ -9909,7 +9907,7 @@ require.register("app/main/views/HeaderView.js", function(exports, require, modu
             this.titleMod.setOpacity(0, {
                 duration: this.options.closedDuration
             }, function() {
-                this.titleMod.setTransform(Transform.translate(0, 20, 0), {
+                this.titleMod.setTransform(Transform.translate(0, 10, 0), {
                     duration: this.options.closedDuration
                 }, function() {});
             }.bind(this));
@@ -9955,7 +9953,7 @@ require.register("app/main/views/ListView.js", function(exports, require, module
     var Transform = require("famous/transform");
     var Transitionable = require("famous/transitions/transitionable");
     var TaskView = require("./TaskView");
-    var Tasks = require("./data");
+    var Tasks = window._taskData;
     var InputSurface = require("famous/surfaces/input-surface");
     var Timer = require("famous/utilities/timer");
     function ListView() {
@@ -10246,7 +10244,7 @@ require.register("app/main/views/PageView.js", function(exports, require, module
         }.bind(this));
     }
     function _editInputFlyIn() {
-        this.editTaskOffset = this.options.title === "FOCUS" ? window.innerHeight / 2 + this.taskIndex * 60 - 8 : (this.taskIndex + 1) * 60 - 8;
+        this.editTaskOffset = this.options.title === "FOCUS" ? window.innerHeight / 2 + this.taskIndex * 60 - 10 : (this.taskIndex + 1) * 60 - 10;
         this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0));
         this.editMod.setTransform(Transform.translate(0, 20, 0), this.options.editInputAnimation, function() {
             this.editSurface.focus();
@@ -12440,7 +12438,6 @@ require.config({
             "famous/transform": "famous_modules/famous/transform/_git_modularized/index.js",
             "famous/transitions/transitionable": "famous_modules/famous/transitions/transitionable/_git_modularized/index.js",
             "./TaskView": "app/main/views/TaskView.js",
-            "./data": "app/main/views/data.js",
             "famous/surfaces/input-surface": "famous_modules/famous/surfaces/input-surface/_git_modularized/index.js",
             "famous/utilities/timer": "famous_modules/famous/utilities/timer/_git_modularized/index.js"
         },
