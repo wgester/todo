@@ -21,6 +21,7 @@ function PageView() {
   View.apply(this, arguments);
 
   this.toggleUpOrDown = 'down';
+  
   if (this.options.title === 'FOCUS') {
     this.headerSizeTransitionable = new Transitionable([this.options.focusHeader]);
   } else {
@@ -50,30 +51,23 @@ PageView.DEFAULT_OPTIONS = {
     period: 500,
     dampingRatio: 0.6
   },
-  shadowFadeDuration: 200
-  // inputColors: {
-  //   'FOCUS': new Color('#32CEA8').setLightness(80).getHex(),
-  //   'TODAY': new Color('#87CEFA').setLightness(90).getHex(),
-  //   'LATER': new Color('#8977C6').setLightness(70).getHex(),
-  //   'NEVER': new Color('#FA5858').setLightness(80).getHex()
-  // }
+  shadowFadeDuration: 300
 };
 
 function _createEditLightbox() {
   this.editLightBox = new View();
   this.editLBMod = new Modifier({
-    transform: Transform.translate(0, 0, -10)
+    transform: Transform.translate(0, 0, -10),
+    opacity: 0.01
   });
 
   this.shadow = new Surface({
     size: [undefined, 650],
     classes: ['shadowed']
   });
-
-  this.shadowMod = new Modifier({
-    opacity: 0.01
-  });
-
+  
+  this.shadowMod = new Modifier();
+      
   this.editSurface = new InputSurface({
     size: [undefined, 60],
     classes: ['edit'],
@@ -154,30 +148,32 @@ function _setListeners() {
     this.taskIndex = options.index;
     this.editSurface.setValue(options.text);
     _lightboxFadeIn.call(this);
-    Timer.after(_editInputFlyIn.bind(this), 5);
+    _editInputFlyIn.call(this);
   }.bind(this));
 };
 
 function _lightboxFadeOut() {
-  this.shadowMod.setOpacity(0.01, {duration: this.options.shadowFadeDuration}, function() {
-    this.editLBMod.setTransform(Transform.translate(0, 0, -10),  {duration: 0}, function() {});
+  this.editLBMod.setOpacity(0.01, {duration: 200}, function() {
+    this.editLBMod.setTransform(Transform.translate(0, 0, -10));
   }.bind(this));
 };
 
 function _lightboxFadeIn() {
   this.editLBMod.setTransform(Transform.translate(0,0,2),  {duration: 0}, function() {
-    this.shadowMod.setOpacity(1, {duration: this.options.shadowFadeDuration}, function() {});
+    this.editLBMod.setOpacity(1, {duration: this.shadowFadeDuration}, function() {});
   }.bind(this));
 };
 
 function _editInputFlyIn() {
-  this.editTaskOffset = this.options.title === 'FOCUS' ?  window.innerHeight / 2 + this.taskIndex * 60: (this.taskIndex + 1) * 60;
+  this.editTaskOffset = this.options.title === 'FOCUS' ?  window.innerHeight / 2 + this.taskIndex * 60 - 8: (this.taskIndex + 1) * 60 - 8;
   this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0));
-  this.editMod.setTransform(Transform.translate(0,0,0), this.options.editInputAnimation, function() {});
+  this.editMod.setTransform(Transform.translate(0,20,0), this.options.editInputAnimation, function() {});  
 };
 
 function _editInputFlyOut() {
-  this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0), {duration: 300}, function() {});
+  this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0), {duration: 300}, function() {
+    this.contents._eventOutput.emit('unhideEditedTask');
+  }.bind(this));
 };
 
 module.exports = PageView;

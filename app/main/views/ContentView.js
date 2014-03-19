@@ -106,6 +106,7 @@ function _setListeners() {
   _gradientListener.call(this);
   _newTaskListener.call(this);
   _inputListeners.call(this);
+  _unhideTaskListener.call(this);
 };
 
 function _newTaskListener() {
@@ -157,13 +158,24 @@ function _openInputListener(task) {
 };
 
 function _closeInputListener(task) {
-  task.on('closeInputOrEdit', function(options) {
+  task.on('closeInputOrEdit', function() {
     if (this.inputToggled) {
       this._eventOutput.emit('hideInput');
       this.inputToggled = false;
     } else {
-      this._eventOutput.emit('openEdit', options);
+      task.taskItem._eventOutput.emit('transformTask');
     }
+  }.bind(this));
+  
+  task.on('openLightbox', function(options) {
+    this._eventOutput.emit('openEdit', options);
+    this.editedTask = task.taskItem;    
+  }.bind(this));
+};
+
+function _unhideTaskListener() {
+  this.on('unhideEditedTask', function() {
+    this.editedTask._eventOutput.emit('unhide');
   }.bind(this));
 };
 
@@ -227,7 +239,7 @@ ContentView.prototype.animateTasksIn = function(title) {
 
     // RESET ANIMATION
     for(var taskObj in this.shown) {
-      if(taskObj !== "undefined") {
+      if(taskObj !== undefined) {
         if(!(taskObj in toShow)) {
           taskObj.resetAnimation();
         }
