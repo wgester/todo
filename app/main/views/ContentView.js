@@ -74,7 +74,7 @@ function _createTasks() {
   this.tasks = Tasks;
   this.taskCount = 0;
 
-  this.customscrollview = new CustomScrollView({page: this.options.title});
+  this.customscrollview = new CustomScrollView({page: this.title});
   this.customdragsort = new DragSort({
     draggable: {
       xRange: [0,0]
@@ -112,6 +112,54 @@ function _setListeners() {
   this._eventInput.on('swapPages', _createNewTask.bind(this));
 };
 
+ContentView.prototype._newScrollView = function(data, newIndex) {
+  this.customscrollview = new CustomScrollView({page: this.title});
+  this.customdragsort = new DragSort({
+    draggable: {
+      xRange: [0,0]
+    }
+  });
+  var node = this.customdragsort;
+  var newTask = new TaskView({text: data.text, index: newIndex, page: this.title});
+  this.customdragsort.push(newTask);
+  if(node.getNext()) node = node._next;
+  newTask.pipe(node);
+  node.pipe(this.customscrollview);
+  newTask.pipe(this.customscrollview);
+  newTask.pipe(this._eventInput);
+  this.customscrollview.pipe(node);
+  this.scrollMod = new Modifier({
+    transform: Transform.translate(0, 0, 1)
+  });
+
+  this.customscrollview.sequenceFrom(this.customdragsort);
+  this.customscrollview.pipe(this._eventInput);
+  this._add(this.scrollMod).add(this.customscrollview);
+  _activateTasks.call(this, newTask);
+}
+
+ContentView.prototype._addToList = function(data, newIndex, node) {
+  var newTask = new TaskView({text: data.text, index: newIndex, page: this.title});
+      this.customdragsort.push(newTask);
+      for (var j = 0; j < newIndex - 1; j++) {
+        node = node._next;
+      }
+      if(node.getNext()) node = node._next;
+      newTask.pipe(node);
+      node.pipe(this.customscrollview);
+      newTask.pipe(this.customscrollview);
+
+      this.customscrollview.pipe(node);
+      _activateTasks.call(this, newTask);
+}
+
+function _activateTasks(newTask) {
+      _openInputListener.call(this, newTask);
+      _closeInputListener.call(this, newTask);
+      _completionListener.call(this, newTask);
+      newTask.animateIn(3);
+}
+
 function _createNewTask(data) {
   var pages = {
     'FOCUS': 0,
@@ -120,29 +168,18 @@ function _createNewTask(data) {
     'NEVER': 3
   }
   if (pages[this.title] === (pages[data.page] + data.direction)) {
-    console.log(data, this)
-
-    var node = this.customdragsort.find(0);
-    if (this.title === 'FOCUS' && this.taskCount > 2) {
+    if (this.options.title === 'FOCUS' && this.taskCount > 2) {
       return;
     }
+    
+    var node = this.customscrollview.node;
     var newIndex = this.customdragsort.array.length;
-    var newTask = new TaskView({text: data.text, index: newIndex, page: this.title});
-    this.customdragsort.push(newTask);
-    for (var j = 0; j < newIndex - 1; j++) {
-      node = node._next;
+    if (!newIndex) {
+      this._newScrollView(data, newIndex);
+        
+    } else {
+      this._addToList(data, newIndex, node);
     }
-    if(node.getNext()) node = node._next;
-    newTask.pipe(node);
-    node.pipe(this.customscrollview);
-    newTask.pipe(this.customscrollview);
-    // newTask.pipe(this.customdragsort);
-    this.customscrollview.pipe(node);
-
-    _openInputListener.call(this, newTask);
-    _closeInputListener.call(this, newTask);
-    _completionListener.call(this, newTask);
-    newTask.animateIn(3);
   }
 
 };
@@ -150,28 +187,18 @@ function _createNewTask(data) {
 function _newTaskListener() {
 
   this.on('saveNewTask', function(val) {
-    var node = this.customdragsort.find(0);
     if (this.options.title === 'FOCUS' && this.taskCount > 2) {
       return;
     }
+    
+    var node = this.customscrollview.node;
     var newIndex = this.customdragsort.array.length;
-    var newTask = new TaskView({text: val, index: newIndex, page: this.options.title});
-    this.customdragsort.push(newTask);
-    for (var j = 0; j < newIndex - 1; j++) {
-      node = node._next;
+    if (!newIndex) {
+      this._newScrollView({text: val}, newIndex);
+        
+    } else {
+      this._addToList({text: val}, newIndex, node);
     }
-    if(node.getNext()) node = node._next;
-    newTask.pipe(node);
-    node.pipe(this.customscrollview);
-    newTask.pipe(this.customscrollview);
-    // newTask.pipe(this.customdragsort);
-    this.customscrollview.pipe(node);
-
-    _openInputListener.call(this, newTask);
-    _closeInputListener.call(this, newTask);
-    _completionListener.call(this, newTask);
-    this.taskCount++;
-    newTask.animateIn(3);
   }.bind(this));
 
 };
@@ -232,7 +259,6 @@ function _gradientListener() {
 function _completionListener(task) {
   task.on('completed', function() {
     this.taskCount--;
-    console.log(this.tasks[0])
     window.completionMod.setOpacity(0.8, {duration: this.options.completionDuration}, function() {
       window.completionMod.setOpacity(0, {duration: 2000}, function () {});
     }.bind(this));
