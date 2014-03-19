@@ -7877,10 +7877,23 @@ require.register("famous_modules/famous/views/drag-sort/_git_modularized/index.j
         if (Math.abs(data.v[1]) > .5) {
             if (data.v[1] > 0) {
                 var v = 1;
+                if (this.array[this.index].taskItem.page === "NEVER") {
+                    this.setPosition([ 0, 0 ], {
+                        duration: 165,
+                        curve: "easeOut"
+                    });
+                    return;
+                }
             } else {
                 var v = -1;
+                if (this.array[this.index].taskItem.page === "FOCUS") {
+                    this.setPosition([ 0, 0 ], {
+                        duration: 165,
+                        curve: "easeOut"
+                    });
+                    return;
+                }
             }
-            console.log(this);
             this.draggable._positionState.set(data.p, {
                 method: "drag",
                 strength: 1e-4,
@@ -7891,18 +7904,18 @@ require.register("famous_modules/famous/views/drag-sort/_git_modularized/index.j
                 page: this.array[this.index].taskItem.page,
                 direction: v
             });
+            return;
+        }
+        if (this.index !== this.currentNode.index) {
+            this._eventOutput.emit("shift", {
+                oldIndex: this.index,
+                newIndex: this.currentNode.index
+            });
         } else {
-            if (this.index !== this.currentNode.index) {
-                this._eventOutput.emit("shift", {
-                    oldIndex: this.index,
-                    newIndex: this.currentNode.index
-                });
-            } else {
-                this.setPosition([ 0, 0 ], {
-                    duration: 165,
-                    curve: "easeOut"
-                });
-            }
+            this.setPosition([ 0, 0 ], {
+                duration: 165,
+                curve: "easeOut"
+            });
         }
         this.dragging = false;
         this.modifier.setTransform(Matrix.Identity);
@@ -8759,7 +8772,7 @@ require.register("app/main/index.js", function(exports, require, module) {
     var SpringTransition = require("famous/transitions/spring-transition");
     var Timer = require("famous/utilities/timer");
     var CanvasSurface = require("famous/surfaces/canvas-surface");
-    var devMode = true;
+    var devMode = false;
     Transitionable.registerMethod("wall", WallTransition);
     Transitionable.registerMethod("spring", SpringTransition);
     var mainCtx = window.Engine.createContext();
@@ -8999,7 +9012,7 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
     function _addEventListeners(newView, newModifier) {
         // window.Engine.on('prerender', )
         this._eventOutput.pipe(newView._eventInput);
-        newView._eventOutput.on("saveNewTask", function(text) {
+        newView._eventOutput.on("moveTaskToNewPage", function(text) {
             this._eventOutput.emit("swapPages", text);
         }.bind(this));
         newView.on("togglePageViewUp", function() {
@@ -9633,7 +9646,7 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
         this.tasks = Tasks;
         this.taskCount = 0;
         this.customscrollview = new CustomScrollView({
-            page: this.options.title
+            page: this.title
         });
         this.customdragsort = new DragSort({
             draggable: {
@@ -9672,6 +9685,59 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
         _unhideTaskListener.call(this);
         this._eventInput.on("swapPages", _createNewTask.bind(this));
     }
+    ContentView.prototype._newScrollView = function(data, newIndex) {
+        this.customscrollview = new CustomScrollView({
+            page: this.title
+        });
+        this.customdragsort = new DragSort({
+            draggable: {
+                xRange: [ 0, 0 ]
+            }
+        });
+        var node = this.customdragsort;
+        var newTask = new TaskView({
+            text: data.text,
+            index: newIndex,
+            page: this.title
+        });
+        this.customdragsort.push(newTask);
+        if (node.getNext()) node = node._next;
+        newTask.pipe(node);
+        node.pipe(this.customscrollview);
+        newTask.pipe(this.customscrollview);
+        newTask.pipe(this._eventInput);
+        this.customscrollview.pipe(node);
+        this.scrollMod = new Modifier({
+            transform: Transform.translate(0, 0, 1)
+        });
+        this.customscrollview.sequenceFrom(this.customdragsort);
+        this.customscrollview.pipe(this._eventInput);
+        this._add(this.scrollMod).add(this.customscrollview);
+        _activateTasks.call(this, newTask);
+    };
+    ContentView.prototype._addToList = function(data, newIndex, node) {
+        var newTask = new TaskView({
+            text: data.text,
+            index: newIndex,
+            page: this.title
+        });
+        this.customdragsort.push(newTask);
+        for (var j = 0; j < newIndex - 1; j++) {
+            node = node._next;
+        }
+        if (node.getNext()) node = node._next;
+        newTask.pipe(node);
+        node.pipe(this.customscrollview);
+        newTask.pipe(this.customscrollview);
+        this.customscrollview.pipe(node);
+        _activateTasks.call(this, newTask);
+    };
+    function _activateTasks(newTask) {
+        _openInputListener.call(this, newTask);
+        _closeInputListener.call(this, newTask);
+        _completionListener.call(this, newTask);
+        newTask.animateIn(3);
+    }
     function _createNewTask(data) {
         var pages = {
             FOCUS: 0,
@@ -9679,61 +9745,35 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
             LATER: 2,
             NEVER: 3
         };
+        if (this.options.title === "FOCUS" && this.taskCount > 2) {
+            return;
+        }
         if (pages[this.title] === pages[data.page] + data.direction) {
-            console.log(data, this);
-            var node = this.customdragsort.find(0);
-            if (this.title === "FOCUS" && this.taskCount > 2) {
-                return;
-            }
+            var node = this.customscrollview.node;
             var newIndex = this.customdragsort.array.length;
-            var newTask = new TaskView({
-                text: data.text,
-                index: newIndex,
-                page: this.title
-            });
-            this.customdragsort.push(newTask);
-            for (var j = 0; j < newIndex - 1; j++) {
-                node = node._next;
+            if (!newIndex) {
+                this._newScrollView(data, newIndex);
+            } else {
+                this._addToList(data, newIndex, node);
             }
-            if (node.getNext()) node = node._next;
-            newTask.pipe(node);
-            node.pipe(this.customscrollview);
-            newTask.pipe(this.customscrollview);
-            // newTask.pipe(this.customdragsort);
-            this.customscrollview.pipe(node);
-            _openInputListener.call(this, newTask);
-            _closeInputListener.call(this, newTask);
-            _completionListener.call(this, newTask);
-            newTask.animateIn(3);
         }
     }
     function _newTaskListener() {
         this.on("saveNewTask", function(val) {
-            var node = this.customdragsort.find(0);
             if (this.options.title === "FOCUS" && this.taskCount > 2) {
                 return;
             }
+            var node = this.customscrollview.node;
             var newIndex = this.customdragsort.array.length;
-            var newTask = new TaskView({
-                text: val,
-                index: newIndex,
-                page: this.options.title
-            });
-            this.customdragsort.push(newTask);
-            for (var j = 0; j < newIndex - 1; j++) {
-                node = node._next;
+            if (!newIndex) {
+                this._newScrollView({
+                    text: val
+                }, newIndex);
+            } else {
+                this._addToList({
+                    text: val
+                }, newIndex, node);
             }
-            if (node.getNext()) node = node._next;
-            newTask.pipe(node);
-            node.pipe(this.customscrollview);
-            newTask.pipe(this.customscrollview);
-            // newTask.pipe(this.customdragsort);
-            this.customscrollview.pipe(node);
-            _openInputListener.call(this, newTask);
-            _closeInputListener.call(this, newTask);
-            _completionListener.call(this, newTask);
-            this.taskCount++;
-            newTask.animateIn(3);
         }.bind(this));
     }
     function _inputListeners() {
@@ -9787,7 +9827,6 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
     function _completionListener(task) {
         task.on("completed", function() {
             this.taskCount--;
-            console.log(this.tasks[0]);
             window.completionMod.setOpacity(.8, {
                 duration: this.options.completionDuration
             }, function() {
@@ -10505,6 +10544,7 @@ require.register("app/main/views/TaskItem.js", function(exports, require, module
         this.deleteBox.addClass("invisible");
         this.draggable.setPosition([ -1 * this.options.deleteCheckWidth - window.innerWidth, 0 ], this.options.taskItemExitTransition, function() {
             console.log("check me off");
+            vibrate();
             this._eventOutput.emit("completed");
             this._eventOutput.emit("deleteTask");
         }.bind(this));
@@ -10512,6 +10552,7 @@ require.register("app/main/views/TaskItem.js", function(exports, require, module
     function _deleteTask() {
         this.checkBox.addClass("invisible");
         this.draggable.setPosition([ this.options.deleteCheckWidth + window.innerWidth, 0 ], this.options.taskItemExitTransition, function() {
+            vibrate();
             this._eventOutput.emit("deleted");
             this._eventOutput.emit("deleteTask");
         }.bind(this));
@@ -10554,6 +10595,9 @@ require.register("app/main/views/TaskItem.js", function(exports, require, module
                 });
             }.bind(this), 5);
         }.bind(this));
+    }
+    function vibrate() {
+        navigator.notification.vibrate(300);
     }
     module.exports = TaskItem;
 }.bind(this));
@@ -10656,15 +10700,18 @@ require.register("app/main/views/customScrollView.js", function(exports, require
         }
     }
     function deleteTask(indexObj) {
+        console.log(this.node.getAllLinkedNodes());
         if (indexObj.index === this.node.index) {
-            if (this.node.find(this.node.index + 1)) this.node = this.node.find(this.node.index + 1);
+            if (this.node._next) this.node = this.node._next;
         }
         this.node.splice(indexObj.index, 1);
         var currentNode = this.node.find(0);
-        while (currentNode) {
-            currentNode.array[currentNode.index].taskItem.index = currentNode.index;
-            currentNode.setPosition([ 0, 0 ]);
-            currentNode = currentNode.getNext();
+        if (currentNode.array.length) {
+            while (currentNode) {
+                currentNode.array[currentNode.index].taskItem.index = currentNode.index;
+                currentNode.setPosition([ 0, 0 ]);
+                currentNode = currentNode.getNext();
+            }
         }
     }
     function swapPage(indexObj) {
@@ -10682,16 +10729,18 @@ require.register("app/main/views/customScrollView.js", function(exports, require
             if (indexObj.index === this.node.index) {
                 if (this.node.find(this.node.index + 1)) this.node = this.node.find(this.node.index + 1);
             }
-            this.eventOutput.emit("saveNewTask", {
+            this.eventOutput.emit("moveTaskToNewPage", {
                 page: indexObj.page,
                 text: this.node.splice(indexObj.index, 1).taskItem.text,
                 direction: indexObj.direction
             });
             var currentNode = this.node.find(0);
-            while (currentNode) {
-                currentNode.array[currentNode.index].taskItem.index = currentNode.index;
-                currentNode.setPosition([ 0, 0 ]);
-                currentNode = currentNode.getNext();
+            if (currentNode.array.length) {
+                while (currentNode) {
+                    currentNode.array[currentNode.index].taskItem.index = currentNode.index;
+                    currentNode.setPosition([ 0, 0 ]);
+                    currentNode = currentNode.getNext();
+                }
             }
         }.bind(this), 300);
     }

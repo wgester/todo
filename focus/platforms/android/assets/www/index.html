@@ -1,3 +1,5 @@
+<!-- this is where the index.html file is edited for the www webview in cordova.  The famous build tool overwrites the index file and then my buildscript copies this file into the webview's index.html -->
+
 <!DOCTYPE HTML>
 <html>
 <head>
@@ -8,17 +10,22 @@
     <link rel="stylesheet" type="text/css" href="build.css" />
     
     <script type="text/javascript" src="build.js" ></script>
-    <script type="text/javascript" src="cordova.js" ></script>
+<script type="text/javascript" src="cordova.js" ></script>
 </head>
 <body></body>
 
 <script>
 
 document.addEventListener("deviceready", _startApp, false);
+document.addEventListener("resume", _vibrateOnResume, false);
 
 function _startApp() {
     // _famous();
     _accessFileSystem();
+}
+
+function _vibrateOnResume() {
+    navigator.notification.vibrate(300);
 }
 
 function _famous() {
@@ -54,7 +61,6 @@ function _gotReader(file) {
 
 function _gotWriter(writer) {
     writer.onwriteend = function(evt) {
-        navigator.notification.vibrate();
         window.FileReader.read();
     };
     window.FileWriter = writer;
