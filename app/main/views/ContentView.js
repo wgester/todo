@@ -134,7 +134,7 @@ function _createNewTask(data) {
         }
       });
       var node = this.customdragsort;
-      var newTask = new TaskView({text: val, index: newIndex, page: this.options.title});
+      var newTask = new TaskView({text: data.text, index: newIndex, page: this.title});
       this.customdragsort.push(newTask);
       if(node.getNext()) node = node._next;
       newTask.pipe(node);
@@ -155,7 +155,7 @@ function _createNewTask(data) {
       newTask.animateIn(3);
         
     } else {
-      var newTask = new TaskView({text: val, index: newIndex, page: this.options.title});
+      var newTask = new TaskView({text: data.text, index: newIndex, page: this.title});
       this.customdragsort.push(newTask);
       for (var j = 0; j < newIndex - 1; j++) {
         node = node._next;
@@ -174,6 +174,7 @@ function _createNewTask(data) {
       _completionListener.call(this, newTask);
       this.taskCount++;
       newTask.animateIn(3);
+    }
   }
 
 };
