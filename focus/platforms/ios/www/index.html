@@ -13,10 +13,57 @@
 <body></body>
 
 <script>
-	document.addEventListener("deviceready", _famous, false);
-	function _famous() {
-	    require(["app/main/index.js"]);
-	}
+
+document.addEventListener("deviceready", _startApp, false);
+
+function _startApp() {
+    _famous();
+    _accessFileSystem();
+}
+
+function _famous() {
+    require(["app/main/index.js"]);
+}
+
+function _accessFileSystem() {
+    window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, _gotFileSystem, _fail);
+}
+
+function _gotFileSystem(fileSystem) {
+    fileSystem.root.getFile("focusData.json", {create: true, exclusive: false}, _gotFileEntry, _fail);
+}
+
+function _gotFileEntry(fileEntry) {
+    fileEntry.file        (_gotReader, _fail);
+    fileEntry.createWriter(_gotWriter, _fail);
+}
+
+function _gotReader(file) {
+    window._dataFile = file;
+    window._FileReader = new FileReader();
+    window._FileReader.onloadend = function(evt) {
+        window._taskData = JSON.parse(evt.target.result);
+    }
+    window.FileReader = {
+        read: function() {
+            window._FileReader.readAsText(window._dataFile);
+        }
+    }
+}
+
+function _gotWriter(writer) {
+    writer.onwriteend = function(evt) {
+        navigator.notification.vibrate();
+        window.FileReader.read();
+    };
+    window.FileWriter = writer;
+    window.FileWriter.write('[{"text":"make an app","page":"FOCUS"},{"text":"moonlight as catwoman","page":"FOCUS"},{"text":"find phone","page":"TODAY"},{"text":"be awesome","page":"TODAY"},{"text":"make app, heeeere","page":"TODAY"},{"text":"eat lunch","page":"TODAY"},{"text":"eat dinner","page":"TODAY"},{"text":"eat dinner","page":"LATER"},{"text":"eat dinner","page":"LATER"},{"text":"eat dinner","page":"LATER"},{"text":"eat dinner","page":"LATER"},{"text":"eat dinner","page":"LATER"},{"text":"eat dinner","page":"LATER"},{"text":"eat lunch","page":"TODAY"},{"text":"eat dinner","page":"TODAY"},{"text":"eat lunch","page":"TODAY"},{"text":"eat dinner","page":"NEVER"},{"text":"eat lunch","page":"NEVER"},{"text":"eat dinner","page":"NEVER"},{"text":"finish work","page":"TODAY"}]');
+}
+
+function _fail(evt) {
+    alert('error');
+    alert(evt.target.error.code);
+}
 </script>
 
 </html>

@@ -11,7 +11,7 @@ var HeaderFooter      = require('famous/views/header-footer-layout');
 var Utility           = require('famous/utilities/utility');
 var Color             = require('./Color');
 
-var Tasks             = require('./data');
+var Tasks             = window._taskData;
 var TaskView          = require('./TaskView');
 var HeaderView        = require('./HeaderView');
 var FooterView        = require('./FooterView');

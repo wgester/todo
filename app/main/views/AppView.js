@@ -12,6 +12,9 @@ function AppView() {
   View.apply(this, arguments);
   this.headerSizeTransitionable = new Transitionable([70]);
 
+  //resume event is fired when the app is reopened from background status on the phone
+  document.addEventListener('resume', _renderFocusPage.bind(this));
+
   _createGradientSurfaces.call(this);
   _createCompletionSurface.call(this);
   _createLightBox.call(this);
@@ -178,7 +181,6 @@ function _createAppViews() {
 function _renderFocusPage() {
   this.lightBox.show(this.FOCUSView);
   this.FOCUSView.contents.animateTasksIn('FOCUS');
-
 };
 
 function _createGradientSurfaces(pages) {
