@@ -154,10 +154,10 @@ function _newTaskListener() {
     if (this.options.title === 'FOCUS' && this.taskCount > 2) {
       return;
     }
-
-    var newTask = new TaskView({text: val, index: this.taskCount, page: this.options.title});
+    var newIndex = this.customdragsort.array.length;
+    var newTask = new TaskView({text: val, index: newIndex, page: this.options.title});
     this.customdragsort.push(newTask);
-    for (var j = 0; j < this.taskCount - 1; j++) {
+    for (var j = 0; j < newIndex - 1; j++) {
       node = node._next;
     }
     if(node.getNext()) node = node._next;
