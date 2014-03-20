@@ -261,7 +261,10 @@ function _closeInputListener(task) {
 
 function _unhideTaskListener() {
   this.on('unhideEditedTask', function() {
-    this.editedTask._eventOutput.emit('unhide');
+    if (this.editTask) {
+      this.editedTask._eventOutput.emit('unhide');
+      this.editTask = false;
+    }
   }.bind(this));
 };
 
