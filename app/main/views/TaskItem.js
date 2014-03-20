@@ -110,18 +110,11 @@ function _bindEvents() {
     this._eventInput.on('touchstart', handleStart.bind(this));
     this._eventInput.on('touchmove', handleMove.bind(this));
     this._eventInput.on('touchend', handleEnd.bind(this));
-    this._eventInput.on('click', handleClick.bind(this));
     this.on('saveTask', saveTask.bind(this));
     this.on('transformTask', transformTask.bind(this));
     this.on('unhide', unhideTask.bind(this));
     Engine.on('prerender', findTimeDeltas.bind(this));
     Engine.on('prerender', checkForDragging.bind(this));
-}
-
-function handleClick() {
-    if (this.timeTouched < this.clickThreshold) {
-
-    }
 }
 
 function handleStart(data) {
