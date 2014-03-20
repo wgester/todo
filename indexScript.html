@@ -17,15 +17,14 @@
 <script>
 
 document.addEventListener("deviceready", _startApp, false);
-document.addEventListener("resume", _vibrateOnResume, false);
 
 function _startApp() {
     // _famous();
     _accessFileSystem();
 }
 
-function _vibrateOnResume() {
-    navigator.notification.vibrate(300);
+if (_isAndroid()) {
+    window.AndroidKeyboard = SoftKeyboard;
 }
 
 function _famous() {

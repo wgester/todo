@@ -8772,7 +8772,7 @@ require.register("app/main/index.js", function(exports, require, module) {
     var SpringTransition = require("famous/transitions/spring-transition");
     var Timer = require("famous/utilities/timer");
     var CanvasSurface = require("famous/surfaces/canvas-surface");
-    var devMode = false;
+    var devMode = true;
     Transitionable.registerMethod("wall", WallTransition);
     Transitionable.registerMethod("spring", SpringTransition);
     var mainCtx = window.Engine.createContext();
@@ -9019,6 +9019,8 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
             this._eventOutput.emit("swapPages", text);
         }.bind(this));
         newView.on("togglePageViewUp", function() {
+            console.log("toggle page up!");
+            newView.contents.resetAnimations(newView.options.title);
             if (newView.nextPage) {
                 if (!this.lightBox.optionsForSwipeUp) {
                     this.lightBox.setOptions({
@@ -9038,6 +9040,8 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
             }
         }.bind(this));
         newView.on("togglePageViewDown", function() {
+            console.log("toggle page down!");
+            newView.contents.resetAnimations(newView.options.title);
             if (newView.previousPage) {
                 if (this.lightBox.optionsForSwipeUp) {
                     this.lightBox.setOptions({
@@ -9049,7 +9053,6 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
                     this.lightBox.optionsForSwipeUp = false;
                 }
                 this.lightBox.show(newView.previousPage);
-                console.log(newView.previousPage.options.title);
                 newView.previousPage.contents.animateTasksIn(newView.previousPage.options.title);
                 newView.previousPage.contents._eventOutput.emit("opened");
                 newView.previousPage.header._eventOutput.emit("opened");
@@ -9070,7 +9073,6 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
     }
     function _renderFocusPage() {
         this.lightBox.show(this.FOCUSView);
-        this.FOCUSView.contents.animateTasksIn("FOCUS");
     }
     function _createGradientSurfaces(pages) {
         window.faderSurfaces = [];
@@ -9592,7 +9594,8 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
     var View = require("famous/view");
     var Scrollview = require("famous/views/scrollview");
     var TaskView = require("./TaskView");
-    var Tasks = window._taskData || [];
+    // var Tasks             = window._taskData || [];
+    var Tasks = require("./data");
     var Box = require("./BoxView");
     var BoxContainer = require("./BoxContainer");
     var Timer = require("famous/utilities/timer");
@@ -9605,16 +9608,20 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
         View.apply(this, arguments);
         this.lightness = 75;
         this.inputToggled = false;
-        this.shown = {};
         this.title = this.options.title;
+        this.notAnimated = true;
+        this.shown = {};
+        this.toShow = {};
+        this.scrolled = false;
         _setBackground.call(this);
         _createTasks.call(this);
         _setListeners.call(this);
+        _monitorOffsets.call(this);
     }
     ContentView.prototype = Object.create(View.prototype);
     ContentView.prototype.constructor = ContentView;
     ContentView.DEFAULT_OPTIONS = {
-        title: "later",
+        title: "FOCUS",
         classes: [ "contents" ],
         inputDuration: 300,
         views: {
@@ -9629,6 +9636,14 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
     function _isAndroid() {
         var userAgent = navigator.userAgent.toLowerCase();
         return userAgent.indexOf("android") > -1;
+    }
+    function _setUpOffsets() {
+        this.offsets = [];
+        this.focusOffsets = {};
+        this.todayOffsets = {};
+        this.laterOffsets = {};
+        this.neverOffsets = {};
+        this.offsets.push(this.focusOffsets, this.todayOffsets, this.laterOffsets, this.neverOffsets);
     }
     function _setBackground() {
         var index = this.options.views[this.options.title][0];
@@ -9687,6 +9702,11 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
         _inputListeners.call(this);
         _unhideTaskListener.call(this);
         this._eventInput.on("swapPages", _createNewTask.bind(this));
+        this._eventInput.on("offsets", function() {
+            this.animateTasksIn(this.options.title);
+            this.notAnimated = false;
+            console.log("hit!");
+        }.bind(this));
     }
     ContentView.prototype._newScrollView = function(data, newIndex) {
         this.customscrollview = new CustomScrollView({
@@ -9739,7 +9759,7 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
         _openInputListener.call(this, newTask);
         _closeInputListener.call(this, newTask);
         _completionListener.call(this, newTask);
-        newTask.animateIn(3);
+        newTask.appearIn.call(newTask);
     }
     function _createNewTask(data) {
         var pages = {
@@ -9766,6 +9786,7 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
             if (this.options.title === "FOCUS" && this.taskCount > 2) {
                 return;
             }
+            this.taskCount++;
             var node = this.customscrollview.node;
             var newIndex = this.customdragsort.array.length;
             if (!newIndex) {
@@ -9812,7 +9833,10 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
     }
     function _unhideTaskListener() {
         this.on("unhideEditedTask", function() {
-            this.editedTask._eventOutput.emit("unhide");
+            if (this.editTask) {
+                this.editedTask._eventOutput.emit("unhide");
+                this.editTask = false;
+            }
         }.bind(this));
     }
     function _gradientListener() {
@@ -9842,37 +9866,61 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
             this.taskCount--;
         }.bind(this));
     }
+    function getTitleIndex(title) {
+        var titles = {
+            FOCUS: 0,
+            TODAY: 1,
+            LATER: 2,
+            NEVER: 3
+        };
+        return titles[title];
+    }
+    function _monitorOffsets() {
+        var index = getTitleIndex(this.title);
+        var scrollview;
+        Engine.on("prerender", function() {
+            if (this.title) {
+                if (this.customscrollview.options.page === this.title) scrollview = this.customscrollview;
+                if (this.notAnimated) {
+                    if (scrollview._offsets[0] !== undefined) {
+                        this._eventOutput.emit("offsets");
+                        console.log("emitted offsets!");
+                    }
+                }
+            }
+        }.bind(this));
+    }
     ContentView.prototype.animateTasksIn = function(title) {
         var counter = 1;
-        Engine.on("prerender", function() {
-            var toShow = {};
-            var scrollview;
-            if (this.customscrollview.options.page === title) scrollview = this.customscrollview;
-            if (scrollview._offsets[0] === undefined) return;
-            //if task is moved, if task is added
+        var index = getTitleIndex(title);
+        var scrollview;
+        if (this.customscrollview.options.page === title) scrollview = this.customscrollview;
+        if (scrollview._offsets) {
             for (var task in scrollview._offsets) {
                 if (task !== "undefined") {
-                    var taskObject = scrollview.node.array[task];
                     var taskOffset = scrollview._offsets[task];
-                    if (taskOffset > -10 && taskOffset < window.innerHeight && !this.shown[taskObject]) {
-                        toShow[taskObject] = true;
-                        if (!this.shown[taskObject] && taskObject) {
+                    if (taskOffset > -10 && taskOffset < window.innerHeight && this.shown[task] !== title) {
+                        this.toShow[task] = title;
+                        if (scrollview.node.array[task]) {
                             counter++;
-                            taskObject.animateIn(counter);
+                            scrollview.node.array[task].animateIn(counter);
+                            this.toShow[task] = undefined;
                         }
                     }
                 }
             }
-            // for(var taskObj in this.shown) {
-            //   if(!toShow[taskObj] && taskObj) {
-            //     console.log(taskObj)
-            //     taskObj.resetAnimation();
-            //   }
-            // }
-            this.shown = toShow;
-            // if task is in shown, it's been animated in
-            toShow = {};
-        }.bind(this));
+            this.shown = this.toShow;
+        }
+    };
+    ContentView.prototype.resetAnimations = function(title) {
+        var scrollview;
+        if (this.customscrollview.options.page === title) scrollview = this.customscrollview;
+        console.log("in reset ", title);
+        for (var task in this.shown) {
+            if (this.toShow[task] !== title && scrollview.node.array[task]) {
+                scrollview.node.array[task].resetAnimation(title);
+            }
+        }
     };
     module.exports = ContentView;
 }.bind(this));
@@ -9938,7 +9986,8 @@ require.register("app/main/views/HeaderView.js", function(exports, require, modu
         title: "LATER",
         openDuration: 800,
         closedDuration: 100,
-        inputDuration: 300
+        inputInDuration: 300,
+        inputOutDuration: 200
     };
     function _isAndroid() {
         var userAgent = navigator.userAgent.toLowerCase();
@@ -9949,11 +9998,11 @@ require.register("app/main/views/HeaderView.js", function(exports, require, modu
         this.bodMod = new Modifier();
         if (_isAndroid()) {
             this.boxMod = new Modifier({
-                transform: Transform.translate(0, 100, 0)
+                transform: Transform.translate(0, 110, 0)
             });
         } else {
             this.boxMod = new Modifier({
-                transform: Transform.translate(0, 90, 0)
+                transform: Transform.translate(0, 100, 0)
             });
         }
         this._add(this.boxMod).add(this.boxContainer);
@@ -10012,15 +10061,23 @@ require.register("app/main/views/HeaderView.js", function(exports, require, modu
                 visibility: "visible"
             });
             this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [ this.inputXOffset, 70, this.inputZOffset ]), {
-                duration: this.options.inputDuration
-            });
+                duration: this.options.inputInDuration
+            }, function() {
+                this._eventOutput.emit("inputRotated");
+                this.boxContainer.inputSurf.setProperties({
+                    visibility: "hidden"
+                });
+            }.bind(this));
         }.bind(this));
         this.on("hideInput", function() {
             this.value = this.boxContainer.inputSurf.getValue();
             this.boxContainer.inputSurf.setValue("");
             this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [ this.inputXOffset, 0, this.inputZOffset ]), {
-                duration: this.options.inputDuration
+                duration: this.options.inputOutDuration
             }, function() {
+                this.boxContainer.inputSurf.setProperties({
+                    visibility: "visible"
+                });
                 this.boxContainer.frontSurf.setProperties({
                     visibility: "hidden"
                 });
@@ -10181,7 +10238,8 @@ require.register("app/main/views/PageView.js", function(exports, require, module
     var HeaderFooter = require("famous/views/header-footer-layout");
     var Utility = require("famous/utilities/utility");
     var Color = require("./Color");
-    var Tasks = window._taskData || [];
+    // var Tasks             = window._taskData || [];
+    var Tasks = require("./data");
     var TaskView = require("./TaskView");
     var HeaderView = require("./HeaderView");
     var FooterView = require("./FooterView");
@@ -10240,11 +10298,12 @@ require.register("app/main/views/PageView.js", function(exports, require, module
             transform: Transform.translate(0, 600, 0)
         });
         this.shadow.on("touchstart", function() {
-            var editedText = this.editSurface.getValue();
-            var editedTask = this.contents.customdragsort.array[this.taskIndex].taskItem;
-            editedTask._eventOutput.emit("saveTask", editedText);
+            if (this.newTaskOpened) {
+                this.taskIndex = this.contents.customdragsort.array.length;
+                this.editTaskOffset = this.options.title === "FOCUS" ? window.innerHeight / 2 + this.taskIndex * 60 - 10 : (this.taskIndex + 1) * 60 + 90;
+            }
             _editInputFlyOut.call(this);
-            Timer.after(_lightboxFadeOut.bind(this), 10);
+            Timer.after(_lightboxFadeOut.bind(this), this.taskIndex);
         }.bind(this));
         this.editLightBox._add(this.editMod).add(this.editSurface);
         this.editLightBox._add(this.shadowMod).add(this.shadow);
@@ -10264,6 +10323,7 @@ require.register("app/main/views/PageView.js", function(exports, require, module
         this.contents = new ContentView({
             title: this.options.title
         });
+        this.contents._eventOutput.pipe(this.contents._eventInput);
         this.layout.id["header"].add(this.header);
         this.layout.id["content"].add(this.contents);
         this.layout.id["footer"].add(Utility.transformInFront).add(this.footer);
@@ -10290,18 +10350,7 @@ require.register("app/main/views/PageView.js", function(exports, require, module
                 }, function() {});
             }
         }.bind(this));
-        this.contents.on("hideInput", function() {
-            this.header._eventOutput.emit("hideInput");
-            if (this.options.title !== "FOCUS") {
-                this.headerSizeTransitionable.set([ this.options.regSmallHeader ], {
-                    duration: this.options.headerSizeDuration
-                }, function() {
-                    this.header.value.length && this.contents._eventOutput.emit("saveNewTask", this.header.value);
-                }.bind(this));
-            } else if (this.header.value.length) {
-                this.contents._eventOutput.emit("saveNewTask", this.header.value);
-            }
-        }.bind(this));
+        this.contents.on("hideInput", _rotateInputBack.bind(this));
         this.header.on("focusHideInput", function() {
             this.header._eventOutput.emit("hideInput");
             this.header.value.length && this.contents._eventOutput.emit("saveNewTask", this.header.value);
@@ -10310,12 +10359,27 @@ require.register("app/main/views/PageView.js", function(exports, require, module
             this.taskIndex = options.index;
             this.editSurface.setValue(options.text);
             _lightboxFadeIn.call(this);
+            this.editTaskOffset = this.options.title === "FOCUS" ? window.innerHeight / 2 + this.taskIndex * 60 - 10 : (this.taskIndex + 1) * 60 + 20;
+            _editInputFlyIn.call(this);
+        }.bind(this));
+        this.header.on("inputRotated", function() {
+            this.newTaskOpened = true;
+            _lightboxFadeIn.call(this);
+            this.editTaskOffset = 90;
             _editInputFlyIn.call(this);
         }.bind(this));
     }
+    function _rotateInputBack() {
+        this.header._eventOutput.emit("hideInput");
+        if (this.options.title !== "FOCUS") {
+            this.headerSizeTransitionable.set([ this.options.regSmallHeader ], {
+                duration: this.options.headerSizeDuration
+            }, function() {}.bind(this));
+        }
+    }
     function _lightboxFadeOut() {
         this.editLBMod.setOpacity(.01, {
-            duration: 400
+            duration: 600 + this.taskIndex * 10
         }, function() {
             this.editLBMod.setTransform(Transform.translate(0, 0, -10));
         }.bind(this));
@@ -10330,19 +10394,31 @@ require.register("app/main/views/PageView.js", function(exports, require, module
         }.bind(this));
     }
     function _editInputFlyIn() {
-        this.editTaskOffset = this.options.title === "FOCUS" ? window.innerHeight / 2 + this.taskIndex * 60 - 10 : (this.taskIndex + 1) * 60 - 10;
         this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0));
         this.editMod.setTransform(Transform.translate(0, 20, 0), this.options.editInputAnimation, function() {
             this.editSurface.focus();
-            SoftKeyboard && SoftKeyboard.show();
         }.bind(this));
     }
     function _editInputFlyOut() {
-        SoftKeyboard && SoftKeyboard.hide();
+        // SoftKeyboard && SoftKeyboard.hide();
         this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0), {
             duration: 300
         }, function() {
-            this.contents._eventOutput.emit("unhideEditedTask");
+            this.contents.editTask = this.newTaskOpened ? false : true;
+            if (this.newTaskOpened) {
+                var newText = this.editSurface.getValue();
+                this.editSurface.setValue("");
+                newText.length && this.contents._eventOutput.emit("saveNewTask", newText);
+                this.contents._eventOutput.emit("unhideEditedTask");
+                Timer.after(_rotateInputBack.bind(this), 8);
+                this.newTaskOpened = false;
+            } else {
+                var editedText = this.editSurface.getValue();
+                var editedTask = this.contents.customdragsort.array[this.taskIndex].taskItem;
+                this.editSurface.setValue("");
+                editedTask._eventOutput.emit("saveTask", editedText);
+                this.contents._eventOutput.emit("unhideEditedTask");
+            }
         }.bind(this));
     }
     module.exports = PageView;
@@ -10520,6 +10596,7 @@ require.register("app/main/views/TaskItem.js", function(exports, require, module
     }
     function dragmode() {
         this.contents.addClass("dragging");
+        console.log(this.contents.properties);
         this.taskItemModifier.setTransform(Matrix.translate(0, 0, 40), {
             curve: "easeOut",
             duration: 300
@@ -10568,9 +10645,7 @@ require.register("app/main/views/TaskItem.js", function(exports, require, module
         this.contents.setContent("<p>" + text + "</p>");
     }
     function unhideTask() {
-        this.contents.setProperties({
-            display: "block"
-        });
+        this.taskItemModifier.setOpacity(1);
         this.taskItemModifier.setTransform(Matrix.translate(0, 0, 0), {
             curve: "easeOut",
             duration: 300
@@ -10593,9 +10668,7 @@ require.register("app/main/views/TaskItem.js", function(exports, require, module
                 index: this.index
             });
             Timer.after(function() {
-                this.contents.setProperties({
-                    display: "none"
-                });
+                this.taskItemModifier.setOpacity(.01);
             }.bind(this), 5);
         }.bind(this));
     }
@@ -10632,23 +10705,40 @@ require.register("app/main/views/TaskView.js", function(exports, require, module
         this.taskItemModifier = new Modifier({
             transform: Transform.translate(-1 * this.options.deleteCheckWidth, 1e3, 0),
             size: [ undefined, 60 ],
-            opacity: .1
+            opacity: .01
         });
         this.taskItem.pipe(this._eventOutput);
         this._add(this.taskItemModifier).add(this.taskItem);
     }
     /*-----------------------ANIMATION-------------------------------*/
     function animateIn(counter) {
-        this.taskItemModifier.setTransform(Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0), {
+        var deleteCheck = -1 * this.options.deleteCheckWidth;
+        this.taskItemModifier.setTransform(//////// SPRING MORE
+        Transform.translate(deleteCheck, 0, 0), {
             duration: 180 * counter,
             curve: "easeInOut"
-        }, function() {});
+        }, function() {
+            this.taskItemModifier.setTransform(Transform.translate(deleteCheck, -5, 0), {
+                duration: 200,
+                curve: "easeInOut"
+            }, function() {
+                this.taskItemModifier.setTransform(Transform.translate(deleteCheck, 0, 0), {
+                    duration: 180 * counter,
+                    curve: "easeInOut"
+                }, function() {}.bind(this));
+            }.bind(this));
+        }.bind(this));
         this.taskItemModifier.setOpacity(1, this.options.transition, function() {});
     }
+    TaskView.prototype.appearIn = function() {
+        this.taskItemModifier.setTransform(Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0));
+        this.taskItemModifier.setOpacity(1);
+    };
     function resetAnimation() {
         console.log("reset");
         this.taskItemModifier.setOpacity(.1, this.options.transition, function() {});
         this.taskItemModifier.setTransform(Transform.translate(-1 * this.options.deleteCheckWidth, 1e3, 0), this.options.transition, function() {});
+        this.taskItemModifier.setOpacity(.1, this.options.transition, function() {});
     }
     module.exports = TaskView;
 }.bind(this));
@@ -12515,6 +12605,7 @@ require.config({
             "famous/view": "famous_modules/famous/view/_git_modularized/index.js",
             "famous/views/scrollview": "famous_modules/famous/views/scrollview/_git_modularized/index.js",
             "./TaskView": "app/main/views/TaskView.js",
+            "./data": "app/main/views/data.js",
             "./BoxView": "app/main/views/BoxView.js",
             "./BoxContainer": "app/main/views/BoxContainer.js",
             "famous/utilities/timer": "famous_modules/famous/utilities/timer/_git_modularized/index.js",
@@ -12563,6 +12654,7 @@ require.config({
             "famous/views/header-footer-layout": "famous_modules/famous/views/header-footer-layout/_git_modularized/index.js",
             "famous/utilities/utility": "famous_modules/famous/utilities/utility/_git_modularized/index.js",
             "./Color": "app/main/views/Color.js",
+            "./data": "app/main/views/data.js",
             "./TaskView": "app/main/views/TaskView.js",
             "./HeaderView": "app/main/views/HeaderView.js",
             "./FooterView": "app/main/views/FooterView.js",
