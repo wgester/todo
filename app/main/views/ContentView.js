@@ -4,7 +4,8 @@ var Transform         = require('famous/transform');
 var View              = require('famous/view');
 var Scrollview        = require('famous/views/scrollview');
 var TaskView          = require('./TaskView');
-var Tasks             = window._taskData || [];
+// var Tasks             = window._taskData || [];
+var Tasks             = require('./data');
 var Box               = require('./BoxView');
 var BoxContainer      = require('./BoxContainer');
 var Timer             = require('famous/utilities/timer');
@@ -174,10 +175,10 @@ ContentView.prototype._addToList = function(data, newIndex, node) {
 }
 
 function _activateTasks(newTask) {
-      _openInputListener.call(this, newTask);
-      _closeInputListener.call(this, newTask);
-      _completionListener.call(this, newTask);
-      newTask.animateIn(3);
+  _openInputListener.call(this, newTask);
+  _closeInputListener.call(this, newTask);
+  _completionListener.call(this, newTask);
+  newTask.appearIn.call(newTask);
 }
 
 function _createNewTask(data) {
@@ -210,7 +211,8 @@ function _newTaskListener() {
     if (this.options.title === 'FOCUS' && this.taskCount > 2) {
       return;
     }
-
+    this.taskCount++;
+    
     var node = this.customscrollview.node;
     var newIndex = this.customdragsort.array.length;
     if (!newIndex) {
@@ -261,7 +263,10 @@ function _closeInputListener(task) {
 
 function _unhideTaskListener() {
   this.on('unhideEditedTask', function() {
-    this.editedTask._eventOutput.emit('unhide');
+    if (this.editTask) {
+      this.editedTask._eventOutput.emit('unhide');
+      this.editTask = false;
+    }
   }.bind(this));
 };
 
