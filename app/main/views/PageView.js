@@ -10,7 +10,8 @@ var Draggable         = require('famous/modifiers/draggable');
 var HeaderFooter      = require('famous/views/header-footer-layout');
 var Utility           = require('famous/utilities/utility');
 var Color             = require('./Color');
-var Tasks             = window._taskData || [];
+// var Tasks             = window._taskData || [];
+var Tasks             = require('./data');
 var TaskView          = require('./TaskView');
 var HeaderView        = require('./HeaderView');
 var FooterView        = require('./FooterView');
@@ -82,15 +83,12 @@ function _createEditLightbox() {
 
   this.shadow.on('touchstart', function() {
     if(this.newTaskOpened) {
-      this.taskIndex = this.contents.taskCount;
+      this.taskIndex = this.contents.customdragsort.array.length;
       this.editTaskOffset = this.options.title === 'FOCUS' ?  window.innerHeight / 2 + this.taskIndex * 60 - 10: (this.taskIndex + 1) * 60 + 90;
     } else {
-      var editedText = this.editSurface.getValue();
-      var editedTask = this.contents.customdragsort.array[this.taskIndex].taskItem;
-      editedTask._eventOutput.emit('saveTask', editedText);    
     }
     _editInputFlyOut.call(this);
-    Timer.after(_lightboxFadeOut.bind(this), 10);
+    Timer.after(_lightboxFadeOut.bind(this), 5);
   }.bind(this));
 
   this.editLightBox._add(this.editMod).add(this.editSurface);
@@ -192,12 +190,21 @@ function _editInputFlyOut() {
   // SoftKeyboard && SoftKeyboard.hide();
   this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0), {duration: 300}, function() {
     this.contents.editTask = this.newTaskOpened ? false : true;
-    this.newTaskOpened = false;
-    this.contents._eventOutput.emit('unhideEditedTask');
-    var newText = this.editSurface.getValue();
-    this.editSurface.setValue('');
-    this.contents._eventOutput.emit('saveNewTask', newText);
-    Timer.after(_rotateInputBack.bind(this), 20);
+    if (this.newTaskOpened) {
+      var newText = this.editSurface.getValue();
+      this.editSurface.setValue('');
+      newText.length && this.contents._eventOutput.emit('saveNewTask', newText);
+      this.contents._eventOutput.emit('unhideEditedTask');
+      Timer.after(_rotateInputBack.bind(this), 8);
+      this.newTaskOpened = false;      
+    } else {
+      var editedText = this.editSurface.getValue();
+      var editedTask = this.contents.customdragsort.array[this.taskIndex].taskItem;
+      this.editSurface.setValue('');
+      editedTask._eventOutput.emit('saveTask', editedText);    
+      this.contents._eventOutput.emit('unhideEditedTask');
+    }
+    
   }.bind(this));
 };
 

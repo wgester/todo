@@ -27,7 +27,8 @@ HeaderView.DEFAULT_OPTIONS = {
   title: 'LATER',
   openDuration: 800,
   closedDuration: 100,
-  inputDuration: 300
+  inputInDuration: 300,
+  inputOutDuration: 200
 };
 
 function _isAndroid() {
@@ -107,7 +108,7 @@ function _setInputListener() {
   this.on('showInput', function(e) {
     this.boxContainer.frontSurf.setProperties({'visibility': 'visible'});
 
-    this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [this.inputXOffset, 70, this.inputZOffset]), {duration: this.options.inputDuration}, function() {
+    this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [this.inputXOffset, 70, this.inputZOffset]), {duration: this.options.inputInDuration}, function() {
       this._eventOutput.emit('inputRotated');
       this.boxContainer.inputSurf.setProperties({'visibility': 'hidden'});
     }.bind(this));
@@ -116,7 +117,7 @@ function _setInputListener() {
   this.on('hideInput', function() {
     this.value = this.boxContainer.inputSurf.getValue();
     this.boxContainer.inputSurf.setValue('');
-    this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [this.inputXOffset, 0, this.inputZOffset]), {duration: this.options.inputDuration}, function() {
+    this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [this.inputXOffset, 0, this.inputZOffset]), {duration: this.options.inputOutDuration}, function() {
       this.boxContainer.inputSurf.setProperties({'visibility': 'visible'});
       this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
     }.bind(this));
