@@ -210,7 +210,8 @@ function _newTaskListener() {
     if (this.options.title === 'FOCUS' && this.taskCount > 2) {
       return;
     }
-
+    this.taskCount++;
+    
     var node = this.customscrollview.node;
     var newIndex = this.customdragsort.array.length;
     if (!newIndex) {
