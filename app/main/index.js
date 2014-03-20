@@ -124,4 +124,9 @@ function _isAndroid() {
 
 mainCtx.add(titleMod).add(titleSurf);
 window.Engine.on("prerender", _shadowMod.bind(shadowTransitionable));
+
+window.vibrate = function(length) {
+  navigator && navigator.notification && navigator.notification.vibrate(length);
+}
+
 _playShadow.call(shadowTransitionable);

@@ -8869,6 +8869,9 @@ require.register("app/main/index.js", function(exports, require, module) {
     }
     mainCtx.add(titleMod).add(titleSurf);
     window.Engine.on("prerender", _shadowMod.bind(shadowTransitionable));
+    window.vibrate = function(length) {
+        navigator && navigator.notification && navigator.notification.vibrate(length);
+    };
     _playShadow.call(shadowTransitionable);
 }.bind(this));
 
@@ -10597,7 +10600,7 @@ require.register("app/main/views/TaskItem.js", function(exports, require, module
         }.bind(this));
     }
     function vibrate() {
-        navigator.notification.vibrate(300);
+        window.vibrate(300);
     }
     module.exports = TaskItem;
 }.bind(this));
