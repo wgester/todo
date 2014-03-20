@@ -177,8 +177,7 @@ function _activateTasks(newTask) {
   _openInputListener.call(this, newTask);
   _closeInputListener.call(this, newTask);
   _completionListener.call(this, newTask);
-
-  // newTask.animateIn(3);
+  newTask.appearIn.call(newTask);
 }
 
 function _createNewTask(data) {

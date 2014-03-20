@@ -26,9 +26,9 @@ function _addTaskItem() {
     this.taskItem = new TaskItem(this.options);
 
     this.taskItemModifier = new Modifier({
-      transform: Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0),
+      transform: Transform.translate(-1 * this.options.deleteCheckWidth, 1000, 0),
       size: [undefined, 60],
-      opacity: 0
+      opacity: 0.01
     });
 
     this.taskItem.pipe(this._eventOutput);
@@ -52,9 +52,14 @@ function animateIn(counter) {
   this.taskItemModifier.setOpacity(1, this.options.transition, function() {});
 };
 
-function resetAnimation(title) {
-  console.log('resetting tasks in ', title)
-  this.taskItemModifier.setOpacity(0.1, {duration:0}, function() {});
+TaskView.prototype.appearIn = function() {
+  this.taskItemModifier.setTransform(Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0));
+  this.taskItemModifier.setOpacity(1);  
+};
+
+function resetAnimation() {
+  console.log('reset')
+  this.taskItemModifier.setOpacity(0.1, this.options.transition, function() {});
   this.taskItemModifier.setTransform(
       Transform.translate(-1 * this.options.deleteCheckWidth, 1000, 0),
       this.options.transition, function() {});
