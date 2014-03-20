@@ -88,7 +88,7 @@ function _createEditLightbox() {
     } else {
     }
     _editInputFlyOut.call(this);
-    Timer.after(_lightboxFadeOut.bind(this), 5);
+    Timer.after(_lightboxFadeOut.bind(this), 8);
   }.bind(this));
 
   this.editLightBox._add(this.editMod).add(this.editSurface);
