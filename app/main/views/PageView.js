@@ -85,10 +85,9 @@ function _createEditLightbox() {
     if(this.newTaskOpened) {
       this.taskIndex = this.contents.customdragsort.array.length;
       this.editTaskOffset = this.options.title === 'FOCUS' ?  window.innerHeight / 2 + this.taskIndex * 60 - 10: (this.taskIndex + 1) * 60 + 90;
-    } else {
-    }
+    } 
     _editInputFlyOut.call(this);
-    Timer.after(_lightboxFadeOut.bind(this), 8);
+    Timer.after(_lightboxFadeOut.bind(this), this.taskIndex);
   }.bind(this));
 
   this.editLightBox._add(this.editMod).add(this.editSurface);
@@ -167,7 +166,7 @@ function _rotateInputBack() {
 };
 
 function _lightboxFadeOut() {
-  this.editLBMod.setOpacity(0.01, {duration: 400}, function() {
+  this.editLBMod.setOpacity(0.01, {duration: 600 + (this.taskIndex*10)}, function() {
     this.editLBMod.setTransform(Transform.translate(0, 0, -10));
   }.bind(this));
 };
