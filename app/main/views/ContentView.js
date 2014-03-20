@@ -23,11 +23,10 @@ function ContentView(options) {
   this.shown = {}; this.toShow = {};
   this.scrolled = false;
   _setUpOffsets.call(this);
-  _monitorOffsets.call(this);
   _setBackground.call(this);
   _createTasks.call(this);
+  _monitorOffsets.call(this);
   _setListeners.call(this);
-  // this.animateTasksIn(this.title);
 
 };
 
@@ -104,7 +103,6 @@ function _createTasks() {
       newTask.pipe(this._eventInput);
       this.customscrollview.pipe(node);
       this.taskCount++;
-      console.loG
     }
   }
   this.scrollMod = new Modifier({
@@ -114,7 +112,9 @@ function _createTasks() {
   this.customscrollview.sequenceFrom(this.customdragsort);
   this.customscrollview.pipe(this._eventInput);
   this._add(this.scrollMod).add(this.customscrollview);
+  _monitorOffsets.call(this);
 
+  this.animateTasksIn(this.options.title)
 };
 
 function _setListeners() {
@@ -282,31 +282,34 @@ function _completionListener(task) {
   }.bind(this));
 };
 
-function _monitorOffsets() { // use this function to store the offsets, use animate tasks to walk through the offsets
-  var index = getTitleIndex(this.title); var scrollview;
-
-  Engine.on('prerender', function(){
-    if(this.customscrollview.options.page === this.title) scrollview = this.customscrollview;
-
-    if(scrollview._offsets[0] === undefined) return;
-
-    for(var task in scrollview._offsets) {
-      // only store the right task offset in the right object
-      this.offsets[index][task] = task;
-    }
-
-  }.bind(this));
-}
-
 function getTitleIndex(title) {
   var titles = {'FOCUS':0, 'TODAY':1, 'LATER':2, 'NEVER':3};
-  return titles[title]
+  return titles[title];
 };
 
 
+function _monitorOffsets() {
+  var index = getTitleIndex(this.title); var scrollview;
+
+  Engine.on('prerender', function(){
+    if(this.title) {
+
+      if(this.customscrollview.options.page === this.title) scrollview = this.customscrollview;
+
+      if(scrollview._offsets[0] === undefined) return;
+      for(var task in scrollview._offsets) {
+        this.offsets[index][task] = task;
+      };
+    }
+  }.bind(this));
+}
+
+
+
 ContentView.prototype.animateTasksIn = function(title) {
+  console.log("in animate")
   var counter = 1; var index = getTitleIndex(title); var scrollview;
-  // console.log(index, this.offsets[index])
+  console.log(getTitleIndex(title), this.offsets, this.offsets[0])
   if(this.customscrollview.options.page === title) scrollview = this.customscrollview;
 
   for(var task in this.offsets[index]) {
@@ -326,19 +329,14 @@ ContentView.prototype.animateTasksIn = function(title) {
   }
 
   this.shown = this.toShow; // if task is in shown, it's been animated in
-
-
-
-  }
+}
 
 ContentView.prototype.resetAnimations = function(title) {
   var scrollview;
   if(this.customscrollview.options.page === title) scrollview = this.customscrollview;
 
   for(var task in this.shown) {
-    console.log('in reset, for loop')
     if(this.toShow[task] !== title && scrollview.node.array[task]) {
-      console.log('resetting ', title)
       scrollview.node.array[task].resetAnimation();
     }
   }

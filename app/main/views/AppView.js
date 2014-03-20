@@ -89,6 +89,7 @@ function _addPageView(title, previousPage, nextPage) {
   };
 
   var newView = this[title + 'View'] = new PageView(pageViewOptions);
+
 }
 
 function _addPageRelations(page, previousPage, nextPage) {
@@ -118,7 +119,6 @@ function _addEventListeners(newView, newModifier){
 
   newView.on('togglePageViewUp', function() {
     newView.contents.resetAnimations(newView.options.title);
-    console.log('reset animations for ',newView.options.title)
     if (newView.nextPage) {
       if (!this.lightBox.optionsForSwipeUp){
         this.lightBox.setOptions({
@@ -140,7 +140,6 @@ function _addEventListeners(newView, newModifier){
   }.bind(this));
 
   newView.on('togglePageViewDown', function() {
-    console.log('reset animations for ',newView.options.title)
     newView.contents.resetAnimations(newView.options.title);
     if (newView.previousPage) {
       if (this.lightBox.optionsForSwipeUp)  {
@@ -174,11 +173,11 @@ function _createAppViews() {
   _addPageRelations.call(this, 'TODAY', 'FOCUS', 'LATER');
   _addPageRelations.call(this, 'LATER', 'TODAY', 'NEVER');
   _addPageRelations.call(this, 'NEVER', 'LATER',    null);
+
 };
 
 function _renderFocusPage() {
   this.lightBox.show(this.FOCUSView);
-  this.FOCUSView.contents.animateTasksIn('FOCUS');
 };
 
 function _createGradientSurfaces(pages) {
