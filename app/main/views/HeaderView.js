@@ -129,6 +129,7 @@ function _setInputListener() {
     this.value = this.boxContainer.inputSurf.getValue();
     this.boxContainer.inputSurf.setValue('');
     this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(0, 0, 0), [this.inputXOffset, 0, this.inputZOffset]), {duration: this.options.inputDuration}, function() {
+      this.boxContainer.inputSurf.setProperties({'visibility': 'visible'});
       this.boxContainer.frontSurf.setProperties({'visibility': 'hidden'});
     }.bind(this));
 

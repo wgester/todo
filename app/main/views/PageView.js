@@ -84,7 +84,7 @@ function _createEditLightbox() {
     if(this.newTaskOpened) {
       var newText = this.editSurface.getValue();
       this.taskIndex = this.contents.taskCount;
-      this.editTaskOffset = this.options.title === 'FOCUS' ?  window.innerHeight / 2 + this.taskIndex * 60 - 10: (this.taskIndex + 1) * 60 + 60;
+      this.editTaskOffset = this.options.title === 'FOCUS' ?  window.innerHeight / 2 + this.taskIndex * 60 - 10: (this.taskIndex + 1) * 60 + 90;
       this.contents._eventOutput.emit('saveNewTask', newText);
     } else {
       var editedText = this.editSurface.getValue();
@@ -195,8 +195,8 @@ function _editInputFlyOut() {
   this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0), {duration: 300}, function() {
     this.contents.editTask = this.newTaskOpened ? false : true;
     this.newTaskOpened = false;
-    _rotateInputBack.call(this);
     this.contents._eventOutput.emit('unhideEditedTask');
+    Timer.after(_rotateInputBack.bind(this), 20);
   }.bind(this));
 };
 
