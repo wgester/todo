@@ -322,18 +322,19 @@ ContentView.prototype.animateTasksIn = function(title) {
   if(this.customscrollview.options.page === title) scrollview = this.customscrollview;
   if(scrollview._offsets) {
     for(var task in scrollview._offsets) {
-      if(task !== "undefined") {
+      // if(task !== "undefined") {
         var taskOffset = scrollview._offsets[task]; 
 
-        if((taskOffset > -10) && (taskOffset < window.innerHeight) && (this.shown[task] !== title)) {
+        if((taskOffset > -60) && (taskOffset < window.innerHeight) && (this.shown[task] !== title)) {
           this.toShow[task] = title;
           if(scrollview.node.array[task]) {
             counter++;
+
             scrollview.node.array[task].animateIn(counter);
             this.toShow[task] = undefined;
            }
         }
-      }
+      // }
     }
     this.shown = this.toShow; 
   }
