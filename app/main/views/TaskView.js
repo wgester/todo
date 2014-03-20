@@ -26,7 +26,7 @@ function _addTaskItem() {
     this.taskItem = new TaskItem(this.options);
 
     this.taskItemModifier = new Modifier({
-      transform: Transform.translate(-1 * this.options.deleteCheckWidth, 1000, 0),
+      transform: Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0),
       size: [undefined, 60],
       opacity: 0
     });
@@ -50,7 +50,7 @@ function animateIn(counter) {
         }.bind(this))
       }.bind(this));
   this.taskItemModifier.setOpacity(1, this.options.transition, function() {});
-}
+};
 
 function resetAnimation(title) {
   console.log('resetting tasks in ', title)

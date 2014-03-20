@@ -82,10 +82,8 @@ function _createEditLightbox() {
 
   this.shadow.on('touchstart', function() {
     if(this.newTaskOpened) {
-      var newText = this.editSurface.getValue();
       this.taskIndex = this.contents.taskCount;
       this.editTaskOffset = this.options.title === 'FOCUS' ?  window.innerHeight / 2 + this.taskIndex * 60 - 10: (this.taskIndex + 1) * 60 + 90;
-      this.contents._eventOutput.emit('saveNewTask', newText);
     } else {
       var editedText = this.editSurface.getValue();
       var editedTask = this.contents.customdragsort.array[this.taskIndex].taskItem;
@@ -186,16 +184,19 @@ function _editInputFlyIn() {
   this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0));
   this.editMod.setTransform(Transform.translate(0,20,0), this.options.editInputAnimation, function() {
     this.editSurface.focus();
-    SoftKeyboard && SoftKeyboard.show();
+    // SoftKeyboard && SoftKeyboard.show();
   }.bind(this));  
 };
 
 function _editInputFlyOut() {
-  SoftKeyboard && SoftKeyboard.hide();
+  // SoftKeyboard && SoftKeyboard.hide();
   this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0), {duration: 300}, function() {
     this.contents.editTask = this.newTaskOpened ? false : true;
     this.newTaskOpened = false;
     this.contents._eventOutput.emit('unhideEditedTask');
+    var newText = this.editSurface.getValue();
+    this.editSurface.setValue('');
+    this.contents._eventOutput.emit('saveNewTask', newText);
     Timer.after(_rotateInputBack.bind(this), 20);
   }.bind(this));
 };

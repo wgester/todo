@@ -174,10 +174,11 @@ ContentView.prototype._addToList = function(data, newIndex, node) {
 }
 
 function _activateTasks(newTask) {
-      _openInputListener.call(this, newTask);
-      _closeInputListener.call(this, newTask);
-      _completionListener.call(this, newTask);
-      newTask.animateIn(3);
+  _openInputListener.call(this, newTask);
+  _closeInputListener.call(this, newTask);
+  _completionListener.call(this, newTask);
+
+  // newTask.animateIn(3);
 }
 
 function _createNewTask(data) {
