@@ -6,7 +6,7 @@ var PageView       = require('./PageView');
 var Lightbox       = require('famous/views/light-box');
 var CanvasSurface  = require('famous/surfaces/canvas-surface');
 var InputSurface   = require("famous/surfaces/input-surface");
-var Transitionable    = require('famous/transitions/transitionable');
+var Transitionable = require('famous/transitions/transitionable');
 
 function AppView() {
   View.apply(this, arguments);
@@ -89,6 +89,7 @@ function _addPageView(title, previousPage, nextPage) {
   };
 
   var newView = this[title + 'View'] = new PageView(pageViewOptions);
+
 }
 
 function _addPageRelations(page, previousPage, nextPage) {
@@ -117,6 +118,9 @@ function _addEventListeners(newView, newModifier){
   newView._eventOutput.on('moveTaskToNewPage', function(text) {this._eventOutput.emit('swapPages', text)}.bind(this));
 
   newView.on('togglePageViewUp', function() {
+    console.log('toggle page up!')
+
+    newView.contents.resetAnimations(newView.options.title);
     if (newView.nextPage) {
       if (!this.lightBox.optionsForSwipeUp){
         this.lightBox.setOptions({
@@ -138,6 +142,8 @@ function _addEventListeners(newView, newModifier){
   }.bind(this));
 
   newView.on('togglePageViewDown', function() {
+    console.log('toggle page down!')
+    newView.contents.resetAnimations(newView.options.title);
     if (newView.previousPage) {
       if (this.lightBox.optionsForSwipeUp)  {
         this.lightBox.setOptions({
@@ -149,9 +155,7 @@ function _addEventListeners(newView, newModifier){
         this.lightBox.optionsForSwipeUp = false;
       }
       this.lightBox.show(newView.previousPage);
-      console.log(newView.previousPage.options.title)
       newView.previousPage.contents.animateTasksIn(newView.previousPage.options.title);
-
 
       newView.previousPage.contents._eventOutput.emit('opened');
       newView.previousPage.header._eventOutput.emit('opened');
@@ -172,11 +176,11 @@ function _createAppViews() {
   _addPageRelations.call(this, 'TODAY', 'FOCUS', 'LATER');
   _addPageRelations.call(this, 'LATER', 'TODAY', 'NEVER');
   _addPageRelations.call(this, 'NEVER', 'LATER',    null);
+
 };
 
 function _renderFocusPage() {
   this.lightBox.show(this.FOCUSView);
-  this.FOCUSView.contents.animateTasksIn('FOCUS');
 };
 
 function _createGradientSurfaces(pages) {

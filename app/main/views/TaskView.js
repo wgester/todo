@@ -28,9 +28,9 @@ function _addTaskItem() {
     this.taskItemModifier = new Modifier({
       transform: Transform.translate(-1 * this.options.deleteCheckWidth, 1000, 0),
       size: [undefined, 60],
-      opacity: 0.1
+      opacity: 0
     });
-    
+
     this.taskItem.pipe(this._eventOutput);
 
     this._add(this.taskItemModifier).add(this.taskItem);
@@ -40,18 +40,24 @@ function _addTaskItem() {
 
 
 function animateIn(counter) {
-  this.taskItemModifier.setTransform(
-      Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0), {duration: 180 * counter, curve: 'easeInOut'}, function() {}
-  );
+  var deleteCheck = -1 * this.options.deleteCheckWidth;
+  this.taskItemModifier.setTransform( //////// SPRING MORE
+      Transform.translate(deleteCheck, 0, 0), {duration: 180 * counter, curve: 'easeInOut'}, function() {
+        this.taskItemModifier.setTransform(
+          Transform.translate(deleteCheck, -5, 0), {duration: 200, curve: 'easeInOut'}, function() {
+            this.taskItemModifier.setTransform(
+          Transform.translate(deleteCheck, 0, 0), {duration: 180 * counter, curve: 'easeInOut'}, function() {}.bind(this))
+        }.bind(this))
+      }.bind(this));
   this.taskItemModifier.setOpacity(1, this.options.transition, function() {});
 }
 
-function resetAnimation() {
-  console.log('reset')
-  this.taskItemModifier.setOpacity(0.1, this.options.transition, function() {});
+function resetAnimation(title) {
+  console.log('resetting tasks in ', title)
+  this.taskItemModifier.setOpacity(0.1, {duration:0}, function() {});
   this.taskItemModifier.setTransform(
       Transform.translate(-1 * this.options.deleteCheckWidth, 1000, 0),
-      this.options.transition, function() {});
+      {duration:0}, function() {});
 }
 
 

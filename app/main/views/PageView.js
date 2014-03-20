@@ -102,6 +102,7 @@ function _createLayout() {
   this.footer = new FooterView({title: this.options.title});
   this.header = new HeaderView({title: this.options.title});
   this.contents = new ContentView({title: this.options.title})
+  this.contents._eventOutput.pipe(this.contents._eventInput);
   this.layout.id["header"].add(this.header);
   this.layout.id["content"].add(this.contents);
   this.layout.id["footer"] .add(Utility.transformInFront).add(this.footer);
