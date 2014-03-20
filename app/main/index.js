@@ -8,6 +8,7 @@ var WallTransition    = require("famous/transitions/wall-transition");
 var SpringTransition  = require("famous/transitions/spring-transition");
 var Timer             = require('famous/utilities/timer');
 var CanvasSurface     = require('famous/surfaces/canvas-surface');
+var bootstrappedData  = require('./views/data.js');
 
 var devMode = true;
 var wrapped = false;
@@ -18,6 +19,27 @@ if (!wrapped) {
       console.log('vibrate fake for ' + time + 'ms.');
     }
   };
+  window.memory = {
+    save: function(task) {
+      console.log('saved task ' + task.text);
+      this.data[task.page].push(task);
+    },
+    read: function(task) {
+      return this.data;
+    },
+    remove: function(task) {
+      var thisPagesTasks = this.data[task.page];
+      var indiciesToRemove = [];
+      for (var i = 0; i < thisPagesTasks.length; i++) {
+        if (thisPagesTasks[i].text === task.text) {
+          thisPagesTasks.splice(i, 1);
+          i--;
+        }
+      }
+      this.data = thisPagesTasks;
+    },
+    data: bootstrappedData
+  }
 }
 
 if (!_isAndroid() || !wrapped) {
