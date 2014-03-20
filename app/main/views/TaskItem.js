@@ -123,7 +123,7 @@ function handleStart(data) {
   this.distanceThreshold = false;
   this.touchStart = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
   this.touchCurrent = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
-
+  this._eventOutput.emit('newTouch');
 }
 
 function handleMove(data) {
@@ -157,6 +157,7 @@ function handleEnd() {
 
     this.timeTouched = 0;
     this._eventInput.pipe(this.draggable);
+    this._eventOutput.emit('endTouch');
 }
 
 function findTimeDeltas() {
