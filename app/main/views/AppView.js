@@ -118,6 +118,8 @@ function _addEventListeners(newView, newModifier){
   newView._eventOutput.on('moveTaskToNewPage', function(text) {this._eventOutput.emit('swapPages', text)}.bind(this));
 
   newView.on('togglePageViewUp', function() {
+    console.log('toggle page up!')
+
     newView.contents.resetAnimations(newView.options.title);
     if (newView.nextPage) {
       if (!this.lightBox.optionsForSwipeUp){
@@ -140,6 +142,7 @@ function _addEventListeners(newView, newModifier){
   }.bind(this));
 
   newView.on('togglePageViewDown', function() {
+    console.log('toggle page down!')
     newView.contents.resetAnimations(newView.options.title);
     if (newView.previousPage) {
       if (this.lightBox.optionsForSwipeUp)  {
