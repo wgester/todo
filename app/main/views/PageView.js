@@ -145,7 +145,7 @@ function _setListeners() {
     this.taskIndex = options.index;
     this.editSurface.setValue(options.text);
     _lightboxFadeIn.call(this);
-    this.editTaskOffset = this.options.title === 'FOCUS' ?  window.innerHeight / 2 + this.taskIndex * 60 - 10: (this.taskIndex + 1) * 60 + 20;
+    this.editTaskOffset = this.options.title === 'FOCUS' ?  window.innerHeight / 2 + this.taskIndex * 60 - 10: (this.taskIndex + 1) * 60 +20;
     _editInputFlyIn.call(this);
   }.bind(this));
   
@@ -178,10 +178,9 @@ function _lightboxFadeIn() {
 };
 
 function _editInputFlyIn() {
-  var offset = (this.options.title === 'TODAY') ? -20: 20;
-  this.editSurface.setProperties({'display': 'block'});
+  this.editSurface.setProperties({'visibility': 'visible'});
   this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0));
-  this.editMod.setTransform(Transform.translate(0, offset, 0), this.options.editInputAnimation, function() {
+  this.editMod.setTransform(Transform.translate(0, 20, 2), this.options.editInputAnimation, function() {
     this.editSurface.focus();
     window.AndroidKeyboard.show();
   }.bind(this));  
@@ -189,7 +188,7 @@ function _editInputFlyIn() {
 
 function _editInputFlyOut() {
   window.AndroidKeyboard.hide();
-    this.editSurface.setProperties({'display': 'none'});
+    this.editSurface.setProperties({'visibility': 'hidden'});
     this.editMod.setTransform(Transform.translate(0, 600, 0));
     this.contents.editTask = this.newTaskOpened ? false : true;
     this.contents._eventOutput.emit('unhideEditedTask');

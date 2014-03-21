@@ -257,8 +257,7 @@ function unhideTask() {
   this.taskItemModifier.setTransform(Matrix.translate(0, 0, 40), {curve: 'easeOut', duration: 300}, function() { 
     Timer.after(function() {
       this.contents.setProperties({'backgroundColor': 'rgba(255, 255, 255, 0.07)'});
-      this.taskItemModifier.setTransform(Matrix.translate(0, 0, 0), {curve: 'easeOut', duration: 500}, function() {
-      }.bind(this));      
+      this.taskItemModifier.setTransform(Matrix.translate(0, 0, 0), {curve: 'easeOut', duration: 500}, function() {});      
     }.bind(this), 10);
   }.bind(this));  
 };

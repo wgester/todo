@@ -10,7 +10,7 @@ var Timer             = require('famous/utilities/timer');
 var CanvasSurface     = require('famous/surfaces/canvas-surface');
 
 var devMode = true;
-var wrapped = true;
+var wrapped = false;
 
 if (!wrapped) {
   navigator.notification = {
