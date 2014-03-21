@@ -20,7 +20,7 @@ function ContentView(options) {
   this.lightness = 75;
   this.inputToggled = false;
   this.title = this.options.title;
-  
+  this.swappedTask = false;  
   this.notAnimated = true;
 
   
@@ -68,9 +68,11 @@ function _setUpOffsets() {
 
 function _setBackground() {
   var index = this.options.views[this.options.title][0];
-
-  this.backgroundSurf = window.faderSurfaces[index];
-  this.backgroundMod = window.faderMods[index];
+  this.backgroundSurfOne = window.faderSurfaces[index][0];
+  this.backgroundModOne = window.faderMods[index][0];
+  
+  this.backgroundSurfTwo = window.faderSurfaces[index][1];
+  this.backgroundModTwo = window.faderMods[index][1];
 
   this.touchSurf = new Surface({
     size: [undefined, undefined],
@@ -126,11 +128,6 @@ function _setListeners() {
   _inputListeners.call(this);
   _unhideTaskListener.call(this);
   this._eventInput.on('swapPages', _createNewTask.bind(this));
-  this._eventInput.on('offsets', function() {
-        this.animateTasksIn(this.options.title);
-        this.notAnimated = false;
-        console.log('hit!')
-      }.bind(this));
 };
 
 ContentView.prototype._newScrollView = function(data, newIndex) {
@@ -169,7 +166,6 @@ ContentView.prototype._addToList = function(data, newIndex, node) {
       newTask.pipe(node);
       node.pipe(this.customscrollview);
       newTask.pipe(this.customscrollview);
-
       this.customscrollview.pipe(node);
       _activateTasks.call(this, newTask);
 }
@@ -178,7 +174,13 @@ function _activateTasks(newTask) {
   _openInputListener.call(this, newTask);
   _closeInputListener.call(this, newTask);
   _completionListener.call(this, newTask);
-  newTask.appearIn.call(newTask);
+  if (this.swappedTask === false) {
+    newTask.appearIn();
+  } else {
+    this.swappedTask = false;
+    newTask.appearIn();
+    newTask.resetAnimation();
+  }
 }
 
 function _createNewTask(data) {
@@ -192,7 +194,7 @@ function _createNewTask(data) {
     return;
   }
   if (pages[this.title] === (pages[data.page] + data.direction)) {
-
+    this.swappedTask = true;
     var node = this.customscrollview.node;
     var newIndex = this.customdragsort.array.length;
     if (!newIndex) {
@@ -272,12 +274,33 @@ function _unhideTaskListener() {
 
 
 function _gradientListener() {
+  if (this.options.title === 'FOCUS') {
+    this.opened = true;
+    this.opacityOne = 0;
+    this.opacityTwo = 1;
+    this.backgroundModOne.setOpacity(0);
+    this.backgroundModTwo.setOpacity(1);
+  }
+  
+  window.setInterval(this.swapGradients.bind(this), 8000);
+  
   this.on('opened', function() {
-    this.backgroundMod.setOpacity(1, {duration: this.options.gradientDuration}, function() {});
+    this.opened = true;
+    this.opacityOne = 0;
+    this.opacityTwo = 1;
+    this.backgroundModOne.halt();
+    this.backgroundModTwo.halt();
+    this.backgroundModOne.setOpacity(0, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});
+    this.backgroundModTwo.setOpacity(1, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});
+    this.swapGradients();
   }.bind(this));
 
   this.on('closed', function() {
-    this.backgroundMod.setOpacity(0, {duration: this.options.gradientDuration}, function() {});
+    this.opened = false;
+    this.backgroundModOne.halt();
+    this.backgroundModTwo.halt();
+    this.backgroundModOne.setOpacity(0, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});    
+    this.backgroundModTwo.setOpacity(0, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});
   }.bind(this));
 };
 
@@ -294,6 +317,16 @@ function _completionListener(task) {
   }.bind(this));
 };
 
+ContentView.prototype.swapGradients = function() {
+  if (this.opened) {
+    this.opacityOne = this.opacityOne ? 0 : 1;
+    this.opacityTwo = this.opacityTwo ? 0 : 1;
+
+    this.backgroundModOne.setOpacity(this.opacityOne, {duration: 5000}, function() {});        
+    this.backgroundModTwo.setOpacity(this.opacityTwo, {duration: 5000}, function() {});        
+  }
+};
+
 function getTitleIndex(title) {
   var titles = {'FOCUS':0, 'TODAY':1, 'LATER':2, 'NEVER':3};
   return titles[title];
@@ -302,49 +335,38 @@ function getTitleIndex(title) {
 
 function _monitorOffsets() {
   var index = getTitleIndex(this.title); var scrollview;
-
-  Engine.on('prerender', function(){
-    if(this.title) {
-      if(this.customscrollview.options.page === this.title) scrollview = this.customscrollview;
-      if (this.notAnimated) {
-        if(scrollview._offsets[0] !== undefined) {
-          this._eventOutput.emit('offsets');
-          console.log('emitted offsets!')
-        };
-      }
-    }
-  }.bind(this));
-
 };
 
 ContentView.prototype.animateTasksIn = function(title) {
-  var counter = 1; var index = getTitleIndex(title); var scrollview;
+  var counter = 1; var scrollview;
   if(this.customscrollview.options.page === title) scrollview = this.customscrollview;
-  if(scrollview._offsets) {
-    for(var task in scrollview._offsets) {
-      // if(task !== "undefined") {
-        var taskOffset = scrollview._offsets[task]; 
-
-        if((taskOffset > -60) && (taskOffset < window.innerHeight) && (this.shown[task] !== title)) {
-          this.toShow[task] = title;
-          if(scrollview.node.array[task]) {
-            counter++;
-
-            scrollview.node.array[task].animateIn(counter);
-            this.toShow[task] = undefined;
-           }
-        }
-      // }
+    
+  for(var i = 0; i < scrollview.node.array.length; i++) {
+    if (this.shown[i] !== title) {
+      this.toShow[i] = title;
+      scrollview.node.array[i].animateIn(i);                            
+      this.toShow[i] = undefined;
     }
     this.shown = this.toShow; 
   }
+    
+    // for(var task in scrollview._offsets) {
+    //     var taskOffset = scrollview._offsets[task]; 
+    //     if((taskOffset > -60) && (taskOffset < window.innerHeight) && (this.shown[task] !== title)) {
+    //       this.toShow[task] = title;
+    //       if(scrollview.node.array[task]) {
+    //         counter++;
+    //         scrollview.node.array[task].animateIn(counter);
+    //         this.toShow[task] = undefined;
+    //        }
+    //     }
+    //   // }
+    // }
 };
 
 ContentView.prototype.resetAnimations = function(title) {
   var scrollview;
   if(this.customscrollview.options.page === title) scrollview = this.customscrollview;
-  console.log("in reset ", title)
-
   for(var task in this.shown) {
     if(this.toShow[task] !== title && scrollview.node.array[task]) {
       scrollview.node.array[task].resetAnimation(title);

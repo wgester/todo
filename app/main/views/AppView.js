@@ -7,6 +7,8 @@ var Lightbox       = require('famous/views/light-box');
 var CanvasSurface  = require('famous/surfaces/canvas-surface');
 var InputSurface   = require("famous/surfaces/input-surface");
 var Transitionable = require('famous/transitions/transitionable');
+var Color             = require('./Color');
+
 
 function AppView() {
   View.apply(this, arguments);
@@ -39,11 +41,11 @@ AppView.DEFAULT_OPTIONS = {
     duration: 0
   },
   colors: [
-    ['#ffffff', '#32CEA8'],
-    ['#ffffff', '#FFFFCD', '#87CEFA'],
-    ['#3690FF', '#8977C6'],
-    ['#F5A9BC', '#FA5858'],
-    ['#81F781', '#E0F8E6']
+    ['#ffffff', '#32CEA8', null, '#ffffff','#87CEFA', '#32CEA8'],
+    ['#ffffff', '#FFFFCD', '#87CEFA','#ffffff', '#ffffb3', '#23a5f6'],
+    ['#3690FF', '#8977C6', null, '#8977C6', '#1a80ff', '#735dbb'],
+    ['#F5A9BC', '#FA5858', null, '#ED559C', '#F5A9BC', null]
+    // ['#81F781', '#E0F8E6', '#E0F8E6', '#E0F8E6']
   ]
 };
 
@@ -67,18 +69,6 @@ function _createLightBox() {
   this._add(this.lightBox);
 }
 
-// function _createInputView() {
-//   this.inputSurf = new InputSurface({
-//     size: [undefined, 60],
-//     properties: {background: 'white', margin: 0, opacity: '1'},
-//     classes: ['task']
-//   });
-//   this.inputSurf.setPlaceholder('here');
-//   this.inputMod = new Modifier({
-//     transform: Transform.translate(0, 70, -1)
-//   });
-//   this._add(this.inputMod).add(this.inputSurf);
-// }
 
 function _addPageView(title, previousPage, nextPage) {
 
@@ -115,12 +105,20 @@ function _addPageRelations(page, previousPage, nextPage) {
 function _addEventListeners(newView, newModifier){
   // window.Engine.on('prerender', )
   this._eventOutput.pipe(newView._eventInput);
-  newView._eventOutput.on('moveTaskToNewPage', function(text) {this._eventOutput.emit('swapPages', text)}.bind(this));
+  newView._eventOutput.on('moveTaskToNewPage', function(text) {
+    if (text.direction === 1) {
+      newView.nextPage.contents._eventOutput.emit('swapPages', text)
+    } else {
+      newView.previousPage.contents._eventOutput.emit('swapPages', text);
+    }
+  }.bind(this));
 
   newView.on('togglePageViewUp', function() {
     console.log('toggle page up!')
+    
+    newView.nextPage.contents.resetAnimations(newView.nextPage.options.title);
+    newView.nextPage.contents.animateTasksIn(newView.nextPage.options.title);
 
-    newView.contents.resetAnimations(newView.options.title);
     if (newView.nextPage) {
       if (!this.lightBox.optionsForSwipeUp){
         this.lightBox.setOptions({
@@ -132,7 +130,6 @@ function _addEventListeners(newView, newModifier){
         this.lightBox.optionsForSwipeUp = true;
       }
       this.lightBox.show(newView.nextPage);
-      newView.nextPage.contents.animateTasksIn(newView.nextPage.options.title);
 
       newView.nextPage.contents._eventOutput.emit('opened');
       newView.nextPage.header._eventOutput.emit('opened');
@@ -143,7 +140,9 @@ function _addEventListeners(newView, newModifier){
 
   newView.on('togglePageViewDown', function() {
     console.log('toggle page down!')
-    newView.contents.resetAnimations(newView.options.title);
+    newView.previousPage.contents.resetAnimations(newView.previousPage.options.title);
+    newView.previousPage.contents.animateTasksIn(newView.previousPage.options.title);
+
     if (newView.previousPage) {
       if (this.lightBox.optionsForSwipeUp)  {
         this.lightBox.setOptions({
@@ -155,7 +154,6 @@ function _addEventListeners(newView, newModifier){
         this.lightBox.optionsForSwipeUp = false;
       }
       this.lightBox.show(newView.previousPage);
-      newView.previousPage.contents.animateTasksIn(newView.previousPage.options.title);
 
       newView.previousPage.contents._eventOutput.emit('opened');
       newView.previousPage.header._eventOutput.emit('opened');
@@ -181,6 +179,9 @@ function _createAppViews() {
 
 function _renderFocusPage() {
   this.lightBox.show(this.FOCUSView);
+  this.FOCUSView.contents.swapGradients();
+  this.FOCUSView.contents.animateTasksIn('FOCUS');
+
 };
 
 function _createGradientSurfaces(pages) {
@@ -188,21 +189,33 @@ function _createGradientSurfaces(pages) {
   window.faderMods = [];
 
   for(var i=0; i < this.options.colors.length; i++){
-    var backgroundSurf = new CanvasSurface({
+    var backgroundSurfOne = new CanvasSurface({
       size: [window.innerWidth, window.innerHeight],
       canvasSize: [window.innerWidth*2, window.innerHeight*2],
-      classes: ['famous-surface', 'gradient']
+      classes: ['famous-surface', 'gradient', this.options.colors[i]]
     });
+    var backgroundSurfTwo = new CanvasSurface({
+      size: [window.innerWidth, window.innerHeight],
+      canvasSize: [window.innerWidth*2, window.innerHeight*2],
+      classes: ['famous-surface', 'gradient', this.options.colors[i]]
+    });
+
     var startOpacity = i === 0 ? 1 : 0;
 
-    var backgroundMod = new Modifier({
-      opacity: startOpacity,
+    var backgroundModOne = new Modifier({
+      opacity: 0,
+      transform: Transform.translate(0, 0, 0)
+    });
+    
+    var backgroundModTwo = new Modifier({
+      opacity: 0,
       transform: Transform.translate(0, 0, 0)
     });
 
-    window.faderSurfaces.push(backgroundSurf);
-    window.faderMods.push(backgroundMod);
-    this._add(backgroundMod).add(backgroundSurf);
+    window.faderSurfaces.push([backgroundSurfOne, backgroundSurfTwo]);
+    window.faderMods.push([backgroundModOne, backgroundModTwo]);
+    this._add(backgroundModOne).add(backgroundSurfOne);
+    this._add(backgroundModTwo).add(backgroundSurfTwo);
   }
 
   _colorSurfaces.call(this);
@@ -210,7 +223,8 @@ function _createGradientSurfaces(pages) {
 
 function _colorSurfaces() {
   for(var i = 0; i < window.faderSurfaces.length; i++){
-    var colorCanvas = window.faderSurfaces[i].getContext('2d');
+    var colorCanvasOne = window.faderSurfaces[i][0].getContext('2d');
+    var colorCanvasTwo = window.faderSurfaces[i][1].getContext('2d');
     if (_isAndroid()) {
       var radial = colorCanvas.createLinearGradient(
                 300,    // x0
@@ -228,7 +242,28 @@ function _colorSurfaces() {
         radial.addColorStop(0, this.options.colors[i][1]);
       }
     } else {
-      var radial = colorCanvas.createRadialGradient(
+      //first background
+      var radialOne = colorCanvasOne.createRadialGradient(
+                      300,    // x0
+                      1200,         // y0
+                      0,   // r0
+
+                      300,    // x1
+                      1400,       // y1
+                      1200        // r1
+                      );
+
+      if (this.options.colors[i][5]) {
+        radialOne.addColorStop(0, this.options.colors[i][3]);
+        radialOne.addColorStop(0.2, this.options.colors[i][4]);
+        radialOne.addColorStop(1, this.options.colors[i][5]);
+      } else {
+        radialOne.addColorStop(0, this.options.colors[i][3]);
+        radialOne.addColorStop(1, this.options.colors[i][4]);
+      }
+
+      //second background
+      var radialTwo = colorCanvasTwo.createRadialGradient(
                       300,    // x0
                       1200,         // y0
                       0,   // r0
@@ -239,17 +274,22 @@ function _colorSurfaces() {
                       );
 
       if (this.options.colors[i][2]) {
-        radial.addColorStop(0, this.options.colors[i][0]);
-        radial.addColorStop(0.2, this.options.colors[i][1]);
-        radial.addColorStop(1, this.options.colors[i][2]);
+        radialTwo.addColorStop(0, this.options.colors[i][0]);
+        radialTwo.addColorStop(0.2, this.options.colors[i][1]);
+        radialTwo.addColorStop(1, this.options.colors[i][2]);
       } else {
-        radial.addColorStop(0, this.options.colors[i][0]);
-        radial.addColorStop(1, this.options.colors[i][1]);
+        radialTwo.addColorStop(0, this.options.colors[i][0]);
+        radialTwo.addColorStop(1, this.options.colors[i][1]);
       }
+
     }
-    colorCanvas.fillStyle = radial;
-    colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
+    colorCanvasOne.fillStyle = radialOne;
+    colorCanvasOne.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
+    
+    colorCanvasTwo.fillStyle = radialTwo;
+    colorCanvasTwo.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
   }
+
 };
 
 

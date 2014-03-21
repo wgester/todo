@@ -13,7 +13,6 @@ var devMode = true;
 var wrapped = false;
 
 if (!wrapped) {
-  console.log("I'm not a phone");
   navigator.notification = {
     vibrate: function(time) {
       console.log('vibrate fake for ' + time + 'ms.');
@@ -22,13 +21,10 @@ if (!wrapped) {
 }
 
 if (!_isAndroid() || !wrapped) {
-  console.log("I'm not an android.")
   window.AndroidKeyboard = {
     show: function() {
-      console.log('show android keyboard fake');
     },
     hide: function() {
-      console.log('hide android keyboard fake');
     }
   };
 }
