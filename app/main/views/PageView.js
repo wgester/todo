@@ -102,9 +102,14 @@ function _createLayout() {
     headerSize: 70,
     footerSize: 40
   });
+
+
   this.footer = new FooterView({title: this.options.title});
   this.header = new HeaderView({title: this.options.title});
   this.contents = new ContentView({title: this.options.title})
+
+  this.contents._eventOutput.pipe(this.contents._eventInput);
+  
   this.layout.id["header"].add(this.header);
   this.layout.id["content"].add(this.contents);
   this.layout.id["footer"] .add(Utility.transformInFront).add(this.footer);
@@ -125,13 +130,28 @@ function _setListeners() {
   this.contents._eventInput.pipe(this._eventOutput);
   this._eventInput.pipe(this.contents._eventInput);
 
+  // this.contents.on('inputOpen', function() {
+  //   console.log('in page view, input is open')
+  //   this.header._eventOutput.emit('inputOpen');
+  // }.bind(this));
+
+  // this.contents.on('inputClosed', function() {
+  //   console.log('in page view, input is closed')
+  //   window.inputIsClosed = 'REHKRJHLJAKHFHASIFDHAS'
+  //   this.header._eventOutput.emit('inputClosed')
+  // }.bind(this));
 
   window.Engine.on('prerender', _setHeaderSize.bind(this));
 
   this.contents.on('showInput', function() {
-    this.header._eventOutput.emit('showInput');
+    if(this.options.title === 'FOCUS' && this.contents.taskCount <3) {
+      this.header._eventOutput.emit('showInput')
+      console.log('show input emitted')
+    }
     if (this.options.title !== 'FOCUS') {
       this.headerSizeTransitionable.set([this.options.regBigHeader], {duration: this.options.headerSizeDuration}, function() {});
+      this.header._eventOutput.emit('showInput')
+
     }
   }.bind(this));
 

@@ -34,7 +34,6 @@ function _createButton() {
 function _buttonListener() {
   this.buttonSurf.on('touchend', function() {
     this._eventOutput.emit('togglePageViewUp');
-    console.log()
   }.bind(this));
 };
 

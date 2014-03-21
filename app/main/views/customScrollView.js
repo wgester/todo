@@ -35,7 +35,6 @@ function shift(data) {
 }
 
 function deleteTask(indexObj) {
-    console.log(this.node.getAllLinkedNodes());
     if (indexObj.index === this.node.index) {
         if (this.node._next) this.node = this.node._next;
     }

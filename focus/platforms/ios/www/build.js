@@ -9915,7 +9915,6 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
     ContentView.prototype.resetAnimations = function(title) {
         var scrollview;
         if (this.customscrollview.options.page === title) scrollview = this.customscrollview;
-        console.log("in reset ", title);
         for (var task in this.shown) {
             if (this.toShow[task] !== title && scrollview.node.array[task]) {
                 scrollview.node.array[task].resetAnimation(title);

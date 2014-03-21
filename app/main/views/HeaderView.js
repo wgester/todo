@@ -11,6 +11,8 @@ var BoxContainer      = require('./BoxContainer');
 function HeaderView() {
   View.apply(this, arguments);
   this.inputToggled = false;
+  
+  this.inputOpen = true;
 
   _createTitle.call(this);
   _createInput.call(this);
@@ -81,6 +83,10 @@ function _buttonListener() {
 };
 
 function _setListeners() {
+
+  this.on('inputOpen', function(){this.inputOpen = true}.bind(this));
+  this.on('inputClosed', function(){this.inputOpen = false}.bind(this));
+
   this.on('opened', function() {
     this.titleMod.setOpacity(1, {duration: this.options.openDuration}, function() {
       this.titleMod.setTransform(Transform.translate(0, 10, 1), {duration: this.options.openDurationf}, function() {});
@@ -100,7 +106,8 @@ function _setInputListener() {
   this.inputXOffset = _isAndroid() ? 30 : 10;
   this.inputZOffset = _isAndroid() ? 150 : 70;
 
-  if (this.options.title === 'FOCUS') {
+  
+  if (this.options.title === 'FOCUS' && this.inputOpen) {
     this.titleHeader.on('touchstart', function() {
       this.inputToggled = !this.inputToggled;
       (this.inputToggled) ? this._eventOutput.emit('showInput') : this._eventOutput.emit('focusHideInput');

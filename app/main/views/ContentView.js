@@ -22,17 +22,12 @@ function ContentView(options) {
   this.title = this.options.title;
   this.swappedTask = false;  
   this.notAnimated = true;
-
-  
-  this.shown = {}; this.toShow = {};
-  this.scrolled = false;
+  this.shown = {}; 
+  this.toShow = {};
 
   _setBackground.call(this);
   _createTasks.call(this);
   _setListeners.call(this);
-  _monitorOffsets.call(this);
-
-
 };
 
 ContentView.prototype = Object.create(View.prototype);
@@ -56,15 +51,6 @@ function _isAndroid() {
   var userAgent = navigator.userAgent.toLowerCase();
   return userAgent.indexOf("android") > -1;
 };
-
-function _setUpOffsets() {
-  this.offsets = [];
-  this.focusOffsets = {};
-  this.todayOffsets = {};
-  this.laterOffsets = {};
-  this.neverOffsets = {};
-  this.offsets.push(this.focusOffsets, this.todayOffsets, this.laterOffsets, this.neverOffsets);
-}
 
 function _setBackground() {
   var index = this.options.views[this.options.title][0];
@@ -112,6 +98,12 @@ function _createTasks() {
       this.taskCount++;
     }
   }
+  if (this.options.title === 'FOCUS'  && this.taskCount > 2) {
+    this._eventOutput.emit('inputClosed'); // need to return here
+  }
+
+  // if (this.options.title === 'FOCUS'  && this.taskCount > 2) return;
+
   this.scrollMod = new Modifier({
     transform: Transform.translate(0, 0, 1)
   });
@@ -128,13 +120,6 @@ function _setListeners() {
   _inputListeners.call(this);
   _unhideTaskListener.call(this);
   this._eventInput.on('swapPages', _createNewTask.bind(this));
-<<<<<<< HEAD
-=======
-  this._eventInput.on('offsets', function() {
-        this.animateTasksIn(this.options.title);
-        this.notAnimated = false;
-      }.bind(this));
->>>>>>> fixed focus header touch event
 };
 
 ContentView.prototype._newScrollView = function(data, newIndex) {
@@ -199,18 +184,17 @@ function _createNewTask(data) {
     'FOCUS': 0,
     'TODAY': 1,
     'LATER': 2,
-    'NEVER': 3
+    'NEVER': 3 
   }
-  if (this.options.title === 'FOCUS' && this.taskCount > 2) {
-    return;
-  }
+  
+  if (this.options.title === 'FOCUS'  && this.taskCount > 2) return
+
   if (pages[this.title] === (pages[data.page] + data.direction)) {
     this.swappedTask = true;
     var node = this.customscrollview.node;
     var newIndex = this.customdragsort.array.length;
     if (!newIndex) {
       this._newScrollView(data, newIndex);
-
     } else {
       this._addToList(data, newIndex, node);
     }
@@ -221,9 +205,8 @@ function _createNewTask(data) {
 function _newTaskListener() {
 
   this.on('saveNewTask', function(val) {
-    if (this.options.title === 'FOCUS' && this.taskCount > 2) {
-      return;
-    }
+    if (this.options.title === 'FOCUS' && this.taskCount > 2) return;
+
     this.taskCount++;
     
     var node = this.customscrollview.node;
@@ -270,8 +253,11 @@ function _inputListeners() {
 
 function _openInputListener(task) {
   task.on('openInput', function() {
-    this.inputToggled = true;
-    this._eventOutput.emit('showInput');
+    if(this.taskCount < 3 || this.options.title !== 'FOCUS'){
+      console.log(this.taskCount, " in open input listener")
+      this.inputToggled = true;
+      this._eventOutput.emit('showInput');
+    }
   }.bind(this));
 };
 
@@ -345,6 +331,9 @@ function _completionListener(task) {
   task.on('deleted', function() {
     this.taskCount--;
   }.bind(this));
+  
+  if(this.options.title === 'FOCUS' && this.taskCount < 3) this._eventOutput.emit('inputOpen');
+
 };
 
 ContentView.prototype.swapGradients = function() {
