@@ -42,7 +42,7 @@ AppView.DEFAULT_OPTIONS = {
   },
   colors: [
     ['#ffffff', '#32CEA8', null, '#ffffff','#87CEFA', '#32CEA8'],
-    ['#ffffff', '#FFFFCD', '#87CEFA','#ffffff', '#ffff80', '#23a5f6'],
+    ['#ffffff', '#FFFFCD', '#87CEFA','#ffffff', '#ffffb3', '#23a5f6'],
     ['#3690FF', '#8977C6', null, '#8977C6', '#1a80ff', '#735dbb'],
     ['#F5A9BC', '#FA5858', null, '#ED559C', '#F5A9BC', null]
     // ['#81F781', '#E0F8E6', '#E0F8E6', '#E0F8E6']
@@ -281,7 +281,7 @@ function _colorSurfaces() {
   }
   console.log('GREEN', new Color(this.options.colors[0][1]).setLightness(40).getHex())
   console.log('TODAY BLUE', new Color(this.options.colors[1][2]).setLightness(55).getHex())
-  console.log('TODAY YELL', new Color(this.options.colors[1][1]).setLightness(75).getHex())
+  console.log('TODAY YELL', new Color(this.options.colors[1][1]).setLightness(85).getHex())
 
   console.log('BLUE', new Color(this.options.colors[2][0]).setLightness(55).getHex())
   console.log('PURPLE', new Color(this.options.colors[2][1]).setLightness(55).getHex())

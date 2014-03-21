@@ -282,7 +282,7 @@ function _gradientListener() {
     this.backgroundModTwo.setOpacity(1);
   }
   
-  window.setInterval(this.swapGradients.bind(this), 7000);
+  window.setInterval(this.swapGradients.bind(this), 8000);
   
   this.on('opened', function() {
     this.opened = true;
