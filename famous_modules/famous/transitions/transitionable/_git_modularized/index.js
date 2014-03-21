@@ -117,9 +117,11 @@ function _loadNext() {
         }
         this._currentMethod = method;
     }
-
     this._engineInstance.reset(this.state, this.velocity);
     if (this.velocity !== undefined) transition.velocity = this.velocity;
+    if (this._engineInstance === null) {
+        return;
+    }
     this._engineInstance.set(endValue, transition, _loadNext.bind(this));
 };
 

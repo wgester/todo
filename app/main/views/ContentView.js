@@ -288,6 +288,8 @@ function _gradientListener() {
     this.opened = true;
     this.opacityOne = 0;
     this.opacityTwo = 1;
+    this.backgroundModOne.halt();
+    this.backgroundModTwo.halt();
     this.backgroundModOne.setOpacity(0, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});
     this.backgroundModTwo.setOpacity(1, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});
     this.swapGradients();
@@ -295,6 +297,8 @@ function _gradientListener() {
 
   this.on('closed', function() {
     this.opened = false;
+    this.backgroundModOne.halt();
+    this.backgroundModTwo.halt();
     this.backgroundModOne.setOpacity(0, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});    
     this.backgroundModTwo.setOpacity(0, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});
   }.bind(this));
@@ -340,7 +344,7 @@ ContentView.prototype.animateTasksIn = function(title) {
   for(var i = 0; i < scrollview.node.array.length; i++) {
     if (this.shown[i] !== title) {
       this.toShow[i] = title;
-      scrollview.node.array[i].animateIn(i);                      
+      scrollview.node.array[i].animateIn(i);                            
       this.toShow[i] = undefined;
     }
     this.shown = this.toShow; 
