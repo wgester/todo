@@ -53,6 +53,11 @@ function animateIn(counter) {
   this.taskItemModifier.setOpacity(1, this.options.transition, function() {});
 };
 
+TaskView.prototype.appearIn = function() {
+    this.taskItemModifier.setTransform(Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0));
+    this.taskItemModifier.setOpacity(1);
+};
+
 function resetAnimation(title) {
   this.taskItemModifier.setOpacity(0, {duration:0}, function() {});
   this.taskItemModifier.setTransform(

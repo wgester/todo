@@ -127,12 +127,13 @@ function _setListeners() {
   _newTaskListener.call(this);
   _inputListeners.call(this);
   _unhideTaskListener.call(this);
-  this._eventInput.on('swapPages', _createNewTask.bind(this));
+  this.on('swapPages', function(val) {
+    _createNewTask.call(val);
+  }.bind(this));
   this._eventInput.on('offsets', function() {
-        this.animateTasksIn(this.options.title);
-        this.notAnimated = false;
-        console.log('hit!')
-      }.bind(this));
+      this.animateTasksIn(this.options.title);
+      this.notAnimated = false;
+    }.bind(this));
 };
 
 ContentView.prototype._newScrollView = function(data, newIndex) {
@@ -167,11 +168,12 @@ ContentView.prototype._addToList = function(data, newIndex, node) {
       for (var j = 0; j < newIndex - 1; j++) {
         node = node._next;
       }
+      this.customdragsort.push(newTask);
       if(node.getNext()) node = node._next;
       newTask.pipe(node);
       node.pipe(this.customscrollview);
       newTask.pipe(this.customscrollview);
-
+      // newTask.pipe(this._eventInput);
       this.customscrollview.pipe(node);
       _activateTasks.call(this, newTask);
 }
@@ -199,7 +201,6 @@ function _createNewTask(data) {
     var newIndex = this.customdragsort.array.length;
     if (!newIndex) {
       this._newScrollView(data, newIndex);
-
     } else {
       this._addToList(data, newIndex, node);
     }
@@ -339,7 +340,6 @@ function _monitorOffsets() {
       if (this.notAnimated) {
         if(scrollview._offsets[0] !== undefined) {
           this._eventOutput.emit('offsets');
-          console.log('emitted offsets!')
         };
       }
     }
@@ -352,14 +352,13 @@ ContentView.prototype.animateTasksIn = function(title) {
   if(this.customscrollview.options.page === title) scrollview = this.customscrollview;
   if(scrollview._offsets) {
     for(var task in scrollview._offsets) {
-      // if(task !== "undefined") {
         var taskOffset = scrollview._offsets[task]; 
-
+        console.log("TASK", task);
+        console.log("SCROLLVIEW", scrollview._offsets)
         if((taskOffset > -60) && (taskOffset < window.innerHeight) && (this.shown[task] !== title)) {
           this.toShow[task] = title;
           if(scrollview.node.array[task]) {
             counter++;
-
             scrollview.node.array[task].animateIn(counter);
             this.toShow[task] = undefined;
            }
