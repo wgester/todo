@@ -128,6 +128,13 @@ function _setListeners() {
   _inputListeners.call(this);
   _unhideTaskListener.call(this);
   this._eventInput.on('swapPages', _createNewTask.bind(this));
+<<<<<<< HEAD
+=======
+  this._eventInput.on('offsets', function() {
+        this.animateTasksIn(this.options.title);
+        this.notAnimated = false;
+      }.bind(this));
+>>>>>>> fixed focus header touch event
 };
 
 ContentView.prototype._newScrollView = function(data, newIndex) {
