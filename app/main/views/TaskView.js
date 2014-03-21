@@ -38,6 +38,10 @@ function _addTaskItem() {
 
 /*-----------------------ANIMATION-------------------------------*/
 
+TaskView.prototype.appearIn = function() {
+    this.taskItemModifier.setTransform(Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0));
+    this.taskItemModifier.setOpacity(1);
+};
 
 function animateIn(counter) {
   var deleteCheck = -1 * this.options.deleteCheckWidth;

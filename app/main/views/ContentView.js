@@ -356,10 +356,6 @@ function getTitleIndex(title) {
 };
 
 
-function _monitorOffsets() {
-  var index = getTitleIndex(this.title); var scrollview;
-};
-
 ContentView.prototype.animateTasksIn = function(title) {
   var counter = 1; var scrollview;
   if(this.customscrollview.options.page === title) scrollview = this.customscrollview;

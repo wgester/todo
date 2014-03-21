@@ -104,7 +104,6 @@ function _addPageRelations(page, previousPage, nextPage) {
 //inTransform: Transform.translate(0, -600, 1)
 
 function _addEventListeners(newView, newModifier){
-  // window.Engine.on('prerender', )
   this._eventOutput.pipe(newView._eventInput);
   newView._eventOutput.on('moveTaskToNewPage', function(text) {
     if (text.direction === 1) {

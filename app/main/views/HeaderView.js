@@ -73,9 +73,11 @@ function _createTitle() {
 };
 
 function _buttonListener() {
-  this.titleHeader.on('touchend', function() {
-    this._eventOutput.emit('togglePageViewDown');
-  }.bind(this));
+  if(this.options.title !== 'FOCUS') {
+    this.titleHeader.on('touchend', function() {
+      this._eventOutput.emit('togglePageViewDown');
+    }.bind(this));
+  }
 };
 
 function _setListeners() {
