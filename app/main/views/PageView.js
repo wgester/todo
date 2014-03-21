@@ -166,7 +166,7 @@ function _rotateInputBack() {
 };
 
 function _lightboxFadeOut() {
-  this.editLBMod.setOpacity(0.01, {duration: 350}, function() {
+  this.editLBMod.setOpacity(0.01, {duration: 500}, function() {
     this.editLBMod.setTransform(Transform.translate(0, 0, -10));
   }.bind(this));
 };
@@ -178,8 +178,10 @@ function _lightboxFadeIn() {
 };
 
 function _editInputFlyIn() {
+  var offset = (this.options.title === 'TODAY') ? -20: 20;
+  this.editSurface.setProperties({'display': 'block'});
   this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0));
-  this.editMod.setTransform(Transform.translate(0,20,0), this.options.editInputAnimation, function() {
+  this.editMod.setTransform(Transform.translate(0, offset, 0), this.options.editInputAnimation, function() {
     this.editSurface.focus();
     window.AndroidKeyboard.show();
   }.bind(this));  
@@ -187,13 +189,14 @@ function _editInputFlyIn() {
 
 function _editInputFlyOut() {
   window.AndroidKeyboard.hide();
-  this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0), {duration: 300}, function() {
+    this.editSurface.setProperties({'display': 'none'});
+    this.editMod.setTransform(Transform.translate(0, 600, 0));
     this.contents.editTask = this.newTaskOpened ? false : true;
+    this.contents._eventOutput.emit('unhideEditedTask');
     if (this.newTaskOpened) {
       var newText = this.editSurface.getValue();
       this.editSurface.setValue('');
       newText.length && this.contents._eventOutput.emit('saveNewTask', newText);
-      this.contents._eventOutput.emit('unhideEditedTask');
       Timer.after(_rotateInputBack.bind(this), 8);
       this.newTaskOpened = false;      
     } else {
@@ -201,10 +204,8 @@ function _editInputFlyOut() {
       var editedTask = this.contents.customdragsort.array[this.taskIndex].taskItem;
       this.editSurface.setValue('');
       editedTask._eventOutput.emit('saveTask', editedText);    
-      this.contents._eventOutput.emit('unhideEditedTask');
     }
     
-  }.bind(this));
 };
 
 module.exports = PageView;
