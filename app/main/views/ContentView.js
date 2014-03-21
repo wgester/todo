@@ -128,10 +128,6 @@ function _setListeners() {
   _inputListeners.call(this);
   _unhideTaskListener.call(this);
   this._eventInput.on('swapPages', _createNewTask.bind(this));
-  this._eventInput.on('offsets', function() {
-    this.animateTasksIn(this.options.title);
-    this.notAnimated = false;
-  }.bind(this));
 };
 
 ContentView.prototype._newScrollView = function(data, newIndex) {
@@ -162,7 +158,6 @@ ContentView.prototype._newScrollView = function(data, newIndex) {
 
 ContentView.prototype._addToList = function(data, newIndex, node) {
   var newTask = new TaskView({text: data.text, index: newIndex, page: this.title});
-      newTask.resetAnimation();
       this.customdragsort.push(newTask);
       for (var j = 0; j < newIndex - 1; j++) {
         node = node._next;
@@ -179,12 +174,12 @@ function _activateTasks(newTask) {
   _openInputListener.call(this, newTask);
   _closeInputListener.call(this, newTask);
   _completionListener.call(this, newTask);
-  console.log(this.newTask);
   if (this.swappedTask === false) {
-    console.log('APPEARING')
     newTask.appearIn();
   } else {
     this.swappedTask = false;
+    newTask.appearIn();
+    newTask.resetAnimation();
   }
 }
 
@@ -200,7 +195,6 @@ function _createNewTask(data) {
   }
   if (pages[this.title] === (pages[data.page] + data.direction)) {
     this.swappedTask = true;
-    console.log('TRUE');
     var node = this.customscrollview.node;
     var newIndex = this.customdragsort.array.length;
     if (!newIndex) {
@@ -321,7 +315,6 @@ function _completionListener(task) {
 
 ContentView.prototype.swapGradients = function() {
   if (this.opened) {
-    console.log('called');
     this.opacityOne = this.opacityOne ? 0 : 1;
     this.opacityTwo = this.opacityTwo ? 0 : 1;
 
@@ -338,45 +331,38 @@ function getTitleIndex(title) {
 
 function _monitorOffsets() {
   var index = getTitleIndex(this.title); var scrollview;
-
-  Engine.on('prerender', function(){
-    if(this.title) {
-      if(this.customscrollview.options.page === this.title) scrollview = this.customscrollview;
-      if (this.notAnimated) {
-        if(scrollview._offsets[0] !== undefined) {
-          this._eventOutput.emit('offsets');
-        };
-      }
-    }
-  }.bind(this));
-
 };
 
 ContentView.prototype.animateTasksIn = function(title) {
-  var counter = 1; var index = getTitleIndex(title); var scrollview;
+  var counter = 1; var scrollview;
   if(this.customscrollview.options.page === title) scrollview = this.customscrollview;
-  if(scrollview._offsets) {
-    for(var task in scrollview._offsets) {
-        var taskOffset = scrollview._offsets[task]; 
-        if((taskOffset > -60) && (taskOffset < window.innerHeight) && (this.shown[task] !== title)) {
-          this.toShow[task] = title;
-          if(scrollview.node.array[task]) {
-            counter++;
-            scrollview.node.array[task].animateIn(counter);
-            this.toShow[task] = undefined;
-           }
-        }
-      // }
+    
+  for(var i = 0; i < scrollview.node.array.length; i++) {
+    if (this.shown[i] !== title) {
+      this.toShow[i] = title;
+      scrollview.node.array[i].animateIn(i);                      
+      this.toShow[i] = undefined;
     }
     this.shown = this.toShow; 
   }
+    
+    // for(var task in scrollview._offsets) {
+    //     var taskOffset = scrollview._offsets[task]; 
+    //     if((taskOffset > -60) && (taskOffset < window.innerHeight) && (this.shown[task] !== title)) {
+    //       this.toShow[task] = title;
+    //       if(scrollview.node.array[task]) {
+    //         counter++;
+    //         scrollview.node.array[task].animateIn(counter);
+    //         this.toShow[task] = undefined;
+    //        }
+    //     }
+    //   // }
+    // }
 };
 
 ContentView.prototype.resetAnimations = function(title) {
   var scrollview;
   if(this.customscrollview.options.page === title) scrollview = this.customscrollview;
-  console.log("in reset ", title)
-
   for(var task in this.shown) {
     if(this.toShow[task] !== title && scrollview.node.array[task]) {
       scrollview.node.array[task].resetAnimation(title);

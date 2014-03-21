@@ -115,8 +115,10 @@ function _addEventListeners(newView, newModifier){
 
   newView.on('togglePageViewUp', function() {
     console.log('toggle page up!')
+    
+    newView.nextPage.contents.resetAnimations(newView.nextPage.options.title);
+    newView.nextPage.contents.animateTasksIn(newView.nextPage.options.title);
 
-    newView.contents.resetAnimations(newView.options.title);
     if (newView.nextPage) {
       if (!this.lightBox.optionsForSwipeUp){
         this.lightBox.setOptions({
@@ -128,7 +130,6 @@ function _addEventListeners(newView, newModifier){
         this.lightBox.optionsForSwipeUp = true;
       }
       this.lightBox.show(newView.nextPage);
-      newView.nextPage.contents.animateTasksIn(newView.nextPage.options.title);
 
       newView.nextPage.contents._eventOutput.emit('opened');
       newView.nextPage.header._eventOutput.emit('opened');
@@ -139,7 +140,9 @@ function _addEventListeners(newView, newModifier){
 
   newView.on('togglePageViewDown', function() {
     console.log('toggle page down!')
-    newView.contents.resetAnimations(newView.options.title);
+    newView.previousPage.contents.resetAnimations(newView.previousPage.options.title);
+    newView.previousPage.contents.animateTasksIn(newView.previousPage.options.title);
+
     if (newView.previousPage) {
       if (this.lightBox.optionsForSwipeUp)  {
         this.lightBox.setOptions({
@@ -151,7 +154,6 @@ function _addEventListeners(newView, newModifier){
         this.lightBox.optionsForSwipeUp = false;
       }
       this.lightBox.show(newView.previousPage);
-      newView.previousPage.contents.animateTasksIn(newView.previousPage.options.title);
 
       newView.previousPage.contents._eventOutput.emit('opened');
       newView.previousPage.header._eventOutput.emit('opened');
@@ -178,6 +180,8 @@ function _createAppViews() {
 function _renderFocusPage() {
   this.lightBox.show(this.FOCUSView);
   this.FOCUSView.contents.swapGradients();
+  this.FOCUSView.contents.animateTasksIn('FOCUS');
+
 };
 
 function _createGradientSurfaces(pages) {
@@ -285,12 +289,6 @@ function _colorSurfaces() {
     colorCanvasTwo.fillStyle = radialTwo;
     colorCanvasTwo.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
   }
-  console.log('GREEN', new Color(this.options.colors[0][1]).setLightness(40).getHex())
-  console.log('TODAY BLUE', new Color(this.options.colors[1][2]).setLightness(55).getHex())
-  console.log('TODAY YELL', new Color(this.options.colors[1][1]).setLightness(85).getHex())
-
-  console.log('BLUE', new Color(this.options.colors[2][0]).setLightness(55).getHex())
-  console.log('PURPLE', new Color(this.options.colors[2][1]).setLightness(55).getHex())
 
 };
 

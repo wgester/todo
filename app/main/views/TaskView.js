@@ -40,16 +40,12 @@ function _addTaskItem() {
 
 
 function animateIn(counter) {
-  counter = counter/2
   var deleteCheck = -1 * this.options.deleteCheckWidth;
-  this.taskItemModifier.setTransform(
-      Transform.translate(deleteCheck, 0, 0), {duration: 300 * counter, curve: 'easeInOut'}, function() {
-        this.taskItemModifier.setTransform(
-          Transform.translate(deleteCheck, -5, 0), {duration: 200, curve: 'easeInOut'}, function() {
-            this.taskItemModifier.setTransform(
-          Transform.translate(deleteCheck, 0, 0), {duration: 180, curve: 'easeInOut'}, function() {}.bind(this))
-        }.bind(this))
-      }.bind(this));
+  this.taskItemModifier.setTransform(Transform.translate(deleteCheck, 0, 0), {duration: 300 * counter, curve: 'easeInOut'}, function() {
+    this.taskItemModifier.setTransform(Transform.translate(deleteCheck, -5, 0), {duration: 100, curve: 'easeInOut'}, function() {
+        this.taskItemModifier.setTransform(Transform.translate(deleteCheck, 0, 0), {duration: 180, curve: 'easeInOut'}, function() {});
+    }.bind(this))
+  }.bind(this));
   this.taskItemModifier.setOpacity(1, this.options.transition, function() {});
 };
 
@@ -59,7 +55,7 @@ TaskView.prototype.appearIn = function() {
 };
 
 function resetAnimation(title) {
-  console.log('RESET CALED');
+  console.log('RESET CALLED');
   this.taskItemModifier.setTransform(Transform.translate(-1 * this.options.deleteCheckWidth, 1000, 0));
   this.taskItemModifier.setOpacity(0.01);
 };
