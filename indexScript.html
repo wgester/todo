@@ -10,67 +10,92 @@
     <link rel="stylesheet" type="text/css" href="build.css" />
     
     <script type="text/javascript" src="build.js" ></script>
-<script type="text/javascript" src="cordova.js" ></script>
+    <script type="text/javascript" src="cordova.js" ></script>
 </head>
-<body></body>
+<body>
+    <script>
 
-<script>
 
-document.addEventListener("deviceready", _startApp, false);
+        document.addEventListener("deviceready", _startApp, false);
 
-function _startApp() {
-    // _famous();
-    _accessFileSystem();
-}
-
-if (_isAndroid()) {
-    window.AndroidKeyboard = SoftKeyboard;
-}
-
-function _famous() {
-    require(["app/main/index.js"]);
-}
-
-function _accessFileSystem() {
-    window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, _gotFileSystem, _fail);
-}
-
-function _gotFileSystem(fileSystem) {
-    fileSystem.root.getFile("focusData.json", {create: true, exclusive: false}, _gotFileEntry, _fail);
-}
-
-function _gotFileEntry(fileEntry) {
-    fileEntry.file        (_gotReader, _fail);
-    fileEntry.createWriter(_gotWriter, _fail);
-}
-
-function _gotReader(file) {
-    window._dataFile = file;
-    window._FileReader = new FileReader();
-    window._FileReader.onloadend = function(evt) {
-        window._taskData = JSON.parse(evt.target.result);
-        _famous();
-    }
-    window.FileReader = {
-        read: function() {
-            window._FileReader.readAsText(window._dataFile);
+        function _startApp() {
+            _accessFileSystem();
         }
-    }
-}
 
-function _gotWriter(writer) {
-    writer.onwriteend = function(evt) {
-        window.FileReader.read();
-    };
-    window.FileWriter = writer;
-    window.FileWriter.write('[]');
-    window.FileReader.read();
-}
+        if (_isAndroid()) {
+            window.AndroidKeyboard = SoftKeyboard;
+        }
 
-function _fail(evt) {
-    alert('error');
-    alert(evt.target.error.code);
-}
-</script>
+        function _famous() {
+            require(["app/main/index.js"]);
+        }
 
+        function _accessFileSystem() {
+            window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, _gotFileSystem, _fail);
+        }
+
+        function _gotFileSystem(fileSystem) {
+            fileSystem.root.getFile("focusData.json", {create: true, exclusive: false}, _gotFileEntry, _fail);
+        }
+
+        function _gotFileEntry(fileEntry) {
+            _createMemoryController();
+            fileEntry.file        (_gotReader, _fail);
+            fileEntry.createWriter(_gotWriter, _fail);
+        }
+
+        function _gotReader(file) {
+            window._dataFile = file;
+            window._FileReader = new FileReader();
+            window._FileReader.onloadend = function(evt) {
+                window.memory.data = JSON.parse(evt.target.result);
+                _famous();
+            }
+        }
+
+        function _gotWriter(writer) {
+            writer.onwriteend = function(evt) {
+                window.memory.read();
+            };
+            window._FileWriter = writer;
+            window.memory.save()
+            // window.memory.read();
+        }
+
+        function _createMemoryController() {
+            window.memory = {
+                read: function() {
+                    window._FileReader.readAsText(window._dataFile);
+                    return this.data;
+                },
+                save: function() {
+                    window._FileWriter.write(JSON.stringify(this.data));
+                },
+                remove: function(task) {
+                    var thisPagesTasks = this.data[task.page];
+                    for (var i = 0; i < thisPagesTasks.length; i++) {
+                        if (thisPagesTasks[i].text === task.text) {
+                            thisPagesTasks.splice(i, 1);
+                            i--;
+                        }
+                    }
+                    this.data[task.page] = thisPagesTasks;
+                    this.save();
+                },
+                data: {
+                    "FOCUS" : [{ text: 'bootstrap data', page: 'FOCUS'}],
+                    "TODAY" : [{ text: 'bootstrap data', page: 'TODAY'}],
+                    "LATER" : [{ text: 'bootstrap data', page: 'LATER'}],
+                    "NEVER" : [{ text: 'bootstrap data', page: 'NEVER'}]
+                }
+            };
+        }
+
+        function _fail(evt) {
+            alert('error');
+            alert(evt.target.error.code);
+        }
+
+    </script>
+</body>
 </html>

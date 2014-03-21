@@ -14,6 +14,7 @@ var devMode = true;
 var wrapped = false;
 
 if (!wrapped) {
+  alert('not wrapped');
   navigator.notification = {
     vibrate: function(time) {
       console.log('vibrate fake for ' + time + 'ms.');
@@ -40,6 +41,9 @@ if (!wrapped) {
     },
     data: bootstrappedData
   }
+} else {
+  alert('wrapped');
+  alert(window.memory.data["FOCUS"]);
 }
 
 if (!_isAndroid() || !wrapped) {

@@ -1746,6 +1746,9 @@ require.register("famous_modules/famous/transitions/transitionable/_git_modulari
         }
         this._engineInstance.reset(this.state, this.velocity);
         if (this.velocity !== undefined) transition.velocity = this.velocity;
+        if (this._engineInstance === null) {
+            return;
+        }
         this._engineInstance.set(endValue, transition, _loadNext.bind(this));
     }
     /**
@@ -8772,7 +8775,47 @@ require.register("app/main/index.js", function(exports, require, module) {
     var SpringTransition = require("famous/transitions/spring-transition");
     var Timer = require("famous/utilities/timer");
     var CanvasSurface = require("famous/surfaces/canvas-surface");
+    var bootstrappedData = require("./views/data.js");
     var devMode = true;
+    var wrapped = false;
+    if (!wrapped) {
+        alert("not wrapped");
+        navigator.notification = {
+            vibrate: function(time) {
+                console.log("vibrate fake for " + time + "ms.");
+            }
+        };
+        window.memory = {
+            save: function(task) {
+                console.log("saved task " + task.text);
+                this.data[task.page].push(task);
+            },
+            read: function(task) {
+                return this.data;
+            },
+            remove: function(task) {
+                var thisPagesTasks = this.data[task.page];
+                var indiciesToRemove = [];
+                for (var i = 0; i < thisPagesTasks.length; i++) {
+                    if (thisPagesTasks[i].text === task.text) {
+                        thisPagesTasks.splice(i, 1);
+                        i--;
+                    }
+                }
+                this.data = thisPagesTasks;
+            },
+            data: bootstrappedData
+        };
+    } else {
+        alert("wrapped");
+        alert(window.memory.data["FOCUS"]);
+    }
+    if (!_isAndroid() || !wrapped) {
+        window.AndroidKeyboard = {
+            show: function() {},
+            hide: function() {}
+        };
+    }
     Transitionable.registerMethod("wall", WallTransition);
     Transitionable.registerMethod("spring", SpringTransition);
     var mainCtx = window.Engine.createContext();
@@ -8932,6 +8975,7 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
     var CanvasSurface = require("famous/surfaces/canvas-surface");
     var InputSurface = require("famous/surfaces/input-surface");
     var Transitionable = require("famous/transitions/transitionable");
+    var Color = require("./Color");
     function AppView() {
         View.apply(this, arguments);
         this.headerSizeTransitionable = new Transitionable([ 70 ]);
@@ -8960,7 +9004,7 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
         noTransition: {
             duration: 0
         },
-        colors: [ [ "#ffffff", "#32CEA8" ], [ "#ffffff", "#FFFFCD", "#87CEFA" ], [ "#3690FF", "#8977C6" ], [ "#F5A9BC", "#FA5858" ], [ "#81F781", "#E0F8E6" ] ]
+        colors: [ [ "#ffffff", "#32CEA8", null, "#ffffff", "#87CEFA", "#32CEA8" ], [ "#ffffff", "#FFFFCD", "#87CEFA", "#ffffff", "#ffffb3", "#23a5f6" ], [ "#3690FF", "#8977C6", null, "#8977C6", "#1a80ff", "#735dbb" ], [ "#F5A9BC", "#FA5858", null, "#ED559C", "#F5A9BC", null ] ]
     };
     function _isAndroid() {
         var userAgent = navigator.userAgent.toLowerCase();
@@ -8977,18 +9021,6 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
         this.lightBox.optionsForSwipeUp = false;
         this._add(this.lightBox);
     }
-    // function _createInputView() {
-    //   this.inputSurf = new InputSurface({
-    //     size: [undefined, 60],
-    //     properties: {background: 'white', margin: 0, opacity: '1'},
-    //     classes: ['task']
-    //   });
-    //   this.inputSurf.setPlaceholder('here');
-    //   this.inputMod = new Modifier({
-    //     transform: Transform.translate(0, 70, -1)
-    //   });
-    //   this._add(this.inputMod).add(this.inputSurf);
-    // }
     function _addPageView(title, previousPage, nextPage) {
         var pageViewOptions = {
             title: title,
@@ -9016,11 +9048,16 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
         // window.Engine.on('prerender', )
         this._eventOutput.pipe(newView._eventInput);
         newView._eventOutput.on("moveTaskToNewPage", function(text) {
-            this._eventOutput.emit("swapPages", text);
+            if (text.direction === 1) {
+                newView.nextPage.contents._eventOutput.emit("swapPages", text);
+            } else {
+                newView.previousPage.contents._eventOutput.emit("swapPages", text);
+            }
         }.bind(this));
         newView.on("togglePageViewUp", function() {
             console.log("toggle page up!");
-            newView.contents.resetAnimations(newView.options.title);
+            newView.nextPage.contents.resetAnimations(newView.nextPage.options.title);
+            newView.nextPage.contents.animateTasksIn(newView.nextPage.options.title);
             if (newView.nextPage) {
                 if (!this.lightBox.optionsForSwipeUp) {
                     this.lightBox.setOptions({
@@ -9032,7 +9069,6 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
                     this.lightBox.optionsForSwipeUp = true;
                 }
                 this.lightBox.show(newView.nextPage);
-                newView.nextPage.contents.animateTasksIn(newView.nextPage.options.title);
                 newView.nextPage.contents._eventOutput.emit("opened");
                 newView.nextPage.header._eventOutput.emit("opened");
                 newView.contents._eventOutput.emit("closed");
@@ -9041,7 +9077,8 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
         }.bind(this));
         newView.on("togglePageViewDown", function() {
             console.log("toggle page down!");
-            newView.contents.resetAnimations(newView.options.title);
+            newView.previousPage.contents.resetAnimations(newView.previousPage.options.title);
+            newView.previousPage.contents.animateTasksIn(newView.previousPage.options.title);
             if (newView.previousPage) {
                 if (this.lightBox.optionsForSwipeUp) {
                     this.lightBox.setOptions({
@@ -9053,7 +9090,6 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
                     this.lightBox.optionsForSwipeUp = false;
                 }
                 this.lightBox.show(newView.previousPage);
-                newView.previousPage.contents.animateTasksIn(newView.previousPage.options.title);
                 newView.previousPage.contents._eventOutput.emit("opened");
                 newView.previousPage.header._eventOutput.emit("opened");
                 newView.contents._eventOutput.emit("closed");
@@ -9073,30 +9109,43 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
     }
     function _renderFocusPage() {
         this.lightBox.show(this.FOCUSView);
+        this.FOCUSView.contents.swapGradients();
+        this.FOCUSView.contents.animateTasksIn("FOCUS");
     }
     function _createGradientSurfaces(pages) {
         window.faderSurfaces = [];
         window.faderMods = [];
         for (var i = 0; i < this.options.colors.length; i++) {
-            var backgroundSurf = new CanvasSurface({
+            var backgroundSurfOne = new CanvasSurface({
                 size: [ window.innerWidth, window.innerHeight ],
                 canvasSize: [ window.innerWidth * 2, window.innerHeight * 2 ],
-                classes: [ "famous-surface", "gradient" ]
+                classes: [ "famous-surface", "gradient", this.options.colors[i] ]
+            });
+            var backgroundSurfTwo = new CanvasSurface({
+                size: [ window.innerWidth, window.innerHeight ],
+                canvasSize: [ window.innerWidth * 2, window.innerHeight * 2 ],
+                classes: [ "famous-surface", "gradient", this.options.colors[i] ]
             });
             var startOpacity = i === 0 ? 1 : 0;
-            var backgroundMod = new Modifier({
-                opacity: startOpacity,
+            var backgroundModOne = new Modifier({
+                opacity: 0,
                 transform: Transform.translate(0, 0, 0)
             });
-            window.faderSurfaces.push(backgroundSurf);
-            window.faderMods.push(backgroundMod);
-            this._add(backgroundMod).add(backgroundSurf);
+            var backgroundModTwo = new Modifier({
+                opacity: 0,
+                transform: Transform.translate(0, 0, 0)
+            });
+            window.faderSurfaces.push([ backgroundSurfOne, backgroundSurfTwo ]);
+            window.faderMods.push([ backgroundModOne, backgroundModTwo ]);
+            this._add(backgroundModOne).add(backgroundSurfOne);
+            this._add(backgroundModTwo).add(backgroundSurfTwo);
         }
         _colorSurfaces.call(this);
     }
     function _colorSurfaces() {
         for (var i = 0; i < window.faderSurfaces.length; i++) {
-            var colorCanvas = window.faderSurfaces[i].getContext("2d");
+            var colorCanvasOne = window.faderSurfaces[i][0].getContext("2d");
+            var colorCanvasTwo = window.faderSurfaces[i][1].getContext("2d");
             if (_isAndroid()) {
                 var radial = colorCanvas.createLinearGradient(300, // x0
                 0, // y0
@@ -9111,23 +9160,41 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
                     radial.addColorStop(0, this.options.colors[i][1]);
                 }
             } else {
-                var radial = colorCanvas.createRadialGradient(300, // x0
+                //first background
+                var radialOne = colorCanvasOne.createRadialGradient(300, // x0
+                1200, // y0
+                0, // r0
+                300, // x1
+                1400, // y1
+                1200);
+                if (this.options.colors[i][5]) {
+                    radialOne.addColorStop(0, this.options.colors[i][3]);
+                    radialOne.addColorStop(.2, this.options.colors[i][4]);
+                    radialOne.addColorStop(1, this.options.colors[i][5]);
+                } else {
+                    radialOne.addColorStop(0, this.options.colors[i][3]);
+                    radialOne.addColorStop(1, this.options.colors[i][4]);
+                }
+                //second background
+                var radialTwo = colorCanvasTwo.createRadialGradient(300, // x0
                 1200, // y0
                 0, // r0
                 300, // x1
                 1400, // y1
                 1200);
                 if (this.options.colors[i][2]) {
-                    radial.addColorStop(0, this.options.colors[i][0]);
-                    radial.addColorStop(.2, this.options.colors[i][1]);
-                    radial.addColorStop(1, this.options.colors[i][2]);
+                    radialTwo.addColorStop(0, this.options.colors[i][0]);
+                    radialTwo.addColorStop(.2, this.options.colors[i][1]);
+                    radialTwo.addColorStop(1, this.options.colors[i][2]);
                 } else {
-                    radial.addColorStop(0, this.options.colors[i][0]);
-                    radial.addColorStop(1, this.options.colors[i][1]);
+                    radialTwo.addColorStop(0, this.options.colors[i][0]);
+                    radialTwo.addColorStop(1, this.options.colors[i][1]);
                 }
             }
-            colorCanvas.fillStyle = radial;
-            colorCanvas.fillRect(0, 0, window.innerWidth * 2, window.innerHeight * 2);
+            colorCanvasOne.fillStyle = radialOne;
+            colorCanvasOne.fillRect(0, 0, window.innerWidth * 2, window.innerHeight * 2);
+            colorCanvasTwo.fillStyle = radialTwo;
+            colorCanvasTwo.fillRect(0, 0, window.innerWidth * 2, window.innerHeight * 2);
         }
     }
     function _createCompletionSurface() {
@@ -9594,8 +9661,6 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
     var View = require("famous/view");
     var Scrollview = require("famous/views/scrollview");
     var TaskView = require("./TaskView");
-    // var Tasks             = window._taskData || [];
-    var Tasks = require("./data");
     var Box = require("./BoxView");
     var BoxContainer = require("./BoxContainer");
     var Timer = require("famous/utilities/timer");
@@ -9609,6 +9674,7 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
         this.lightness = 75;
         this.inputToggled = false;
         this.title = this.options.title;
+        this.swappedTask = false;
         this.notAnimated = true;
         this.shown = {};
         this.toShow = {};
@@ -9647,8 +9713,10 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
     }
     function _setBackground() {
         var index = this.options.views[this.options.title][0];
-        this.backgroundSurf = window.faderSurfaces[index];
-        this.backgroundMod = window.faderMods[index];
+        this.backgroundSurfOne = window.faderSurfaces[index][0];
+        this.backgroundModOne = window.faderMods[index][0];
+        this.backgroundSurfTwo = window.faderSurfaces[index][1];
+        this.backgroundModTwo = window.faderMods[index][1];
         this.touchSurf = new Surface({
             size: [ undefined, undefined ],
             properties: {
@@ -9661,7 +9729,7 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
         this._add(this.touchMod).add(this.touchSurf);
     }
     function _createTasks() {
-        this.tasks = Tasks;
+        this.tasks = window.memory.read()[this.options.title];
         this.taskCount = 0;
         this.customscrollview = new CustomScrollView({
             page: this.title
@@ -9673,21 +9741,19 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
         });
         var node = this.customdragsort;
         for (var i = 0; i < this.tasks.length; i++) {
-            if (this.tasks[i].page === this.options.title) {
-                var newTask = new TaskView({
-                    text: this.tasks[i].text,
-                    index: this.taskCount,
-                    page: this.options.title
-                });
-                this.customdragsort.push(newTask);
-                if (node.getNext()) node = node._next;
-                newTask.pipe(node);
-                node.pipe(this.customscrollview);
-                newTask.pipe(this.customscrollview);
-                newTask.pipe(this._eventInput);
-                this.customscrollview.pipe(node);
-                this.taskCount++;
-            }
+            var newTask = new TaskView({
+                text: this.tasks[i].text,
+                index: this.taskCount,
+                page: this.options.title
+            });
+            this.customdragsort.push(newTask);
+            if (node.getNext()) node = node._next;
+            newTask.pipe(node);
+            node.pipe(this.customscrollview);
+            newTask.pipe(this.customscrollview);
+            newTask.pipe(this._eventInput);
+            this.customscrollview.pipe(node);
+            this.taskCount++;
         }
         this.scrollMod = new Modifier({
             transform: Transform.translate(0, 0, 1)
@@ -9702,11 +9768,6 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
         _inputListeners.call(this);
         _unhideTaskListener.call(this);
         this._eventInput.on("swapPages", _createNewTask.bind(this));
-        this._eventInput.on("offsets", function() {
-            this.animateTasksIn(this.options.title);
-            this.notAnimated = false;
-            console.log("hit!");
-        }.bind(this));
     }
     ContentView.prototype._newScrollView = function(data, newIndex) {
         this.customscrollview = new CustomScrollView({
@@ -9744,6 +9805,7 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
             index: newIndex,
             page: this.title
         });
+        window.memory.save(newTask);
         this.customdragsort.push(newTask);
         for (var j = 0; j < newIndex - 1; j++) {
             node = node._next;
@@ -9759,7 +9821,13 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
         _openInputListener.call(this, newTask);
         _closeInputListener.call(this, newTask);
         _completionListener.call(this, newTask);
-        newTask.appearIn.call(newTask);
+        if (this.swappedTask === false) {
+            newTask.appearIn();
+        } else {
+            this.swappedTask = false;
+            newTask.appearIn();
+            newTask.resetAnimation();
+        }
     }
     function _createNewTask(data) {
         var pages = {
@@ -9772,6 +9840,7 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
             return;
         }
         if (pages[this.title] === pages[data.page] + data.direction) {
+            this.swappedTask = true;
             var node = this.customscrollview.node;
             var newIndex = this.customdragsort.array.length;
             if (!newIndex) {
@@ -9840,14 +9909,41 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
         }.bind(this));
     }
     function _gradientListener() {
+        if (this.options.title === "FOCUS") {
+            this.opened = true;
+            this.opacityOne = 0;
+            this.opacityTwo = 1;
+            this.backgroundModOne.setOpacity(0);
+            this.backgroundModTwo.setOpacity(1);
+        }
+        window.setInterval(this.swapGradients.bind(this), 8e3);
         this.on("opened", function() {
-            this.backgroundMod.setOpacity(1, {
-                duration: this.options.gradientDuration
+            this.opened = true;
+            this.opacityOne = 0;
+            this.opacityTwo = 1;
+            this.backgroundModOne.halt();
+            this.backgroundModTwo.halt();
+            this.backgroundModOne.setOpacity(0, {
+                duration: this.options.gradientDuration,
+                curve: "easeOut"
             }, function() {});
+            this.backgroundModTwo.setOpacity(1, {
+                duration: this.options.gradientDuration,
+                curve: "easeOut"
+            }, function() {});
+            this.swapGradients();
         }.bind(this));
         this.on("closed", function() {
-            this.backgroundMod.setOpacity(0, {
-                duration: this.options.gradientDuration
+            this.opened = false;
+            this.backgroundModOne.halt();
+            this.backgroundModTwo.halt();
+            this.backgroundModOne.setOpacity(0, {
+                duration: this.options.gradientDuration,
+                curve: "easeOut"
+            }, function() {});
+            this.backgroundModTwo.setOpacity(0, {
+                duration: this.options.gradientDuration,
+                curve: "easeOut"
             }, function() {});
         }.bind(this));
     }
@@ -9866,6 +9962,18 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
             this.taskCount--;
         }.bind(this));
     }
+    ContentView.prototype.swapGradients = function() {
+        if (this.opened) {
+            this.opacityOne = this.opacityOne ? 0 : 1;
+            this.opacityTwo = this.opacityTwo ? 0 : 1;
+            this.backgroundModOne.setOpacity(this.opacityOne, {
+                duration: 5e3
+            }, function() {});
+            this.backgroundModTwo.setOpacity(this.opacityTwo, {
+                duration: 5e3
+            }, function() {});
+        }
+    };
     function getTitleIndex(title) {
         var titles = {
             FOCUS: 0,
@@ -9878,36 +9986,16 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
     function _monitorOffsets() {
         var index = getTitleIndex(this.title);
         var scrollview;
-        Engine.on("prerender", function() {
-            if (this.title) {
-                if (this.customscrollview.options.page === this.title) scrollview = this.customscrollview;
-                if (this.notAnimated) {
-                    if (scrollview._offsets[0] !== undefined) {
-                        this._eventOutput.emit("offsets");
-                        console.log("emitted offsets!");
-                    }
-                }
-            }
-        }.bind(this));
     }
     ContentView.prototype.animateTasksIn = function(title) {
         var counter = 1;
-        var index = getTitleIndex(title);
         var scrollview;
         if (this.customscrollview.options.page === title) scrollview = this.customscrollview;
-        if (scrollview._offsets) {
-            for (var task in scrollview._offsets) {
-                if (task !== "undefined") {
-                    var taskOffset = scrollview._offsets[task];
-                    if (taskOffset > -10 && taskOffset < window.innerHeight && this.shown[task] !== title) {
-                        this.toShow[task] = title;
-                        if (scrollview.node.array[task]) {
-                            counter++;
-                            scrollview.node.array[task].animateIn(counter);
-                            this.toShow[task] = undefined;
-                        }
-                    }
-                }
+        for (var i = 0; i < scrollview.node.array.length; i++) {
+            if (this.shown[i] !== title) {
+                this.toShow[i] = title;
+                scrollview.node.array[i].animateIn(i);
+                this.toShow[i] = undefined;
             }
             this.shown = this.toShow;
         }
@@ -10237,8 +10325,6 @@ require.register("app/main/views/PageView.js", function(exports, require, module
     var HeaderFooter = require("famous/views/header-footer-layout");
     var Utility = require("famous/utilities/utility");
     var Color = require("./Color");
-    // var Tasks             = window._taskData || [];
-    var Tasks = require("./data");
     var TaskView = require("./TaskView");
     var HeaderView = require("./HeaderView");
     var FooterView = require("./FooterView");
@@ -10396,10 +10482,11 @@ require.register("app/main/views/PageView.js", function(exports, require, module
         this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0));
         this.editMod.setTransform(Transform.translate(0, 20, 0), this.options.editInputAnimation, function() {
             this.editSurface.focus();
+            window.AndroidKeyboard.show();
         }.bind(this));
     }
     function _editInputFlyOut() {
-        // SoftKeyboard && SoftKeyboard.hide();
+        window.AndroidKeyboard.hide();
         this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0), {
             duration: 300
         }, function() {
@@ -10672,7 +10759,7 @@ require.register("app/main/views/TaskItem.js", function(exports, require, module
         }.bind(this));
     }
     function vibrate() {
-        window.vibrate(300);
+        navigator.notification.vibrate(300);
     }
     module.exports = TaskItem;
 }.bind(this));
@@ -10712,19 +10799,18 @@ require.register("app/main/views/TaskView.js", function(exports, require, module
     /*-----------------------ANIMATION-------------------------------*/
     function animateIn(counter) {
         var deleteCheck = -1 * this.options.deleteCheckWidth;
-        this.taskItemModifier.setTransform(//////// SPRING MORE
-        Transform.translate(deleteCheck, 0, 0), {
-            duration: 180 * counter,
+        this.taskItemModifier.setTransform(Transform.translate(deleteCheck, 0, 0), {
+            duration: 300 * counter,
             curve: "easeInOut"
         }, function() {
             this.taskItemModifier.setTransform(Transform.translate(deleteCheck, -5, 0), {
-                duration: 200,
+                duration: 100,
                 curve: "easeInOut"
             }, function() {
                 this.taskItemModifier.setTransform(Transform.translate(deleteCheck, 0, 0), {
-                    duration: 180 * counter,
+                    duration: 180,
                     curve: "easeInOut"
-                }, function() {}.bind(this));
+                }, function() {});
             }.bind(this));
         }.bind(this));
         this.taskItemModifier.setOpacity(1, this.options.transition, function() {});
@@ -10733,11 +10819,10 @@ require.register("app/main/views/TaskView.js", function(exports, require, module
         this.taskItemModifier.setTransform(Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0));
         this.taskItemModifier.setOpacity(1);
     };
-    function resetAnimation() {
-        console.log("reset");
-        this.taskItemModifier.setOpacity(.1, this.options.transition, function() {});
-        this.taskItemModifier.setTransform(Transform.translate(-1 * this.options.deleteCheckWidth, 1e3, 0), this.options.transition, function() {});
-        this.taskItemModifier.setOpacity(.1, this.options.transition, function() {});
+    function resetAnimation(title) {
+        console.log("RESET CALLED");
+        this.taskItemModifier.setTransform(Transform.translate(-1 * this.options.deleteCheckWidth, 1e3, 0));
+        this.taskItemModifier.setOpacity(.01);
     }
     module.exports = TaskView;
 }.bind(this));
@@ -10844,86 +10929,72 @@ require.register("app/main/views/customScrollView.js", function(exports, require
 }.bind(this));
 
 require.register("app/main/views/data.js", function(exports, require, module) {
-    var tasks = [ {
-        text: "make an app",
-        page: "FOCUS"
-    }, {
-        text: "be awesome",
-        page: "FOCUS"
-    }, {
-        text: "moonlight as catwoman",
-        page: "FOCUS"
-    }, {
-        text: "find phone",
-        page: "TODAY"
-    }, {
-        text: "be awesome",
-        page: "TODAY"
-    }, {
-        text: "make app, heeeere",
-        page: "TODAY"
-    }, {
-        text: "eat lunch",
-        page: "TODAY"
-    }, {
-        text: "eat dinner",
-        page: "TODAY"
-    }, {
-        text: "eat dinner",
-        page: "LATER"
-    }, {
-        text: "eat dinner",
-        page: "LATER"
-    }, {
-        text: "eat dinner",
-        page: "LATER"
-    }, {
-        text: "eat dinner",
-        page: "LATER"
-    }, {
-        text: "eat dinner",
-        page: "LATER"
-    }, {
-        text: "eat lunch",
-        page: "TODAY"
-    }, {
-        text: "eat dinner",
-        page: "TODAY"
-    }, {
-        text: "eat lunch",
-        page: "TODAY"
-    }, {
-        text: "eat dinner",
-        page: "NEVER"
-    }, {
-        text: "eat lunch",
-        page: "NEVER"
-    }, {
-        text: "eat dinner",
-        page: "NEVER"
-    }, // { text: 'make an app', page: 'FOCUS'},
-    // { text: 'eat lunch', page: 'TODAY'},
-    // { text: 'be awesome', page: 'FOCUS'},
-    // { text: 'eat dinner', page: 'TODAY'},
-    // { text: 'eat lunch', page: 'TODAY'},
-    // { text: 'be awesome', page: 'FOCUS'},
-    // { text: 'eat dinner', page: 'TODAY'},
-    // { text: 'eat lunch', page: 'TODAY'},
-    // { text: 'be awesome', page: 'FOCUS'},
-    // { text: 'eat dinner', page: 'TODAY'},
-    // { text: 'make an app', page: 'FOCUS'},
-    // { text: 'eat lunch', page: 'TODAY'},
-    // { text: 'be awesome', page: 'FOCUS'},
-    // { text: 'eat dinner', page: 'TODAY'},
-    // { text: 'eat lunch', page: 'TODAY'},
-    // { text: 'be awesome', page: 'FOCUS'},
-    // { text: 'eat dinner', page: 'TODAY'},
-    // { text: 'eat lunch', page: 'TODAY'},
-    // { text: 'be awesome', page: 'FOCUS'},
-    {
-        text: "finish work",
-        page: "TODAY"
-    } ];
+    var tasks = {
+        FOCUS: [ {
+            text: "make an app",
+            page: "FOCUS"
+        }, {
+            text: "be awesome",
+            page: "FOCUS"
+        }, {
+            text: "moonlight as catwoman",
+            page: "FOCUS"
+        }, {
+            text: "find phone",
+            page: "TODAY"
+        } ],
+        TODAY: [ {
+            text: "be awesome",
+            page: "TODAY"
+        }, {
+            text: "make app, heeeere",
+            page: "TODAY"
+        }, {
+            text: "eat lunch",
+            page: "TODAY"
+        }, {
+            text: "eat dinner",
+            page: "TODAY"
+        }, {
+            text: "eat lunch",
+            page: "TODAY"
+        }, {
+            text: "eat dinner",
+            page: "TODAY"
+        }, {
+            text: "eat lunch",
+            page: "TODAY"
+        }, {
+            text: "finish work",
+            page: "TODAY"
+        } ],
+        LATER: [ {
+            text: "eat dinner",
+            page: "LATER"
+        }, {
+            text: "eat dinner",
+            page: "LATER"
+        }, {
+            text: "eat dinner",
+            page: "LATER"
+        }, {
+            text: "eat dinner",
+            page: "LATER"
+        }, {
+            text: "eat dinner",
+            page: "LATER"
+        } ],
+        NEVER: [ {
+            text: "eat dinner",
+            page: "NEVER"
+        }, {
+            text: "eat lunch",
+            page: "NEVER"
+        }, {
+            text: "eat dinner",
+            page: "NEVER"
+        } ]
+    };
     module.exports = tasks;
 }.bind(this));
 
@@ -12567,7 +12638,8 @@ require.config({
             "famous/transitions/wall-transition": "famous_modules/famous/transitions/wall-transition/_git_modularized/index.js",
             "famous/transitions/spring-transition": "famous_modules/famous/transitions/spring-transition/_git_modularized/index.js",
             "famous/utilities/timer": "famous_modules/famous/utilities/timer/_git_modularized/index.js",
-            "famous/surfaces/canvas-surface": "famous_modules/famous/surfaces/canvas-surface/_git_modularized/index.js"
+            "famous/surfaces/canvas-surface": "famous_modules/famous/surfaces/canvas-surface/_git_modularized/index.js",
+            "./views/data.js": "app/main/views/data.js"
         },
         "app/main/fonts/specimen_files/easytabs.js": {},
         "app/main/views/AppView.js": {
@@ -12579,7 +12651,8 @@ require.config({
             "famous/views/light-box": "famous_modules/famous/views/light-box/_git_modularized/index.js",
             "famous/surfaces/canvas-surface": "famous_modules/famous/surfaces/canvas-surface/_git_modularized/index.js",
             "famous/surfaces/input-surface": "famous_modules/famous/surfaces/input-surface/_git_modularized/index.js",
-            "famous/transitions/transitionable": "famous_modules/famous/transitions/transitionable/_git_modularized/index.js"
+            "famous/transitions/transitionable": "famous_modules/famous/transitions/transitionable/_git_modularized/index.js",
+            "./Color": "app/main/views/Color.js"
         },
         "app/main/views/BoxContainer.js": {
             "famous/surface": "famous_modules/famous/surface/_git_modularized/index.js",
@@ -12604,7 +12677,6 @@ require.config({
             "famous/view": "famous_modules/famous/view/_git_modularized/index.js",
             "famous/views/scrollview": "famous_modules/famous/views/scrollview/_git_modularized/index.js",
             "./TaskView": "app/main/views/TaskView.js",
-            "./data": "app/main/views/data.js",
             "./BoxView": "app/main/views/BoxView.js",
             "./BoxContainer": "app/main/views/BoxContainer.js",
             "famous/utilities/timer": "famous_modules/famous/utilities/timer/_git_modularized/index.js",
@@ -12653,7 +12725,6 @@ require.config({
             "famous/views/header-footer-layout": "famous_modules/famous/views/header-footer-layout/_git_modularized/index.js",
             "famous/utilities/utility": "famous_modules/famous/utilities/utility/_git_modularized/index.js",
             "./Color": "app/main/views/Color.js",
-            "./data": "app/main/views/data.js",
             "./TaskView": "app/main/views/TaskView.js",
             "./HeaderView": "app/main/views/HeaderView.js",
             "./FooterView": "app/main/views/FooterView.js",
