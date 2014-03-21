@@ -41,7 +41,7 @@ function _addTaskItem() {
 
 function animateIn(counter) {
   var deleteCheck = -1 * this.options.deleteCheckWidth;
-  this.taskItemModifier.setTransform(Transform.translate(deleteCheck, 0, 0), {duration: 300 * counter, curve: 'easeInOut'}, function() {
+  this.taskItemModifier.setTransform(Transform.translate(deleteCheck, 0, 0), {duration: 200 * counter, curve: 'easeInOut'}, function() {
     this.taskItemModifier.setTransform(Transform.translate(deleteCheck, -5, 0), {duration: 100, curve: 'easeInOut'}, function() {
         this.taskItemModifier.setTransform(Transform.translate(deleteCheck, 0, 0), {duration: 180, curve: 'easeInOut'}, function() {});
     }.bind(this))

@@ -253,9 +253,12 @@ function saveTask(text) {
 };
 
 function unhideTask() {
-  this.taskItemModifier.setOpacity(1);
-  this.taskItemModifier.setTransform(Matrix.translate(0, 0, 0), {curve: 'easeOut', duration: 300}, function() { 
-    this.contents.setProperties({'backgroundColor': 'rgba(255, 255, 255, 0.07)'});
+  this.contents.setProperties({'display': 'block'});
+  this.taskItemModifier.setTransform(Matrix.translate(0, 0, 40), {curve: 'easeOut', duration: 300}, function() { 
+    Timer.after(function() {
+      this.contents.setProperties({'backgroundColor': 'rgba(255, 255, 255, 0.07)'});
+      this.taskItemModifier.setTransform(Matrix.translate(0, 0, 0), {curve: 'easeOut', duration: 500}, function() {});      
+    }.bind(this), 10);
   }.bind(this));  
 };
 
@@ -264,7 +267,9 @@ function transformTask() {
     this.taskItemModifier.setTransform(Matrix.translate(0, 0, 40), {curve: 'easeOut', duration: 300}, function() {
       this._eventOutput.emit('openLightbox', {text: this.text, index: this.index});        
       Timer.after(function() {
-        this.taskItemModifier.setOpacity(0.01);
+        this.contents.setProperties({'display': 'none'});
+        var offset = this.page === 'FOCUS' ? this.index * -60 - 250: (this.index+1) * -60;
+        this.taskItemModifier.setTransform(Matrix.translate(0,offset,0));
       }.bind(this), 5);
     }.bind(this));  
 };
