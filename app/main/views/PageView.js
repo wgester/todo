@@ -166,7 +166,7 @@ function _rotateInputBack() {
 };
 
 function _lightboxFadeOut() {
-  this.editLBMod.setOpacity(0.01, {duration: 600 + (this.taskIndex*10)}, function() {
+  this.editLBMod.setOpacity(0.01, {duration: 350}, function() {
     this.editLBMod.setTransform(Transform.translate(0, 0, -10));
   }.bind(this));
 };
