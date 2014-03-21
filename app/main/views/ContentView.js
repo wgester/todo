@@ -20,7 +20,7 @@ function ContentView(options) {
   this.lightness = 75;
   this.inputToggled = false;
   this.title = this.options.title;
-  
+  this.swappedTask = false;  
   this.notAnimated = true;
 
   
@@ -127,13 +127,11 @@ function _setListeners() {
   _newTaskListener.call(this);
   _inputListeners.call(this);
   _unhideTaskListener.call(this);
-  this.on('swapPages', function(val) {
-    _createNewTask.call(val);
-  }.bind(this));
+  this._eventInput.on('swapPages', _createNewTask.bind(this));
   this._eventInput.on('offsets', function() {
-      this.animateTasksIn(this.options.title);
-      this.notAnimated = false;
-    }.bind(this));
+    this.animateTasksIn(this.options.title);
+    this.notAnimated = false;
+  }.bind(this));
 };
 
 ContentView.prototype._newScrollView = function(data, newIndex) {
@@ -164,16 +162,15 @@ ContentView.prototype._newScrollView = function(data, newIndex) {
 
 ContentView.prototype._addToList = function(data, newIndex, node) {
   var newTask = new TaskView({text: data.text, index: newIndex, page: this.title});
+      newTask.resetAnimation();
       this.customdragsort.push(newTask);
       for (var j = 0; j < newIndex - 1; j++) {
         node = node._next;
       }
-      this.customdragsort.push(newTask);
       if(node.getNext()) node = node._next;
       newTask.pipe(node);
       node.pipe(this.customscrollview);
       newTask.pipe(this.customscrollview);
-      // newTask.pipe(this._eventInput);
       this.customscrollview.pipe(node);
       _activateTasks.call(this, newTask);
 }
@@ -182,7 +179,13 @@ function _activateTasks(newTask) {
   _openInputListener.call(this, newTask);
   _closeInputListener.call(this, newTask);
   _completionListener.call(this, newTask);
-  newTask.appearIn.call(newTask);
+  console.log(this.newTask);
+  if (this.swappedTask === false) {
+    console.log('APPEARING')
+    newTask.appearIn();
+  } else {
+    this.swappedTask = false;
+  }
 }
 
 function _createNewTask(data) {
@@ -196,11 +199,13 @@ function _createNewTask(data) {
     return;
   }
   if (pages[this.title] === (pages[data.page] + data.direction)) {
-
+    this.swappedTask = true;
+    console.log('TRUE');
     var node = this.customscrollview.node;
     var newIndex = this.customdragsort.array.length;
     if (!newIndex) {
       this._newScrollView(data, newIndex);
+
     } else {
       this._addToList(data, newIndex, node);
     }
@@ -353,8 +358,6 @@ ContentView.prototype.animateTasksIn = function(title) {
   if(scrollview._offsets) {
     for(var task in scrollview._offsets) {
         var taskOffset = scrollview._offsets[task]; 
-        console.log("TASK", task);
-        console.log("SCROLLVIEW", scrollview._offsets)
         if((taskOffset > -60) && (taskOffset < window.innerHeight) && (this.shown[task] !== title)) {
           this.toShow[task] = title;
           if(scrollview.node.array[task]) {
