@@ -68,9 +68,11 @@ function _setUpOffsets() {
 
 function _setBackground() {
   var index = this.options.views[this.options.title][0];
-
-  this.backgroundSurf = window.faderSurfaces[index];
-  this.backgroundMod = window.faderMods[index];
+  this.backgroundSurfOne = window.faderSurfaces[index][0];
+  this.backgroundModOne = window.faderMods[index][0];
+  
+  this.backgroundSurfTwo = window.faderSurfaces[index][1];
+  this.backgroundModTwo = window.faderMods[index][1];
 
   this.touchSurf = new Surface({
     size: [undefined, undefined],
@@ -272,12 +274,29 @@ function _unhideTaskListener() {
 
 
 function _gradientListener() {
+  if (this.options.title === 'FOCUS') {
+    this.opened = true;
+    this.opacityOne = 0;
+    this.opacityTwo = 1;
+    this.backgroundModOne.setOpacity(0);
+    this.backgroundModTwo.setOpacity(1);
+  }
+  
+  window.setInterval(this.swapGradients.bind(this), 7000);
+  
   this.on('opened', function() {
-    this.backgroundMod.setOpacity(1, {duration: this.options.gradientDuration}, function() {});
+    this.opened = true;
+    this.opacityOne = 0;
+    this.opacityTwo = 1;
+    this.backgroundModOne.setOpacity(0, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});
+    this.backgroundModTwo.setOpacity(1, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});
+    this.swapGradients();
   }.bind(this));
 
   this.on('closed', function() {
-    this.backgroundMod.setOpacity(0, {duration: this.options.gradientDuration}, function() {});
+    this.opened = false;
+    this.backgroundModOne.setOpacity(0, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});    
+    this.backgroundModTwo.setOpacity(0, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});
   }.bind(this));
 };
 
@@ -292,6 +311,17 @@ function _completionListener(task) {
   task.on('deleted', function() {
     this.taskCount--;
   }.bind(this));
+};
+
+ContentView.prototype.swapGradients = function() {
+  if (this.opened) {
+    console.log('called');
+    this.opacityOne = this.opacityOne ? 0 : 1;
+    this.opacityTwo = this.opacityTwo ? 0 : 1;
+
+    this.backgroundModOne.setOpacity(this.opacityOne, {duration: 5000}, function() {});        
+    this.backgroundModTwo.setOpacity(this.opacityTwo, {duration: 5000}, function() {});        
+  }
 };
 
 function getTitleIndex(title) {
