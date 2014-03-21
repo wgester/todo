@@ -98,11 +98,6 @@ function _createTasks() {
       this.taskCount++;
     }
   }
-  if (this.options.title === 'FOCUS'  && this.taskCount > 2) {
-    this._eventOutput.emit('inputClosed'); // need to return here
-  }
-
-  // if (this.options.title === 'FOCUS'  && this.taskCount > 2) return;
 
   this.scrollMod = new Modifier({
     transform: Transform.translate(0, 0, 1)
@@ -167,6 +162,7 @@ ContentView.prototype._addToList = function(data, newIndex, node) {
 }
 
 function _activateTasks(newTask) {
+  console.log(this.taskCount, 'task count')
   _openInputListener.call(this, newTask);
   _closeInputListener.call(this, newTask);
   _completionListener.call(this, newTask);
@@ -187,7 +183,7 @@ function _createNewTask(data) {
     'NEVER': 3 
   }
   
-  if (this.options.title === 'FOCUS'  && this.taskCount > 2) return
+  if (this.options.title === 'FOCUS'  && this.taskCount > 2) return;
 
   if (pages[this.title] === (pages[data.page] + data.direction)) {
     this.swappedTask = true;
@@ -253,8 +249,7 @@ function _inputListeners() {
 
 function _openInputListener(task) {
   task.on('openInput', function() {
-    if(this.taskCount < 3 || this.options.title !== 'FOCUS'){
-      console.log(this.taskCount, " in open input listener")
+    if(this.taskCount <3 || this.options.title !== 'FOCUS'){
       this.inputToggled = true;
       this._eventOutput.emit('showInput');
     }

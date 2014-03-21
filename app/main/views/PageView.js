@@ -27,7 +27,6 @@ function PageView() {
   } else {
     this.headerSizeTransitionable = new Transitionable([this.options.regSmallHeader]);
   }
-
   this.offPage = false;
   this.touchCount = 0;
   _createLayout.call(this);
@@ -130,28 +129,27 @@ function _setListeners() {
   this.contents._eventInput.pipe(this._eventOutput);
   this._eventInput.pipe(this.contents._eventInput);
 
-  // this.contents.on('inputOpen', function() {
-  //   console.log('in page view, input is open')
-  //   this.header._eventOutput.emit('inputOpen');
-  // }.bind(this));
-
-  // this.contents.on('inputClosed', function() {
-  //   console.log('in page view, input is closed')
-  //   window.inputIsClosed = 'REHKRJHLJAKHFHASIFDHAS'
-  //   this.header._eventOutput.emit('inputClosed')
-  // }.bind(this));
 
   window.Engine.on('prerender', _setHeaderSize.bind(this));
 
+/*============ listen to task count ============= */
+  this.contents.on('inputClosed', function(){
+    this.header.focusInputClosed = true;
+  }.bind(this));
+
+  this.contents.on('inputOpen', function(){
+    this.header.focusInputClosed = false;
+  }.bind(this));
+/*============ listen to task count ============= */
+
   this.contents.on('showInput', function() {
     if(this.options.title === 'FOCUS' && this.contents.taskCount <3) {
+      console.log(this.contents.taskCount, this.options.title)
       this.header._eventOutput.emit('showInput')
-      console.log('show input emitted')
     }
     if (this.options.title !== 'FOCUS') {
       this.headerSizeTransitionable.set([this.options.regBigHeader], {duration: this.options.headerSizeDuration}, function() {});
       this.header._eventOutput.emit('showInput')
-
     }
   }.bind(this));
 
