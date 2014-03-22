@@ -122,6 +122,7 @@ function _createTasks() {
       newTask.pipe(node);
       node.pipe(this.customscrollview);
       newTask.pipe(this.customscrollview);
+      this._eventOutput.pipe(newTask._eventInput);
       newTask.pipe(this._eventInput);
       this.customscrollview.pipe(node);
       this.taskCount++;
@@ -178,6 +179,7 @@ ContentView.prototype._newScrollView = function(data, newIndex) {
   newTask.pipe(this.customscrollview);
   newTask.pipe(this._eventInput);
   this.customscrollview.pipe(node);
+  this._eventOutput.pipe(newTask._eventInput);
   this.scrollMod = new Modifier({
     transform: Transform.translate(0, 0, 1)
   });
@@ -211,6 +213,7 @@ ContentView.prototype._addToList = function(data, newIndex, node) {
   newTask.pipe(node);
   node.pipe(this.customscrollview);
   newTask.pipe(this.customscrollview);
+  this._eventOutput.pipe(newTask._eventInput);
 
   newTask.pipe(this._eventInput);
 
