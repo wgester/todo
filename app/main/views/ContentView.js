@@ -21,9 +21,9 @@ function ContentView(options) {
   this.inputToggled = false;
   this.title = this.options.title;
   this.swappedTask = false;  
-  this.notAnimated = true;
   this.shown = {}; 
   this.toShow = {};
+  this.notAnimated = true;
 
   _setBackground.call(this);
   _createTasks.call(this);
@@ -98,6 +98,15 @@ function _createTasks() {
       this.taskCount++;
     }
   }
+  if(this.taskCount > 4) {
+    var extraSpace = new Surface({
+      size: [undefined, 200],
+      properties: {
+        backgroundColor: 'blue'
+      }
+    });
+  };
+  // this.customdragsort.push(extraSpace)
 
   this.scrollMod = new Modifier({
     transform: Transform.translate(0, 0, 1)
@@ -108,6 +117,7 @@ function _createTasks() {
   this._add(this.scrollMod).add(this.customscrollview);
 
 };
+
 
 function _setListeners() {
   _gradientListener.call(this);
@@ -162,7 +172,6 @@ ContentView.prototype._addToList = function(data, newIndex, node) {
 }
 
 function _activateTasks(newTask) {
-  console.log(this.taskCount, 'task count')
   _openInputListener.call(this, newTask);
   _closeInputListener.call(this, newTask);
   _completionListener.call(this, newTask);
@@ -218,11 +227,18 @@ function _newTaskListener() {
 };
 
 function _inputListeners() {
-  for(var i =0; i < this.customdragsort.array.length; i++) {
-    _openInputListener.call(this, this.customdragsort.array[i]);
-    _closeInputListener.call(this, this.customdragsort.array[i]);
-    _completionListener.call(this, this.customdragsort.array[i]);
+  for(var i=0; i < this.customdragsort.array.length; i++) {
+    if(this.customdragsort.array[i] !== this.extraSpace){
+      _openInputListener.call(this, this.customdragsort.array[i]);
+      _closeInputListener.call(this, this.customdragsort.array[i]);
+      _completionListener.call(this, this.customdragsort.array[i]);      
+    }
   }
+
+  // this.extraSpace.on('touchstart', function() {
+  //   this.inputToggled = !this.inputToggled;
+  //   this.inputToggled ? this._eventOutput.emit('showInput') : this._eventOutput.emit('hideInput');
+  // }.bind(this));
 
   this.touchSurf.on('touchstart', function() {
     this.timeTouched = 0;
@@ -359,19 +375,6 @@ ContentView.prototype.animateTasksIn = function(title) {
     }
     this.shown = this.toShow; 
   }
-    
-    // for(var task in scrollview._offsets) {
-    //     var taskOffset = scrollview._offsets[task]; 
-    //     if((taskOffset > -60) && (taskOffset < window.innerHeight) && (this.shown[task] !== title)) {
-    //       this.toShow[task] = title;
-    //       if(scrollview.node.array[task]) {
-    //         counter++;
-    //         scrollview.node.array[task].animateIn(counter);
-    //         this.toShow[task] = undefined;
-    //        }
-    //     }
-    //   // }
-    // }
 };
 
 ContentView.prototype.resetAnimations = function(title) {
@@ -384,7 +387,40 @@ ContentView.prototype.resetAnimations = function(title) {
   }
 };
 
+function _monitorOffsets() {
+  var scrollview;
+  Engine.on('prerender', function(){
+    if(this.customscrollview.options.page === this.title) var scrollview = this.customscrollview;
+    if(this.notAnimated){
+      if(scrollview._offsets[0] !== undefined) {
+        this._eventOutput.emit('offsets');
+        console.log('emitted offsets!')
+        this.notAnimated = false;
+        // _hideLastTask.call(this);
+      };
+    }
+  }.bind(this));
+};
 
+function _hideLastTask() {
+  Engine.on('prerender', function(){
+    if(!this.notAnimated){
+      console.log('in hide last task', this.customscrollview, this.customdragsort, this.tasks, this.notAnimated)
+      for(var i=0; i < this.customscrollview.node.array.length; i++){
+        if(this.customscrollview._offsets[i] > window.innerHeight - 60) {
+          this.customscrollview.node.array[i].setProperties({ 
+            visibility: 'hidden'
+          })
+        } else {
+          this.customscrollview.node.array[i].setProperties({
+            visibility: 'visible'
+          })
+        }
+      }
+    }
+      
+  });
+}
 
 
 

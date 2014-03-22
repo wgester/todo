@@ -99,7 +99,7 @@ function _createLayout() {
 
   this.layout = new HeaderFooter({
     headerSize: 70,
-    footerSize: 40
+    footerSize: 60
   });
 
 
@@ -108,9 +108,8 @@ function _createLayout() {
   this.contents = new ContentView({title: this.options.title})
 
   this.contents._eventOutput.pipe(this.contents._eventInput);
-  
   this.layout.id["header"].add(this.header);
-  this.layout.id["content"].add(this.contents);
+  this.layout.id["content"].add(this.contents).add(this.surf);
   this.layout.id["footer"] .add(Utility.transformInFront).add(this.footer);
   this._add(this.layout);
 };
@@ -133,11 +132,11 @@ function _setListeners() {
   window.Engine.on('prerender', _setHeaderSize.bind(this));
 
 /*============ listen to task count ============= */
-  this.contents.on('inputClosed', function(){
+  this.contents._eventInput.on('inputClosed', function(){
     this.header.focusInputClosed = true;
   }.bind(this));
 
-  this.contents.on('inputOpen', function(){
+  this.contents._eventInput.on('inputOpen', function(){
     this.header.focusInputClosed = false;
   }.bind(this));
 /*============ listen to task count ============= */

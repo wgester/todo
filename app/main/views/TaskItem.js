@@ -51,16 +51,16 @@ function _createLayout() {
     this.checkBox = new Surface({
         size: [this.options.deleteCheckWidth, 60],
         classes: ['task'],
-        content: '<img class="checkIcon" src="./img/check_icon.png">',
+        content: '<img class="checkIcon" src="./img/check_icon_2.png">',
         properties: {
-            webkitUserSelect: 'none'
+            webkitUserSelect: 'none',
         }
     });
 
     this.deleteBox = new Surface({
         size: [this.options.deleteCheckWidth, 60],
         classes: ['task'],
-        content: '<img class="deleteIcon" src="./img/x_icon.png">',
+        content: '<img class="deleteIcon" src="./img/x_icon_2.png">',
         properties: {
             webkitUserSelect: 'none'
         }
@@ -217,6 +217,10 @@ function replaceTask() {
 };
 
 function _checkOffTask() {
+    this.contents.setProperties({
+        backgroundColor: '#fff',
+        opacity: '0.8'
+    })
     this.deleteBox.addClass('invisible');
     this.draggable.setPosition([-1 * this.options.deleteCheckWidth - window.innerWidth, 0], this.options.taskItemExitTransition, function() {
         console.log('check me off');

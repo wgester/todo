@@ -60,7 +60,7 @@ function _createTitle() {
   this.titleHeader = new Surface({
     content: '<h1>' + this.options.title + '</h1>',
     properties: {
-      backgroundColor:  'transparent'
+      backgroundColor: 'transparent'
     }
   });
 
@@ -69,7 +69,17 @@ function _createTitle() {
     transform: Transform.translate(0, 10, 0)
   });
 
-  this.options.title === 'FOCUS' && this.titleMod.setOpacity(1, undefined, function() {});
+  if (this.options.title === 'FOCUS') {
+    this.titleMod.setOpacity(1, undefined, function() {});
+    this.titleHeader.setProperties({
+      textAlign: 'left',
+      fontSize: '28px',
+      fontWeight: '50',
+      marginTop: '40px',
+      opacity: '0.3'
+
+    })
+  };
 
   this._add(this.titleMod).add(this.titleHeader);
 };

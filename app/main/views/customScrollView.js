@@ -94,5 +94,11 @@ TableView.prototype.emit = function(type, data) {
     else this.sync.emit(type, data);
 };
 
+TableView.DEFAULT_OPTIONS = {
+    properties: {
+        marginBottom: '300px',
+        backgroundColor: 'blue'
+    }
+}
 
 module.exports = TableView;
