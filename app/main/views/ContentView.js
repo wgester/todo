@@ -4,8 +4,7 @@ var Transform         = require('famous/transform');
 var View              = require('famous/view');
 var Scrollview        = require('famous/views/scrollview');
 var TaskView          = require('./TaskView');
-// var Tasks             = window._taskData || [];
-var Tasks = window.asanaTasks;
+var Tasks             = window._taskData || [];
 // var Tasks             = require('./data');
 var Box               = require('./BoxView');
 var BoxContainer      = require('./BoxContainer');
@@ -84,6 +83,7 @@ function _setBackground() {
 
 function _createTasks() {
   this.tasks = window.memory.read(this.options.title);
+  // this.tasks = this.options.title === 'LATER' ? window.asanaTasks : Tasks;
   this.taskCount = 0;
 
   this.customscrollview = new CustomScrollView({page: this.title});

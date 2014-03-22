@@ -14,6 +14,7 @@ window.$              = require('./jquery');
 var devMode = true;
 var wrapped = false;
 var asanaConnect = true;
+window.asanaTasks = [];
 
 _createStorageAPI();
 
@@ -164,28 +165,22 @@ function _shadowMod() {
   });
 };
 
+function _isAndroid() {
+  var userAgent = navigator.userAgent.toLowerCase();
+  return userAgent.indexOf("android") > -1;
+};
+
 function _playShadow() {
-  if (devMode ) {
+  if (devMode) {
     titleMod.setOpacity(0, function(){});
-    window.APIKey = prompt("What is your api key?");
-    var authKey = btoa(window.APIKey + ":"); 
-    $.ajax({
-      method: 'GET',
-      url: 'https://app.asana.com/api/1.0/projects/10736255381579/tasks?completed_since=now',
-      beforeSend: function(xhr) {
-        xhr.setRequestHeader("Authorization", "Basic " + authKey);
-      },
-      success: function(data) {
-        window.asanaTasks = data.data;
-        var appView = new AppView();
-        mainCtx.add(appView);
-        titleMod.setTransform(Transform.translate(0, 0, -100));
-      },
-      error: function(err) {
-        console.log("ERR:", err);
-      }
-    });
     
+    if (asanaConnect) {
+      _populateAsana.call(this);       
+    } else {
+      var appView = new AppView();
+      mainCtx.add(appView);
+      titleMod.setTransform(Transform.translate(0, 0, -100));
+    }
   } else {
     this.set([1.5, 100, 50], {duration: 1500}, function() {
       this.set([2, 100, 50], {duration: 500}, function(){
@@ -207,11 +202,51 @@ function _playShadow() {
   }
 };
 
-function _isAndroid() {
-  var userAgent = navigator.userAgent.toLowerCase();
-  return userAgent.indexOf("android") > -1;
+function _populateAsana() {
+  var APIKey = prompt("What is your api key?");
+  window.authKey = btoa(APIKey + ":");
+  _getWorkspaces.call(this, _getTasksFromWorkspaces.bind(this));
+  
+  // window.asanaTasks = resp.data;
 };
 
+function _getWorkspaces(cb) {
+  $.ajax({
+    method: 'GET',
+    url: 'https://app.asana.com/api/1.0/users/me',
+    beforeSend: function(xhr) {
+      xhr.setRequestHeader("Authorization", "Basic " + window.authKey);
+    },
+    success: function(resp) {
+      cb(resp.data.workspaces);
+    },
+    error: function(err) {
+      console.log("ERR:", err);
+    }
+  }); 
+};
+
+function _getTasksFromWorkspaces(workspaces) {
+  for(var i = 0; i < workspaces.length; i++) {
+    $.ajax({
+      method: 'GET',
+      url: 'https://app.asana.com/api/1.0/workspaces/' + workspaces[i]['id'] + '/tasks?assignee=me&completed_since=now',
+      beforeSend: function(xhr) {
+        xhr.setRequestHeader("Authorization", "Basic " + window.authKey);
+      },
+      success: function(resp) {
+        window.asanaTasks = window.asanaTasks.concat(resp.data);
+        console.log(window.asanaTasks);
+        var appView = new AppView();
+        mainCtx.add(appView);
+        titleMod.setTransform(Transform.translate(0, 0, -100));
+      },
+      error: function(err) {
+        console.log("ERR:", err);
+      }
+    });     
+  }  
+};
 
 mainCtx.add(titleMod).add(titleSurf);
 window.Engine.on("prerender", _shadowMod.bind(shadowTransitionable));
