@@ -19,6 +19,7 @@ function TaskItem(options) {
     this.page = this.options.page;
     this.text = this.options.text;
     this.index = this.options.index;
+    this.touchEnabled = true;
     _createLayout.call(this);
     _bindEvents.call(this);
     _setDate.call(this);

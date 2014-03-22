@@ -42,8 +42,16 @@ function _addTaskItem() {
 };
 
 function _addEventListeners() {
-    this._eventInput.on('twoFingerMode', function(){console.log('whoo')}.bind(this));
-    this._eventInput.on('twoFingerModeDisabled', function(){console.log('whoo')}.bind(this));
+    this._eventInput.on('twoFingerMode', _disableTouch.bind(this));
+    this._eventInput.on('twoFingerModeDisabled', _enableTouch.bind(this));
+}
+
+function _disableTouch() {
+    this.taskItem.touchEnabled = false;
+}
+
+function _enableTouch() {
+    this.taskItem.touchDisabled = true;
 }
 
 /*-----------------------ANIMATION-------------------------------*/
