@@ -4,8 +4,8 @@ var Transform         = require('famous/transform');
 var View              = require('famous/view');
 var Scrollview        = require('famous/views/scrollview');
 var TaskView          = require('./TaskView');
-// var Tasks             = window._taskData || [];
-var Tasks             = require('./data');
+var Tasks             = window._taskData || [];
+// var Tasks             = require('./data');
 var Box               = require('./BoxView');
 var BoxContainer      = require('./BoxContainer');
 var Timer             = require('famous/utilities/timer');
@@ -48,7 +48,7 @@ ContentView.DEFAULT_OPTIONS = {
     'LATER': [2],
     'NEVER': [3]
   },
-  gradientDuration: 800,
+  gradientDuration: 1000,
   completionDuration: 500
 };
 
@@ -235,9 +235,26 @@ function _inputListeners() {
   }
 
   this.touchSurf.on('touchstart', function() {
-    this.inputToggled = !this.inputToggled;
-    this.inputToggled ? this._eventOutput.emit('showInput') : this._eventOutput.emit('hideInput');
+    this.timeTouched = 0;
+    this.backgroundTouched = true;
   }.bind(this));
+  
+  this.touchSurf.on('touchend', function() {
+    this.backgroundTouched = false;
+    if (this.timeTouched > 60) {
+      console.log('LONGTOUCH')
+    } else {    
+      this.inputToggled = !this.inputToggled;
+      this.inputToggled ? this._eventOutput.emit('showInput') : this._eventOutput.emit('hideInput');
+    }
+  }.bind(this));
+  
+  window.Engine.on('prerender', function() {
+    if (this.backgroundTouched) {
+      this.timeTouched += 1;
+    }
+  }.bind(this));
+  
 };
 
 function _openInputListener(task) {
@@ -285,13 +302,15 @@ function _gradientListener() {
   window.setInterval(this.swapGradients.bind(this), 8000);
   
   this.on('opened', function() {
-    this.opened = true;
     this.opacityOne = 0;
     this.opacityTwo = 1;
     this.backgroundModOne.halt();
     this.backgroundModTwo.halt();
-    this.backgroundModOne.setOpacity(0, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});
-    this.backgroundModTwo.setOpacity(1, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});
+    Timer.after(function() {
+      this.opened = true;
+      this.backgroundModOne.setOpacity(0, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});
+      this.backgroundModTwo.setOpacity(1, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});      
+    }.bind(this), 10);
     this.swapGradients();
   }.bind(this));
 
@@ -299,8 +318,10 @@ function _gradientListener() {
     this.opened = false;
     this.backgroundModOne.halt();
     this.backgroundModTwo.halt();
-    this.backgroundModOne.setOpacity(0, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});    
-    this.backgroundModTwo.setOpacity(0, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});
+    Timer.after(function() {
+      this.backgroundModOne.setOpacity(0, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});    
+      this.backgroundModTwo.setOpacity(0, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});      
+    }.bind(this), 10);
   }.bind(this));
 };
 

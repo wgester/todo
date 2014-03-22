@@ -41,7 +41,7 @@ AppView.DEFAULT_OPTIONS = {
     duration: 0
   },
   colors: [
-    ['#ffffff', '#32CEA8', null, '#ffffff','#87CEFA', '#32CEA8'],
+    ['#ffffff', '#32CEA8', null, '#ffffff','#23a5f6', '#32CEA8'],
     ['#ffffff', '#FFFFCD', '#87CEFA','#ffffff', '#ffffb3', '#23a5f6'],
     ['#3690FF', '#8977C6', null, '#8977C6', '#1a80ff', '#735dbb'],
     ['#F5A9BC', '#FA5858', null, '#ED559C', '#F5A9BC', null]
@@ -67,7 +67,7 @@ function _createLightBox() {
   this.lightBox.optionsForSwipeUp = false;
 
   this._add(this.lightBox);
-}
+};
 
 
 function _addPageView(title, previousPage, nextPage) {
@@ -80,7 +80,7 @@ function _addPageView(title, previousPage, nextPage) {
 
   var newView = this[title + 'View'] = new PageView(pageViewOptions);
 
-}
+};
 
 function _addPageRelations(page, previousPage, nextPage) {
   this[page + 'View'].previousPage = previousPage && this[previousPage + 'View'];
@@ -114,7 +114,6 @@ function _addEventListeners(newView, newModifier){
   }.bind(this));
 
   newView.on('togglePageViewUp', function() {
-    console.log('toggle page up!')
     
     newView.nextPage.contents.resetAnimations(newView.nextPage.options.title);
     newView.nextPage.contents.animateTasksIn(newView.nextPage.options.title);
@@ -139,7 +138,6 @@ function _addEventListeners(newView, newModifier){
   }.bind(this));
 
   newView.on('togglePageViewDown', function() {
-    console.log('toggle page down!')
     newView.previousPage.contents.resetAnimations(newView.previousPage.options.title);
     newView.previousPage.contents.animateTasksIn(newView.previousPage.options.title);
 
@@ -289,7 +287,7 @@ function _colorSurfaces() {
     colorCanvasTwo.fillStyle = radialTwo;
     colorCanvasTwo.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
   }
-
+  
 };
 
 

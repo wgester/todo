@@ -9,7 +9,7 @@ var SpringTransition  = require("famous/transitions/spring-transition");
 var Timer             = require('famous/utilities/timer');
 var CanvasSurface     = require('famous/surfaces/canvas-surface');
 
-var devMode = false;
+var devMode = true;
 var wrapped = false;
 
 if (!wrapped) {
