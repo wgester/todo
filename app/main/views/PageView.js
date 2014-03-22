@@ -183,7 +183,8 @@ function _contentEvents() {
   this.contents._eventInput.on('newTouch', function() {
     this.touchCount += 1;
     if (this.touchCount >= 2) {
-      this._eventOutput.emit('twoFingerMode');
+      this.contents._eventOutput.emit('twoFingerMode');
+      this.twoFingerMode = true;
     }
 
   }.bind(this));
@@ -191,8 +192,8 @@ function _contentEvents() {
   this.contents._eventInput.on('endTouch', function() {
     this.touchCount -= 1;
     if (this.touchCount < 2) {
-      this._eventOutput.emit('twoFingerModeDisabled');
-      console.log('twoFingerModeD')
+      this.contents._eventOutput.emit('twoFingerModeDisabled');
+      this.twoFingerMode = false;
     }
   }.bind(this));
 };
