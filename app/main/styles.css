@@ -41,7 +41,7 @@ input {
   margin-top: 200px;
   text-align: center;
   color: transparent;
-  font-size: 4em;
+  font-size: 3em;
   padding-left: 0;
 }
 
@@ -79,7 +79,7 @@ input.edit {
 
 .task p {
   font-family: helvetica,'museo_sans300';
-  padding-left: 20px;
+  padding-left: 30px;
   margin: 0;
   letter-spacing: 0.3px;
   font-size: 1.1em;
@@ -99,11 +99,11 @@ input.edit {
 }
 
 h1 {
-  padding-left: 20px;
+  padding-left: 30px;
   font-weight: 300;
-  letter-spacing: 4px;
-  font-size: 2em;
-  color: #003156;
+  letter-spacing: 2px;
+  font-size: 1.5em;
+  color: #EDEDED;
 }
 
 .container {

@@ -5,39 +5,44 @@ var Modifier         = require('famous/modifier');
 var TaskItem         = require('./TaskItem');
 
 function TaskView(options) {
-    View.apply(this, arguments);
-    _addTaskItem.call(this);
-    this.options.transition = {
-    duration: 1300,
-    curve: 'easeInOut' };
-    this.animateIn = animateIn;
-    this.resetAnimation = resetAnimation;
+  View.apply(this, arguments);
+  _addTaskItem.call(this);
+  this.options.transition = {
+  duration: 1300,
+  curve: 'easeInOut' };
+  this.animateIn = animateIn;
+  this.resetAnimation = resetAnimation;
 }
 
 TaskView.prototype = Object.create(View.prototype);
 TaskView.prototype.constructor = TaskView;
 
 TaskView.DEFAULT_OPTIONS = {
-    deleteCheckWidth: 100,
-    xThreshold: 95
+  deleteCheckWidth: 100,
+  xThreshold: 95
 };
 
+
 function _addTaskItem() {
-    this.taskItem = new TaskItem(this.options);
+  this.taskItem = new TaskItem(this.options);
 
-    this.taskItemModifier = new Modifier({
-      transform: Transform.translate(-1 * this.options.deleteCheckWidth, 1000, 0),
-      size: [undefined, 60],
-      opacity: 0.01
-    });
+  this.taskItemModifier = new Modifier({
+    transform: Transform.translate(-1 * this.options.deleteCheckWidth, 1000, 0),
+    size: [undefined, 60],
+    opacity: 0.01
+  });
 
-    this.taskItem.pipe(this._eventOutput);
+  this.taskItem.pipe(this._eventOutput);
 
-    this._add(this.taskItemModifier).add(this.taskItem);
+  this._add(this.taskItemModifier).add(this.taskItem);
 };
 
 /*-----------------------ANIMATION-------------------------------*/
 
+TaskView.prototype.appearIn = function() {
+  this.taskItemModifier.setTransform(Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0));
+  this.taskItemModifier.setOpacity(1);
+};
 
 function animateIn(counter) {
   var deleteCheck = -1 * this.options.deleteCheckWidth;
@@ -55,7 +60,6 @@ TaskView.prototype.appearIn = function() {
 };
 
 function resetAnimation(title) {
-  console.log('RESET CALLED');
   this.taskItemModifier.setTransform(Transform.translate(-1 * this.options.deleteCheckWidth, 1000, 0));
   this.taskItemModifier.setOpacity(0.01);
 };

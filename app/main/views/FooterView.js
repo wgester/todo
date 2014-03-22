@@ -18,9 +18,11 @@ FooterView.DEFAULT_OPTIONS = {
 
 function _createButton() {
   this.buttonSurf = new Surface({
-    content: "<img width='40' height='40' src='./img/hamburgerOnClear.png'/>",
+    content: "<img width='40' height='40' src='./img/down.png'/>",
     properties: {
-      textAlign: 'center'
+      textAlign: 'right',
+      paddingRight: '20px',
+      paddingTop: '10px'
     }
   });
 
@@ -34,7 +36,6 @@ function _createButton() {
 function _buttonListener() {
   this.buttonSurf.on('touchend', function() {
     this._eventOutput.emit('togglePageViewUp');
-    console.log()
   }.bind(this));
 };
 

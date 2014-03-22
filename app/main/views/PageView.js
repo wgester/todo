@@ -27,7 +27,6 @@ function PageView() {
   } else {
     this.headerSizeTransitionable = new Transitionable([this.options.regSmallHeader]);
   }
-
   this.offPage = false;
   this.touchCount = 0;
   _createLayout.call(this);
@@ -100,13 +99,17 @@ function _createLayout() {
 
   this.layout = new HeaderFooter({
     headerSize: 70,
-    footerSize: 40
+    footerSize: 60
   });
+
+
   this.footer = new FooterView({title: this.options.title});
   this.header = new HeaderView({title: this.options.title});
   this.contents = new ContentView({title: this.options.title})
+
+  this.contents._eventOutput.pipe(this.contents._eventInput);
   this.layout.id["header"].add(this.header);
-  this.layout.id["content"].add(this.contents);
+  this.layout.id["content"].add(this.contents).add(this.surf);
   this.layout.id["footer"] .add(Utility.transformInFront).add(this.footer);
   this._add(this.layout);
 };
@@ -128,10 +131,24 @@ function _setListeners() {
 
   window.Engine.on('prerender', _setHeaderSize.bind(this));
 
+/*============ listen to task count ============= */
+  this.contents._eventInput.on('inputClosed', function(){
+    this.header.focusInputClosed = true;
+  }.bind(this));
+
+  this.contents._eventInput.on('inputOpen', function(){
+    this.header.focusInputClosed = false;
+  }.bind(this));
+/*============ listen to task count ============= */
+
   this.contents.on('showInput', function() {
-    this.header._eventOutput.emit('showInput');
+    if(this.options.title === 'FOCUS' && this.contents.taskCount <3) {
+      console.log(this.contents.taskCount, this.options.title)
+      this.header._eventOutput.emit('showInput')
+    }
     if (this.options.title !== 'FOCUS') {
       this.headerSizeTransitionable.set([this.options.regBigHeader], {duration: this.options.headerSizeDuration}, function() {});
+      this.header._eventOutput.emit('showInput')
     }
   }.bind(this));
 

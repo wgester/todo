@@ -48,52 +48,52 @@ var titleSurf = new Surface({
   }
 });
 
-var whiteGradientSurf = new CanvasSurface({
-  size: [undefined, undefined],
-  canvasSize: [window.innerWidth*2, window.innerHeight*2],
-  classes: ['famous-surface']
-});
+// var whiteGradientSurf = new CanvasSurface({
+//   size: [undefined, undefined],
+//   canvasSize: [window.innerWidth*2, window.innerHeight*2],
+//   classes: ['famous-surface']
+// });
 
-var whiteGradientMod = new Modifier({
-  transform: Transform.translate(0, 600, 0)
-});
-
-
-var colorCanvas = whiteGradientSurf.getContext('2d');
-
-if (_isAndroid) {
-  var radial = colorCanvas.createLinearGradient(
-            300 * 0.5 * 2,    // x0
-            0,                              // y0
-            300 * 0.5 * 2,    // x1
-            500 * 2.5         // y1
-            );
-
-  radial.addColorStop(0, "rgba(255, 255, 255, 0)");
-  radial.addColorStop(1, "rgba(255, 255, 255, 1)");
-
-  colorCanvas.fillStyle = radial;
-  colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
-  mainCtx.add(whiteGradientMod).add(whiteGradientSurf);
-} else {
-   radial = colorCanvas.createRadialGradient(
-                  300 * 0.5 * 2,    // x0
-                  500 * 2,         // y0
-                  0,   // r0
-
-                  300 * 0.5 * 2,    // x1
-                  500 * 2.5,       // y1
-                  300 * 2.5        // r1
-                  );
-  radial.addColorStop(0, "rgba(255, 255, 255, 1)");
-  radial.addColorStop(1, "rgba(255, 255, 255, 0)");
-
-  colorCanvas.fillStyle = radial;
-  colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
+// var whiteGradientMod = new Modifier({
+//   transform: Transform.translate(0, 600, 0)
+// });
 
 
-  mainCtx.add(whiteGradientMod).add(whiteGradientSurf);
-}
+// var colorCanvas = whiteGradientSurf.getContext('2d');
+
+// if (_isAndroid) {
+//   var radial = colorCanvas.createLinearGradient(
+//             300 * 0.5 * 2,    // x0
+//             0,                              // y0
+//             300 * 0.5 * 2,    // x1
+//             500 * 2.5         // y1
+//             );
+
+//   radial.addColorStop(0, "rgba(255, 255, 255, 0)");
+//   radial.addColorStop(1, "rgba(255, 255, 255, 1)");
+
+//   colorCanvas.fillStyle = radial;
+//   colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
+//   mainCtx.add(whiteGradientMod).add(whiteGradientSurf);
+// } else {
+//    radial = colorCanvas.createRadialGradient(
+//                   300 * 0.5 * 2,    // x0
+//                   500 * 2,         // y0
+//                   0,   // r0
+
+//                   300 * 0.5 * 2,    // x1
+//                   500 * 2.5,       // y1
+//                   300 * 2.5        // r1
+//                   );
+//   radial.addColorStop(0, "rgba(255, 255, 255, 1)");
+//   radial.addColorStop(1, "rgba(255, 255, 255, 0)");
+
+//   colorCanvas.fillStyle = radial;
+//   colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
+
+
+//   mainCtx.add(whiteGradientMod).add(whiteGradientSurf);
+// }
 
 
 
@@ -118,15 +118,15 @@ function _playShadow() {
       this.set([2, 100, 50], {duration: 500}, function(){
         this.set([0, 100, 50], {duration: 800}, function() {
           Timer.after(function() {
-            whiteGradientMod.setTransform(Transform.translate(0, 100, 0), {duration: 500}, function() {
-              Timer.after(function(){
+            // whiteGradientMod.setTransform(Transform.translate(0, 100, 0), {duration: 500}, function() {
                 var appView = new AppView();
                 mainCtx.add(appView);
-                titleMod.setTransform(Transform.translate(0, 2000, -50), {duration: 0}, function() {
-                  titleMod.setOpacity(0, function() {});
-                });
-              }, 20);
-            });
+                titleMod.setOpacity(0.5, {duration: 500}, function() {
+                  Timer.after(function(){
+                    titleMod.setTransform(Transform.translate(0, 2000, -50), function() {});
+                  }, 20);
+                }.bind(this));
+            // });
           }, 7);
         }.bind(this));
       }.bind(this));

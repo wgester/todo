@@ -21,18 +21,16 @@ function ContentView(options) {
   this.inputToggled = false;
   this.title = this.options.title;
   this.swappedTask = false;  
+  this.shown = {}; 
+  this.toShow = {};
   this.notAnimated = true;
-
-  
-  this.shown = {}; this.toShow = {};
-  this.scrolled = false;
 
   _setBackground.call(this);
   _createTasks.call(this);
   _setListeners.call(this);
+
   _monitorOffsets.call(this);
-
-
+  _hideLastTask.call(this);
 };
 
 ContentView.prototype = Object.create(View.prototype);
@@ -56,15 +54,6 @@ function _isAndroid() {
   var userAgent = navigator.userAgent.toLowerCase();
   return userAgent.indexOf("android") > -1;
 };
-
-function _setUpOffsets() {
-  this.offsets = [];
-  this.focusOffsets = {};
-  this.todayOffsets = {};
-  this.laterOffsets = {};
-  this.neverOffsets = {};
-  this.offsets.push(this.focusOffsets, this.todayOffsets, this.laterOffsets, this.neverOffsets);
-}
 
 function _setBackground() {
   var index = this.options.views[this.options.title][0];
@@ -112,6 +101,16 @@ function _createTasks() {
       this.taskCount++;
     }
   }
+  if(this.taskCount > 4) {
+    var extraSpace = new Surface({
+      size: [undefined, 200],
+      properties: {
+        backgroundColor: 'blue'
+      }
+    });
+  };
+  // this.customdragsort.push(extraSpace)
+
   this.scrollMod = new Modifier({
     transform: Transform.translate(0, 0, 1)
   });
@@ -121,6 +120,7 @@ function _createTasks() {
   this._add(this.scrollMod).add(this.customscrollview);
 
 };
+
 
 function _setListeners() {
   _gradientListener.call(this);
@@ -192,18 +192,17 @@ function _createNewTask(data) {
     'FOCUS': 0,
     'TODAY': 1,
     'LATER': 2,
-    'NEVER': 3
+    'NEVER': 3 
   }
-  if (this.options.title === 'FOCUS' && this.taskCount > 2) {
-    return;
-  }
+  
+  if (this.options.title === 'FOCUS'  && this.taskCount > 2) return;
+
   if (pages[this.title] === (pages[data.page] + data.direction)) {
     this.swappedTask = true;
     var node = this.customscrollview.node;
     var newIndex = this.customdragsort.array.length;
     if (!newIndex) {
       this._newScrollView(data, newIndex);
-
     } else {
       this._addToList(data, newIndex, node);
     }
@@ -214,9 +213,8 @@ function _createNewTask(data) {
 function _newTaskListener() {
 
   this.on('saveNewTask', function(val) {
-    if (this.options.title === 'FOCUS' && this.taskCount > 2) {
-      return;
-    }
+    if (this.options.title === 'FOCUS' && this.taskCount > 2) return;
+
     this.taskCount++;
     
     var node = this.customscrollview.node;
@@ -232,11 +230,18 @@ function _newTaskListener() {
 };
 
 function _inputListeners() {
-  for(var i =0; i < this.customdragsort.array.length; i++) {
-    _openInputListener.call(this, this.customdragsort.array[i]);
-    _closeInputListener.call(this, this.customdragsort.array[i]);
-    _completionListener.call(this, this.customdragsort.array[i]);
+  for(var i=0; i < this.customdragsort.array.length; i++) {
+    if(this.customdragsort.array[i] !== this.extraSpace){
+      _openInputListener.call(this, this.customdragsort.array[i]);
+      _closeInputListener.call(this, this.customdragsort.array[i]);
+      _completionListener.call(this, this.customdragsort.array[i]);      
+    }
   }
+
+  // this.extraSpace.on('touchstart', function() {
+  //   this.inputToggled = !this.inputToggled;
+  //   this.inputToggled ? this._eventOutput.emit('showInput') : this._eventOutput.emit('hideInput');
+  // }.bind(this));
 
   this.touchSurf.on('touchstart', function() {
     this.timeTouched = 0;
@@ -263,8 +268,10 @@ function _inputListeners() {
 
 function _openInputListener(task) {
   task.on('openInput', function() {
-    this.inputToggled = true;
-    this._eventOutput.emit('showInput');
+    if(this.taskCount <3 || this.options.title !== 'FOCUS'){
+      this.inputToggled = true;
+      this._eventOutput.emit('showInput');
+    }
   }.bind(this));
 };
 
@@ -338,6 +345,9 @@ function _completionListener(task) {
   task.on('deleted', function() {
     this.taskCount--;
   }.bind(this));
+  
+  if(this.options.title === 'FOCUS' && this.taskCount < 3) this._eventOutput.emit('inputOpen');
+
 };
 
 ContentView.prototype.swapGradients = function() {
@@ -356,10 +366,6 @@ function getTitleIndex(title) {
 };
 
 
-function _monitorOffsets() {
-  var index = getTitleIndex(this.title); var scrollview;
-};
-
 ContentView.prototype.animateTasksIn = function(title) {
   var counter = 1; var scrollview;
   if(this.customscrollview.options.page === title) scrollview = this.customscrollview;
@@ -372,19 +378,6 @@ ContentView.prototype.animateTasksIn = function(title) {
     }
     this.shown = this.toShow; 
   }
-    
-    // for(var task in scrollview._offsets) {
-    //     var taskOffset = scrollview._offsets[task]; 
-    //     if((taskOffset > -60) && (taskOffset < window.innerHeight) && (this.shown[task] !== title)) {
-    //       this.toShow[task] = title;
-    //       if(scrollview.node.array[task]) {
-    //         counter++;
-    //         scrollview.node.array[task].animateIn(counter);
-    //         this.toShow[task] = undefined;
-    //        }
-    //     }
-    //   // }
-    // }
 };
 
 ContentView.prototype.resetAnimations = function(title) {
@@ -397,7 +390,33 @@ ContentView.prototype.resetAnimations = function(title) {
   }
 };
 
+function _monitorOffsets() {
+  var scrollview;
+  Engine.on('prerender', function(){
+    if(this.customscrollview.options.page === this.title) var scrollview = this.customscrollview;
+    if(this.notAnimated){
+      if(scrollview._offsets[0] !== undefined) {
+        this._eventOutput.emit('offsets');
+        this.notAnimated = false;
+        console.log(this.customscrollview.node.array[0], this.customscrollview._offsets)
+      };
+    }
+  }.bind(this));
+};
 
+function _hideLastTask(title) {
+  Engine.on('prerender', function(){
+    if(!this.notAnimated){
+      for(var i=0; i < this.customscrollview.node.array.length; i++){
+        if(this.customscrollview._offsets[i] > 360 || this.customscrollview._offsets[i]<0) {
+          this.customscrollview.node.array[i].taskItemModifier.setOpacity(0)
+        } else {
+          this.customscrollview.node.array[i].taskItemModifier.setOpacity(1); 
+        }
+      }
+    }
+  }.bind(this));
+};
 
 
 

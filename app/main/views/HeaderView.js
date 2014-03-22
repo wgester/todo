@@ -11,6 +11,8 @@ var BoxContainer      = require('./BoxContainer');
 function HeaderView() {
   View.apply(this, arguments);
   this.inputToggled = false;
+  
+  this.focusInputClosed = false;
 
   _createTitle.call(this);
   _createInput.call(this);
@@ -58,7 +60,7 @@ function _createTitle() {
   this.titleHeader = new Surface({
     content: '<h1>' + this.options.title + '</h1>',
     properties: {
-      backgroundColor:  'transparent'
+      backgroundColor: 'transparent'
     }
   });
 
@@ -67,18 +69,40 @@ function _createTitle() {
     transform: Transform.translate(0, 10, 0)
   });
 
-  this.options.title === 'FOCUS' && this.titleMod.setOpacity(1, undefined, function() {});
+  if (this.options.title === 'FOCUS') {
+    this.titleMod.setOpacity(1, undefined, function() {});
+    this.titleHeader.setProperties({
+      textAlign: 'left'
+  //     fontWeight: '50',
+  //     marginTop: '40px',
+  //     marginLeft: '15px',
+  //     opacity: '0.9'
 
+    })
+  };
+
+  if(this.options.title !== 'FOCUS') {
+    this.upSurf = new Surface({
+      content: "<img width='40' height='40' src='./img/up.png'/>"
+    });
+    this.upMod = new Modifier({
+      transform: Transform.translate(260, 20, 0)
+    })
+    this._add(this.upMod).add(this.upSurf);
+  };
   this._add(this.titleMod).add(this.titleHeader);
 };
 
 function _buttonListener() {
-  this.titleHeader.on('touchend', function() {
-    this._eventOutput.emit('togglePageViewDown');
-  }.bind(this));
+  if(this.options.title !== 'FOCUS') {
+    this.titleHeader.on('touchend', function() {
+      this._eventOutput.emit('togglePageViewDown');
+    }.bind(this));
+  }
 };
 
 function _setListeners() {
+
   this.on('opened', function() {
     this.titleMod.setOpacity(1, {duration: this.options.openDuration}, function() {
       this.titleMod.setTransform(Transform.translate(0, 10, 1), {duration: this.options.openDurationf}, function() {});
@@ -98,7 +122,8 @@ function _setInputListener() {
   this.inputXOffset = _isAndroid() ? 30 : 10;
   this.inputZOffset = _isAndroid() ? 150 : 70;
 
-  if (this.options.title === 'FOCUS') {
+  
+  if (this.options.title === 'FOCUS' && !this.focusInputClosed) {
     this.titleHeader.on('touchstart', function() {
       this.inputToggled = !this.inputToggled;
       (this.inputToggled) ? this._eventOutput.emit('showInput') : this._eventOutput.emit('focusHideInput');
@@ -106,6 +131,7 @@ function _setInputListener() {
   }
 
   this.on('showInput', function(e) {
+
     this.boxContainer.frontSurf.setProperties({'visibility': 'visible'});
 
     this.boxContainer.boxMod.setTransform(Transform.move(Transform.rotate(-1.57, 0, 0), [this.inputXOffset, 70, this.inputZOffset]), {duration: this.options.inputInDuration}, function() {

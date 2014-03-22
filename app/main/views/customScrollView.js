@@ -35,7 +35,6 @@ function shift(data) {
 }
 
 function deleteTask(indexObj) {
-    console.log(this.node.getAllLinkedNodes());
     if (indexObj.index === this.node.index) {
         if (this.node._next) this.node = this.node._next;
     }
@@ -95,5 +94,11 @@ TableView.prototype.emit = function(type, data) {
     else this.sync.emit(type, data);
 };
 
+TableView.DEFAULT_OPTIONS = {
+    properties: {
+        marginBottom: '300px',
+        backgroundColor: 'blue'
+    }
+}
 
 module.exports = TableView;
