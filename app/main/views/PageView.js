@@ -29,7 +29,7 @@ function PageView() {
   this.offPage = false;
   this.touchCount = 0;
   _createLayout.call(this);
-  _pipeSubviewEventsToAppView.call(this);
+  _eventPiping.call(this);
   _createEditLightbox.call(this);
   _setListeners.call(this);
 }
@@ -123,10 +123,12 @@ function _setHeaderSize() {
   this.layout.setOptions({headerSize: this.headerSizeTransitionable.get()[0]});
 };
 
-function _pipeSubviewEventsToAppView() {
+function _eventPiping() {
   this.footer.pipe(this._eventOutput);
   this.header.pipe(this._eventOutput);
   this.contents._eventOutput.pipe(this.contents._eventInput);
+  this.contents._eventInput.pipe(this._eventOutput);
+  this._eventInput.pipe(this.contents._eventInput);
 };
 
 function _headerEvents() {
@@ -184,6 +186,7 @@ function _contentEvents() {
     this.touchCount += 1;
     if (this.touchCount >= 2) {
       this.contents._eventOutput.emit('twoFingerMode');
+      console.log('twofingers!')
       this.twoFingerMode = true;
     }
 
