@@ -5,13 +5,15 @@ var Modifier         = require('famous/modifier');
 var TaskItem         = require('./TaskItem');
 
 function TaskView(options) {
-  View.apply(this, arguments);
-  _addTaskItem.call(this);
-  this.options.transition = {
-  duration: 1300,
-  curve: 'easeInOut' };
-  this.animateIn = animateIn;
-  this.resetAnimation = resetAnimation;
+    View.apply(this, arguments);
+    _addTaskItem.call(this);
+    this.options.transition = {
+    duration: 1300,
+    curve: 'easeInOut' };
+    this.animateIn = animateIn;
+    this.resetAnimation = resetAnimation;
+    this.page = this.options.page;
+    this.text = this.options.text;
 }
 
 TaskView.prototype = Object.create(View.prototype);
