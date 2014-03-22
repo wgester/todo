@@ -50,7 +50,9 @@ AppView.DEFAULT_OPTIONS = {
     ['#ffffff', '#32CEA8', null, '#ffffff','#23a5f6', '#32CEA8'],
     ['#ffffff', '#FFFFCD', '#87CEFA','#ffffff', '#ffffb3', '#23a5f6'],
     ['#3690FF', '#8977C6', null, '#8977C6', '#1a80ff', '#735dbb'],
+    ['#ffffff', '#32CEA8', null, '#ffffff','#23a5f6', '#32CEA8'],
     ['#ffffff', '#F76D6D', null, '#F0DC8D', '#F76D6D', null]
+
     // ['#81F781', '#E0F8E6', '#E0F8E6', '#E0F8E6']
   ]
 };
@@ -95,18 +97,6 @@ function _addPageRelations(page, previousPage, nextPage) {
   _addEventListeners.call(this, this[page + 'View'], this[page + 'Modifier']);
 };
 
-
-//toggle up
-//outTransition: easeOut
-//outTransform:  Transform.translate(0, -600, 1)
-//inTransition: false
-//inTransform: Transform.translate(0, 0, -1)
-
-//toggle down
-//outTransition: false
-//outTransform:  Transform.translate(0, 0, -1)
-//inTransition: wall
-//inTransform: Transform.translate(0, -600, 1)
 
 function _addEventListeners(newView, newModifier){
   this._eventOutput.pipe(newView._eventInput);
@@ -173,12 +163,14 @@ function _createAppViews() {
   _addPageView.call(this, 'FOCUS');
   _addPageView.call(this, 'TODAY');
   _addPageView.call(this, 'LATER');
+  _addPageView.call(this, 'ASANA');
   _addPageView.call(this, 'NEVER');
 
   _addPageRelations.call(this, 'FOCUS',    null, 'TODAY');
   _addPageRelations.call(this, 'TODAY', 'FOCUS', 'LATER');
-  _addPageRelations.call(this, 'LATER', 'TODAY', 'NEVER');
-  _addPageRelations.call(this, 'NEVER', 'LATER',    null);
+  _addPageRelations.call(this, 'LATER', 'TODAY', 'ASANA');
+  _addPageRelations.call(this, 'ASANA', 'LATER', 'NEVER');
+  _addPageRelations.call(this, 'NEVER', 'ASANA',    null);
 
 };
 

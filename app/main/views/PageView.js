@@ -25,6 +25,7 @@ function PageView() {
   } else {
     this.headerSizeTransitionable = new Transitionable([this.options.regSmallHeader]);
   }
+  
   this.offPage = false;
   this.touchCount = 0;
   _createLayout.call(this);

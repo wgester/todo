@@ -48,7 +48,8 @@ ContentView.DEFAULT_OPTIONS = {
     'FOCUS': [0],
     'TODAY': [1],
     'LATER': [2],
-    'NEVER': [3]
+    'ASANA': [3],
+    'NEVER': [4]
   },
   gradientDuration: 500,
   completionDuration: 500
@@ -83,7 +84,7 @@ function _setBackground() {
 
 function _createTasks() {
   this.tasks = window.memory.read(this.options.title);
-  // this.tasks = this.options.title === 'LATER' ? window.asanaTasks : Tasks;
+  // this.tasks = this.options.title === 'ASANA' ? window.asanaTasks : Tasks;
   this.taskCount = 0;
 
   this.customscrollview = new CustomScrollView({page: this.title});
@@ -96,11 +97,12 @@ function _createTasks() {
   for(var i = 0; i < this.tasks.length; i++) {
     var newTask = new TaskView({text: this.tasks[i].text, index: this.taskCount, page: this.options.title});
     if (this.tasks[i].page === undefined) {
-      this.tasks[i].page = 'LATER';
+      this.tasks[i].page = 'ASANA';
+      this.tasks[i].text = this.tasks[i].name;
     }
     
     if (this.tasks[i].page === this.options.title && this.tasks[i].text.length) {
-      var newTask = new TaskView({text: this.tasks[i].name, index: this.taskCount, page: this.options.title});
+      var newTask = new TaskView({text: this.tasks[i].text, index: this.taskCount, page: this.options.title});
       this.customdragsort.push(newTask);
       if(node.getNext()) node = node._next;
       newTask.pipe(node);
@@ -208,7 +210,8 @@ function _createNewTask(data) {
     'FOCUS': 0,
     'TODAY': 1,
     'LATER': 2,
-    'NEVER': 3 
+    'ASANA': 3,
+    'NEVER': 4 
   }
   
   if (this.options.title === 'FOCUS'  && this.taskCount > 2) return;
@@ -382,7 +385,7 @@ function _completionListener(task) {
 
 
 function getTitleIndex(title) {
-  var titles = {'FOCUS':0, 'TODAY':1, 'LATER':2, 'NEVER':3};
+  var titles = {'FOCUS':0, 'TODAY':1, 'LATER':2, 'ASANA': 3, 'NEVER':4};
   return titles[title];
 };
 
