@@ -51,7 +51,6 @@ AppView.DEFAULT_OPTIONS = {
     ['#ffffff', '#FFFFCD', '#87CEFA','#ffffff', '#ffffb3', '#23a5f6'],
     ['#3690FF', '#8977C6', null, '#8977C6', '#1a80ff', '#735dbb'],
     ['#ffffff', '#F76D6D', null, '#F0DC8D', '#F76D6D', null]
-    // ['#ffffff', '#F75761', null, '#FFFFCD', '#F2614B', null]
     // ['#81F781', '#E0F8E6', '#E0F8E6', '#E0F8E6']
   ]
 };

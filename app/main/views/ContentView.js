@@ -23,8 +23,9 @@ function ContentView(options) {
   this.toShow = {};
   this.notAnimated = true;
   this.gradientsRunning = true;
-  this.selectedModOne = window.faderMods[0][0];
-  this.selectedModTwo = window.faderMods[0][1];
+  
+  this.shown = {}; this.toShow = {};
+  this.scrolled = false;
 
   _setBackground.call(this);
   _createTasks.call(this);
@@ -257,6 +258,12 @@ function _inputListeners() {
   this.touchSurf.on('touchend', function() {
     this.backgroundTouched = false;
     if (this.timeTouched > 60) {
+      this.backgroundModOne.halt();
+      this.backgroundModTwo.halt();
+      this.gradientsRunning = false;
+      this.backgroundModOne.setOpacity(1, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});
+      this.backgroundModTwo.setOpacity(0, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});      
+      this.swapGradients.call(this);
       this.timeTouched = 0;     
     } else {    
       this.inputToggled = !this.inputToggled;
@@ -266,14 +273,6 @@ function _inputListeners() {
   
   window.Engine.on('prerender', function() {
     this.backgroundTouched && this.timeTouched++;
-    
-    if (this.timeTouched > 60 && this.timeTouched < 120) {
-      console.log('MORE THAN 60')
-    
-    } else if (this.timeTouched > 120) {
-      console.log('MORE THAN 120')
-    }
-        
   }.bind(this));
   
 };
