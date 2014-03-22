@@ -192,6 +192,7 @@ function _contentEvents() {
     this.touchCount -= 1;
     if (this.touchCount < 2) {
       this._eventOutput.emit('twoFingerModeDisabled');
+      console.log('twoFingerModeD')
     }
   }.bind(this));
 };

@@ -301,10 +301,12 @@ function _inputListeners() {
   this.touchSurf.on('touchstart', function() {
     this.timeTouched = 0;
     this.backgroundTouched = true;
+    this._eventOutput.emit('newTouch');
   }.bind(this));
   
   this.touchSurf.on('touchend', function() {
     this.backgroundTouched = false;
+    this._eventOutput.emit('endTouch');
     if (this.timeTouched > 60) {
       this.backgroundModOne.halt();
       this.backgroundModTwo.halt();
