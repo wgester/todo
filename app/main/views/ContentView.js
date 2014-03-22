@@ -51,7 +51,7 @@ ContentView.DEFAULT_OPTIONS = {
     'LATER': [2],
     'NEVER': [3]
   },
-  gradientDuration: 1200,
+  gradientDuration: 500,
   completionDuration: 500
 };
 
@@ -335,11 +335,9 @@ function _gradientListener() {
   this.on('opened', function() {
     this.opacityOne = 0;
     this.opacityTwo = 1;
-    Timer.after(function() {
-      this.opened = true;
-      this.backgroundModOne.setOpacity(0, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});
-      this.backgroundModTwo.setOpacity(1, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});      
-    }.bind(this), 10);
+    this.opened = true;
+    this.backgroundModOne.setOpacity(0, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});
+    this.backgroundModTwo.setOpacity(1, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});      
     this.swapGradients();
   }.bind(this));
 
@@ -347,10 +345,8 @@ function _gradientListener() {
     this.opened = false;
     this.backgroundModOne.halt();
     this.backgroundModTwo.halt();
-    Timer.after(function() {
-      this.backgroundModOne.setOpacity(0, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});    
-      this.backgroundModTwo.setOpacity(0, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});      
-    }.bind(this), 10);
+    this.backgroundModOne.setOpacity(0, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});    
+    this.backgroundModTwo.setOpacity(0, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});      
   }.bind(this));
 };
 
