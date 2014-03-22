@@ -28,6 +28,9 @@ function ContentView(options) {
   _setBackground.call(this);
   _createTasks.call(this);
   _setListeners.call(this);
+
+  _monitorOffsets.call(this);
+  _hideLastTask.call(this);
 };
 
 ContentView.prototype = Object.create(View.prototype);
@@ -394,9 +397,8 @@ function _monitorOffsets() {
     if(this.notAnimated){
       if(scrollview._offsets[0] !== undefined) {
         this._eventOutput.emit('offsets');
-        console.log('emitted offsets!')
         this.notAnimated = false;
-        // _hideLastTask.call(this);
+        console.log(this.customscrollview.node.array[0], this.customscrollview._offsets)
       };
     }
   }.bind(this));
@@ -405,22 +407,18 @@ function _monitorOffsets() {
 function _hideLastTask() {
   Engine.on('prerender', function(){
     if(!this.notAnimated){
-      console.log('in hide last task', this.customscrollview, this.customdragsort, this.tasks, this.notAnimated)
       for(var i=0; i < this.customscrollview.node.array.length; i++){
-        if(this.customscrollview._offsets[i] > window.innerHeight - 60) {
-          this.customscrollview.node.array[i].setProperties({ 
-            visibility: 'hidden'
-          })
-        } else {
-          this.customscrollview.node.array[i].setProperties({
-            visibility: 'visible'
-          })
+        console.log(this.customscrollview._offsets[7])
+        if(this.customscrollview._offsets[i] > 200 || this.customscrollview._offsets[i]<10) {
+          this.customscrollview.node.array[i].taskItemModifier.setOpacity(0, function(){})
+        } else if(this.customscrollview._offsets[i] < 200){
+          console.log(i)
+          this.customscrollview.node.array[i].taskItemModifier.setOpacity(1, function(){})
         }
       }
     }
-      
-  });
-}
+  }.bind(this));
+};
 
 
 

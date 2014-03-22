@@ -69,24 +69,26 @@ function _createTitle() {
     transform: Transform.translate(0, 10, 0)
   });
 
-  if (this.options.title === 'FOCUS') {
-    this.titleMod.setOpacity(1, undefined, function() {});
-    this.titleHeader.setProperties({
-      textAlign: 'left',
-      fontSize: '28px',
-      fontWeight: '50',
-      marginTop: '40px',
-      opacity: '0.3'
+  // if (this.options.title === 'FOCUS') {
+  //   this.titleMod.setOpacity(1, undefined, function() {});
+  //   this.titleHeader.setProperties({
+  //     textAlign: 'left',
+  //     fontSize: '20px',
+  //     color: 'white',
+  //     fontWeight: '50',
+  //     marginTop: '40px',
+  //     marginLeft: '15px',
+  //     opacity: '0.9'
 
-    })
-  };
+  //   })
+  // };
 
   if(this.options.title !== 'FOCUS') {
     this.upSurf = new Surface({
       content: "<img width='40' height='40' src='./img/up.png'/>"
     });
     this.upMod = new Modifier({
-      transform: Transform.translate(260, 30, 0)
+      transform: Transform.translate(260, 20, 0)
     })
     this._add(this.upMod).add(this.upSurf);
   };
