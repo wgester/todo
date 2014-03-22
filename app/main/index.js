@@ -11,7 +11,9 @@ var CanvasSurface     = require('famous/surfaces/canvas-surface');
 var bootstrappedData  = require('./views/data.js');
 
 var devMode = true;
-var wrapped = true;
+var wrapped = false;
+
+_createStorageAPI();
 
 if (!wrapped) {
   console.log('not wrapped');
@@ -20,27 +22,6 @@ if (!wrapped) {
       console.log('vibrate fake for ' + time + 'ms.');
     }
   };
-  window.memory = {
-    save: function(task) {
-      console.log('saved task ' + task.text);
-      this.data[task.page].push(task);
-    },
-    read: function(task) {
-      return this.data;
-    },
-    remove: function(task) {
-      var thisPagesTasks = this.data[task.page];
-      var indiciesToRemove = [];
-      for (var i = 0; i < thisPagesTasks.length; i++) {
-        if (thisPagesTasks[i].text === task.text) {
-          thisPagesTasks.splice(i, 1);
-          i--;
-        }
-      }
-      this.data = thisPagesTasks;
-    },
-    data: bootstrappedData
-  }
 }
 
 if (!_isAndroid() || !wrapped) {
@@ -52,10 +33,56 @@ if (!_isAndroid() || !wrapped) {
       console.log("Hide android keyboard");
     }
   };
-} else {
+} 
+
+function _createStorageAPI() {
+  window.memory = {
+    read: function(page) {
+      if (page) {
+        return this.data[page];
+      }
+      return this.data;
+    },
+    save: function(inputTask, cb) {
+      if (inputTask) {
+        this.data[inputTask.page].push(inputTask);
+      }
+      window.localStorage._taskData = JSON.stringify(this.data);
+
+      if (typeof inputTask === 'function') {
+        cb = inputTask;
+      }
+
+      if (cb) cb();
+    },
+    remove: function(inputTask, cb) {
+      var thisPagesTasks = this.data[inputTask.page];
+      for (var i = 0; i < thisPagesTasks.length; i++) {
+        if (thisPagesTasks[i].text === inputTask.text) {
+          thisPagesTasks.splice(i, 1);
+          i--;
+        }
+      }
+      this.data[inputTask.page] = thisPagesTasks;
+      this.save(cb);
+    }
+  };
+  _loadSavedData();
 }
 
-
+function _loadSavedData(cb) {
+  if (window.localStorage._taskData !== undefined) {
+    window.memory.data = JSON.parse(window.localStorage._taskData);
+  } else {
+    window.memory.data = {
+      "FOCUS" : [{ text: 'Focus on this', page: 'FOCUS'}],
+      "TODAY" : [{ text: 'Something to do', page: 'TODAY'}],
+      "LATER" : [{ text: 'Do this later', page: 'LATER'}],
+      "NEVER" : []
+    };
+  }
+  if (cb) cb();
+}
 
 Transitionable.registerMethod('wall', WallTransition);
 Transitionable.registerMethod('spring', SpringTransition);

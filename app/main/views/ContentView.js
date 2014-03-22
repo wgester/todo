@@ -76,7 +76,7 @@ function _setBackground() {
 };
 
 function _createTasks() {
-  this.tasks = window.memory.data[this.options.title];
+  this.tasks = window.memory.read(this.options.title);
   this.taskCount = 0;
 
   this.customscrollview = new CustomScrollView({page: this.title});
@@ -135,6 +135,10 @@ ContentView.prototype._newScrollView = function(data, newIndex) {
   });
   var node = this.customdragsort;
   var newTask = new TaskView({text: data.text, index: newIndex, page: this.title});
+  window.memory.save({
+    text: newTask.text,
+    page: newTask.page
+  });
   this.customdragsort.push(newTask);
   if(node.getNext()) node = node._next;
   newTask.pipe(node);
@@ -153,8 +157,11 @@ ContentView.prototype._newScrollView = function(data, newIndex) {
 }
 
 ContentView.prototype._addToList = function(data, newIndex, node) {
-  var newTask = new TaskView({text: data.text, index: newIndex, page: this.title});
-      window.memory.save(newTask);
+      var newTask = new TaskView({text: data.text, index: newIndex, page: this.title});
+      window.memory.save({
+        text: newTask.text,
+        page: newTask.page
+      });
       this.customdragsort.push(newTask);
       for (var j = 0; j < newIndex - 1; j++) {
         node = node._next;
@@ -163,7 +170,6 @@ ContentView.prototype._addToList = function(data, newIndex, node) {
       newTask.pipe(node);
       node.pipe(this.customscrollview);
       newTask.pipe(this.customscrollview);
-
 
       newTask.pipe(this._eventInput);
 
@@ -341,6 +347,10 @@ function _completionListener(task) {
 
   task.on('deleted', function() {
     this.taskCount--;
+    window.memory.remove({
+      page: task.page,
+      text: task.text
+    });
   }.bind(this));
   
   if(this.options.title === 'FOCUS' && this.taskCount < 3) this._eventOutput.emit('inputOpen');

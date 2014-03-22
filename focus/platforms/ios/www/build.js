@@ -8771,34 +8771,14 @@ require.register("app/main/index.js", function(exports, require, module) {
     var CanvasSurface = require("famous/surfaces/canvas-surface");
     var bootstrappedData = require("./views/data.js");
     var devMode = true;
-    var wrapped = true;
+    var wrapped = false;
+    _createStorageAPI();
     if (!wrapped) {
         console.log("not wrapped");
         navigator.notification = {
             vibrate: function(time) {
                 console.log("vibrate fake for " + time + "ms.");
             }
-        };
-        window.memory = {
-            save: function(task) {
-                console.log("saved task " + task.text);
-                this.data[task.page].push(task);
-            },
-            read: function(task) {
-                return this.data;
-            },
-            remove: function(task) {
-                var thisPagesTasks = this.data[task.page];
-                var indiciesToRemove = [];
-                for (var i = 0; i < thisPagesTasks.length; i++) {
-                    if (thisPagesTasks[i].text === task.text) {
-                        thisPagesTasks.splice(i, 1);
-                        i--;
-                    }
-                }
-                this.data = thisPagesTasks;
-            },
-            data: bootstrappedData
         };
     }
     if (!_isAndroid() || !wrapped) {
@@ -8810,7 +8790,61 @@ require.register("app/main/index.js", function(exports, require, module) {
                 console.log("Hide android keyboard");
             }
         };
-    } else {}
+    }
+    function _createStorageAPI() {
+        window.memory = {
+            read: function(page) {
+                if (page) {
+                    return this.data[page];
+                }
+                return this.data;
+            },
+            save: function(inputTask, cb) {
+                if (inputTask) {
+                    this.data[inputTask.page].push(inputTask);
+                }
+                window.localStorage._taskData = JSON.stringify(this.data);
+                if (typeof inputTask === "function") {
+                    cb = inputTask;
+                }
+                if (cb) cb();
+            },
+            remove: function(inputTask, cb) {
+                var thisPagesTasks = this.data[inputTask.page];
+                for (var i = 0; i < thisPagesTasks.length; i++) {
+                    if (thisPagesTasks[i].text === inputTask.text) {
+                        thisPagesTasks.splice(i, 1);
+                        i--;
+                    }
+                }
+                this.data[inputTask.page] = thisPagesTasks;
+                this.save(cb);
+            }
+        };
+        _loadSavedData();
+    }
+    function _loadSavedData(cb) {
+        if (window.localStorage._taskData !== undefined) {
+            window.memory.data = JSON.parse(window.localStorage._taskData);
+        } else {
+            window.memory.data = {
+                FOCUS: [ {
+                    text: "Focus on this",
+                    page: "FOCUS"
+                } ],
+                TODAY: [ {
+                    text: "Something to do",
+                    page: "TODAY"
+                } ],
+                LATER: [ {
+                    text: "Do this later",
+                    page: "LATER"
+                } ],
+                NEVER: []
+            };
+        }
+        if (cb) cb();
+    }
     Transitionable.registerMethod("wall", WallTransition);
     Transitionable.registerMethod("spring", SpringTransition);
     var mainCtx = window.Engine.createContext();
@@ -8911,7 +8945,6 @@ require.register("app/main/index.js", function(exports, require, module) {
         navigator && navigator.notification && navigator.notification.vibrate(length);
     };
     _playShadow.call(shadowTransitionable);
-    alert("finish reading index.js");
 }.bind(this));
 
 require.register("app/main/fonts/specimen_files/easytabs.js", function(exports, require, module) {
@@ -9723,8 +9756,7 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
         this._add(this.touchMod).add(this.touchSurf);
     }
     function _createTasks() {
-        alert("I got to reading tasks!");
-        this.tasks = window.memory.data[this.options.title];
+        this.tasks = window.memory.read(this.options.title);
         this.taskCount = 0;
         this.customscrollview = new CustomScrollView({
             page: this.title
@@ -9779,6 +9811,10 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
             index: newIndex,
             page: this.title
         });
+        window.memory.save({
+            text: newTask.text,
+            page: newTask.page
+        });
         this.customdragsort.push(newTask);
         if (node.getNext()) node = node._next;
         newTask.pipe(node);
@@ -9800,7 +9836,10 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
             index: newIndex,
             page: this.title
         });
-        window.memory.save(newTask);
+        window.memory.save({
+            text: newTask.text,
+            page: newTask.page
+        });
         this.customdragsort.push(newTask);
         for (var j = 0; j < newIndex - 1; j++) {
             node = node._next;
@@ -9972,6 +10011,10 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
         }.bind(this));
         task.on("deleted", function() {
             this.taskCount--;
+            window.memory.remove({
+                page: task.page,
+                text: task.text
+            });
         }.bind(this));
     }
     ContentView.prototype.swapGradients = function() {
@@ -10825,6 +10868,8 @@ require.register("app/main/views/TaskView.js", function(exports, require, module
         };
         this.animateIn = animateIn;
         this.resetAnimation = resetAnimation;
+        this.page = this.options.page;
+        this.text = this.options.text;
     }
     TaskView.prototype = Object.create(View.prototype);
     TaskView.prototype.constructor = TaskView;
