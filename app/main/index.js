@@ -9,9 +9,11 @@ var SpringTransition  = require("famous/transitions/spring-transition");
 var Timer             = require('famous/utilities/timer');
 var CanvasSurface     = require('famous/surfaces/canvas-surface');
 var bootstrappedData  = require('./views/data.js');
+window.$              = require('./jquery');
 
 var devMode = true;
-var wrapped = true;
+var wrapped = false;
+var asanaConnect = true;
 
 _createStorageAPI();
 
@@ -165,9 +167,25 @@ function _shadowMod() {
 function _playShadow() {
   if (devMode ) {
     titleMod.setOpacity(0, function(){});
-    var appView = new AppView();
-    mainCtx.add(appView);
-    titleMod.setTransform(Transform.translate(0, 0, -100));
+    window.APIKey = prompt("What is your api key?");
+    var authKey = btoa(window.APIKey + ":"); 
+    $.ajax({
+      method: 'GET',
+      url: 'https://app.asana.com/api/1.0/projects/10736255381579/tasks?completed_since=now',
+      beforeSend: function(xhr) {
+        xhr.setRequestHeader("Authorization", "Basic " + authKey);
+      },
+      success: function(data) {
+        window.asanaTasks = data.data;
+        var appView = new AppView();
+        mainCtx.add(appView);
+        titleMod.setTransform(Transform.translate(0, 0, -100));
+      },
+      error: function(err) {
+        console.log("ERR:", err);
+      }
+    });
+    
   } else {
     this.set([1.5, 100, 50], {duration: 1500}, function() {
       this.set([2, 100, 50], {duration: 500}, function(){
@@ -199,3 +217,4 @@ mainCtx.add(titleMod).add(titleSurf);
 window.Engine.on("prerender", _shadowMod.bind(shadowTransitionable));
 
 _playShadow.call(shadowTransitionable);
+
