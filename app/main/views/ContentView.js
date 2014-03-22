@@ -404,16 +404,14 @@ function _monitorOffsets() {
   }.bind(this));
 };
 
-function _hideLastTask() {
+function _hideLastTask(title) {
   Engine.on('prerender', function(){
     if(!this.notAnimated){
       for(var i=0; i < this.customscrollview.node.array.length; i++){
-        console.log(this.customscrollview._offsets[7])
-        if(this.customscrollview._offsets[i] > 200 || this.customscrollview._offsets[i]<10) {
-          this.customscrollview.node.array[i].taskItemModifier.setOpacity(0, function(){})
-        } else if(this.customscrollview._offsets[i] < 200){
-          console.log(i)
-          this.customscrollview.node.array[i].taskItemModifier.setOpacity(1, function(){})
+        if(this.customscrollview._offsets[i] > 360 || this.customscrollview._offsets[i]<0) {
+          this.customscrollview.node.array[i].taskItemModifier.setOpacity(0)
+        } else {
+          this.customscrollview.node.array[i].taskItemModifier.setOpacity(1); 
         }
       }
     }

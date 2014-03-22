@@ -60,7 +60,6 @@ TaskView.prototype.appearIn = function() {
 };
 
 function resetAnimation(title) {
-  console.log('RESET CALLED');
   this.taskItemModifier.setTransform(Transform.translate(-1 * this.options.deleteCheckWidth, 1000, 0));
   this.taskItemModifier.setOpacity(0.01);
 };

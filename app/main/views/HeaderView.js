@@ -69,19 +69,17 @@ function _createTitle() {
     transform: Transform.translate(0, 10, 0)
   });
 
-  // if (this.options.title === 'FOCUS') {
-  //   this.titleMod.setOpacity(1, undefined, function() {});
-  //   this.titleHeader.setProperties({
-  //     textAlign: 'left',
-  //     fontSize: '20px',
-  //     color: 'white',
+  if (this.options.title === 'FOCUS') {
+    this.titleMod.setOpacity(1, undefined, function() {});
+    this.titleHeader.setProperties({
+      textAlign: 'left'
   //     fontWeight: '50',
   //     marginTop: '40px',
   //     marginLeft: '15px',
   //     opacity: '0.9'
 
-  //   })
-  // };
+    })
+  };
 
   if(this.options.title !== 'FOCUS') {
     this.upSurf = new Surface({

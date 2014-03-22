@@ -93,7 +93,8 @@ function _createLayout() {
 
     this.taskItemModifier = new Modifier({
         transform: Matrix.identity,
-        size: this.options.surface.size
+        size: this.options.surface.size,
+        opacity: 1
     });
 
     this.draggable = new Draggable({
