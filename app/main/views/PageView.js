@@ -195,6 +195,7 @@ function _contentEvents() {
   this.contents._eventInput.on('endTouch', function() {
     this.touchCount -= 1;
     if (this.touchCount < 2) {
+      console.log('disablingTwoTOuch')
       this.contents._eventOutput.emit('twoFingerModeDisabled');
       this.twoFingerMode = false;
     }

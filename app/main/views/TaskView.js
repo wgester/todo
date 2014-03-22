@@ -15,6 +15,8 @@ function TaskView(options) {
     this.resetAnimation = resetAnimation;
     this.page = this.options.page;
     this.text = this.options.text;
+    _addEventListeners.call(this);
+
 }
 
 TaskView.prototype = Object.create(View.prototype);
@@ -51,7 +53,8 @@ function _disableTouch() {
 }
 
 function _enableTouch() {
-    this.taskItem.touchDisabled = true;
+    this.taskItem.touchEnabled = true;
+    console.log('enablingtouch')
 }
 
 /*-----------------------ANIMATION-------------------------------*/
