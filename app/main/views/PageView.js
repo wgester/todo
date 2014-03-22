@@ -29,6 +29,7 @@ function PageView() {
   }
 
   this.offPage = false;
+  this.touchCount = 0;
   _createLayout.call(this);
   _pipeSubviewEventsToAppView.call(this);
   _createEditLightbox.call(this);
@@ -104,7 +105,6 @@ function _createLayout() {
   this.footer = new FooterView({title: this.options.title});
   this.header = new HeaderView({title: this.options.title});
   this.contents = new ContentView({title: this.options.title})
-  this.contents._eventOutput.pipe(this.contents._eventInput);
   this.layout.id["header"].add(this.header);
   this.layout.id["content"].add(this.contents);
   this.layout.id["footer"] .add(Utility.transformInFront).add(this.footer);
@@ -118,6 +118,7 @@ function _setHeaderSize() {
 function _pipeSubviewEventsToAppView() {
   this.footer.pipe(this._eventOutput);
   this.header.pipe(this._eventOutput);
+  this.contents._eventOutput.pipe(this.contents._eventInput);
 };
 
 function _setListeners() {
@@ -154,6 +155,21 @@ function _setListeners() {
     _lightboxFadeIn.call(this);
     this.editTaskOffset = 90;
     _editInputFlyIn.call(this);
+  }.bind(this));
+
+  this.contents._eventInput.on('newTouch', function() {
+    this.touchCount += 1;
+    if (this.touchCount >= 2) {
+      this._eventOutput.emit('twoFingerMode');
+    }
+
+  }.bind(this));
+
+  this.contents._eventInput.on('endTouch', function() {
+    this.touchCount -= 1;
+    if (this.touchCount < 2) {
+      this._eventOutput.emit('twoFingerModeDisabled');
+    }
   }.bind(this));
 };
 

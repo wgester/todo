@@ -51,6 +51,17 @@ function deleteTask(indexObj) {
 }
 
 function swapPage(indexObj) {
+    if (!indexObj) {
+        var currentNode = this.node.find(0);
+        if (currentNode.array.length) {
+            while (currentNode) {
+                currentNode.array[currentNode.index].taskItem.index = currentNode.index;
+                currentNode.setPosition([0,0]);
+                currentNode = currentNode.getNext();
+            }
+        }
+        return;
+    }
     var currentNode = this.node.find(0);
     while (currentNode && (currentNode.index !== indexObj.index)) {
         currentNode.setPosition([0,0]);

@@ -180,19 +180,13 @@ function handleDragEnd(data) {
         if (data.v[1] > 0) {
             var v = 1;
             if (this.array[this.index].taskItem.page === 'NEVER') {
-                this.setPosition([0,0], {
-                duration: 165,
-                curve: 'easeOut'
-                });
+                this._eventOutput.emit('swapPage');
                 return;
             }
         } else {
             var v = -1;
             if (this.array[this.index].taskItem.page === 'FOCUS') {
-                this.setPosition([0,0], {
-                duration: 165,
-                curve: 'easeOut'
-                });
+                this._eventOutput.emit('swapPage');
                 return;
             }
         }

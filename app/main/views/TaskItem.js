@@ -110,18 +110,11 @@ function _bindEvents() {
     this._eventInput.on('touchstart', handleStart.bind(this));
     this._eventInput.on('touchmove', handleMove.bind(this));
     this._eventInput.on('touchend', handleEnd.bind(this));
-    this._eventInput.on('click', handleClick.bind(this));
     this.on('saveTask', saveTask.bind(this));
     this.on('transformTask', transformTask.bind(this));
     this.on('unhide', unhideTask.bind(this));
     Engine.on('prerender', findTimeDeltas.bind(this));
     Engine.on('prerender', checkForDragging.bind(this));
-}
-
-function handleClick() {
-    if (this.timeTouched < this.clickThreshold) {
-
-    }
 }
 
 function handleStart(data) {
@@ -130,7 +123,7 @@ function handleStart(data) {
   this.distanceThreshold = false;
   this.touchStart = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
   this.touchCurrent = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
-
+  this._eventOutput.emit('newTouch');
 }
 
 function handleMove(data) {
@@ -164,6 +157,7 @@ function handleEnd() {
 
     this.timeTouched = 0;
     this._eventInput.pipe(this.draggable);
+    this._eventOutput.emit('endTouch');
 }
 
 function findTimeDeltas() {

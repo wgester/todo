@@ -166,6 +166,10 @@ ContentView.prototype._addToList = function(data, newIndex, node) {
       newTask.pipe(node);
       node.pipe(this.customscrollview);
       newTask.pipe(this.customscrollview);
+
+
+      newTask.pipe(this._eventInput);
+
       this.customscrollview.pipe(node);
       _activateTasks.call(this, newTask);
 }
