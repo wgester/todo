@@ -48,7 +48,7 @@ ContentView.DEFAULT_OPTIONS = {
     'LATER': [2],
     'NEVER': [3]
   },
-  gradientDuration: 1000,
+  gradientDuration: 1200,
   completionDuration: 500
 };
 
@@ -304,8 +304,6 @@ function _gradientListener() {
   this.on('opened', function() {
     this.opacityOne = 0;
     this.opacityTwo = 1;
-    this.backgroundModOne.halt();
-    this.backgroundModTwo.halt();
     Timer.after(function() {
       this.opened = true;
       this.backgroundModOne.setOpacity(0, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});
