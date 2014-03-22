@@ -148,10 +148,10 @@ function _addEventListeners(newView, newModifier){
   }.bind(this));
 
   newView.on('togglePageViewDown', function() {
-    newView.previousPage.contents.resetAnimations(newView.previousPage.options.title);
-    newView.previousPage.contents.animateTasksIn(newView.previousPage.options.title);
 
     if (newView.previousPage) {
+      newView.previousPage.contents.resetAnimations(newView.previousPage.options.title);
+      newView.previousPage.contents.animateTasksIn(newView.previousPage.options.title);
       if (this.lightBox.optionsForSwipeUp)  {
         this.lightBox.setOptions({
           outTransition: this.options.noTransition,

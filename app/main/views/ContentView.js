@@ -354,7 +354,7 @@ function _closeInputListener(task) {
 
 function _unhideTaskListener() {
   this.on('unhideEditedTask', function() {
-    if (this.editTask) {
+    if (this.editTask && this.editedTask) {
       this.editedTask._eventOutput.emit('unhide');
       this.editTask = false;
     }
