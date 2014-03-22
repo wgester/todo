@@ -193,7 +193,7 @@ function checkForDragging(data) {
 
 function dragmode() {
   this.contents.addClass('dragging');
-  this.taskItemModifier.setTransform(Matrix.move(Matrix.scale(1.1, 1.1, 1), [-10, 0, 60]), {duration: 100}, function() {
+  this.taskItemModifier.setTransform(Matrix.move(Matrix.scale(1.2, 1.2, 1), [-10, 0, 60]), {duration: 100}, function() {
     this.taskItemModifier.setTransform(Matrix.move(Matrix.scale(1.05, 1.05, 1), [-5, 0, 40]), {duration: 150});
   }.bind(this));
 };

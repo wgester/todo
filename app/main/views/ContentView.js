@@ -22,6 +22,9 @@ function ContentView(options) {
   this.shown = {}; 
   this.toShow = {};
   this.notAnimated = true;
+  this.gradientsRunning = true;
+  this.selectedModOne = window.faderMods[0][0];
+  this.selectedModTwo = window.faderMods[0][1];
 
   _setBackground.call(this);
   _createTasks.call(this);
@@ -254,7 +257,7 @@ function _inputListeners() {
   this.touchSurf.on('touchend', function() {
     this.backgroundTouched = false;
     if (this.timeTouched > 60) {
-      console.log('LONGTOUCH')
+      this.timeTouched = 0;     
     } else {    
       this.inputToggled = !this.inputToggled;
       this.inputToggled ? this._eventOutput.emit('showInput') : this._eventOutput.emit('hideInput');
@@ -262,9 +265,15 @@ function _inputListeners() {
   }.bind(this));
   
   window.Engine.on('prerender', function() {
-    if (this.backgroundTouched) {
-      this.timeTouched += 1;
+    this.backgroundTouched && this.timeTouched++;
+    
+    if (this.timeTouched > 60 && this.timeTouched < 120) {
+      console.log('MORE THAN 60')
+    
+    } else if (this.timeTouched > 120) {
+      console.log('MORE THAN 120')
     }
+        
   }.bind(this));
   
 };
@@ -337,6 +346,17 @@ function _gradientListener() {
   }.bind(this));
 };
 
+ContentView.prototype.swapGradients = function() {
+  if (this.opened && this.gradientsRunning) {
+    console.log('CALLED');
+    this.opacityOne = this.opacityOne ? 0 : 1;
+    this.opacityTwo = this.opacityTwo ? 0 : 1;
+    
+    this.backgroundModOne.setOpacity(this.opacityOne, {duration: 5000}, function() {});        
+    this.backgroundModTwo.setOpacity(this.opacityTwo, {duration: 5000}, function() {});        
+  }
+};
+
 function _completionListener(task) {
   task.on('completed', function() {
     this.taskCount--;
@@ -357,15 +377,6 @@ function _completionListener(task) {
 
 };
 
-ContentView.prototype.swapGradients = function() {
-  if (this.opened) {
-    this.opacityOne = this.opacityOne ? 0 : 1;
-    this.opacityTwo = this.opacityTwo ? 0 : 1;
-
-    this.backgroundModOne.setOpacity(this.opacityOne, {duration: 5000}, function() {});        
-    this.backgroundModTwo.setOpacity(this.opacityTwo, {duration: 5000}, function() {});        
-  }
-};
 
 function getTitleIndex(title) {
   var titles = {'FOCUS':0, 'TODAY':1, 'LATER':2, 'NEVER':3};
