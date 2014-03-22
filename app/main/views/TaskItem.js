@@ -197,12 +197,10 @@ function checkForDragging(data) {
 };
 
 function dragmode() {
-    this.contents.addClass('dragging');
-    console.log(this.contents.properties);
-    this.taskItemModifier.setTransform(Matrix.translate(0, 0, 40), {
-        curve: 'easeOut',
-        duration: 300
-    });
+  this.contents.addClass('dragging');
+  this.taskItemModifier.setTransform(Matrix.move(Matrix.scale(1.1, 1.1, 1), [-10, 0, 60]), {duration: 100}, function() {
+    this.taskItemModifier.setTransform(Matrix.move(Matrix.scale(1.05, 1.05, 1), [-5, 0, 40]), {duration: 150});
+  }.bind(this));
 };
 
 function replaceTask() {
@@ -264,14 +262,26 @@ function unhideTask() {
 
 function transformTask() {
   this.contents.setProperties({'backgroundColor': 'white'});
-    this.taskItemModifier.setTransform(Matrix.translate(0, 0, 40), {curve: 'easeOut', duration: 300}, function() {
+  this.taskItemModifier.setTransform(Matrix.move(Matrix.scale(1.1, 1.1, 1), [-10, 0, 60]), {duration: 100}, function() {
+    this.taskItemModifier.setTransform(Matrix.move(Matrix.scale(1.05, 1.05, 1), [-5, 0, 40]), {duration: 150}, function() {
       this._eventOutput.emit('openLightbox', {text: this.text, index: this.index});        
       Timer.after(function() {
         this.contents.setProperties({'display': 'none'});
         var offset = this.page === 'FOCUS' ? this.index * -60 - 250: (this.index+1) * -60;
         this.taskItemModifier.setTransform(Matrix.translate(0,offset,0));
-      }.bind(this), 5);
-    }.bind(this));  
+      }.bind(this), 5);      
+    }.bind(this));
+  }.bind(this));
+
+  // this.contents.setProperties({'backgroundColor': 'white'});  
+    // this.taskItemModifier.setTransform(Matrix.translate(0, 0, 40), {curve: 'easeOut', duration: 300}, function() {
+    //   this._eventOutput.emit('openLightbox', {text: this.text, index: this.index});        
+    //   Timer.after(function() {
+    //     this.contents.setProperties({'display': 'none'});
+    //     var offset = this.page === 'FOCUS' ? this.index * -60 - 250: (this.index+1) * -60;
+    //     this.taskItemModifier.setTransform(Matrix.translate(0,offset,0));
+    //   }.bind(this), 5);
+    // }.bind(this));  
 };
 
 function vibrate() {

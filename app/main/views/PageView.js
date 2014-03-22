@@ -10,8 +10,8 @@ var Draggable         = require('famous/modifiers/draggable');
 var HeaderFooter      = require('famous/views/header-footer-layout');
 var Utility           = require('famous/utilities/utility');
 var Color             = require('./Color');
-// var Tasks             = window._taskData || [];
-var Tasks             = require('./data');
+var Tasks             = window._taskData || [];
+// var Tasks             = require('./data');
 var TaskView          = require('./TaskView');
 var HeaderView        = require('./HeaderView');
 var FooterView        = require('./FooterView');
@@ -188,17 +188,19 @@ function _editInputFlyIn() {
 
 function _editInputFlyOut() {
   window.AndroidKeyboard.hide();
-    this.editSurface.setProperties({'visibility': 'hidden'});
-    this.editMod.setTransform(Transform.translate(0, 600, 0));
     this.contents.editTask = this.newTaskOpened ? false : true;
     this.contents._eventOutput.emit('unhideEditedTask');
     if (this.newTaskOpened) {
-      var newText = this.editSurface.getValue();
-      this.editSurface.setValue('');
-      newText.length && this.contents._eventOutput.emit('saveNewTask', newText);
-      Timer.after(_rotateInputBack.bind(this), 8);
-      this.newTaskOpened = false;      
+      this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0), {duration: 300}, function() {
+        var newText = this.editSurface.getValue();
+        this.editSurface.setValue('');
+        newText.length && this.contents._eventOutput.emit('saveNewTask', newText);
+        Timer.after(_rotateInputBack.bind(this), 8);
+        this.newTaskOpened = false;              
+      }.bind(this));
     } else {
+      this.editSurface.setProperties({'visibility': 'hidden'});
+      this.editMod.setTransform(Transform.translate(0, 600, 0));
       var editedText = this.editSurface.getValue();
       var editedTask = this.contents.customdragsort.array[this.taskIndex].taskItem;
       this.editSurface.setValue('');
