@@ -81,6 +81,15 @@ function _createTitle() {
     })
   };
 
+  if(this.options.title !== 'FOCUS') {
+    this.upSurf = new Surface({
+      content: "<img width='40' height='40' src='./img/up.png'/>"
+    });
+    this.upMod = new Modifier({
+      transform: Transform.translate(260, 30, 0)
+    })
+    this._add(this.upMod).add(this.upSurf);
+  };
   this._add(this.titleMod).add(this.titleHeader);
 };
 
