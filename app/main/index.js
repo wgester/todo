@@ -205,9 +205,7 @@ function _playShadow() {
 function _populateAsana() {
   var APIKey = prompt("What is your api key?");
   window.authKey = btoa(APIKey + ":");
-  _getWorkspaces.call(this, _getTasksFromWorkspaces.bind(this));
-  
-  // window.asanaTasks = resp.data;
+  _getWorkspaces.call(this, _getTasksFromWorkspaces.bind(this));  
 };
 
 function _getWorkspaces(cb) {
@@ -218,34 +216,38 @@ function _getWorkspaces(cb) {
       xhr.setRequestHeader("Authorization", "Basic " + window.authKey);
     },
     success: function(resp) {
-      cb(resp.data.workspaces);
+      cb(resp.data.workspaces, 0);
     },
     error: function(err) {
-      console.log("ERR:", err);
+      alert('Not a valid API key');
+      var appView = new AppView();
+      mainCtx.add(appView);
+      titleMod.setTransform(Transform.translate(0, 0, -100));
     }
   }); 
 };
 
-function _getTasksFromWorkspaces(workspaces) {
-  for(var i = 0; i < workspaces.length; i++) {
-    $.ajax({
-      method: 'GET',
-      url: 'https://app.asana.com/api/1.0/workspaces/' + workspaces[i]['id'] + '/tasks?assignee=me&completed_since=now',
-      beforeSend: function(xhr) {
-        xhr.setRequestHeader("Authorization", "Basic " + window.authKey);
-      },
-      success: function(resp) {
-        window.asanaTasks = window.asanaTasks.concat(resp.data);
-        console.log(window.asanaTasks);
+function _getTasksFromWorkspaces(spaces, counter) {
+  $.ajax({
+    method: 'GET',
+    url: 'https://app.asana.com/api/1.0/workspaces/' + spaces[counter]['id'] + '/tasks?assignee=me&completed_since=now',
+    beforeSend: function(xhr) {
+      xhr.setRequestHeader("Authorization", "Basic " + window.authKey);
+    },
+    success: function(resp) {
+      window.asanaTasks = window.asanaTasks.concat(resp.data);
+      if (counter === spaces.length - 1) {
         var appView = new AppView();
         mainCtx.add(appView);
-        titleMod.setTransform(Transform.translate(0, 0, -100));
-      },
-      error: function(err) {
-        console.log("ERR:", err);
+        titleMod.setTransform(Transform.translate(0, 0, -100));          
+      } else {
+        _getTasksFromWorkspaces(spaces, counter + 1);
       }
-    });     
-  }  
+    },
+    error: function(err) {
+      console.log("ERR:", err);
+    }
+  });       
 };
 
 mainCtx.add(titleMod).add(titleSurf);

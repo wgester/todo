@@ -352,7 +352,6 @@ function _gradientListener() {
 
 ContentView.prototype.swapGradients = function() {
   if (this.opened && this.gradientsRunning) {
-    console.log('CALLED');
     this.opacityOne = this.opacityOne ? 0 : 1;
     this.opacityTwo = this.opacityTwo ? 0 : 1;
     
@@ -420,7 +419,6 @@ function _monitorOffsets() {
       if(scrollview._offsets[0] !== undefined) {
         this._eventOutput.emit('offsets');
         this.notAnimated = false;
-        console.log(this.customscrollview.node.array[0], this.customscrollview._offsets)
       };
     }
   }.bind(this));
