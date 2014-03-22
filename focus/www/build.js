@@ -7881,19 +7881,13 @@ require.register("famous_modules/famous/views/drag-sort/_git_modularized/index.j
             if (data.v[1] > 0) {
                 var v = 1;
                 if (this.array[this.index].taskItem.page === "NEVER") {
-                    this.setPosition([ 0, 0 ], {
-                        duration: 165,
-                        curve: "easeOut"
-                    });
+                    this._eventOutput.emit("swapPage");
                     return;
                 }
             } else {
                 var v = -1;
                 if (this.array[this.index].taskItem.page === "FOCUS") {
-                    this.setPosition([ 0, 0 ], {
-                        duration: 165,
-                        curve: "easeOut"
-                    });
+                    this._eventOutput.emit("swapPage");
                     return;
                 }
             }
@@ -8777,9 +8771,9 @@ require.register("app/main/index.js", function(exports, require, module) {
     var CanvasSurface = require("famous/surfaces/canvas-surface");
     var bootstrappedData = require("./views/data.js");
     var devMode = true;
-    var wrapped = false;
+    var wrapped = true;
     if (!wrapped) {
-        alert("not wrapped");
+        console.log("not wrapped");
         navigator.notification = {
             vibrate: function(time) {
                 console.log("vibrate fake for " + time + "ms.");
@@ -8806,16 +8800,17 @@ require.register("app/main/index.js", function(exports, require, module) {
             },
             data: bootstrappedData
         };
-    } else {
-        alert("wrapped");
-        alert(window.memory.data["FOCUS"]);
     }
     if (!_isAndroid() || !wrapped) {
         window.AndroidKeyboard = {
-            show: function() {},
-            hide: function() {}
+            show: function() {
+                console.log("Show android keyboard");
+            },
+            hide: function() {
+                console.log("Hide android keyboard");
+            }
         };
-    }
+    } else {}
     Transitionable.registerMethod("wall", WallTransition);
     Transitionable.registerMethod("spring", SpringTransition);
     var mainCtx = window.Engine.createContext();
@@ -8916,6 +8911,7 @@ require.register("app/main/index.js", function(exports, require, module) {
         navigator && navigator.notification && navigator.notification.vibrate(length);
     };
     _playShadow.call(shadowTransitionable);
+    alert("finish reading index.js");
 }.bind(this));
 
 require.register("app/main/fonts/specimen_files/easytabs.js", function(exports, require, module) {
@@ -9004,7 +9000,7 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
         noTransition: {
             duration: 0
         },
-        colors: [ [ "#ffffff", "#32CEA8", null, "#ffffff", "#87CEFA", "#32CEA8" ], [ "#ffffff", "#FFFFCD", "#87CEFA", "#ffffff", "#ffffb3", "#23a5f6" ], [ "#3690FF", "#8977C6", null, "#8977C6", "#1a80ff", "#735dbb" ], [ "#F5A9BC", "#FA5858", null, "#ED559C", "#F5A9BC", null ] ]
+        colors: [ [ "#ffffff", "#32CEA8", null, "#ffffff", "#23a5f6", "#32CEA8" ], [ "#ffffff", "#FFFFCD", "#87CEFA", "#ffffff", "#ffffb3", "#23a5f6" ], [ "#3690FF", "#8977C6", null, "#8977C6", "#1a80ff", "#735dbb" ], [ "#ffffff", "#F76D6D", null, "#F0DC8D", "#F76D6D", null ] ]
     };
     function _isAndroid() {
         var userAgent = navigator.userAgent.toLowerCase();
@@ -9055,7 +9051,6 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
             }
         }.bind(this));
         newView.on("togglePageViewUp", function() {
-            console.log("toggle page up!");
             newView.nextPage.contents.resetAnimations(newView.nextPage.options.title);
             newView.nextPage.contents.animateTasksIn(newView.nextPage.options.title);
             if (newView.nextPage) {
@@ -9076,7 +9071,6 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
             }
         }.bind(this));
         newView.on("togglePageViewDown", function() {
-            console.log("toggle page down!");
             newView.previousPage.contents.resetAnimations(newView.previousPage.options.title);
             newView.previousPage.contents.animateTasksIn(newView.previousPage.options.title);
             if (newView.previousPage) {
@@ -9696,7 +9690,7 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
             LATER: [ 2 ],
             NEVER: [ 3 ]
         },
-        gradientDuration: 800,
+        gradientDuration: 1200,
         completionDuration: 500
     };
     function _isAndroid() {
@@ -9729,7 +9723,8 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
         this._add(this.touchMod).add(this.touchSurf);
     }
     function _createTasks() {
-        this.tasks = window.memory.read()[this.options.title];
+        alert("I got to reading tasks!");
+        this.tasks = window.memory.data[this.options.title];
         this.taskCount = 0;
         this.customscrollview = new CustomScrollView({
             page: this.title
@@ -9814,6 +9809,7 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
         newTask.pipe(node);
         node.pipe(this.customscrollview);
         newTask.pipe(this.customscrollview);
+        newTask.pipe(this._eventInput);
         this.customscrollview.pipe(node);
         _activateTasks.call(this, newTask);
     };
@@ -9876,8 +9872,22 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
             _completionListener.call(this, this.customdragsort.array[i]);
         }
         this.touchSurf.on("touchstart", function() {
-            this.inputToggled = !this.inputToggled;
-            this.inputToggled ? this._eventOutput.emit("showInput") : this._eventOutput.emit("hideInput");
+            this.timeTouched = 0;
+            this.backgroundTouched = true;
+        }.bind(this));
+        this.touchSurf.on("touchend", function() {
+            this.backgroundTouched = false;
+            if (this.timeTouched > 60) {
+                console.log("LONGTOUCH");
+            } else {
+                this.inputToggled = !this.inputToggled;
+                this.inputToggled ? this._eventOutput.emit("showInput") : this._eventOutput.emit("hideInput");
+            }
+        }.bind(this));
+        window.Engine.on("prerender", function() {
+            if (this.backgroundTouched) {
+                this.timeTouched += 1;
+            }
         }.bind(this));
     }
     function _openInputListener(task) {
@@ -9918,33 +9928,35 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
         }
         window.setInterval(this.swapGradients.bind(this), 8e3);
         this.on("opened", function() {
-            this.opened = true;
             this.opacityOne = 0;
             this.opacityTwo = 1;
-            this.backgroundModOne.halt();
-            this.backgroundModTwo.halt();
-            this.backgroundModOne.setOpacity(0, {
-                duration: this.options.gradientDuration,
-                curve: "easeOut"
-            }, function() {});
-            this.backgroundModTwo.setOpacity(1, {
-                duration: this.options.gradientDuration,
-                curve: "easeOut"
-            }, function() {});
+            Timer.after(function() {
+                this.opened = true;
+                this.backgroundModOne.setOpacity(0, {
+                    duration: this.options.gradientDuration,
+                    curve: "easeOut"
+                }, function() {});
+                this.backgroundModTwo.setOpacity(1, {
+                    duration: this.options.gradientDuration,
+                    curve: "easeOut"
+                }, function() {});
+            }.bind(this), 10);
             this.swapGradients();
         }.bind(this));
         this.on("closed", function() {
             this.opened = false;
             this.backgroundModOne.halt();
             this.backgroundModTwo.halt();
-            this.backgroundModOne.setOpacity(0, {
-                duration: this.options.gradientDuration,
-                curve: "easeOut"
-            }, function() {});
-            this.backgroundModTwo.setOpacity(0, {
-                duration: this.options.gradientDuration,
-                curve: "easeOut"
-            }, function() {});
+            Timer.after(function() {
+                this.backgroundModOne.setOpacity(0, {
+                    duration: this.options.gradientDuration,
+                    curve: "easeOut"
+                }, function() {});
+                this.backgroundModTwo.setOpacity(0, {
+                    duration: this.options.gradientDuration,
+                    curve: "easeOut"
+                }, function() {});
+            }.bind(this), 10);
         }.bind(this));
     }
     function _completionListener(task) {
@@ -10338,6 +10350,7 @@ require.register("app/main/views/PageView.js", function(exports, require, module
             this.headerSizeTransitionable = new Transitionable([ this.options.regSmallHeader ]);
         }
         this.offPage = false;
+        this.touchCount = 0;
         _createLayout.call(this);
         _pipeSubviewEventsToAppView.call(this);
         _createEditLightbox.call(this);
@@ -10408,7 +10421,6 @@ require.register("app/main/views/PageView.js", function(exports, require, module
         this.contents = new ContentView({
             title: this.options.title
         });
-        this.contents._eventOutput.pipe(this.contents._eventInput);
         this.layout.id["header"].add(this.header);
         this.layout.id["content"].add(this.contents);
         this.layout.id["footer"].add(Utility.transformInFront).add(this.footer);
@@ -10422,6 +10434,7 @@ require.register("app/main/views/PageView.js", function(exports, require, module
     function _pipeSubviewEventsToAppView() {
         this.footer.pipe(this._eventOutput);
         this.header.pipe(this._eventOutput);
+        this.contents._eventOutput.pipe(this.contents._eventInput);
     }
     function _setListeners() {
         this.contents._eventInput.pipe(this._eventOutput);
@@ -10453,6 +10466,18 @@ require.register("app/main/views/PageView.js", function(exports, require, module
             this.editTaskOffset = 90;
             _editInputFlyIn.call(this);
         }.bind(this));
+        this.contents._eventInput.on("newTouch", function() {
+            this.touchCount += 1;
+            if (this.touchCount >= 2) {
+                this._eventOutput.emit("twoFingerMode");
+            }
+        }.bind(this));
+        this.contents._eventInput.on("endTouch", function() {
+            this.touchCount -= 1;
+            if (this.touchCount < 2) {
+                this._eventOutput.emit("twoFingerModeDisabled");
+            }
+        }.bind(this));
     }
     function _rotateInputBack() {
         this.header._eventOutput.emit("hideInput");
@@ -10464,7 +10489,7 @@ require.register("app/main/views/PageView.js", function(exports, require, module
     }
     function _lightboxFadeOut() {
         this.editLBMod.setOpacity(.01, {
-            duration: 600 + this.taskIndex * 10
+            duration: 500
         }, function() {
             this.editLBMod.setTransform(Transform.translate(0, 0, -10));
         }.bind(this));
@@ -10479,33 +10504,39 @@ require.register("app/main/views/PageView.js", function(exports, require, module
         }.bind(this));
     }
     function _editInputFlyIn() {
+        this.editSurface.setProperties({
+            visibility: "visible"
+        });
         this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0));
-        this.editMod.setTransform(Transform.translate(0, 20, 0), this.options.editInputAnimation, function() {
+        this.editMod.setTransform(Transform.translate(0, 20, 2), this.options.editInputAnimation, function() {
             this.editSurface.focus();
             window.AndroidKeyboard.show();
         }.bind(this));
     }
     function _editInputFlyOut() {
         window.AndroidKeyboard.hide();
-        this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0), {
-            duration: 300
-        }, function() {
-            this.contents.editTask = this.newTaskOpened ? false : true;
-            if (this.newTaskOpened) {
+        this.contents.editTask = this.newTaskOpened ? false : true;
+        this.contents._eventOutput.emit("unhideEditedTask");
+        if (this.newTaskOpened) {
+            this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0), {
+                duration: 300
+            }, function() {
                 var newText = this.editSurface.getValue();
                 this.editSurface.setValue("");
                 newText.length && this.contents._eventOutput.emit("saveNewTask", newText);
-                this.contents._eventOutput.emit("unhideEditedTask");
                 Timer.after(_rotateInputBack.bind(this), 8);
                 this.newTaskOpened = false;
-            } else {
-                var editedText = this.editSurface.getValue();
-                var editedTask = this.contents.customdragsort.array[this.taskIndex].taskItem;
-                this.editSurface.setValue("");
-                editedTask._eventOutput.emit("saveTask", editedText);
-                this.contents._eventOutput.emit("unhideEditedTask");
-            }
-        }.bind(this));
+            }.bind(this));
+        } else {
+            this.editSurface.setProperties({
+                visibility: "hidden"
+            });
+            this.editMod.setTransform(Transform.translate(0, 600, 0));
+            var editedText = this.editSurface.getValue();
+            var editedTask = this.contents.customdragsort.array[this.taskIndex].taskItem;
+            this.editSurface.setValue("");
+            editedTask._eventOutput.emit("saveTask", editedText);
+        }
     }
     module.exports = PageView;
 }.bind(this));
@@ -10605,15 +10636,11 @@ require.register("app/main/views/TaskItem.js", function(exports, require, module
         this._eventInput.on("touchstart", handleStart.bind(this));
         this._eventInput.on("touchmove", handleMove.bind(this));
         this._eventInput.on("touchend", handleEnd.bind(this));
-        this._eventInput.on("click", handleClick.bind(this));
         this.on("saveTask", saveTask.bind(this));
         this.on("transformTask", transformTask.bind(this));
         this.on("unhide", unhideTask.bind(this));
         Engine.on("prerender", findTimeDeltas.bind(this));
         Engine.on("prerender", checkForDragging.bind(this));
-    }
-    function handleClick() {
-        if (this.timeTouched < this.clickThreshold) {}
     }
     function handleStart(data) {
         this._eventInput.pipe(this.draggable);
@@ -10621,6 +10648,7 @@ require.register("app/main/views/TaskItem.js", function(exports, require, module
         this.distanceThreshold = false;
         this.touchStart = [ data.targetTouches[0]["pageX"], data.targetTouches[0]["pageY"] ];
         this.touchCurrent = [ data.targetTouches[0]["pageX"], data.targetTouches[0]["pageY"] ];
+        this._eventOutput.emit("newTouch");
     }
     function handleMove(data) {
         this.touchCurrent = [ data.targetTouches[0]["pageX"], data.targetTouches[0]["pageY"] ];
@@ -10653,6 +10681,7 @@ require.register("app/main/views/TaskItem.js", function(exports, require, module
         }
         this.timeTouched = 0;
         this._eventInput.pipe(this.draggable);
+        this._eventOutput.emit("endTouch");
     }
     function findTimeDeltas() {
         this.lastFrameTime = this.now;
@@ -10682,11 +10711,13 @@ require.register("app/main/views/TaskItem.js", function(exports, require, module
     }
     function dragmode() {
         this.contents.addClass("dragging");
-        console.log(this.contents.properties);
-        this.taskItemModifier.setTransform(Matrix.translate(0, 0, 40), {
-            curve: "easeOut",
-            duration: 300
-        });
+        this.taskItemModifier.setTransform(Matrix.move(Matrix.scale(1.1, 1.1, 1), [ -10, 0, 60 ]), {
+            duration: 100
+        }, function() {
+            this.taskItemModifier.setTransform(Matrix.move(Matrix.scale(1.05, 1.05, 1), [ -5, 0, 40 ]), {
+                duration: 150
+            });
+        }.bind(this));
     }
     function replaceTask() {
         this.taskItemModifier.setTransform(Matrix.identity, {
@@ -10731,31 +10762,46 @@ require.register("app/main/views/TaskItem.js", function(exports, require, module
         this.contents.setContent("<p>" + text + "</p>");
     }
     function unhideTask() {
-        this.taskItemModifier.setOpacity(1);
-        this.taskItemModifier.setTransform(Matrix.translate(0, 0, 0), {
+        this.contents.setProperties({
+            display: "block"
+        });
+        this.taskItemModifier.setTransform(Matrix.translate(0, 0, 40), {
             curve: "easeOut",
             duration: 300
         }, function() {
-            this.contents.setProperties({
-                backgroundColor: "rgba(255, 255, 255, 0.07)"
-            });
+            Timer.after(function() {
+                this.contents.setProperties({
+                    backgroundColor: "rgba(255, 255, 255, 0.07)"
+                });
+                this.taskItemModifier.setTransform(Matrix.translate(0, 0, 0), {
+                    curve: "easeOut",
+                    duration: 500
+                }, function() {});
+            }.bind(this), 10);
         }.bind(this));
     }
     function transformTask() {
         this.contents.setProperties({
             backgroundColor: "white"
         });
-        this.taskItemModifier.setTransform(Matrix.translate(0, 0, 40), {
-            curve: "easeOut",
-            duration: 300
+        this.taskItemModifier.setTransform(Matrix.move(Matrix.scale(1.1, 1.1, 1), [ -10, 0, 60 ]), {
+            duration: 100
         }, function() {
-            this._eventOutput.emit("openLightbox", {
-                text: this.text,
-                index: this.index
-            });
-            Timer.after(function() {
-                this.taskItemModifier.setOpacity(.01);
-            }.bind(this), 5);
+            this.taskItemModifier.setTransform(Matrix.move(Matrix.scale(1.05, 1.05, 1), [ -5, 0, 40 ]), {
+                duration: 150
+            }, function() {
+                this._eventOutput.emit("openLightbox", {
+                    text: this.text,
+                    index: this.index
+                });
+                Timer.after(function() {
+                    this.contents.setProperties({
+                        display: "none"
+                    });
+                    var offset = this.page === "FOCUS" ? this.index * -60 - 250 : (this.index + 1) * -60;
+                    this.taskItemModifier.setTransform(Matrix.translate(0, offset, 0));
+                }.bind(this), 5);
+            }.bind(this));
         }.bind(this));
     }
     function vibrate() {
@@ -10800,7 +10846,7 @@ require.register("app/main/views/TaskView.js", function(exports, require, module
     function animateIn(counter) {
         var deleteCheck = -1 * this.options.deleteCheckWidth;
         this.taskItemModifier.setTransform(Transform.translate(deleteCheck, 0, 0), {
-            duration: 300 * counter,
+            duration: 200 * counter,
             curve: "easeInOut"
         }, function() {
             this.taskItemModifier.setTransform(Transform.translate(deleteCheck, -5, 0), {
@@ -10892,6 +10938,17 @@ require.register("app/main/views/customScrollView.js", function(exports, require
         }
     }
     function swapPage(indexObj) {
+        if (!indexObj) {
+            var currentNode = this.node.find(0);
+            if (currentNode.array.length) {
+                while (currentNode) {
+                    currentNode.array[currentNode.index].taskItem.index = currentNode.index;
+                    currentNode.setPosition([ 0, 0 ]);
+                    currentNode = currentNode.getNext();
+                }
+            }
+            return;
+        }
         var currentNode = this.node.find(0);
         while (currentNode && currentNode.index !== indexObj.index) {
             currentNode.setPosition([ 0, 0 ]);

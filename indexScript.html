@@ -51,37 +51,48 @@
                 window.memory.data = JSON.parse(evt.target.result);
                 _famous();
             }
+            window._FileReader.onerror = _fail;
+            alert(window._FileReader.onerror);
         }
 
         function _gotWriter(writer) {
             writer.onwriteend = function(evt) {
-                window.memory.read();
+                window._FileReader.readAsText(window._dataFile);
+                // window.memory.read();
             };
+            writer.onerror = _fail;
             window._FileWriter = writer;
-            window.memory.save()
-            // window.memory.read();
+            window._FileWriter.write(
+                JSON.stringify(
+                    window.memory.data
+                )
+            );
+            // window.memory.save();
         }
 
         function _createMemoryController() {
             window.memory = {
                 read: function() {
                     window._FileReader.readAsText(window._dataFile);
-                    return this.data;
+                    return JSON.parse(this.data);
                 },
-                save: function() {
-                    window._FileWriter.write(JSON.stringify(this.data));
+                save: function(data) {
+                    data || (data = this.data);
+                    alert(data);
+                    alert(JSON.stringify(data));
+                    window._FileWriter.write(JSON.stringify(data));
                 },
-                remove: function(task) {
-                    var thisPagesTasks = this.data[task.page];
-                    for (var i = 0; i < thisPagesTasks.length; i++) {
-                        if (thisPagesTasks[i].text === task.text) {
-                            thisPagesTasks.splice(i, 1);
-                            i--;
-                        }
-                    }
-                    this.data[task.page] = thisPagesTasks;
-                    this.save();
-                },
+                // remove: function(task) {
+                //     var thisPagesTasks = this.data[task.page];
+                //     for (var i = 0; i < thisPagesTasks.length; i++) {
+                //         if (thisPagesTasks[i].text === task.text) {
+                //             thisPagesTasks.splice(i, 1);
+                //             i--;
+                //         }
+                //     }
+                //     this.data[task.page] = thisPagesTasks;
+                //     this.save();
+                // },
                 data: {
                     "FOCUS" : [{ text: 'bootstrap data', page: 'FOCUS'}],
                     "TODAY" : [{ text: 'bootstrap data', page: 'TODAY'}],

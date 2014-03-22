@@ -11,10 +11,10 @@ var CanvasSurface     = require('famous/surfaces/canvas-surface');
 var bootstrappedData  = require('./views/data.js');
 
 var devMode = true;
-var wrapped = false;
+var wrapped = true;
 
 if (!wrapped) {
-  alert('not wrapped');
+  console.log('not wrapped');
   navigator.notification = {
     vibrate: function(time) {
       console.log('vibrate fake for ' + time + 'ms.');
@@ -41,19 +41,21 @@ if (!wrapped) {
     },
     data: bootstrappedData
   }
-} else {
-  alert('wrapped');
-  alert(window.memory.data["FOCUS"]);
 }
 
 if (!_isAndroid() || !wrapped) {
   window.AndroidKeyboard = {
     show: function() {
+      console.log("Show android keyboard");
     },
     hide: function() {
+      console.log("Hide android keyboard");
     }
   };
+} else {
 }
+
+
 
 Transitionable.registerMethod('wall', WallTransition);
 Transitionable.registerMethod('spring', SpringTransition);

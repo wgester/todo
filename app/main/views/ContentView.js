@@ -76,7 +76,7 @@ function _setBackground() {
 };
 
 function _createTasks() {
-  this.tasks = window.memory.read()[this.options.title];
+  this.tasks = window.memory.data[this.options.title];
   this.taskCount = 0;
 
   this.customscrollview = new CustomScrollView({page: this.title});
