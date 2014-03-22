@@ -8859,38 +8859,42 @@ require.register("app/main/index.js", function(exports, require, module) {
             paddingLeft: 0
         }
     });
-    var whiteGradientSurf = new CanvasSurface({
-        size: [ undefined, undefined ],
-        canvasSize: [ window.innerWidth * 2, window.innerHeight * 2 ],
-        classes: [ "famous-surface" ]
-    });
-    var whiteGradientMod = new Modifier({
-        transform: Transform.translate(0, 600, 0)
-    });
-    var colorCanvas = whiteGradientSurf.getContext("2d");
-    if (_isAndroid) {
-        var radial = colorCanvas.createLinearGradient(300 * .5 * 2, // x0
-        0, // y0
-        300 * .5 * 2, // x1
-        500 * 2.5);
-        radial.addColorStop(0, "rgba(255, 255, 255, 0)");
-        radial.addColorStop(1, "rgba(255, 255, 255, 1)");
-        colorCanvas.fillStyle = radial;
-        colorCanvas.fillRect(0, 0, window.innerWidth * 2, window.innerHeight * 2);
-        mainCtx.add(whiteGradientMod).add(whiteGradientSurf);
-    } else {
-        radial = colorCanvas.createRadialGradient(300 * .5 * 2, // x0
-        500 * 2, // y0
-        0, // r0
-        300 * .5 * 2, // x1
-        500 * 2.5, // y1
-        300 * 2.5);
-        radial.addColorStop(0, "rgba(255, 255, 255, 1)");
-        radial.addColorStop(1, "rgba(255, 255, 255, 0)");
-        colorCanvas.fillStyle = radial;
-        colorCanvas.fillRect(0, 0, window.innerWidth * 2, window.innerHeight * 2);
-        mainCtx.add(whiteGradientMod).add(whiteGradientSurf);
-    }
+    // var whiteGradientSurf = new CanvasSurface({
+    //   size: [undefined, undefined],
+    //   canvasSize: [window.innerWidth*2, window.innerHeight*2],
+    //   classes: ['famous-surface']
+    // });
+    // var whiteGradientMod = new Modifier({
+    //   transform: Transform.translate(0, 600, 0)
+    // });
+    // var colorCanvas = whiteGradientSurf.getContext('2d');
+    // if (_isAndroid) {
+    //   var radial = colorCanvas.createLinearGradient(
+    //             300 * 0.5 * 2,    // x0
+    //             0,                              // y0
+    //             300 * 0.5 * 2,    // x1
+    //             500 * 2.5         // y1
+    //             );
+    //   radial.addColorStop(0, "rgba(255, 255, 255, 0)");
+    //   radial.addColorStop(1, "rgba(255, 255, 255, 1)");
+    //   colorCanvas.fillStyle = radial;
+    //   colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
+    //   mainCtx.add(whiteGradientMod).add(whiteGradientSurf);
+    // } else {
+    //    radial = colorCanvas.createRadialGradient(
+    //                   300 * 0.5 * 2,    // x0
+    //                   500 * 2,         // y0
+    //                   0,   // r0
+    //                   300 * 0.5 * 2,    // x1
+    //                   500 * 2.5,       // y1
+    //                   300 * 2.5        // r1
+    //                   );
+    //   radial.addColorStop(0, "rgba(255, 255, 255, 1)");
+    //   radial.addColorStop(1, "rgba(255, 255, 255, 0)");
+    //   colorCanvas.fillStyle = radial;
+    //   colorCanvas.fillRect( 0, 0, window.innerWidth* 2, window.innerHeight* 2 );
+    //   mainCtx.add(whiteGradientMod).add(whiteGradientSurf);
+    // }
     var titleMod = new Modifier({
         opacity: 1
     });
@@ -8916,19 +8920,16 @@ require.register("app/main/index.js", function(exports, require, module) {
                         duration: 800
                     }, function() {
                         Timer.after(function() {
-                            whiteGradientMod.setTransform(Transform.translate(0, 100, 0), {
+                            // whiteGradientMod.setTransform(Transform.translate(0, 100, 0), {duration: 500}, function() {
+                            var appView = new AppView();
+                            mainCtx.add(appView);
+                            titleMod.setOpacity(.5, {
                                 duration: 500
                             }, function() {
                                 Timer.after(function() {
-                                    var appView = new AppView();
-                                    mainCtx.add(appView);
-                                    titleMod.setTransform(Transform.translate(0, 2e3, -50), {
-                                        duration: 0
-                                    }, function() {
-                                        titleMod.setOpacity(0, function() {});
-                                    });
+                                    titleMod.setTransform(Transform.translate(0, 2e3, -50), function() {});
                                 }, 20);
-                            });
+                            }.bind(this));
                         }, 7);
                     }.bind(this));
                 }.bind(this));
@@ -9074,7 +9075,6 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
     //inTransition: wall
     //inTransform: Transform.translate(0, -600, 1)
     function _addEventListeners(newView, newModifier) {
-        // window.Engine.on('prerender', )
         this._eventOutput.pipe(newView._eventInput);
         newView._eventOutput.on("moveTaskToNewPage", function(text) {
             if (text.direction === 1) {
@@ -9702,14 +9702,14 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
         this.inputToggled = false;
         this.title = this.options.title;
         this.swappedTask = false;
-        this.notAnimated = true;
         this.shown = {};
         this.toShow = {};
-        this.scrolled = false;
+        this.notAnimated = true;
         _setBackground.call(this);
         _createTasks.call(this);
         _setListeners.call(this);
         _monitorOffsets.call(this);
+        _hideLastTask.call(this);
     }
     ContentView.prototype = Object.create(View.prototype);
     ContentView.prototype.constructor = ContentView;
@@ -9729,14 +9729,6 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
     function _isAndroid() {
         var userAgent = navigator.userAgent.toLowerCase();
         return userAgent.indexOf("android") > -1;
-    }
-    function _setUpOffsets() {
-        this.offsets = [];
-        this.focusOffsets = {};
-        this.todayOffsets = {};
-        this.laterOffsets = {};
-        this.neverOffsets = {};
-        this.offsets.push(this.focusOffsets, this.todayOffsets, this.laterOffsets, this.neverOffsets);
     }
     function _setBackground() {
         var index = this.options.views[this.options.title][0];
@@ -9782,6 +9774,15 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
             this.customscrollview.pipe(node);
             this.taskCount++;
         }
+        if (this.taskCount > 4) {
+            var extraSpace = new Surface({
+                size: [ undefined, 200 ],
+                properties: {
+                    backgroundColor: "blue"
+                }
+            });
+        }
+        // this.customdragsort.push(extraSpace)
         this.scrollMod = new Modifier({
             transform: Transform.translate(0, 0, 1)
         });
@@ -9871,9 +9872,7 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
             LATER: 2,
             NEVER: 3
         };
-        if (this.options.title === "FOCUS" && this.taskCount > 2) {
-            return;
-        }
+        if (this.options.title === "FOCUS" && this.taskCount > 2) return;
         if (pages[this.title] === pages[data.page] + data.direction) {
             this.swappedTask = true;
             var node = this.customscrollview.node;
@@ -9887,9 +9886,7 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
     }
     function _newTaskListener() {
         this.on("saveNewTask", function(val) {
-            if (this.options.title === "FOCUS" && this.taskCount > 2) {
-                return;
-            }
+            if (this.options.title === "FOCUS" && this.taskCount > 2) return;
             this.taskCount++;
             var node = this.customscrollview.node;
             var newIndex = this.customdragsort.array.length;
@@ -9906,10 +9903,16 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
     }
     function _inputListeners() {
         for (var i = 0; i < this.customdragsort.array.length; i++) {
-            _openInputListener.call(this, this.customdragsort.array[i]);
-            _closeInputListener.call(this, this.customdragsort.array[i]);
-            _completionListener.call(this, this.customdragsort.array[i]);
+            if (this.customdragsort.array[i] !== this.extraSpace) {
+                _openInputListener.call(this, this.customdragsort.array[i]);
+                _closeInputListener.call(this, this.customdragsort.array[i]);
+                _completionListener.call(this, this.customdragsort.array[i]);
+            }
         }
+        // this.extraSpace.on('touchstart', function() {
+        //   this.inputToggled = !this.inputToggled;
+        //   this.inputToggled ? this._eventOutput.emit('showInput') : this._eventOutput.emit('hideInput');
+        // }.bind(this));
         this.touchSurf.on("touchstart", function() {
             this.timeTouched = 0;
             this.backgroundTouched = true;
@@ -9931,8 +9934,10 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
     }
     function _openInputListener(task) {
         task.on("openInput", function() {
-            this.inputToggled = true;
-            this._eventOutput.emit("showInput");
+            if (this.taskCount < 3 || this.options.title !== "FOCUS") {
+                this.inputToggled = true;
+                this._eventOutput.emit("showInput");
+            }
         }.bind(this));
     }
     function _closeInputListener(task) {
@@ -10016,6 +10021,7 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
                 text: task.text
             });
         }.bind(this));
+        if (this.options.title === "FOCUS" && this.taskCount < 3) this._eventOutput.emit("inputOpen");
     }
     ContentView.prototype.swapGradients = function() {
         if (this.opened) {
@@ -10037,10 +10043,6 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
             NEVER: 3
         };
         return titles[title];
-    }
-    function _monitorOffsets() {
-        var index = getTitleIndex(this.title);
-        var scrollview;
     }
     ContentView.prototype.animateTasksIn = function(title) {
         var counter = 1;
@@ -10064,6 +10066,32 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
             }
         }
     };
+    function _monitorOffsets() {
+        var scrollview;
+        Engine.on("prerender", function() {
+            if (this.customscrollview.options.page === this.title) var scrollview = this.customscrollview;
+            if (this.notAnimated) {
+                if (scrollview._offsets[0] !== undefined) {
+                    this._eventOutput.emit("offsets");
+                    this.notAnimated = false;
+                    console.log(this.customscrollview.node.array[0], this.customscrollview._offsets);
+                }
+            }
+        }.bind(this));
+    }
+    function _hideLastTask(title) {
+        Engine.on("prerender", function() {
+            if (!this.notAnimated) {
+                for (var i = 0; i < this.customscrollview.node.array.length; i++) {
+                    if (this.customscrollview._offsets[i] > 360 || this.customscrollview._offsets[i] < 0) {
+                        this.customscrollview.node.array[i].taskItemModifier.setOpacity(0);
+                    } else {
+                        this.customscrollview.node.array[i].taskItemModifier.setOpacity(1);
+                    }
+                }
+            }
+        }.bind(this));
+    }
     module.exports = ContentView;
 }.bind(this));
 
@@ -10084,9 +10112,11 @@ require.register("app/main/views/FooterView.js", function(exports, require, modu
     };
     function _createButton() {
         this.buttonSurf = new Surface({
-            content: "<img width='40' height='40' src='./img/hamburgerOnClear.png'/>",
+            content: "<img width='40' height='40' src='./img/down.png'/>",
             properties: {
-                textAlign: "center"
+                textAlign: "right",
+                paddingRight: "20px",
+                paddingTop: "10px"
             }
         });
         this.buttonModifier = new Modifier({
@@ -10097,7 +10127,6 @@ require.register("app/main/views/FooterView.js", function(exports, require, modu
     function _buttonListener() {
         this.buttonSurf.on("touchend", function() {
             this._eventOutput.emit("togglePageViewUp");
-            console.log();
         }.bind(this));
     }
     module.exports = FooterView;
@@ -10115,6 +10144,7 @@ require.register("app/main/views/HeaderView.js", function(exports, require, modu
     function HeaderView() {
         View.apply(this, arguments);
         this.inputToggled = false;
+        this.focusInputClosed = false;
         _createTitle.call(this);
         _createInput.call(this);
         _buttonListener.call(this);
@@ -10160,13 +10190,29 @@ require.register("app/main/views/HeaderView.js", function(exports, require, modu
             opacity: 0,
             transform: Transform.translate(0, 10, 0)
         });
-        this.options.title === "FOCUS" && this.titleMod.setOpacity(1, undefined, function() {});
+        if (this.options.title === "FOCUS") {
+            this.titleMod.setOpacity(1, undefined, function() {});
+            this.titleHeader.setProperties({
+                textAlign: "left"
+            });
+        }
+        if (this.options.title !== "FOCUS") {
+            this.upSurf = new Surface({
+                content: "<img width='40' height='40' src='./img/up.png'/>"
+            });
+            this.upMod = new Modifier({
+                transform: Transform.translate(260, 20, 0)
+            });
+            this._add(this.upMod).add(this.upSurf);
+        }
         this._add(this.titleMod).add(this.titleHeader);
     }
     function _buttonListener() {
-        this.titleHeader.on("touchend", function() {
-            this._eventOutput.emit("togglePageViewDown");
-        }.bind(this));
+        if (this.options.title !== "FOCUS") {
+            this.titleHeader.on("touchend", function() {
+                this._eventOutput.emit("togglePageViewDown");
+            }.bind(this));
+        }
     }
     function _setListeners() {
         this.on("opened", function() {
@@ -10192,7 +10238,7 @@ require.register("app/main/views/HeaderView.js", function(exports, require, modu
     function _setInputListener() {
         this.inputXOffset = _isAndroid() ? 30 : 10;
         this.inputZOffset = _isAndroid() ? 150 : 70;
-        if (this.options.title === "FOCUS") {
+        if (this.options.title === "FOCUS" && !this.focusInputClosed) {
             this.titleHeader.on("touchstart", function() {
                 this.inputToggled = !this.inputToggled;
                 this.inputToggled ? this._eventOutput.emit("showInput") : this._eventOutput.emit("focusHideInput");
@@ -10453,7 +10499,7 @@ require.register("app/main/views/PageView.js", function(exports, require, module
     function _createLayout() {
         this.layout = new HeaderFooter({
             headerSize: 70,
-            footerSize: 40
+            footerSize: 60
         });
         this.footer = new FooterView({
             title: this.options.title
@@ -10464,8 +10510,9 @@ require.register("app/main/views/PageView.js", function(exports, require, module
         this.contents = new ContentView({
             title: this.options.title
         });
+        this.contents._eventOutput.pipe(this.contents._eventInput);
         this.layout.id["header"].add(this.header);
-        this.layout.id["content"].add(this.contents);
+        this.layout.id["content"].add(this.contents).add(this.surf);
         this.layout.id["footer"].add(Utility.transformInFront).add(this.footer);
         this._add(this.layout);
     }
@@ -10483,12 +10530,24 @@ require.register("app/main/views/PageView.js", function(exports, require, module
         this.contents._eventInput.pipe(this._eventOutput);
         this._eventInput.pipe(this.contents._eventInput);
         window.Engine.on("prerender", _setHeaderSize.bind(this));
+        /*============ listen to task count ============= */
+        this.contents._eventInput.on("inputClosed", function() {
+            this.header.focusInputClosed = true;
+        }.bind(this));
+        this.contents._eventInput.on("inputOpen", function() {
+            this.header.focusInputClosed = false;
+        }.bind(this));
+        /*============ listen to task count ============= */
         this.contents.on("showInput", function() {
-            this.header._eventOutput.emit("showInput");
+            if (this.options.title === "FOCUS" && this.contents.taskCount < 3) {
+                console.log(this.contents.taskCount, this.options.title);
+                this.header._eventOutput.emit("showInput");
+            }
             if (this.options.title !== "FOCUS") {
                 this.headerSizeTransitionable.set([ this.options.regBigHeader ], {
                     duration: this.options.headerSizeDuration
                 }, function() {});
+                this.header._eventOutput.emit("showInput");
             }
         }.bind(this));
         this.contents.on("hideInput", _rotateInputBack.bind(this));
@@ -10634,7 +10693,7 @@ require.register("app/main/views/TaskItem.js", function(exports, require, module
         this.checkBox = new Surface({
             size: [ this.options.deleteCheckWidth, 60 ],
             classes: [ "task" ],
-            content: '<img class="checkIcon" src="./img/check_icon.png">',
+            content: '<img class="checkIcon" src="./img/check_icon_2.png">',
             properties: {
                 webkitUserSelect: "none"
             }
@@ -10642,7 +10701,7 @@ require.register("app/main/views/TaskItem.js", function(exports, require, module
         this.deleteBox = new Surface({
             size: [ this.options.deleteCheckWidth, 60 ],
             classes: [ "task" ],
-            content: '<img class="deleteIcon" src="./img/x_icon.png">',
+            content: '<img class="deleteIcon" src="./img/x_icon_2.png">',
             properties: {
                 webkitUserSelect: "none"
             }
@@ -10666,7 +10725,8 @@ require.register("app/main/views/TaskItem.js", function(exports, require, module
         this._eventInput.pipe(this._eventOutput);
         this.taskItemModifier = new Modifier({
             transform: Matrix.identity,
-            size: this.options.surface.size
+            size: this.options.surface.size,
+            opacity: 1
         });
         this.draggable = new Draggable({
             projection: "x",
@@ -10781,6 +10841,10 @@ require.register("app/main/views/TaskItem.js", function(exports, require, module
         }.bind(this));
     }
     function _checkOffTask() {
+        this.contents.setProperties({
+            backgroundColor: "#fff",
+            opacity: "0.8"
+        });
         this.deleteBox.addClass("invisible");
         this.draggable.setPosition([ -1 * this.options.deleteCheckWidth - window.innerWidth, 0 ], this.options.taskItemExitTransition, function() {
             console.log("check me off");
@@ -10888,6 +10952,10 @@ require.register("app/main/views/TaskView.js", function(exports, require, module
         this._add(this.taskItemModifier).add(this.taskItem);
     }
     /*-----------------------ANIMATION-------------------------------*/
+    TaskView.prototype.appearIn = function() {
+        this.taskItemModifier.setTransform(Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0));
+        this.taskItemModifier.setOpacity(1);
+    };
     function animateIn(counter) {
         var deleteCheck = -1 * this.options.deleteCheckWidth;
         this.taskItemModifier.setTransform(Transform.translate(deleteCheck, 0, 0), {
@@ -10911,7 +10979,6 @@ require.register("app/main/views/TaskView.js", function(exports, require, module
         this.taskItemModifier.setOpacity(1);
     };
     function resetAnimation(title) {
-        console.log("RESET CALLED");
         this.taskItemModifier.setTransform(Transform.translate(-1 * this.options.deleteCheckWidth, 1e3, 0));
         this.taskItemModifier.setOpacity(.01);
     }
@@ -10968,7 +11035,6 @@ require.register("app/main/views/customScrollView.js", function(exports, require
         }
     }
     function deleteTask(indexObj) {
-        console.log(this.node.getAllLinkedNodes());
         if (indexObj.index === this.node.index) {
             if (this.node._next) this.node = this.node._next;
         }
@@ -11026,6 +11092,12 @@ require.register("app/main/views/customScrollView.js", function(exports, require
     TableView.prototype = Object.create(Scrollview.prototype);
     TableView.prototype.emit = function(type, data) {
         if (type == "update" || type == "start" || type == "end" || type == "swap") this.eventInput.emit(type, data); else this.sync.emit(type, data);
+    };
+    TableView.DEFAULT_OPTIONS = {
+        properties: {
+            marginBottom: "300px",
+            backgroundColor: "blue"
+        }
     };
     module.exports = TableView;
 }.bind(this));
