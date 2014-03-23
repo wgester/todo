@@ -20,6 +20,10 @@ html {
   background-color: #444;
 }
 
+button {
+  padding: 10px 40px;
+}
+
 .deleteIcon, .checkIcon {
   position: absolute;
   width: 60px;
