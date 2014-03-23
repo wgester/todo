@@ -13,7 +13,7 @@ function HeaderView() {
   this.inputToggled = false;
   
   this.focusInputClosed = false;
-
+  this.options.title === 'ASANA' && _createRefresh.call(this);
   _createTitle.call(this);
   _createInput.call(this);
   _buttonListener.call(this);
@@ -35,7 +35,27 @@ HeaderView.DEFAULT_OPTIONS = {
 
 function _isAndroid() {
   var userAgent = navigator.userAgent.toLowerCase();
-  return userAgent.indexOf("android") > -1;
+  return userAgent.indexOf('android') > -1;
+};
+
+function _createRefresh() {
+  this.refresh = new Surface({
+    size: [30, 30],
+    properties: {
+      backgroundColor: 'blue',
+      borderRadius: '50%'
+    }
+  });
+  
+  this.refreshMod = new Modifier({
+    transform: Transform.translate(0, 0, 1)
+  });
+  
+  this.refresh.on('touchend', function() {
+    console.log('refresh tasks!')
+  }.bind(this));
+  
+  this._add(this.refreshMod).add(this.refresh);
 };
 
 function _createInput() {

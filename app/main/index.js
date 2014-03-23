@@ -12,7 +12,7 @@ var bootstrappedData  = require('./views/data.js');
 window.$              = require('./jquery');
 var TitleView         = require('./views/TitleView');
 
-var devMode = true;
+var devMode = false;
 var wrapped = false;
 var asanaConnect = true;
 

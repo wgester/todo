@@ -27,7 +27,7 @@ AppView.prototype.constructor = AppView;
 
 AppView.DEFAULT_OPTIONS = {
   transition: {
-    duration: 1200,
+    duration: 700,
     curve: 'easeIn'
   },
   pageUpInTransition: {
