@@ -219,6 +219,7 @@ function _editInputFlyIn() {
 
 function _editInputFlyOut() {
   window.AndroidKeyboard.hide();
+  this.editSurface.blur();
     this.contents.editTask = this.newTaskOpened ? false : true;
     this.contents._eventOutput.emit('unhideEditedTask');
     if (this.newTaskOpened) {
