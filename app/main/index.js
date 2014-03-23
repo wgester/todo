@@ -96,64 +96,6 @@ function _isAndroid() {
   return userAgent.indexOf("android") > -1;
 };
 
-
-function _populateAsana() {
-  var APIKey = prompt("What is your api key?");
-  window.localStorage._authKey = btoa(APIKey + ":");
-  _getWorkspaces.call(this, _getTasksFromWorkspaces.bind(this));  
-};
-
-function _getWorkspaces(cb) {
-  $.ajax({
-    method: 'GET',
-    url: 'https://app.asana.com/api/1.0/users/me',
-    beforeSend: function(xhr) {
-      xhr.setRequestHeader("Authorization", "Basic " + window.localStorage._authKey);
-    },
-    success: function(resp) {
-      cb(resp.data.workspaces, 0);
-    },
-    error: function(err) {
-      alert('Not a valid API key');
-      var appView = new AppView();
-      mainCtx.add(appView);
-      titleMod.setTransform(Transform.translate(0, 0, -100));
-    }
-  }); 
-};
-
-function _getTasksFromWorkspaces(spaces, counter) {
-  $.ajax({
-    method: 'GET',
-    url: 'https://app.asana.com/api/1.0/workspaces/' + spaces[counter]['id'] + '/tasks?assignee=me&completed_since=now',
-    beforeSend: function(xhr) {
-      xhr.setRequestHeader("Authorization", "Basic " + window.localStorage._authKey);
-    },
-    success: function(resp) {
-      for (var i = 0; i < resp.data.length; i++) {
-        if (resp.data[i].name.length) {
-          window.memory.save({
-            text: resp.data[i].name,
-            page: 'ASANA',
-            id: resp.data[i].id
-          });
-        }
-      }
-
-      if (counter === spaces.length - 1) {
-        var appView = new AppView();
-        mainCtx.add(appView);
-        titleMod.setTransform(Transform.translate(0, 0, -100));          
-      } else {
-        _getTasksFromWorkspaces(spaces, counter + 1);
-      }
-    },
-    error: function(err) {
-      console.log("ERR:", err);
-    }
-  });       
-};
-
 window.vibrate = function(length) {
   navigator && navigator.notification && navigator.notification.vibrate(length);
 }
