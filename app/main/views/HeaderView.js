@@ -94,11 +94,6 @@ function _createTitle() {
     this.titleMod.setOpacity(1, undefined, function() {});
     this.titleHeader.setProperties({
       textAlign: 'left'
-  //     fontWeight: '50',
-  //     marginTop: '40px',
-  //     marginLeft: '15px',
-  //     opacity: '0.9'
-
     })
   };
 
@@ -114,6 +109,8 @@ function _createTitle() {
   }
   
   this._add(this.titleMod).add(this.titleHeader);
+
+  _createDots.call(this)
 };
 
 function _buttonListener() {
@@ -173,5 +170,22 @@ function _setInputListener() {
 
   }.bind(this));
 };
+
+function getTitleIndex(title) {
+  var titles = {'FOCUS':'0', 'TODAY':'1', 'LATER':'2', 'NEVER':'3'};
+  return titles[title];
+};
+
+
+function _createDots() {
+  console.log(getTitleIndex(this.options.title))
+  this.dots = new Surface({
+    content: "<img width='13' height='52' src='./img/" + 'dots_' + getTitleIndex(this.options.title) + ".png'/>"
+  });
+  this.dotsMod = new Modifier({
+    transform: Transform.translate(0, 0, 0)
+  })
+  this._add(this.dotsMod).add(this.dots);
+}
 
 module.exports = HeaderView;
