@@ -12,6 +12,8 @@ var DragSort          = require('famous/views/drag-sort');
 var CustomScrollView  = require('./customScrollView');
 var TaskItem          = require('./TaskItem');
 var Color             = require('./Color');
+var ImageSurface      = require('famous/surfaces/image-surface');
+
 
 function ContentView(options) {
   View.apply(this, arguments);
@@ -29,6 +31,7 @@ function ContentView(options) {
   window.asanaIDs = window.localStorage._asanaIDs ? JSON.parse(window.localStorage._asanaIDs) : [];
   
   _createViewIndexOptions.call(this);
+  _createSpinner.call(this);
   _setBackground.call(this);
   _createTasks.call(this);
   _setListeners.call(this);
@@ -401,10 +404,7 @@ function _getAsanaTasks(counter, context, spaces) {
       url: url,
       beforeSend: function(xhr) {
         xhr.setRequestHeader("Authorization", "Basic " + window.localStorage._authKey);
-        // window.loadTitleSpinner();
-      },
-      complete: function() {
-        // window.closeTitleSpinner();
+        loadSpinner.call(context);
       },
       success: function(resp) {
         var syncedTasks = resp.data;
@@ -426,7 +426,7 @@ function _getAsanaTasks(counter, context, spaces) {
         
         window.localStorage._asanaIDs = JSON.stringify(window.asanaIDs);
         if (counter === spaces.length - 1) {
-          console.log('LAST ONE!');
+          closeSpinner.call(context);
         } else {
           _getAsanaTasks.call(context, counter + 1, context, spaces);
         }
@@ -509,6 +509,31 @@ function _hideLastTask(title) {
       }
     }
   }.bind(this));
+};
+
+function _createSpinner() {
+  this.spinner = new ImageSurface({
+    size: [36, 36],
+    properties: {
+      display: 'none'
+    }
+  });
+  
+  this.spinner.setContent('./img/spinner2.gif');
+  
+  this.spinnerMod = new Modifier({
+    origin: [0.5, 0.5]
+  });
+  
+  this._add(this.spinnerMod).add(this.spinner);
+};
+
+function loadSpinner() {
+  this.spinner.setProperties({'display': 'block'});
+};
+
+function closeSpinner() {
+  this.spinner.setProperties({'display': 'none'});
 };
 
 module.exports = ContentView;

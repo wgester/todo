@@ -166,16 +166,6 @@ function closeSpinner() {
   this.spinner.setProperties({'display': 'none'});
 };
 
-window.loadTitleSpinner = function() {
-  this.spinner.setProperties({'display': 'block'});
-  this.spinnerMod.setTransform(Transform.translate(0, 0, 60));
-};
-
-window.closeTitleSpinner = function() {
-  this.spinner.setProperties({'display': 'none'});
-  this.spinnerMod.setTransform(Transform.translate(0, 0, 0));  
-};
-
 function _getWorkspaces(context) {
   $.ajax({
     method: 'GET',
