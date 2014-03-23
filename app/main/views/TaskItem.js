@@ -284,6 +284,7 @@ function transformTask() {
 };
 
 function vibrate() {
+    navigator.notification.vibrate();
     navigator.notification.vibrate(300);
 }
 

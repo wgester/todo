@@ -7,8 +7,8 @@ var Lightbox       = require('famous/views/light-box');
 var CanvasSurface  = require('famous/surfaces/canvas-surface');
 var InputSurface   = require("famous/surfaces/input-surface");
 var Transitionable = require('famous/transitions/transitionable');
-var Color             = require('./Color');
-
+var Easing         = require('famous/animation/easing');   
+var Color          = require('./Color');
 
 function AppView() {
   View.apply(this, arguments);
@@ -25,17 +25,23 @@ AppView.prototype.constructor = AppView;
 
 AppView.DEFAULT_OPTIONS = {
   transition: {
-    duration: 300,
-    curve: 'easeOut'
+    duration: 1200,
+    curve: 'easeIn'
   },
-  menuDropTransition: {
-    duration: 200,
+  pageUpInTransition: {
+    duration: 600,
     curve: 'easeIn'
   },
   wall: {
-    method: 'wall',
-    period: 300,
-    dampingRatio: 0.3
+    curve: function(t) {
+      return Easing.outBack(t, 0.5, 0.5, 1);
+    },
+    // curve: 'easeOutBounce',
+    duration: 1000
+    // curve: 'easeOutBounce'
+    // method: 'wall',
+    // period: 900,
+    // dampingRatio: 0.45
   },
   noTransition: {
     duration: 0
@@ -123,8 +129,9 @@ function _addEventListeners(newView, newModifier){
         this.lightBox.setOptions({
           outTransition: this.options.transition,
           outTransform: Transform.translate(0, -1200, 1),
-          inTransition: this.options.noTransition,
-          inTransform: Transform.translate(0, 0, -5)
+          inTransition: this.options.pageUpInTransition,
+          inTransform: Transform.translate(0, 0, -5),
+          inOpacity: 0
         });
         this.lightBox.optionsForSwipeUp = true;
       }
@@ -147,7 +154,8 @@ function _addEventListeners(newView, newModifier){
           outTransition: this.options.noTransition,
           outTransform: Transform.translate(0, 0, -5),
           inTransition: this.options.wall,
-          inTransform: Transform.translate(0, -1200, 1)
+          inTransform: Transform.translate(0, -1200, 1),
+          inOpacity: 1
         });
         this.lightBox.optionsForSwipeUp = false;
       }

@@ -11,7 +11,7 @@ var CanvasSurface     = require('famous/surfaces/canvas-surface');
 var bootstrappedData  = require('./views/data.js');
 
 var devMode = true;
-var wrapped = false;
+var wrapped = true;
 
 _createStorageAPI();
 
@@ -197,9 +197,5 @@ function _isAndroid() {
 
 mainCtx.add(titleMod).add(titleSurf);
 window.Engine.on("prerender", _shadowMod.bind(shadowTransitionable));
-
-window.vibrate = function(length) {
-  navigator && navigator.notification && navigator.notification.vibrate(length);
-}
 
 _playShadow.call(shadowTransitionable);
