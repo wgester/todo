@@ -189,6 +189,7 @@ ContentView.prototype._addToList = function(data, newIndex, node) {
   this.customdragsort.push(newTask);
   for (var j = 0; j < newIndex - 1; j++) {
     node = node._next;
+    console.log('node in loop', j, node);
   }
   if(node.getNext()) node = node._next;
   newTask.pipe(node);
@@ -417,8 +418,10 @@ function _getAsanaTasks(counter, context, spaces) {
               text: syncedTasks[i].name,
               page: 'ASANA'
             };
-            var node = context.customscrollview.node;
+            var node = context.customscrollview.node.find(0);
             var newIndex = context.customdragsort.array.length;
+            console.log('node', node);
+            console.log('newindex', newIndex);
             !newIndex ? context._newScrollView(taskData, newIndex) : context._addToList(taskData, newIndex, node);
             window.asanaIDs.push(syncedTasks[i].id);
           }
