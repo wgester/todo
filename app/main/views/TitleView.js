@@ -10,7 +10,8 @@ var ImageSurface      = require('famous/surfaces/image-surface');
 function TitleView(options) {
   View.apply(this, arguments);
   this.shadowTransitionable = new Transitionable([50, 206, 168, 255, 255, 255]);
-
+  window.asanaIDs = [];
+  
   _createTitleSurface.call(this);
   _createSpinner.call(this);
   _createButtons.call(this);
@@ -157,12 +158,22 @@ function _createSpinner() {
   this._add(this.spinnerMod).add(this.spinner);
 };
 
-function _loadSpinner() {
+function loadSpinner() {
   this.spinner.setProperties({'display': 'block'});
 };
 
-function _closeSpinner() {
+function closeSpinner() {
   this.spinner.setProperties({'display': 'none'});
+};
+
+window.loadTitleSpinner = function() {
+  this.spinner.setProperties({'display': 'block'});
+  this.spinnerMod.setTransform(Transform.translate(0, 0, 60));
+};
+
+window.closeTitleSpinner = function() {
+  this.spinner.setProperties({'display': 'none'});
+  this.spinnerMod.setTransform(Transform.translate(0, 0, 0));  
 };
 
 function _getWorkspaces(context) {
@@ -171,11 +182,13 @@ function _getWorkspaces(context) {
     url: 'https://app.asana.com/api/1.0/users/me',
     context: this,
     beforeSend: function(xhr) {
-      _loadSpinner.call(context);
+      loadSpinner.call(context);
       xhr.setRequestHeader("Authorization", "Basic " + window.localStorage._authKey);
     },
     success: function(resp) {
-      _getTasksFromWorkspaces.call(context, resp.data.workspaces, 0, context);
+      window.workspaces = resp.data.workspaces;
+      window.localStorage._workspaces = JSON.stringify(window.workspaces);
+      _getTasksFromWorkspaces.call(context, 0, context);
     },
     error: function(err) {
       alert('Not a valid API key');
@@ -184,15 +197,15 @@ function _getWorkspaces(context) {
   }); 
 }; 
 
-function _getTasksFromWorkspaces(spaces, counter, context) {
+function _getTasksFromWorkspaces(counter, context) {
   $.ajax({
     method: 'GET',
-    url: 'https://app.asana.com/api/1.0/workspaces/' + spaces[counter]['id'] + '/tasks?assignee=me&completed_since=now',
+    url: 'https://app.asana.com/api/1.0/workspaces/' + window.workspaces[counter]['id'] + '/tasks?assignee=me&completed_since=now',
     beforeSend: function(xhr) {
       xhr.setRequestHeader("Authorization", "Basic " + window.localStorage._authKey);
     },
     complete: function() {
-      _closeSpinner.call(context);
+      closeSpinner.call(context);
     },
     success: function(resp) {
       for (var i = 0; i < resp.data.length; i++) {
@@ -202,13 +215,14 @@ function _getTasksFromWorkspaces(spaces, counter, context) {
             page: 'ASANA',
             id: resp.data[i].id
           });
+          window.asanaIDs.push(resp.data[i].id);
         }
       }
-      if (counter === spaces.length - 1) {
-        console.log(context);
+      if (counter === window.workspaces.length - 1) {
+        window.localStorage._asanaIDs = JSON.stringify(window.asanaIDs);
         _createAppView.call(context);
       } else {
-        _getTasksFromWorkspaces.call(context, spaces, counter + 1, context);
+        _getTasksFromWorkspaces.call(context, counter + 1, context);
       }
     },
     error: function(err) {

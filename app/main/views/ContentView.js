@@ -26,6 +26,7 @@ function ContentView(options) {
   
   this.shown = {}; this.toShow = {};
   this.scrolled = false;
+  window.asanaIDs = window.localStorage._asanaIDs ? JSON.parse(window.localStorage._asanaIDs) : [];
   
   _createViewIndexOptions.call(this);
   _setBackground.call(this);
@@ -144,6 +145,7 @@ function _setListeners() {
   _newTaskListener.call(this);
   _inputListeners.call(this);
   _unhideTaskListener.call(this);
+  _asanaListener.call(this);
   this._eventInput.on('swapPages', _createNewTask.bind(this));
 };
 
@@ -380,6 +382,62 @@ ContentView.prototype.swapGradients = function() {
   }
 };
 
+function _asanaListener() {
+  this.on('refreshAsanaTasks', function() {
+    if (window.workspaces === undefined) {
+      window.workspaces = JSON.parse(window.localStorage._workspaces);
+    }
+    _getAsanaTasks.call(null, 0, this, window.workspaces);
+  }.bind(this));
+};
+
+function _getAsanaTasks(counter, context, spaces) {
+  if (spaces.length) {
+    var url = 'https://app.asana.com/api/1.0/workspaces/' + spaces[counter]['id'] + '/tasks?assignee=me&completed_since=now';
+    
+    $.ajax({
+      method: 'GET',
+      url: url,
+      beforeSend: function(xhr) {
+        xhr.setRequestHeader("Authorization", "Basic " + window.localStorage._authKey);
+        // window.loadTitleSpinner();
+      },
+      complete: function() {
+        // window.closeTitleSpinner();
+      },
+      success: function(resp) {
+        var syncedTasks = resp.data;
+        var savedTasks = window.asanaIDs;
+        
+        for (var i = 0; i < syncedTasks.length; i++) {
+          
+          var savedAlready = savedTasks.indexOf(syncedTasks[i].id);
+          if (savedAlready === -1 && syncedTasks[i].name.length) {
+            window.memory.save({
+              text: syncedTasks[i].name,
+              page: 'ASANA',
+              id: syncedTasks[i].id
+            });
+            window.asanaIDs.push(syncedTasks[i].id);
+          }
+        }
+        window.localStorage._asanaIDs = JSON.stringify(window.asanaIDs);
+        // if (counter === window.workspaces.length - 1) {
+        //   console.log(context);
+        //   _createAppView.call(context);
+        // } else {
+        //   _getTasksFromWorkspaces.call(context, counter + 1, context);
+        // }
+      },
+      error: function(err) {
+        console.log("ERR:", err);
+      }
+    });       
+  } else {
+    console.log('No workspaces');
+  }
+};
+
 function _completionListener(task) {
   task.on('completed', function() {
     this.taskCount--;
@@ -450,7 +508,5 @@ function _hideLastTask(title) {
     }
   }.bind(this));
 };
-
-
 
 module.exports = ContentView;

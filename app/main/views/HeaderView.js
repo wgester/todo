@@ -53,6 +53,7 @@ function _createRefresh() {
   
   this.refresh.on('touchend', function() {
     console.log('refresh tasks!')
+    this._eventOutput.emit('refreshAsana');
   }.bind(this));
   
   this._add(this.refreshMod).add(this.refresh);

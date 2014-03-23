@@ -123,13 +123,25 @@ function _pipeSubviewEventsToAppView() {
   this.contents._eventOutput.pipe(this.contents._eventInput);
 };
 
-function _setListeners() {
-  this.contents._eventInput.pipe(this._eventOutput);
-  this._eventInput.pipe(this.contents._eventInput);
+function _headerEvents() {
+  this.header.on('focusHideInput', function() {
+    this.header._eventOutput.emit('hideInput');
+    this.header.value.length && this.contents._eventOutput.emit('saveNewTask', this.header.value);
+  }.bind(this));
+  
+  this.header.on('inputRotated', function() {
+    this.newTaskOpened = true;
+    _lightboxFadeIn.call(this);
+    this.editTaskOffset = 90;
+    _editInputFlyIn.call(this);
+  }.bind(this));
+  
+  this.header.on('refreshAsana', function() {
+    this.contents._eventOutput.emit('refreshAsanaTasks');
+  }.bind(this));
+};
 
-
-  window.Engine.on('prerender', _setHeaderSize.bind(this));
-
+function _contentEvents() {
 /*============ listen to task count ============= */
   this.contents._eventInput.on('inputClosed', function(){
     this.header.focusInputClosed = true;
@@ -152,12 +164,7 @@ function _setListeners() {
   }.bind(this));
 
   this.contents.on('hideInput', _rotateInputBack.bind(this));
-
-  this.header.on('focusHideInput', function() {
-    this.header._eventOutput.emit('hideInput');
-    this.header.value.length && this.contents._eventOutput.emit('saveNewTask', this.header.value);
-  }.bind(this));
-
+  
   this.contents.on('openEdit', function(options) {
     this.taskIndex = options.index;
     this.editSurface.setValue(options.text);
@@ -166,12 +173,6 @@ function _setListeners() {
     _editInputFlyIn.call(this);
   }.bind(this));
   
-  this.header.on('inputRotated', function() {
-    this.newTaskOpened = true;
-    _lightboxFadeIn.call(this);
-    this.editTaskOffset = 90;
-    _editInputFlyIn.call(this);
-  }.bind(this));
 
   this.contents._eventInput.on('newTouch', function() {
     this.touchCount += 1;
@@ -187,6 +188,16 @@ function _setListeners() {
       this._eventOutput.emit('twoFingerModeDisabled');
     }
   }.bind(this));
+};
+
+function _setListeners() {
+  this.contents._eventInput.pipe(this._eventOutput);
+  this._eventInput.pipe(this.contents._eventInput);
+
+  window.Engine.on('prerender', _setHeaderSize.bind(this));
+  
+  _headerEvents.call(this);
+  _contentEvents.call(this);
 };
 
 function _rotateInputBack() {
