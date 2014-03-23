@@ -396,7 +396,6 @@ function _asanaListener() {
 function _getAsanaTasks(counter, context, spaces) {
   if (spaces.length) {
     var url = 'https://app.asana.com/api/1.0/workspaces/' + spaces[counter]['id'] + '/tasks?assignee=me&completed_since=now';
-    
     $.ajax({
       method: 'GET',
       url: url,
@@ -420,19 +419,17 @@ function _getAsanaTasks(counter, context, spaces) {
             };
             var node = context.customscrollview.node.find(0);
             var newIndex = context.customdragsort.array.length;
-            console.log('node', node);
-            console.log('newindex', newIndex);
             !newIndex ? context._newScrollView(taskData, newIndex) : context._addToList(taskData, newIndex, node);
             window.asanaIDs.push(syncedTasks[i].id);
           }
         }
+        
         window.localStorage._asanaIDs = JSON.stringify(window.asanaIDs);
-        // if (counter === window.workspaces.length - 1) {
-        //   console.log(context);
-        //   _createAppView.call(context);
-        // } else {
-        //   _getTasksFromWorkspaces.call(context, counter + 1, context);
-        // }
+        if (counter === spaces.length - 1) {
+          console.log('LAST ONE!');
+        } else {
+          _getAsanaTasks.call(context, counter + 1, context, spaces);
+        }
       },
       error: function(err) {
         console.log("ERR:", err);
