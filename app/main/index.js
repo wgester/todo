@@ -10,8 +10,8 @@ var SpringTransition  = require("famous/transitions/spring-transition");
 var Timer             = require('famous/utilities/timer');
 var CanvasSurface     = require('famous/surfaces/canvas-surface');
 var bootstrappedData  = require('./views/data.js');
-window.$              = require('./jquery');
 var TitleView         = require('./views/TitleView');
+window.$              = require('./jquery');
 
 var devMode = true;
 var wrapped = false;
@@ -20,6 +20,8 @@ var asanaConnect = false;
 var mainCtx = window.Engine.createContext();
 mainCtx.setPerspective(1000);
 _createStorageAPI();
+
+window.$("head link[rel='stylesheet']").last().after("<link rel='stylesheet' href='http://fonts.googleapis.com/css?family=Signika+Negative|Quicksand:400,700|Josefin+Sans|Convergence|Julius+Sans+One' type='text/css'>");
 
 if (!wrapped) {
   navigator.notification = {

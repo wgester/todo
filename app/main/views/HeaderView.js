@@ -110,7 +110,7 @@ function _createTitle() {
   
   this._add(this.titleMod).add(this.titleHeader);
 
-  _createDots.call(this)
+  // _createDots.call(this);
 };
 
 function _buttonListener() {

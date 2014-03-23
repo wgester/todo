@@ -1,17 +1,5 @@
-
-@font-face {
-  font-family: 'museo_sans300';
-  src: url('./fonts/museosans-300-webfont-webfont.eot');
-/*  src: url('./fonts/museosans-300-webfont-webfont.eot?#iefix') format('embedded-opentype'),
-       url('./fonts/museosans-300-webfont-webfont.woff') format('woff'),
-       url('./fonts/museosans-300-webfont-webfont.ttf') format('truetype'),
-       url('./fonts/museosans-300-webfont-webfont.svg#museo_sans300') format('svg');
-*/  font-weight: normal;
-  font-style: normal;
-}
-
 html {
-  font-family: "museo_sans300";
+  font-family: 'Quicksand', sans-serif;
   color: #003156;
   margin: 0;
 }
@@ -46,6 +34,8 @@ input {
 }
 
 .title h1 {
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 700;
   margin-top: 200px;
   text-align: center;
   color: transparent;
@@ -86,7 +76,7 @@ input.edit {
 
 
 .task p {
-  font-family: helvetica,'museo_sans300';
+  font-family: 'Quicksand', sans-serif;
   padding-left: 30px;
   margin: 0;
   letter-spacing: 0.3px;
@@ -107,12 +97,14 @@ input.edit {
 }
 
 h1 {
+  font-family: 'Quicksand', sans-serif;
   padding-left: 30px;
   font-weight: 300;
   letter-spacing: 2px;
   font-size: 1.5em;
-/*  color: #EDEDED;
-*/}
+  font-weight: 700;
+  color: #fff;
+}
 
 .container {
   width: 300px;
