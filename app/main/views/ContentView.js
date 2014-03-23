@@ -180,6 +180,7 @@ ContentView.prototype._newScrollView = function(data, newIndex) {
 }
 
 ContentView.prototype._addToList = function(data, newIndex, node) {
+  console.log('HERE IN ADDTOLIST')
   var newTask = new TaskView({text: data.text, index: newIndex, page: this.title});
   window.memory.save({
     text: newTask.text,
@@ -410,14 +411,15 @@ function _getAsanaTasks(counter, context, spaces) {
         var savedTasks = window.asanaIDs;
         
         for (var i = 0; i < syncedTasks.length; i++) {
-          
           var savedAlready = savedTasks.indexOf(syncedTasks[i].id);
           if (savedAlready === -1 && syncedTasks[i].name.length) {
-            window.memory.save({
+            var taskData = {
               text: syncedTasks[i].name,
-              page: 'ASANA',
-              id: syncedTasks[i].id
-            });
+              page: 'ASANA'
+            };
+            var node = context.customscrollview.node;
+            var newIndex = context.customdragsort.array.length;
+            !newIndex ? context._newScrollView(taskData, newIndex) : context._addToList(taskData, newIndex, node);
             window.asanaIDs.push(syncedTasks[i].id);
           }
         }
