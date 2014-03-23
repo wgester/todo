@@ -3410,6 +3410,10 @@ require.register("famous_modules/famous/surfaces/input-surface/_git_modularized/
         if (this._currTarget) this._currTarget.focus();
         return this;
     };
+    InputSurface.prototype.blur = function() {
+        if (this._currTarget) this._currTarget.blur();
+        return this;
+    };
     module.exports = InputSurface;
 }.bind(this));
 
@@ -8771,7 +8775,7 @@ require.register("app/main/index.js", function(exports, require, module) {
     var CanvasSurface = require("famous/surfaces/canvas-surface");
     var bootstrappedData = require("./views/data.js");
     var devMode = true;
-    var wrapped = false;
+    var wrapped = true;
     _createStorageAPI();
     if (!wrapped) {
         console.log("not wrapped");
@@ -8942,9 +8946,6 @@ require.register("app/main/index.js", function(exports, require, module) {
     }
     mainCtx.add(titleMod).add(titleSurf);
     window.Engine.on("prerender", _shadowMod.bind(shadowTransitionable));
-    window.vibrate = function(length) {
-        navigator && navigator.notification && navigator.notification.vibrate(length);
-    };
     _playShadow.call(shadowTransitionable);
 }.bind(this));
 
@@ -9005,6 +9006,7 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
     var CanvasSurface = require("famous/surfaces/canvas-surface");
     var InputSurface = require("famous/surfaces/input-surface");
     var Transitionable = require("famous/transitions/transitionable");
+    var Easing = require("famous/animation/easing");
     var Color = require("./Color");
     function AppView() {
         View.apply(this, arguments);
@@ -9019,17 +9021,19 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
     AppView.prototype.constructor = AppView;
     AppView.DEFAULT_OPTIONS = {
         transition: {
-            duration: 300,
-            curve: "easeOut"
+            duration: 1200,
+            curve: "easeIn"
         },
-        menuDropTransition: {
-            duration: 200,
+        pageUpInTransition: {
+            duration: 600,
             curve: "easeIn"
         },
         wall: {
-            method: "wall",
-            period: 300,
-            dampingRatio: .3
+            curve: function(t) {
+                return Easing.outBack(t, .5, .5, 1);
+            },
+            // curve: 'easeOutBounce',
+            duration: 1e3
         },
         noTransition: {
             duration: 0
@@ -9091,8 +9095,9 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
                     this.lightBox.setOptions({
                         outTransition: this.options.transition,
                         outTransform: Transform.translate(0, -1200, 1),
-                        inTransition: this.options.noTransition,
-                        inTransform: Transform.translate(0, 0, -5)
+                        inTransition: this.options.pageUpInTransition,
+                        inTransform: Transform.translate(0, 0, -5),
+                        inOpacity: 0
                     });
                     this.lightBox.optionsForSwipeUp = true;
                 }
@@ -9112,7 +9117,8 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
                         outTransition: this.options.noTransition,
                         outTransform: Transform.translate(0, 0, -5),
                         inTransition: this.options.wall,
-                        inTransform: Transform.translate(0, -1200, 1)
+                        inTransform: Transform.translate(0, -1200, 1),
+                        inOpacity: 1
                     });
                     this.lightBox.optionsForSwipeUp = false;
                 }
@@ -10617,6 +10623,7 @@ require.register("app/main/views/PageView.js", function(exports, require, module
     }
     function _editInputFlyOut() {
         window.AndroidKeyboard.hide();
+        this.editSurface.blur();
         this.contents.editTask = this.newTaskOpened ? false : true;
         this.contents._eventOutput.emit("unhideEditedTask");
         if (this.newTaskOpened) {
@@ -10912,6 +10919,7 @@ require.register("app/main/views/TaskItem.js", function(exports, require, module
         }.bind(this));
     }
     function vibrate() {
+        navigator.notification.vibrate();
         navigator.notification.vibrate(300);
     }
     module.exports = TaskItem;
@@ -12826,6 +12834,7 @@ require.config({
             "famous/surfaces/canvas-surface": "famous_modules/famous/surfaces/canvas-surface/_git_modularized/index.js",
             "famous/surfaces/input-surface": "famous_modules/famous/surfaces/input-surface/_git_modularized/index.js",
             "famous/transitions/transitionable": "famous_modules/famous/transitions/transitionable/_git_modularized/index.js",
+            "famous/animation/easing": "famous_modules/famous/animation/easing/_git_modularized/index.js",
             "./Color": "app/main/views/Color.js"
         },
         "app/main/views/BoxContainer.js": {

@@ -90,4 +90,9 @@ InputSurface.prototype.focus = function () {
     return this;
 }
 
+InputSurface.prototype.blur = function () {
+    if( this._currTarget ) this._currTarget.blur();
+    return this;   
+}
+
 module.exports = InputSurface;
