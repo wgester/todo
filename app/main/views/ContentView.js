@@ -4,8 +4,6 @@ var Transform         = require('famous/transform');
 var View              = require('famous/view');
 var Scrollview        = require('famous/views/scrollview');
 var TaskView          = require('./TaskView');
-var Tasks             = window._taskData || [];
-// var Tasks             = require('./data');
 var Box               = require('./BoxView');
 var BoxContainer      = require('./BoxContainer');
 var Timer             = require('famous/utilities/timer');
@@ -83,8 +81,8 @@ function _setBackground() {
 };
 
 function _createTasks() {
+  
   this.tasks = window.memory.read(this.options.title);
-  // this.tasks = this.options.title === 'ASANA' ? window.asanaTasks : Tasks;
   this.taskCount = 0;
 
   this.customscrollview = new CustomScrollView({page: this.title});
@@ -95,13 +93,7 @@ function _createTasks() {
   });
   var node = this.customdragsort;
   for(var i = 0; i < this.tasks.length; i++) {
-    var newTask = new TaskView({text: this.tasks[i].text, index: this.taskCount, page: this.options.title});
-    if (this.tasks[i].page === undefined) {
-      this.tasks[i].page = 'ASANA';
-      this.tasks[i].text = this.tasks[i].name;
-    }
-    
-    if (this.tasks[i].page === this.options.title && this.tasks[i].text.length) {
+    if (this.tasks[i].page === this.options.title) {
       var newTask = new TaskView({text: this.tasks[i].text, index: this.taskCount, page: this.options.title});
       this.customdragsort.push(newTask);
       if(node.getNext()) node = node._next;
@@ -111,7 +103,9 @@ function _createTasks() {
       newTask.pipe(this._eventInput);
       this.customscrollview.pipe(node);
       this.taskCount++;
+    }
   }
+  
   if(this.taskCount > 4) {
     var extraSpace = new Surface({
       size: [undefined, 200],
