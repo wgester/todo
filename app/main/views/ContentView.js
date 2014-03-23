@@ -26,11 +26,11 @@ function ContentView(options) {
   
   this.shown = {}; this.toShow = {};
   this.scrolled = false;
-
+  
+  _createViewIndexOptions.call(this);
   _setBackground.call(this);
   _createTasks.call(this);
   _setListeners.call(this);
-
   _monitorOffsets.call(this);
   _hideLastTask.call(this);
 };
@@ -42,15 +42,27 @@ ContentView.DEFAULT_OPTIONS = {
   title: 'FOCUS',
   classes: ['contents'],
   inputDuration: 300,
-  views: {
-    'FOCUS': [0],
-    'TODAY': [1],
-    'LATER': [2],
-    'ASANA': [3],
-    'NEVER': [4]
-  },
   gradientDuration: 500,
   completionDuration: 500
+};
+
+function _createViewIndexOptions() {
+  if (window.asana) {
+    this.views =  {
+      'FOCUS': [0],
+      'TODAY': [1],
+      'LATER': [2],
+      'ASANA': [3],
+      'NEVER': [4]
+    };    
+  } else {
+    this.views =  {
+      'FOCUS': [0],
+      'TODAY': [1],
+      'LATER': [2],
+      'NEVER': [3]
+    };    
+  }
 };
 
 function _isAndroid() {
@@ -59,7 +71,7 @@ function _isAndroid() {
 };
 
 function _setBackground() {
-  var index = this.options.views[this.options.title][0];
+  var index = this.views[this.options.title][0];
   this.backgroundSurfOne = window.faderSurfaces[index][0];
   this.backgroundModOne = window.faderMods[index][0];
   
@@ -166,24 +178,24 @@ ContentView.prototype._newScrollView = function(data, newIndex) {
 }
 
 ContentView.prototype._addToList = function(data, newIndex, node) {
-      var newTask = new TaskView({text: data.text, index: newIndex, page: this.title});
-      window.memory.save({
-        text: newTask.text,
-        page: newTask.page
-      });
-      this.customdragsort.push(newTask);
-      for (var j = 0; j < newIndex - 1; j++) {
-        node = node._next;
-      }
-      if(node.getNext()) node = node._next;
-      newTask.pipe(node);
-      node.pipe(this.customscrollview);
-      newTask.pipe(this.customscrollview);
+  var newTask = new TaskView({text: data.text, index: newIndex, page: this.title});
+  window.memory.save({
+    text: newTask.text,
+    page: newTask.page
+  });
+  this.customdragsort.push(newTask);
+  for (var j = 0; j < newIndex - 1; j++) {
+    node = node._next;
+  }
+  if(node.getNext()) node = node._next;
+  newTask.pipe(node);
+  node.pipe(this.customscrollview);
+  newTask.pipe(this.customscrollview);
 
-      newTask.pipe(this._eventInput);
+  newTask.pipe(this._eventInput);
 
-      this.customscrollview.pipe(node);
-      _activateTasks.call(this, newTask);
+  this.customscrollview.pipe(node);
+  _activateTasks.call(this, newTask);
 }
 
 function _activateTasks(newTask) {
@@ -200,12 +212,23 @@ function _activateTasks(newTask) {
 }
 
 function _createNewTask(data) {
-  var pages = {
-    'FOCUS': 0,
-    'TODAY': 1,
-    'LATER': 2,
-    'ASANA': 3,
-    'NEVER': 4 
+  var pages;
+  
+  if (window.asana) {
+    pages = {
+      'FOCUS': 0,
+      'TODAY': 1,
+      'LATER': 2,
+      'ASANA': 3,
+      'NEVER': 4
+    };
+  } else {
+    pages = {
+      'FOCUS': 0,
+      'TODAY': 1,
+      'LATER': 2,
+      'NEVER': 3
+    };  
   }
   
   if (this.options.title === 'FOCUS'  && this.taskCount > 2) return;
@@ -376,13 +399,6 @@ function _completionListener(task) {
   if(this.options.title === 'FOCUS' && this.taskCount < 3) this._eventOutput.emit('inputOpen');
 
 };
-
-
-function getTitleIndex(title) {
-  var titles = {'FOCUS':0, 'TODAY':1, 'LATER':2, 'ASANA': 3, 'NEVER':4};
-  return titles[title];
-};
-
 
 ContentView.prototype.animateTasksIn = function(title) {
   var counter = 1; var scrollview;

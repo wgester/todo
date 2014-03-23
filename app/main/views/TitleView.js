@@ -24,7 +24,7 @@ TitleView.prototype.constructor = TitleView;
 TitleView.DEFAULT_OPTIONS = {
   context: null,
   devMode: true,
-  asana: true
+  asanaConnect: true
 };
 
 function _createTitleSurface() {
@@ -91,11 +91,13 @@ function _setListeners() {
   window.Engine.on("prerender", _shadowMod.bind(this));
   
   this.syncButton.on('touchend', function() {
+    window.asana = true;
     _hideButtons.call(this);
     _populateAsana.call(this);
   }.bind(this));
   
   this.skipButton.on('touchend', function() {
+    window.asana = false;
     _hideButtons.call(this);
     _createAppView.call(this);
   }.bind(this));
@@ -117,7 +119,7 @@ function _playShadow() {
       this.shadowTransitionable.set([2, 100, 50], {duration: 500}, function(){
         this.shadowTransitionable.set([0, 100, 50], {duration: 800}, function() {
           Timer.after(function() {
-            if (this.options.asana && window.localStorage._authKey === undefined) {
+            if (this.options.asanaConnect && window.localStorage._authKey === undefined) {
               this.syncButtonMod.setOpacity(1);
               this.skipButtonMod.setOpacity(1);
             } else {
