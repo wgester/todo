@@ -107,6 +107,7 @@ function _setListeners() {
   
   this.skipButton.on('touchend', function() {
     window.asana = false;
+    window.localStorage._authKey = "skipped";
     _hideButtons.call(this);
     _createAppView.call(this);
   }.bind(this));
@@ -132,7 +133,11 @@ function _playShadow() {
               this.syncButtonMod.setOpacity(1);
               this.skipButtonMod.setOpacity(1);
             } else {
-              window.asana = this.options.asanaConnect;
+              if (window.localStorage._authKey === "skipped") {
+                window.asana = false;
+              } else {
+                window.asana = this.options.asanaConnect;
+              }
               _createAppView.call(this);
               this.titleMod.setOpacity(0.01, {duration: 500}, function() {});
             }
