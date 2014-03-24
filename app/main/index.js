@@ -18,6 +18,7 @@ var asanaConnect = true;
 
 var mainCtx = window.Engine.createContext();
 mainCtx.setPerspective(1000);
+_createStorageAPI();
 
 if (!wrapped) {
   navigator.notification = {
@@ -100,6 +101,5 @@ window.vibrate = function(length) {
   navigator && navigator.notification && navigator.notification.vibrate(length);
 }
 
-_createStorageAPI();
 var titleView = new TitleView({context: mainCtx, devMode: devMode, asana: asanaConnect});
 mainCtx.add(titleView);

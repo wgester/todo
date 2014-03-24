@@ -75,24 +75,30 @@ function _createEditLightbox() {
     }
   });
 
+  this.editSurface.on('keyup', function(evt) {
+    if (evt.keyIdentifier === "Enter") _removeInput.call(this);
+  }.bind(this));
+
   this.editMod = new Modifier({
     origin: [0,0],
     transform: Transform.translate(0, 600, 0)
   });
 
-  this.shadow.on('touchstart', function() {
+  this.shadow.on('touchstart', _removeInput.bind(this));
+
+  this.editLightBox._add(this.editMod).add(this.editSurface);
+  this.editLightBox._add(this.shadowMod).add(this.shadow);
+  this._add(this.editLBMod).add(this.editLightBox);
+};
+
+function _removeInput() {
     if(this.newTaskOpened) {
       this.taskIndex = this.contents.customdragsort.array.length;
       this.editTaskOffset = this.options.title === 'FOCUS' ?  window.innerHeight / 2 + this.taskIndex * 60 - 10: (this.taskIndex + 1) * 60 + 90;
     } 
     _editInputFlyOut.call(this);
     Timer.after(_lightboxFadeOut.bind(this), this.taskIndex);
-  }.bind(this));
-
-  this.editLightBox._add(this.editMod).add(this.editSurface);
-  this.editLightBox._add(this.shadowMod).add(this.shadow);
-  this._add(this.editLBMod).add(this.editLightBox);
-};
+}
 
 function _createLayout() {
 
