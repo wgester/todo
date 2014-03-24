@@ -1,3 +1,5 @@
+<!-- this is where the index.html file is edited for the www webview in cordova.  The famous build tool overwrites the index file and then my buildscript copies this file into the webview's index.html -->
+
 <!DOCTYPE HTML>
 <html>
 <head>
@@ -10,13 +12,24 @@
     <script type="text/javascript" src="build.js" ></script>
     <script type="text/javascript" src="cordova.js" ></script>
 </head>
-<body></body>
+<body>
+    <script>
 
-<script>
-	document.addEventListener("deviceready", _famous, false);
-	function _famous() {
-	    require(["app/main/index.js"]);
-	}
-</script>
+        if (_isAndroid()) {
+            window.AndroidKeyboard = SoftKeyboard;
+        }
+        
+        document.addEventListener("deviceready", _famous, false);
 
+        function _famous() {
+            require(["app/main/index.js"]);
+        }
+
+        function _isAndroid() {
+            var userAgent = navigator.userAgent.toLowerCase();
+            return userAgent.indexOf("android") > -1;
+        };
+
+    </script>
+</body>
 </html>

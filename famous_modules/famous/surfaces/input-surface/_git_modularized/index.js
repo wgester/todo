@@ -13,6 +13,7 @@ function InputSurface ( options ) {
     this._type        = options.type || 'text';
 
     Surface.apply(this, arguments);
+    this.on('click', this.focus.bind(this));
 }
 
 InputSurface.prototype = Object.create(Surface.prototype);
@@ -76,6 +77,22 @@ InputSurface.prototype.deploy = function (target) {
     if( this._placeholder !== "" ) target.placeholder = this._placeholder;
     target.value = this._value;
     target.type = this._type;
+}
+
+
+/**
+ * @name InputSurface#focus
+ * Focus on the current input, pulling up the keyboard on mobile.
+ * @returns this, allowing method chaining.
+ */
+InputSurface.prototype.focus = function () {
+    if( this._currTarget ) this._currTarget.focus();
+    return this;
+}
+
+InputSurface.prototype.blur = function () {
+    if( this._currTarget ) this._currTarget.blur();
+    return this;
 }
 
 module.exports = InputSurface;

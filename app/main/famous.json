@@ -30,14 +30,15 @@
     "famous/view-sequence": "git+ssh://git@github.com:Famous/famous-views.git#modularized",
     "famous/context": "git+ssh://git@github.com:Famous/famous.git#modularized",
     "famous/surfaces/container-surface": "git+ssh://git@github.com:Famous/famous-surfaces.git#modularized",
+    "famous/surfaces/image-surface": "git+ssh://git@github.com:Famous/famous-surfaces.git#modularized",
     "famous/transitions/wall-transition": "git+ssh://git@github.com:Famous/famous-transitions.git#modularized",
     "famous/surfaces/canvas-surface": "git+ssh://git@github.com:Famous/famous-surfaces.git#modularized",
     "famous/animation/easing": "git+ssh://git@github.com:Famous/famous-surfaces.git#modularized"
   },
   "scripts": ["index.js", "**/*.js"],
   "styles": ["styles.css"],
-  "images": ["favicon.ico", "img/**/*.png"],
-  "fonts": ["fonts/museosans-300-webfont-webfont.eot", "fonts/museosans-300-webfont-webfont.woff"],
+  "images": ["favicon.ico", "img/**/*.png", "img/**/*.gif"],
+  "fonts": [],
   "templates": [],
   "files": []
 }

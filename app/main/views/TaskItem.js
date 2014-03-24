@@ -19,6 +19,7 @@ function TaskItem(options) {
     this.page = this.options.page;
     this.text = this.options.text;
     this.index = this.options.index;
+    this.touchEnabled = true;
     _createLayout.call(this);
     _bindEvents.call(this);
     _setDate.call(this);
@@ -51,16 +52,16 @@ function _createLayout() {
     this.checkBox = new Surface({
         size: [this.options.deleteCheckWidth, 60],
         classes: ['task'],
-        content: '<img class="checkIcon" src="./img/check_icon.png">',
+        content: '<img class="checkIcon" src="./img/check_icon_2.png">',
         properties: {
-            webkitUserSelect: 'none'
+            webkitUserSelect: 'none',
         }
     });
 
     this.deleteBox = new Surface({
         size: [this.options.deleteCheckWidth, 60],
         classes: ['task'],
-        content: '<img class="deleteIcon" src="./img/x_icon.png">',
+        content: '<img class="deleteIcon" src="./img/x_icon_2.png">',
         properties: {
             webkitUserSelect: 'none'
         }
@@ -93,7 +94,8 @@ function _createLayout() {
 
     this.taskItemModifier = new Modifier({
         transform: Matrix.identity,
-        size: this.options.surface.size
+        size: this.options.surface.size,
+        opacity: 1
     });
 
     this.draggable = new Draggable({
@@ -110,7 +112,6 @@ function _bindEvents() {
     this._eventInput.on('touchstart', handleStart.bind(this));
     this._eventInput.on('touchmove', handleMove.bind(this));
     this._eventInput.on('touchend', handleEnd.bind(this));
-    this._eventInput.on('click', handleClick.bind(this));
     this.on('saveTask', saveTask.bind(this));
     this.on('transformTask', transformTask.bind(this));
     this.on('unhide', unhideTask.bind(this));
@@ -118,48 +119,60 @@ function _bindEvents() {
     Engine.on('prerender', checkForDragging.bind(this));
 }
 
-function handleClick() {
-    if (this.timeTouched < this.clickThreshold) {
-
-    }
-}
-
 function handleStart(data) {
-  this._eventInput.pipe(this.draggable);
-  this.touched = true;
-  this.distanceThreshold = false;
+  this._eventOutput.emit('newTouch');
   this.touchStart = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
   this.touchCurrent = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
-
+  if (this.touchEnabled) {
+      // this._eventOutput.emit('editmodeOn');
+      this._eventInput.pipe(this.draggable);
+      this.touched = true;
+      this.distanceThreshold = false;
+  } else {
+    this._eventInput.unpipe(this.draggable);
+    this._eventOutput.emit('xScroll');
+  }
 }
 
 function handleMove(data) {
     this.touchCurrent = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
     var distance = Math.sqrt(Math.pow((this.touchStart[0] - this.touchCurrent[0]), 2) + Math.pow((this.touchStart[1] - this.touchCurrent[1]), 2));
-    if ((distance > 35) && !this.distanceThreshold) {
-        this.distanceThreshold = true;
-        var xDistance = Math.abs(this.touchStart[0] - this.touchCurrent[0]);
-        var yDistance = Math.abs(this.touchStart[1] - this.touchCurrent[1]);
-        if (xDistance > yDistance) {
-            this._eventOutput.emit('xScroll');
+    if (this.touchEnabled) {
+        if ((distance > 35) && !this.distanceThreshold) {
+            this.distanceThreshold = true;
+            var xDistance = Math.abs(this.touchStart[0] - this.touchCurrent[0]);
+            var yDistance = Math.abs(this.touchStart[1] - this.touchCurrent[1]);
+            if (xDistance > yDistance) {
+                this._eventOutput.emit('xScroll');
+            }
+            if (yDistance >= xDistance) {
+                this._eventInput.unpipe(this.draggable);
+            }
         }
-        if (yDistance >= xDistance) {
-            this._eventOutput.emit('yScroll');
-            this._eventInput.unpipe(this.draggable);
+    } else {
+        if (distance > 35) {
+            if ((this.touchStart[1] - this.touchCurrent[1]) > 0) {
+                this._eventOutput.emit('swiping', 'up');
+            } else {
+                this._eventOutput.emit('swiping', 'down');
+            }
+            this._eventOutput.emit('touchend');
         }
     }
 }
 
 function handleEnd() {
+    this._eventOutput.emit('endTouch');
     this.touched = false;
     replaceTask.call(this);
     var xDistance = Math.abs(this.touchStart[0] - this.touchCurrent[0]);
     var yDistance = Math.abs(this.touchStart[1] - this.touchCurrent[1]);
-
-    if (this.touchStart[1] < 90){
-      this._eventOutput.emit('openInput');
-    }  else if (xDistance < 10 && yDistance < 10 && this.timeTouched > 0 && this.timeTouched < 200) {      
-      this._eventOutput.emit('closeInputOrEdit', {text: this.options.text, index: this.options.index});      
+    if (this.touchEnabled) {
+        if (this.touchStart[1] < 90){
+          this._eventOutput.emit('openInput');
+        }  else if (xDistance < 10 && yDistance < 10 && this.timeTouched > 0 && this.timeTouched < 200) {      
+          this._eventOutput.emit('closeInputOrEdit', {text: this.options.text, index: this.options.index});      
+        }
     }
 
     this.timeTouched = 0;
@@ -179,7 +192,11 @@ function _setDate() {
 }
 
 function checkForDragging(data) {
-  if (this.touched) {
+  if (!this.touchEnabled) {
+    this._eventOutput.emit('xScroll');
+    this._eventInput.unpipe(this.draggable);
+  }
+  if (this.touched && this.touchEnabled) {
     this.timeTouched += this.timeDelta;
     if (this.timeTouched > this.options.dragThreshold) {
       var distance = Math.sqrt(Math.pow((this.touchStart[0] - this.touchCurrent[0]), 2) + Math.pow((this.touchStart[1] - this.touchCurrent[1]), 2));
@@ -197,11 +214,10 @@ function checkForDragging(data) {
 };
 
 function dragmode() {
-    this.contents.addClass('dragging');
-    this.taskItemModifier.setTransform(Matrix.translate(0, 0, 40), {
-        curve: 'easeOut',
-        duration: 300
-    });
+  this.contents.addClass('dragging');
+  this.taskItemModifier.setTransform(Matrix.move(Matrix.scale(1.15, 1.15, 1), [-10, 0, 60]), {duration: 100}, function() {
+    this.taskItemModifier.setTransform(Matrix.move(Matrix.scale(1.05, 1.05, 1), [-5, 0, 40]), {duration: 150});
+  }.bind(this));
 };
 
 function replaceTask() {
@@ -224,9 +240,14 @@ function replaceTask() {
 };
 
 function _checkOffTask() {
+    this.contents.setProperties({
+        backgroundColor: '#fff',
+        opacity: '0.8'
+    })
     this.deleteBox.addClass('invisible');
     this.draggable.setPosition([-1 * this.options.deleteCheckWidth - window.innerWidth, 0], this.options.taskItemExitTransition, function() {
         console.log('check me off');
+        // vibrate();
         this._eventOutput.emit('completed');
         this._eventOutput.emit('deleteTask');
     }.bind(this));
@@ -235,6 +256,7 @@ function _checkOffTask() {
 function _deleteTask() {
     this.checkBox.addClass('invisible');
     this.draggable.setPosition([this.options.deleteCheckWidth + window.innerWidth, 0], this.options.taskItemExitTransition, function() {
+        // vibrate();
         this._eventOutput.emit('deleted');
         this._eventOutput.emit('deleteTask');
     }.bind(this));
@@ -251,19 +273,41 @@ function saveTask(text) {
 
 function unhideTask() {
   this.contents.setProperties({'display': 'block'});
-  this.taskItemModifier.setTransform(Matrix.translate(0, 0, 0), {curve: 'easeOut', duration: 300}, function() { 
-    this.contents.setProperties({'backgroundColor': 'rgba(255, 255, 255, 0.07)'});
+  this.taskItemModifier.setTransform(Matrix.translate(0, 0, 40), {curve: 'easeOut', duration: 300}, function() { 
+    Timer.after(function() {
+      this.contents.setProperties({'backgroundColor': 'rgba(255, 255, 255, 0.07)'});
+      this.taskItemModifier.setTransform(Matrix.translate(0, 0, 0), {curve: 'easeOut', duration: 500}, function() {});      
+    }.bind(this), 10);
   }.bind(this));  
 };
 
 function transformTask() {
   this.contents.setProperties({'backgroundColor': 'white'});
-    this.taskItemModifier.setTransform(Matrix.translate(0, 0, 40), {curve: 'easeOut', duration: 300}, function() {
+  this.taskItemModifier.setTransform(Matrix.move(Matrix.scale(1.1, 1.1, 1), [-10, 0, 60]), {duration: 100}, function() {
+    this.taskItemModifier.setTransform(Matrix.move(Matrix.scale(1.05, 1.05, 1), [-5, 0, 40]), {duration: 150}, function() {
       this._eventOutput.emit('openLightbox', {text: this.text, index: this.index});        
       Timer.after(function() {
         this.contents.setProperties({'display': 'none'});
-      }.bind(this), 5);
-    }.bind(this));  
+        var offset = this.page === 'FOCUS' ? this.index * -60 - 250: (this.index+1) * -60;
+        this.taskItemModifier.setTransform(Matrix.translate(0,offset,0));
+      }.bind(this), 5);      
+    }.bind(this));
+  }.bind(this));
+
+  // this.contents.setProperties({'backgroundColor': 'white'});  
+    // this.taskItemModifier.setTransform(Matrix.translate(0, 0, 40), {curve: 'easeOut', duration: 300}, function() {
+    //   this._eventOutput.emit('openLightbox', {text: this.text, index: this.index});        
+    //   Timer.after(function() {
+    //     this.contents.setProperties({'display': 'none'});
+    //     var offset = this.page === 'FOCUS' ? this.index * -60 - 250: (this.index+1) * -60;
+    //     this.taskItemModifier.setTransform(Matrix.translate(0,offset,0));
+    //   }.bind(this), 5);
+    // }.bind(this));  
 };
+
+function vibrate() {
+    navigator.notification.vibrate();
+    navigator.notification.vibrate(300);
+}
 
 module.exports = TaskItem;

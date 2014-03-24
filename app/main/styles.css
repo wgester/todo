@@ -1,23 +1,19 @@
-
-@font-face {
-  font-family: 'museo_sans300';
-  src: url('./fonts/museosans-300-webfont-webfont.eot');
-/*  src: url('./fonts/museosans-300-webfont-webfont.eot?#iefix') format('embedded-opentype'),
-       url('./fonts/museosans-300-webfont-webfont.woff') format('woff'),
-       url('./fonts/museosans-300-webfont-webfont.ttf') format('truetype'),
-       url('./fonts/museosans-300-webfont-webfont.svg#museo_sans300') format('svg');
-*/  font-weight: normal;
-  font-style: normal;
-}
-
 html {
-  font-family: "museo_sans300";
+  font-family: 'Quicksand', sans-serif;
   color: #003156;
   margin: 0;
 }
 
+.api {
+  text-align: center;
+}
+
 .layer {
   background-color: #444;
+}
+
+button {
+  padding: 10px 40px;
 }
 
 .deleteIcon, .checkIcon {
@@ -38,10 +34,12 @@ input {
 }
 
 .title h1 {
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 700;
   margin-top: 200px;
   text-align: center;
   color: transparent;
-  font-size: 4em;
+  font-size: 3em;
   padding-left: 0;
 }
 
@@ -72,18 +70,22 @@ input.edit {
 
 .dragging {
   box-shadow: 0px 0px 5px rgba(0, 0, 0, 20);
-  background-color: rgba(255, 255, 255, 0.5);  
+  background-color: rgba(255, 255, 255, 0.5)!important;  
 }
 
- 
+
 
 .task p {
-  font-family: helvetica,'museo_sans300';
+  font-family: 'Quicksand', sans-serif;
   padding-left: 20px;
   margin: 0;
   letter-spacing: 0.3px;
   font-size: 1.1em;
   font-weight: 200;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 280px;
+  overflow: hidden;
 }
 
 .taskWhite {
@@ -95,11 +97,13 @@ input.edit {
 }
 
 h1 {
+  font-family: 'Quicksand', sans-serif;
   padding-left: 20px;
   font-weight: 300;
-  letter-spacing: 4px;
-  font-size: 2em;
-  color: #003156;
+  letter-spacing: 2px;
+  font-size: 1.5em;
+  font-weight: 700;
+  color: #fff;
 }
 
 .container {

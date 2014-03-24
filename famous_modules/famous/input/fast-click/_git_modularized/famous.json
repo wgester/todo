@@ -1,0 +1,16 @@
+{
+    "name": "famous/input/fast-click",
+    "namespace": "famous/input",
+    "type": "famous",
+    "description": "",
+    "version": "0.0.1",
+    "repository" : { 
+        "type" : "git", 
+        "url" : "https://github.com/Famous/famous-sync.git"
+    },
+    "keywords": [],
+    "dependencies": {},
+    "scripts": [
+        "index.js"
+    ]
+}

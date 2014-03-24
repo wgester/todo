@@ -1,0 +1,28 @@
+{
+    "name": "famous/surfaces/image-surface/examples/base",
+    "namespace": "famous/surfaces/image-surface/examples",
+    "type": "famous",
+    "description": "",
+    "version": "0.0.1",
+    "repository" : { 
+        "type" : "git", 
+        "url" : "https://github.com/Famous/famous.git"
+    },
+    "keywords": [],
+    "dependencies": {
+        "famous/polyfills": "git+ssh://git@github.com:Famous/famous-polyfills.git#master",
+        "famous/engine": "git+ssh://git@github.com:Famous/famous.git#modularized"
+    },
+    "local": [
+        "famous/surfaces/image-surface"
+    ],
+    "paths": [
+        "../.."
+    ],
+    "scripts": [
+        "index.js"
+    ],
+    "images": [
+        "images/famous_logo_inverted_logo.svg"
+    ]
+}

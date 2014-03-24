@@ -320,6 +320,9 @@ require.register("famous_modules/famous/transform/_git_modularized/index.js", fu
         var result = [ a[0] * b[0] + a[4] * b[1] + a[8] * b[2] + a[12] * b[3], a[1] * b[0] + a[5] * b[1] + a[9] * b[2] + a[13] * b[3], a[2] * b[0] + a[6] * b[1] + a[10] * b[2] + a[14] * b[3], a[3] * b[0] + a[7] * b[1] + a[11] * b[2] + a[15] * b[3], a[0] * b[4] + a[4] * b[5] + a[8] * b[6] + a[12] * b[7], a[1] * b[4] + a[5] * b[5] + a[9] * b[6] + a[13] * b[7], a[2] * b[4] + a[6] * b[5] + a[10] * b[6] + a[14] * b[7], a[3] * b[4] + a[7] * b[5] + a[11] * b[6] + a[15] * b[7], a[0] * b[8] + a[4] * b[9] + a[8] * b[10] + a[12] * b[11], a[1] * b[8] + a[5] * b[9] + a[9] * b[10] + a[13] * b[11], a[2] * b[8] + a[6] * b[9] + a[10] * b[10] + a[14] * b[11], a[3] * b[8] + a[7] * b[9] + a[11] * b[10] + a[15] * b[11], a[0] * b[12] + a[4] * b[13] + a[8] * b[14] + a[12] * b[15], a[1] * b[12] + a[5] * b[13] + a[9] * b[14] + a[13] * b[15], a[2] * b[12] + a[6] * b[13] + a[10] * b[14] + a[14] * b[15], a[3] * b[12] + a[7] * b[13] + a[11] * b[14] + a[15] * b[15] ];
         if (arguments.length <= 2) return result; else return multiply4x4.apply(null, [ result ].concat(Array.prototype.slice.call(arguments, 2)));
     };
+    // Transform.setMatrix = function(matrix) {
+    //   return matrix;
+    // };
     /**
      * Fast-multiply two or more Matrix types to return a
      *    Matrix, assuming bottom row on each is [0 0 0 1].
@@ -3337,6 +3340,7 @@ require.register("famous_modules/famous/surfaces/input-surface/_git_modularized/
         this._value = options.value || "";
         this._type = options.type || "text";
         Surface.apply(this, arguments);
+        this.on("click", this.focus.bind(this));
     }
     InputSurface.prototype = Object.create(Surface.prototype);
     InputSurface.prototype.elementType = "input";
@@ -3393,6 +3397,15 @@ require.register("famous_modules/famous/surfaces/input-surface/_git_modularized/
         if (this._placeholder !== "") target.placeholder = this._placeholder;
         target.value = this._value;
         target.type = this._type;
+    };
+    /**
+     * @name InputSurface#focus
+     * Focus on the current input, pulling up the keyboard on mobile.
+     * @returns this, allowing method chaining.
+     */
+    InputSurface.prototype.focus = function() {
+        if (this._currTarget) this._currTarget.focus();
+        return this;
     };
     module.exports = InputSurface;
 }.bind(this));
@@ -3661,8 +3674,8 @@ require.register("famous_modules/famous/view-sequence/_git_modularized/index.js"
             for (var i = 0; i < howMany; i++) {
                 nextNode = insertionNode._next;
                 previousNode = insertionNode._prev;
-                nextNode._prev = previousNode;
-                previousNode._next = nextNode;
+                if (nextNode) nextNode._prev = previousNode;
+                if (previousNode) previousNode._next = nextNode;
                 insertionNode = nextNode;
             }
             var inject;
@@ -3675,6 +3688,7 @@ require.register("famous_modules/famous/view-sequence/_git_modularized/index.js"
                 previousNode = inject;
             }
             var head = this.find(0);
+            if (!head) head = this.find(1);
             i = 0;
             while (head) {
                 head.setIndex(i);
@@ -6729,6 +6743,112 @@ require.register("famous_modules/famous/physics/engine/_git_modularized/index.js
     module.exports = PhysicsEngine;
 }.bind(this));
 
+require.register("famous_modules/famous/transitions/drag-transition/_git_modularized/index.js", function(exports, require, module) {
+    var PE = require("famous/physics/engine");
+    var Drag = require("famous/physics/forces/drag");
+    /** @constructor */
+    function DragTransition(state) {
+        this.drag = new Drag({
+            strength: DragTransition.DEFAULT_OPTIONS.strength
+        });
+        this._restTolerance = 1e-8;
+        this._active = false;
+        this.PE = new PE();
+        this.particle = this.PE.createParticle();
+        this.PE.attach(this.drag, this.particle);
+        this.dimensions = undefined;
+        _setTarget.call(this, state || 0);
+    }
+    DragTransition.SUPPORTS_MULTIPLE = 3;
+    DragTransition.DEFAULT_OPTIONS = {
+        strength: .01,
+        velocity: 0
+    };
+    function _update() {
+        if (!this._active) {
+            if (this._callback) {
+                var cb = this._callback;
+                this._callback = undefined;
+                cb();
+            }
+            return;
+        }
+        this.PE.step();
+        var energy = _getEnergy.call(this);
+        if (energy < this._restTolerance) {
+            _sleep.call(this);
+            _setParticleVelocity.call(this, [ 0, 0, 0 ]);
+        }
+    }
+    function _getEnergy() {
+        return this.particle.getEnergy();
+    }
+    function _setupDefinition(def) {
+        var defaults = DragTransition.DEFAULT_OPTIONS;
+        if (def.strength === undefined) def.strength = defaults.strength;
+        this.drag.setOpts({
+            strength: def.strength
+        });
+        //setup particle
+        _setParticleVelocity.call(this, def.velocity);
+    }
+    function _wake() {
+        this.PE.play();
+        this._active = true;
+    }
+    function _sleep() {
+        this.PE.pause();
+        this._active = false;
+    }
+    function _setTarget(state) {
+        _setParticlePosition.call(this, state);
+    }
+    function _setParticlePosition(p) {
+        this.particle.p.set(p);
+    }
+    function _setParticleVelocity(v) {
+        this.particle.v.set(v);
+    }
+    function _getParticlePosition() {
+        return this.dimensions === 1 ? this.particle.p.x : this.particle.p.get();
+    }
+    function _getParticleVelocity() {
+        return this.dimensions === 1 ? this.particle.v.x : this.particle.v.get();
+    }
+    function _setCallback(callback) {
+        this.callback = callback;
+    }
+    DragTransition.prototype.reset = function(state, velocity) {
+        if (state instanceof Array) this.dimensions = state.length; else this.dimensions = 1;
+        if (velocity !== undefined) _setParticleVelocity.call(this, velocity);
+        _setTarget.call(this, state);
+        _setCallback.call(this, undefined);
+    };
+    DragTransition.prototype.getVelocity = function() {
+        return _getParticleVelocity.call(this);
+    };
+    DragTransition.prototype.halt = function() {
+        this.set(this.get());
+    };
+    DragTransition.prototype.get = function() {
+        _update.call(this);
+        return _getParticlePosition.call(this);
+    };
+    DragTransition.prototype.set = function(state, definition, callback) {
+        if (!definition) {
+            this.reset(state);
+            if (callback) callback();
+            return;
+        }
+        if (state instanceof Array) this.dimensions = state.length; else this.dimensions = 1;
+        _wake.call(this);
+        _setupDefinition.call(this, definition);
+        _setTarget.call(this, state);
+        _setCallback.call(this, callback);
+    };
+    module.exports = DragTransition;
+}.bind(this));
+
 require.register("famous_modules/famous/physics/forces/spring/_git_modularized/index.js", function(exports, require, module) {
     var Force = require("famous/physics/forces/force");
     var Vector = require("famous/math/vector");
@@ -7430,6 +7550,8 @@ require.register("famous_modules/famous/modifiers/draggable/_git_modularized/ind
     var GenericSync = require("famous/input/generic-sync");
     var Transitionable = require("famous/transitions/transitionable");
     var EventHandler = require("famous/event-handler");
+    var DragTransition = require("famous/transitions/drag-transition");
+    Transitionable.registerMethod("drag", DragTransition);
     /**
      * @class Draggable
      * @description
@@ -7604,6 +7726,7 @@ require.register("famous_modules/famous/views/drag-sort/_git_modularized/index.j
     var Matrix = require("famous/transform");
     var Utility = require("famous/utilities/utility");
     var OptionsManager = require("famous/options-manager");
+    var DragTransition = require("famous/transitions/drag-transition");
     function DragSort(options) {
         ViewSequence.apply(this, arguments);
         this._optionsManager.patch(Object.create(DragSort.DEFAULT_OPTIONS));
@@ -7648,7 +7771,7 @@ require.register("famous_modules/famous/views/drag-sort/_git_modularized/index.j
         this._dragEvents.on("dragstart", handleDragStart.bind(this));
         this._dragEvents.on("dragmove", handleDragMove.bind(this));
         this._dragEvents.on("dragend", handleDragEnd.bind(this));
-        this._dragEvents.on("deleteTask", deleteTask.bind(this));
+        this._eventInput.on("deleteTask", deleteTask.bind(this));
     }
     function deleteTask() {
         this._eventOutput.emit("deleteMe", {
@@ -7750,7 +7873,39 @@ require.register("famous_modules/famous/views/drag-sort/_git_modularized/index.j
             this.direction = null;
         }
     }
-    function handleDragEnd() {
+    function handleDragEnd(data) {
+        if (Math.abs(data.v[1]) > .5) {
+            if (data.v[1] > 0) {
+                var v = 1;
+                if (this.array[this.index].taskItem.page === "NEVER") {
+                    this.setPosition([ 0, 0 ], {
+                        duration: 165,
+                        curve: "easeOut"
+                    });
+                    return;
+                }
+            } else {
+                var v = -1;
+                if (this.array[this.index].taskItem.page === "FOCUS") {
+                    this.setPosition([ 0, 0 ], {
+                        duration: 165,
+                        curve: "easeOut"
+                    });
+                    return;
+                }
+            }
+            this.draggable._positionState.set(data.p, {
+                method: "drag",
+                strength: 1e-4,
+                velocity: [ 0, v ]
+            });
+            this._eventOutput.emit("swapPage", {
+                index: this.index,
+                page: this.array[this.index].taskItem.page,
+                direction: v
+            });
+            return;
+        }
         if (this.index !== this.currentNode.index) {
             this._eventOutput.emit("shift", {
                 oldIndex: this.index,
@@ -8617,7 +8772,7 @@ require.register("app/main/index.js", function(exports, require, module) {
     var SpringTransition = require("famous/transitions/spring-transition");
     var Timer = require("famous/utilities/timer");
     var CanvasSurface = require("famous/surfaces/canvas-surface");
-    var devMode = true;
+    var devMode = false;
     Transitionable.registerMethod("wall", WallTransition);
     Transitionable.registerMethod("spring", SpringTransition);
     var mainCtx = window.Engine.createContext();
@@ -8628,7 +8783,8 @@ require.register("app/main/index.js", function(exports, require, module) {
         classes: [ "title" ],
         content: "<h1>FOCUS</h1>",
         properties: {
-            backgroundColor: "#32CEA8"
+            backgroundColor: "#32CEA8",
+            paddingLeft: 0
         }
     });
     var whiteGradientSurf = new CanvasSurface({
@@ -8780,7 +8936,6 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
         _createCompletionSurface.call(this);
         _createLightBox.call(this);
         _createAppViews.call(this);
-        // _createInputView.call(this);
         _renderFocusPage.call(this);
     }
     AppView.prototype = Object.create(View.prototype);
@@ -8802,7 +8957,7 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
         noTransition: {
             duration: 0
         },
-        colors: [ [ "#ffffff", "#32CEA8" ], [ "#ffffff", "#FFFFCD", "#87CEFA" ], [ "#3690FF", "#8977C6" ], [ "#ffffff", "#32CEA8" ] ]
+        colors: [ [ "#ffffff", "#32CEA8" ], [ "#ffffff", "#FFFFCD", "#87CEFA" ], [ "#3690FF", "#8977C6" ], [ "#F5A9BC", "#FA5858" ], [ "#81F781", "#E0F8E6" ] ]
     };
     function _isAndroid() {
         var userAgent = navigator.userAgent.toLowerCase();
@@ -8828,7 +8983,7 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
     //   this.inputSurf.setPlaceholder('here');
     //   this.inputMod = new Modifier({
     //     transform: Transform.translate(0, 70, -1)
-    //   }); 
+    //   });
     //   this._add(this.inputMod).add(this.inputSurf);
     // }
     function _addPageView(title, previousPage, nextPage) {
@@ -8856,6 +9011,10 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
     //inTransform: Transform.translate(0, -600, 1)
     function _addEventListeners(newView, newModifier) {
         // window.Engine.on('prerender', )
+        this._eventOutput.pipe(newView._eventInput);
+        newView._eventOutput.on("moveTaskToNewPage", function(text) {
+            this._eventOutput.emit("swapPages", text);
+        }.bind(this));
         newView.on("togglePageViewUp", function() {
             if (newView.nextPage) {
                 if (!this.lightBox.optionsForSwipeUp) {
@@ -8868,6 +9027,7 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
                     this.lightBox.optionsForSwipeUp = true;
                 }
                 this.lightBox.show(newView.nextPage);
+                newView.nextPage.contents.animateTasksIn(newView.nextPage.options.title);
                 newView.nextPage.contents._eventOutput.emit("opened");
                 newView.nextPage.header._eventOutput.emit("opened");
                 newView.contents._eventOutput.emit("closed");
@@ -8886,6 +9046,8 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
                     this.lightBox.optionsForSwipeUp = false;
                 }
                 this.lightBox.show(newView.previousPage);
+                console.log(newView.previousPage.options.title);
+                newView.previousPage.contents.animateTasksIn(newView.previousPage.options.title);
                 newView.previousPage.contents._eventOutput.emit("opened");
                 newView.previousPage.header._eventOutput.emit("opened");
                 newView.contents._eventOutput.emit("closed");
@@ -8905,6 +9067,7 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
     }
     function _renderFocusPage() {
         this.lightBox.show(this.FOCUSView);
+        this.FOCUSView.contents.animateTasksIn("FOCUS");
     }
     function _createGradientSurfaces(pages) {
         window.faderSurfaces = [];
@@ -8963,14 +9126,7 @@ require.register("app/main/views/AppView.js", function(exports, require, module)
         }
     }
     function _createCompletionSurface() {
-        window.completionSurf = new CanvasSurface({
-            size: [ window.innerWidth, window.innerHeight ],
-            canvasSize: [ window.innerWidth * 2, window.innerHeight * 2 ],
-            classes: [ "famous-surface" ],
-            properties: {
-                backgroundColor: "#81EBC4"
-            }
-        });
+        window.completionSurf = window.faderSurfaces[4];
         window.completionMod = new Modifier({
             opacity: 0,
             transform: Transform.translate(0, 0, 0)
@@ -9433,7 +9589,7 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
     var View = require("famous/view");
     var Scrollview = require("famous/views/scrollview");
     var TaskView = require("./TaskView");
-    var Tasks = require("./data");
+    var Tasks = window._taskData || [];
     var Box = require("./BoxView");
     var BoxContainer = require("./BoxContainer");
     var Timer = require("famous/utilities/timer");
@@ -9441,10 +9597,13 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
     var DragSort = require("famous/views/drag-sort");
     var CustomScrollView = require("./customScrollView");
     var TaskItem = require("./TaskItem");
-    function ContentView() {
+    var Color = require("./Color");
+    function ContentView(options) {
         View.apply(this, arguments);
         this.lightness = 75;
         this.inputToggled = false;
+        this.shown = {};
+        this.title = this.options.title;
         _setBackground.call(this);
         _createTasks.call(this);
         _setListeners.call(this);
@@ -9455,6 +9614,12 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
         title: "later",
         classes: [ "contents" ],
         inputDuration: 300,
+        views: {
+            FOCUS: [ 0 ],
+            TODAY: [ 1 ],
+            LATER: [ 2 ],
+            NEVER: [ 3 ]
+        },
         gradientDuration: 800,
         completionDuration: 500
     };
@@ -9463,16 +9628,7 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
         return userAgent.indexOf("android") > -1;
     }
     function _setBackground() {
-        var index;
-        if (this.options.title === "FOCUS") {
-            index = 0;
-        } else if (this.options.title === "TODAY") {
-            index = 1;
-        } else if (this.options.title === "LATER") {
-            index = 2;
-        } else {
-            index = 0;
-        }
+        var index = this.options.views[this.options.title][0];
         this.backgroundSurf = window.faderSurfaces[index];
         this.backgroundMod = window.faderMods[index];
         this.touchSurf = new Surface({
@@ -9489,7 +9645,9 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
     function _createTasks() {
         this.tasks = Tasks;
         this.taskCount = 0;
-        this.customscrollview = new CustomScrollView();
+        this.customscrollview = new CustomScrollView({
+            page: this.title
+        });
         this.customdragsort = new DragSort({
             draggable: {
                 xRange: [ 0, 0 ]
@@ -9500,64 +9658,158 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
             if (this.tasks[i].page === this.options.title) {
                 var newTask = new TaskView({
                     text: this.tasks[i].text,
-                    index: i
+                    index: this.taskCount,
+                    page: this.options.title
                 });
                 this.customdragsort.push(newTask);
                 if (node.getNext()) node = node._next;
                 newTask.pipe(node);
                 node.pipe(this.customscrollview);
                 newTask.pipe(this.customscrollview);
+                newTask.pipe(this._eventInput);
                 this.customscrollview.pipe(node);
+                this.taskCount++;
             }
         }
         this.scrollMod = new Modifier({
             transform: Transform.translate(0, 0, 1)
         });
-        this.taskCount = this.customdragsort.array.length;
         this.customscrollview.sequenceFrom(this.customdragsort);
+        this.customscrollview.pipe(this._eventInput);
         this._add(this.scrollMod).add(this.customscrollview);
     }
     function _setListeners() {
         _gradientListener.call(this);
         _newTaskListener.call(this);
-        _inputListener.call(this);
+        _inputListeners.call(this);
+        _unhideTaskListener.call(this);
+        this._eventInput.on("swapPages", _createNewTask.bind(this));
+    }
+    ContentView.prototype._newScrollView = function(data, newIndex) {
+        this.customscrollview = new CustomScrollView({
+            page: this.title
+        });
+        this.customdragsort = new DragSort({
+            draggable: {
+                xRange: [ 0, 0 ]
+            }
+        });
+        var node = this.customdragsort;
+        var newTask = new TaskView({
+            text: data.text,
+            index: newIndex,
+            page: this.title
+        });
+        this.customdragsort.push(newTask);
+        if (node.getNext()) node = node._next;
+        newTask.pipe(node);
+        node.pipe(this.customscrollview);
+        newTask.pipe(this.customscrollview);
+        newTask.pipe(this._eventInput);
+        this.customscrollview.pipe(node);
+        this.scrollMod = new Modifier({
+            transform: Transform.translate(0, 0, 1)
+        });
+        this.customscrollview.sequenceFrom(this.customdragsort);
+        this.customscrollview.pipe(this._eventInput);
+        this._add(this.scrollMod).add(this.customscrollview);
+        _activateTasks.call(this, newTask);
+    };
+    ContentView.prototype._addToList = function(data, newIndex, node) {
+        var newTask = new TaskView({
+            text: data.text,
+            index: newIndex,
+            page: this.title
+        });
+        this.customdragsort.push(newTask);
+        for (var j = 0; j < newIndex - 1; j++) {
+            node = node._next;
+        }
+        if (node.getNext()) node = node._next;
+        newTask.pipe(node);
+        node.pipe(this.customscrollview);
+        newTask.pipe(this.customscrollview);
+        this.customscrollview.pipe(node);
+        _activateTasks.call(this, newTask);
+    };
+    function _activateTasks(newTask) {
+        _openInputListener.call(this, newTask);
+        _closeInputListener.call(this, newTask);
+        _completionListener.call(this, newTask);
+        newTask.animateIn(3);
+    }
+    function _createNewTask(data) {
+        var pages = {
+            FOCUS: 0,
+            TODAY: 1,
+            LATER: 2,
+            NEVER: 3
+        };
+        if (this.options.title === "FOCUS" && this.taskCount > 2) {
+            return;
+        }
+        if (pages[this.title] === pages[data.page] + data.direction) {
+            var node = this.customscrollview.node;
+            var newIndex = this.customdragsort.array.length;
+            if (!newIndex) {
+                this._newScrollView(data, newIndex);
+            } else {
+                this._addToList(data, newIndex, node);
+            }
+        }
     }
     function _newTaskListener() {
         this.on("saveNewTask", function(val) {
-            var node = this.customdragsort;
             if (this.options.title === "FOCUS" && this.taskCount > 2) {
                 return;
-                fa;
             }
-            var newTask = new TaskView({
-                text: val
-            });
-            this.customdragsort.push(newTask);
-            for (var j = 0; j < this.taskCount - 1; j++) {
-                node = node._next;
+            var node = this.customscrollview.node;
+            var newIndex = this.customdragsort.array.length;
+            if (!newIndex) {
+                this._newScrollView({
+                    text: val
+                }, newIndex);
+            } else {
+                this._addToList({
+                    text: val
+                }, newIndex, node);
             }
-            if (node.getNext()) node = node._next;
-            newTask.pipe(node);
-            node.pipe(this.customscrollview);
-            newTask.pipe(this.customscrollview);
-            this.customscrollview.pipe(node);
-            _completionListener.call(this, newTask);
-            this.taskCount++;
         }.bind(this));
     }
-    function _inputListener() {
+    function _inputListeners() {
         for (var i = 0; i < this.customdragsort.array.length; i++) {
-            this.customdragsort.array[i].on("openInput", function() {
-                this._eventOutput.emit("showInput");
-            }.bind(this));
-            this.customdragsort.array[i].on("closeInput", function() {
-                this._eventOutput.emit("hideInput");
-            }.bind(this));
+            _openInputListener.call(this, this.customdragsort.array[i]);
+            _closeInputListener.call(this, this.customdragsort.array[i]);
             _completionListener.call(this, this.customdragsort.array[i]);
         }
         this.touchSurf.on("touchstart", function() {
             this.inputToggled = !this.inputToggled;
             this.inputToggled ? this._eventOutput.emit("showInput") : this._eventOutput.emit("hideInput");
+        }.bind(this));
+    }
+    function _openInputListener(task) {
+        task.on("openInput", function() {
+            this.inputToggled = true;
+            this._eventOutput.emit("showInput");
+        }.bind(this));
+    }
+    function _closeInputListener(task) {
+        task.on("closeInputOrEdit", function() {
+            if (this.inputToggled) {
+                this._eventOutput.emit("hideInput");
+                this.inputToggled = false;
+            } else {
+                task.taskItem._eventOutput.emit("transformTask");
+            }
+        }.bind(this));
+        task.on("openLightbox", function(options) {
+            this._eventOutput.emit("openEdit", options);
+            this.editedTask = task.taskItem;
+        }.bind(this));
+    }
+    function _unhideTaskListener() {
+        this.on("unhideEditedTask", function() {
+            this.editedTask._eventOutput.emit("unhide");
         }.bind(this));
     }
     function _gradientListener() {
@@ -9575,11 +9827,50 @@ require.register("app/main/views/ContentView.js", function(exports, require, mod
     function _completionListener(task) {
         task.on("completed", function() {
             this.taskCount--;
+            window.completionMod.setOpacity(.8, {
+                duration: this.options.completionDuration
+            }, function() {
+                window.completionMod.setOpacity(0, {
+                    duration: 2e3
+                }, function() {});
+            }.bind(this));
         }.bind(this));
         task.on("deleted", function() {
             this.taskCount--;
         }.bind(this));
     }
+    ContentView.prototype.animateTasksIn = function(title) {
+        var counter = 1;
+        Engine.on("prerender", function() {
+            var toShow = {};
+            var scrollview;
+            if (this.customscrollview.options.page === title) scrollview = this.customscrollview;
+            if (scrollview._offsets[0] === undefined) return;
+            //if task is moved, if task is added
+            for (var task in scrollview._offsets) {
+                if (task !== "undefined") {
+                    var taskObject = scrollview.node.array[task];
+                    var taskOffset = scrollview._offsets[task];
+                    if (taskOffset > -10 && taskOffset < window.innerHeight && !this.shown[taskObject]) {
+                        toShow[taskObject] = true;
+                        if (!this.shown[taskObject] && taskObject) {
+                            counter++;
+                            taskObject.animateIn(counter);
+                        }
+                    }
+                }
+            }
+            // for(var taskObj in this.shown) {
+            //   if(!toShow[taskObj] && taskObj) {
+            //     console.log(taskObj)
+            //     taskObj.resetAnimation();
+            //   }
+            // }
+            this.shown = toShow;
+            // if task is in shown, it's been animated in
+            toShow = {};
+        }.bind(this));
+    };
     module.exports = ContentView;
 }.bind(this));
 
@@ -9590,8 +9881,8 @@ require.register("app/main/views/FooterView.js", function(exports, require, modu
     var View = require("famous/view");
     function FooterView() {
         View.apply(this, arguments);
-        _createButton.call(this);
-        _buttonListener.call(this);
+        this.options.title !== "NEVER" && _createButton.call(this);
+        this.options.title !== "NEVER" && _buttonListener.call(this);
     }
     FooterView.prototype = Object.create(View.prototype);
     FooterView.prototype.constructor = FooterView;
@@ -9613,6 +9904,7 @@ require.register("app/main/views/FooterView.js", function(exports, require, modu
     function _buttonListener() {
         this.buttonSurf.on("touchend", function() {
             this._eventOutput.emit("togglePageViewUp");
+            console.log();
         }.bind(this));
     }
     module.exports = FooterView;
@@ -9654,11 +9946,11 @@ require.register("app/main/views/HeaderView.js", function(exports, require, modu
         this.bodMod = new Modifier();
         if (_isAndroid()) {
             this.boxMod = new Modifier({
-                transform: Transform.translate(0, 90, 0)
+                transform: Transform.translate(0, 100, 0)
             });
         } else {
             this.boxMod = new Modifier({
-                transform: Transform.translate(0, 70, 0)
+                transform: Transform.translate(0, 90, 0)
             });
         }
         this._add(this.boxMod).add(this.boxContainer);
@@ -9671,7 +9963,8 @@ require.register("app/main/views/HeaderView.js", function(exports, require, modu
             }
         });
         this.titleMod = new Modifier({
-            opacity: 0
+            opacity: 0,
+            transform: Transform.translate(0, 10, 0)
         });
         this.options.title === "FOCUS" && this.titleMod.setOpacity(1, undefined, function() {});
         this._add(this.titleMod).add(this.titleHeader);
@@ -9686,7 +9979,7 @@ require.register("app/main/views/HeaderView.js", function(exports, require, modu
             this.titleMod.setOpacity(1, {
                 duration: this.options.openDuration
             }, function() {
-                this.titleMod.setTransform(Transform.translate(0, 0, 1), {
+                this.titleMod.setTransform(Transform.translate(0, 10, 1), {
                     duration: this.options.openDurationf
                 }, function() {});
             }.bind(this));
@@ -9695,7 +9988,7 @@ require.register("app/main/views/HeaderView.js", function(exports, require, modu
             this.titleMod.setOpacity(0, {
                 duration: this.options.closedDuration
             }, function() {
-                this.titleMod.setTransform(Transform.translate(0, 0, 0), {
+                this.titleMod.setTransform(Transform.translate(0, 10, 0), {
                     duration: this.options.closedDuration
                 }, function() {});
             }.bind(this));
@@ -9741,7 +10034,7 @@ require.register("app/main/views/ListView.js", function(exports, require, module
     var Transform = require("famous/transform");
     var Transitionable = require("famous/transitions/transitionable");
     var TaskView = require("./TaskView");
-    var Tasks = require("./data");
+    var Tasks = window._taskData || [];
     var InputSurface = require("famous/surfaces/input-surface");
     var Timer = require("famous/utilities/timer");
     function ListView() {
@@ -9884,7 +10177,8 @@ require.register("app/main/views/PageView.js", function(exports, require, module
     var Draggable = require("famous/modifiers/draggable");
     var HeaderFooter = require("famous/views/header-footer-layout");
     var Utility = require("famous/utilities/utility");
-    var Tasks = require("./data");
+    var Color = require("./Color");
+    var Tasks = window._taskData || [];
     var TaskView = require("./TaskView");
     var HeaderView = require("./HeaderView");
     var FooterView = require("./FooterView");
@@ -9900,6 +10194,7 @@ require.register("app/main/views/PageView.js", function(exports, require, module
         this.offPage = false;
         _createLayout.call(this);
         _pipeSubviewEventsToAppView.call(this);
+        _createEditLightbox.call(this);
         _setListeners.call(this);
     }
     PageView.prototype = Object.create(View.prototype);
@@ -9909,23 +10204,64 @@ require.register("app/main/views/PageView.js", function(exports, require, module
         yPositionToggleThreshold: 250,
         velocityToggleThreshold: .75,
         headerSizeDuration: 300,
-        regSmallHeader: 70,
-        regBigHeader: 140,
-        focusHeader: window.innerHeight / 2
+        regSmallHeader: 90,
+        regBigHeader: 160,
+        focusHeader: window.innerHeight / 2,
+        editInputAnimation: {
+            method: "spring",
+            period: 500,
+            dampingRatio: .6
+        },
+        shadowFadeDuration: 300
     };
+    function _createEditLightbox() {
+        this.editLightBox = new View();
+        this.editLBMod = new Modifier({
+            transform: Transform.translate(0, 0, -10),
+            opacity: .01
+        });
+        this.shadow = new Surface({
+            size: [ undefined, 650 ],
+            classes: [ "shadowed" ]
+        });
+        this.shadowMod = new Modifier();
+        this.editSurface = new InputSurface({
+            size: [ undefined, 60 ],
+            classes: [ "edit" ],
+            properties: {
+                backgroundColor: "white"
+            }
+        });
+        this.editMod = new Modifier({
+            origin: [ 0, 0 ],
+            transform: Transform.translate(0, 600, 0)
+        });
+        this.shadow.on("touchstart", function() {
+            var editedText = this.editSurface.getValue();
+            var editedTask = this.contents.customdragsort.array[this.taskIndex].taskItem;
+            editedTask._eventOutput.emit("saveTask", editedText);
+            _editInputFlyOut.call(this);
+            Timer.after(_lightboxFadeOut.bind(this), 10);
+        }.bind(this));
+        this.editLightBox._add(this.editMod).add(this.editSurface);
+        this.editLightBox._add(this.shadowMod).add(this.shadow);
+        this._add(this.editLBMod).add(this.editLightBox);
+    }
     function _createLayout() {
         this.layout = new HeaderFooter({
             headerSize: 70,
             footerSize: 40
         });
-        this.footer = new FooterView();
+        this.footer = new FooterView({
+            title: this.options.title
+        });
         this.header = new HeaderView({
             title: this.options.title
         });
         this.contents = new ContentView({
             title: this.options.title
         });
-        this.layout.id["header"].add(Utility.transformInFront).add(this.header);
+        this.layout.id["header"].add(this.header);
         this.layout.id["content"].add(this.contents);
         this.layout.id["footer"].add(Utility.transformInFront).add(this.footer);
         this._add(this.layout);
@@ -9940,6 +10276,8 @@ require.register("app/main/views/PageView.js", function(exports, require, module
         this.header.pipe(this._eventOutput);
     }
     function _setListeners() {
+        this.contents._eventInput.pipe(this._eventOutput);
+        this._eventInput.pipe(this.contents._eventInput);
         window.Engine.on("prerender", _setHeaderSize.bind(this));
         this.contents.on("showInput", function() {
             this.header._eventOutput.emit("showInput");
@@ -9965,6 +10303,44 @@ require.register("app/main/views/PageView.js", function(exports, require, module
             this.header._eventOutput.emit("hideInput");
             this.header.value.length && this.contents._eventOutput.emit("saveNewTask", this.header.value);
         }.bind(this));
+        this.contents.on("openEdit", function(options) {
+            this.taskIndex = options.index;
+            this.editSurface.setValue(options.text);
+            _lightboxFadeIn.call(this);
+            _editInputFlyIn.call(this);
+        }.bind(this));
+    }
+    function _lightboxFadeOut() {
+        this.editLBMod.setOpacity(.01, {
+            duration: 400
+        }, function() {
+            this.editLBMod.setTransform(Transform.translate(0, 0, -10));
+        }.bind(this));
+    }
+    function _lightboxFadeIn() {
+        this.editLBMod.setTransform(Transform.translate(0, 0, 2), {
+            duration: 0
+        }, function() {
+            this.editLBMod.setOpacity(1, {
+                duration: this.shadowFadeDuration
+            }, function() {});
+        }.bind(this));
+    }
+    function _editInputFlyIn() {
+        this.editTaskOffset = this.options.title === "FOCUS" ? window.innerHeight / 2 + this.taskIndex * 60 - 10 : (this.taskIndex + 1) * 60 - 10;
+        this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0));
+        this.editMod.setTransform(Transform.translate(0, 20, 0), this.options.editInputAnimation, function() {
+            this.editSurface.focus();
+            SoftKeyboard && SoftKeyboard.show();
+        }.bind(this));
+    }
+    function _editInputFlyOut() {
+        SoftKeyboard && SoftKeyboard.hide();
+        this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0), {
+            duration: 300
+        }, function() {
+            this.contents._eventOutput.emit("unhideEditedTask");
+        }.bind(this));
     }
     module.exports = PageView;
 }.bind(this));
@@ -9983,9 +10359,13 @@ require.register("app/main/views/TaskItem.js", function(exports, require, module
     var Draggable = require("famous/modifiers/draggable");
     var Transform = require("famous/transform");
     var Easing = require("famous/animation/easing");
+    var Timer = require("famous/utilities/timer");
     function TaskItem(options) {
         View.apply(this, arguments);
         this.timeTouched = 0;
+        this.page = this.options.page;
+        this.text = this.options.text;
+        this.index = this.options.index;
         _createLayout.call(this);
         _bindEvents.call(this);
         _setDate.call(this);
@@ -10061,6 +10441,9 @@ require.register("app/main/views/TaskItem.js", function(exports, require, module
         this._eventInput.on("touchmove", handleMove.bind(this));
         this._eventInput.on("touchend", handleEnd.bind(this));
         this._eventInput.on("click", handleClick.bind(this));
+        this.on("saveTask", saveTask.bind(this));
+        this.on("transformTask", transformTask.bind(this));
+        this.on("unhide", unhideTask.bind(this));
         Engine.on("prerender", findTimeDeltas.bind(this));
         Engine.on("prerender", checkForDragging.bind(this));
     }
@@ -10073,7 +10456,6 @@ require.register("app/main/views/TaskItem.js", function(exports, require, module
         this.distanceThreshold = false;
         this.touchStart = [ data.targetTouches[0]["pageX"], data.targetTouches[0]["pageY"] ];
         this.touchCurrent = [ data.targetTouches[0]["pageX"], data.targetTouches[0]["pageY"] ];
-        this.touchStart[1] < 90 ? this._eventOutput.emit("openInput") : this._eventOutput.emit("closeInput");
     }
     function handleMove(data) {
         this.touchCurrent = [ data.targetTouches[0]["pageX"], data.targetTouches[0]["pageY"] ];
@@ -10094,6 +10476,16 @@ require.register("app/main/views/TaskItem.js", function(exports, require, module
     function handleEnd() {
         this.touched = false;
         replaceTask.call(this);
+        var xDistance = Math.abs(this.touchStart[0] - this.touchCurrent[0]);
+        var yDistance = Math.abs(this.touchStart[1] - this.touchCurrent[1]);
+        if (this.touchStart[1] < 90) {
+            this._eventOutput.emit("openInput");
+        } else if (xDistance < 10 && yDistance < 10 && this.timeTouched > 0 && this.timeTouched < 200) {
+            this._eventOutput.emit("closeInputOrEdit", {
+                text: this.options.text,
+                index: this.options.index
+            });
+        }
         this.timeTouched = 0;
         this._eventInput.pipe(this.draggable);
     }
@@ -10152,18 +10544,60 @@ require.register("app/main/views/TaskItem.js", function(exports, require, module
         this.deleteBox.addClass("invisible");
         this.draggable.setPosition([ -1 * this.options.deleteCheckWidth - window.innerWidth, 0 ], this.options.taskItemExitTransition, function() {
             console.log("check me off");
+            vibrate();
             this._eventOutput.emit("completed");
+            this._eventOutput.emit("deleteTask");
         }.bind(this));
     }
     function _deleteTask() {
         this.checkBox.addClass("invisible");
         this.draggable.setPosition([ this.options.deleteCheckWidth + window.innerWidth, 0 ], this.options.taskItemExitTransition, function() {
-            console.log("delete me");
+            vibrate();
             this._eventOutput.emit("deleted");
+            this._eventOutput.emit("deleteTask");
         }.bind(this));
     }
     function _springTaskBack() {
         this.draggable.setPosition([ 0, 0 ], this.options.taskItemSpringTransition);
+    }
+    function saveTask(text) {
+        this.text = text;
+        this.contents.setContent("<p>" + text + "</p>");
+    }
+    function unhideTask() {
+        this.contents.setProperties({
+            display: "block"
+        });
+        this.taskItemModifier.setTransform(Matrix.translate(0, 0, 0), {
+            curve: "easeOut",
+            duration: 300
+        }, function() {
+            this.contents.setProperties({
+                backgroundColor: "rgba(255, 255, 255, 0.07)"
+            });
+        }.bind(this));
+    }
+    function transformTask() {
+        this.contents.setProperties({
+            backgroundColor: "white"
+        });
+        this.taskItemModifier.setTransform(Matrix.translate(0, 0, 40), {
+            curve: "easeOut",
+            duration: 300
+        }, function() {
+            this._eventOutput.emit("openLightbox", {
+                text: this.text,
+                index: this.index
+            });
+            Timer.after(function() {
+                this.contents.setProperties({
+                    display: "none"
+                });
+            }.bind(this), 5);
+        }.bind(this));
+    }
+    function vibrate() {
+        navigator.notification.vibrate(300);
     }
     module.exports = TaskItem;
 }.bind(this));
@@ -10172,11 +10606,17 @@ require.register("app/main/views/TaskView.js", function(exports, require, module
     var Draggable = require("famous/modifiers/draggable");
     var Transform = require("famous/transform");
     var View = require("famous/view");
-    var TaskItem = require("./TaskItem");
     var Modifier = require("famous/modifier");
+    var TaskItem = require("./TaskItem");
     function TaskView(options) {
         View.apply(this, arguments);
         _addTaskItem.call(this);
+        this.options.transition = {
+            duration: 1300,
+            curve: "easeInOut"
+        };
+        this.animateIn = animateIn;
+        this.resetAnimation = resetAnimation;
     }
     TaskView.prototype = Object.create(View.prototype);
     TaskView.prototype.constructor = TaskView;
@@ -10187,13 +10627,44 @@ require.register("app/main/views/TaskView.js", function(exports, require, module
     function _addTaskItem() {
         this.taskItem = new TaskItem(this.options);
         this.taskItemModifier = new Modifier({
-            transform: Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0),
-            size: [ undefined, 60 ]
+            transform: Transform.translate(-1 * this.options.deleteCheckWidth, 1e3, 0),
+            size: [ undefined, 60 ],
+            opacity: .1
         });
         this.taskItem.pipe(this._eventOutput);
         this._add(this.taskItemModifier).add(this.taskItem);
     }
+    /*-----------------------ANIMATION-------------------------------*/
+    function animateIn(counter) {
+        this.taskItemModifier.setTransform(Transform.translate(-1 * this.options.deleteCheckWidth, 0, 0), {
+            duration: 180 * counter,
+            curve: "easeInOut"
+        }, function() {});
+        this.taskItemModifier.setOpacity(1, this.options.transition, function() {});
+    }
+    function resetAnimation() {
+        console.log("reset");
+        this.taskItemModifier.setOpacity(.1, this.options.transition, function() {});
+        this.taskItemModifier.setTransform(Transform.translate(-1 * this.options.deleteCheckWidth, 1e3, 0), this.options.transition, function() {});
+    }
     module.exports = TaskView;
+}.bind(this));
+
+require.register("app/main/views/colorData.js", function(exports, require, module) {
+    var colorData = {};
+    colorData.focusColors = [ .2, .8, .7, 1, // green
+    .2, .8, .7, 1, 1, 1, 1, 1, // white
+    1, 1, 1, 1 ];
+    colorData.todayColors = [ .5, .8, 1, 1, // light blue
+    .5, .8, 1, 1, 1, 1, 1, 1, // white
+    1, 1, 1, 1 ];
+    colorData.laterColors = [ .5, .5, .8, 1, // purple
+    .5, .5, .8, 1, .2, .6, 1, 1, // blue
+    .2, .6, 1, 1 ];
+    colorData.neverColors = [ .2, .8, .7, 1, // green
+    .2, .8, .7, 1, 1, 1, 1, 1, // white
+    1, 1, 1, 1 ];
+    module.exports = colorData;
 }.bind(this));
 
 require.register("app/main/views/customScrollView.js", function(exports, require, module) {
@@ -10202,12 +10673,14 @@ require.register("app/main/views/customScrollView.js", function(exports, require
     function TableView(options) {
         Scrollview.apply(this, arguments);
         bindEvents.call(this);
+        this.options.page = options.page;
     }
     function bindEvents() {
         this.eventInput.on("shift", shift.bind(this));
         this.eventInput.on("editmodeOn", stopYScroll.bind(this));
         this.eventInput.on("xScroll", stopYScroll.bind(this));
-        this.eventInput.on("deleteTask", deleteTask.bind(this));
+        this.eventInput.on("deleteMe", deleteTask.bind(this));
+        this.eventInput.on("swapPage", swapPage.bind(this));
     }
     function stopYScroll() {
         this._earlyEnd = true;
@@ -10221,12 +10694,55 @@ require.register("app/main/views/customScrollView.js", function(exports, require
         this.node.find(data.oldIndex).moveTo(data.newIndex);
         var currentNode = this.node.find(0);
         while (currentNode) {
+            currentNode.array[currentNode.index].taskItem.index = currentNode.index;
             currentNode.setPosition([ 0, 0 ]);
             currentNode = currentNode.getNext();
         }
     }
     function deleteTask(indexObj) {
+        console.log(this.node.getAllLinkedNodes());
+        if (indexObj.index === this.node.index) {
+            if (this.node._next) this.node = this.node._next;
+        }
         this.node.splice(indexObj.index, 1);
+        var currentNode = this.node.find(0);
+        if (currentNode.array.length) {
+            while (currentNode) {
+                currentNode.array[currentNode.index].taskItem.index = currentNode.index;
+                currentNode.setPosition([ 0, 0 ]);
+                currentNode = currentNode.getNext();
+            }
+        }
+    }
+    function swapPage(indexObj) {
+        var currentNode = this.node.find(0);
+        while (currentNode && currentNode.index !== indexObj.index) {
+            currentNode.setPosition([ 0, 0 ]);
+            currentNode = currentNode.getNext();
+        }
+        var currentNode = this.node.find(indexObj.index + 1);
+        while (currentNode) {
+            currentNode.setPosition([ 0, -currentNode.getSize()[1] ]);
+            currentNode = currentNode.getNext();
+        }
+        setTimeout(function() {
+            if (indexObj.index === this.node.index) {
+                if (this.node.find(this.node.index + 1)) this.node = this.node.find(this.node.index + 1);
+            }
+            this.eventOutput.emit("moveTaskToNewPage", {
+                page: indexObj.page,
+                text: this.node.splice(indexObj.index, 1).taskItem.text,
+                direction: indexObj.direction
+            });
+            var currentNode = this.node.find(0);
+            if (currentNode.array.length) {
+                while (currentNode) {
+                    currentNode.array[currentNode.index].taskItem.index = currentNode.index;
+                    currentNode.setPosition([ 0, 0 ]);
+                    currentNode = currentNode.getNext();
+                }
+            }
+        }.bind(this), 300);
     }
     TableView.prototype = Object.create(Scrollview.prototype);
     TableView.prototype.emit = function(type, data) {
@@ -10240,10 +10756,10 @@ require.register("app/main/views/data.js", function(exports, require, module) {
         text: "make an app",
         page: "FOCUS"
     }, {
-        text: "eat lunch",
-        page: "TODAY"
-    }, {
         text: "be awesome",
+        page: "FOCUS"
+    }, {
+        text: "moonlight as catwoman",
         page: "FOCUS"
     }, {
         text: "find phone",
@@ -10251,28 +10767,49 @@ require.register("app/main/views/data.js", function(exports, require, module) {
     }, {
         text: "be awesome",
         page: "TODAY"
-    }, // { text: 'be awesome', page: 'FOCUS'},
-    {
-        text: "make app",
+    }, {
+        text: "make app, heeeere",
         page: "TODAY"
     }, {
         text: "eat lunch",
         page: "TODAY"
-    }, // { text: 'be awesome', page: 'FOCUS'},
-    // { text: 'eat dinner', page: 'LATER'},
-    {
-        text: "moonlight as catwoman",
-        page: "FOCUS"
-    }, // { text: 'eat lunch', page: 'TODAY'},
-    // { text: 'be awesome', page: 'FOCUS'},
-    // { text: 'eat dinner', page: 'TODAY'},
-    // { text: 'eat lunch', page: 'TODAY'},
-    // { text: 'be awesome', page: 'FOCUS'},
-    // { text: 'eat dinner', page: 'TODAY'},
-    // { text: 'eat lunch', page: 'TODAY'},
-    // { text: 'be awesome', page: 'FOCUS'},
-    // { text: 'eat dinner', page: 'TODAY'},
-    // { text: 'make an app', page: 'FOCUS'},
+    }, {
+        text: "eat dinner",
+        page: "TODAY"
+    }, {
+        text: "eat dinner",
+        page: "LATER"
+    }, {
+        text: "eat dinner",
+        page: "LATER"
+    }, {
+        text: "eat dinner",
+        page: "LATER"
+    }, {
+        text: "eat dinner",
+        page: "LATER"
+    }, {
+        text: "eat dinner",
+        page: "LATER"
+    }, {
+        text: "eat lunch",
+        page: "TODAY"
+    }, {
+        text: "eat dinner",
+        page: "TODAY"
+    }, {
+        text: "eat lunch",
+        page: "TODAY"
+    }, {
+        text: "eat dinner",
+        page: "NEVER"
+    }, {
+        text: "eat lunch",
+        page: "NEVER"
+    }, {
+        text: "eat dinner",
+        page: "NEVER"
+    }, // { text: 'make an app', page: 'FOCUS'},
     // { text: 'eat lunch', page: 'TODAY'},
     // { text: 'be awesome', page: 'FOCUS'},
     // { text: 'eat dinner', page: 'TODAY'},
@@ -10296,6 +10833,1420 @@ require.register("app/main/views/data.js", function(exports, require, module) {
         page: "TODAY"
     } ];
     module.exports = tasks;
+}.bind(this));
+
+require.register("app/main/views/webGL/sylvester.js", function(exports, require, module) {
+    // === Sylvester ===
+    // Vector and Matrix mathematics modules for JavaScript
+    // Copyright (c) 2007 James Coglan
+    // 
+    // Permission is hereby granted, free of charge, to any person obtaining
+    // a copy of this software and associated documentation files (the "Software"),
+    // to deal in the Software without restriction, including without limitation
+    // the rights to use, copy, modify, merge, publish, distribute, sublicense,
+    // and/or sell copies of the Software, and to permit persons to whom the
+    // Software is furnished to do so, subject to the following conditions:
+    // 
+    // The above copyright notice and this permission notice shall be included
+    // in all copies or substantial portions of the Software.
+    // 
+    // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+    // OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+    // THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+    // DEALINGS IN THE SOFTWARE.
+    var Sylvester = {
+        version: "0.1.3",
+        precision: 1e-6
+    };
+    function Vector() {}
+    Vector.prototype = {
+        // Returns element i of the vector
+        e: function(i) {
+            return i < 1 || i > this.elements.length ? null : this.elements[i - 1];
+        },
+        // Returns the number of elements the vector has
+        dimensions: function() {
+            return this.elements.length;
+        },
+        // Returns the modulus ('length') of the vector
+        modulus: function() {
+            return Math.sqrt(this.dot(this));
+        },
+        // Returns true iff the vector is equal to the argument
+        eql: function(vector) {
+            var n = this.elements.length;
+            var V = vector.elements || vector;
+            if (n != V.length) {
+                return false;
+            }
+            do {
+                if (Math.abs(this.elements[n - 1] - V[n - 1]) > Sylvester.precision) {
+                    return false;
+                }
+            } while (--n);
+            return true;
+        },
+        // Returns a copy of the vector
+        dup: function() {
+            return Vector.create(this.elements);
+        },
+        // Maps the vector to another vector according to the given function
+        map: function(fn) {
+            var elements = [];
+            this.each(function(x, i) {
+                elements.push(fn(x, i));
+            });
+            return Vector.create(elements);
+        },
+        // Calls the iterator for each element of the vector in turn
+        each: function(fn) {
+            var n = this.elements.length, k = n, i;
+            do {
+                i = k - n;
+                fn(this.elements[i], i + 1);
+            } while (--n);
+        },
+        // Returns a new vector created by normalizing the receiver
+        toUnitVector: function() {
+            var r = this.modulus();
+            if (r === 0) {
+                return this.dup();
+            }
+            return this.map(function(x) {
+                return x / r;
+            });
+        },
+        // Returns the angle between the vector and the argument (also a vector)
+        angleFrom: function(vector) {
+            var V = vector.elements || vector;
+            var n = this.elements.length, k = n, i;
+            if (n != V.length) {
+                return null;
+            }
+            var dot = 0, mod1 = 0, mod2 = 0;
+            // Work things out in parallel to save time
+            this.each(function(x, i) {
+                dot += x * V[i - 1];
+                mod1 += x * x;
+                mod2 += V[i - 1] * V[i - 1];
+            });
+            mod1 = Math.sqrt(mod1);
+            mod2 = Math.sqrt(mod2);
+            if (mod1 * mod2 === 0) {
+                return null;
+            }
+            var theta = dot / (mod1 * mod2);
+            if (theta < -1) {
+                theta = -1;
+            }
+            if (theta > 1) {
+                theta = 1;
+            }
+            return Math.acos(theta);
+        },
+        // Returns true iff the vector is parallel to the argument
+        isParallelTo: function(vector) {
+            var angle = this.angleFrom(vector);
+            return angle === null ? null : angle <= Sylvester.precision;
+        },
+        // Returns true iff the vector is antiparallel to the argument
+        isAntiparallelTo: function(vector) {
+            var angle = this.angleFrom(vector);
+            return angle === null ? null : Math.abs(angle - Math.PI) <= Sylvester.precision;
+        },
+        // Returns true iff the vector is perpendicular to the argument
+        isPerpendicularTo: function(vector) {
+            var dot = this.dot(vector);
+            return dot === null ? null : Math.abs(dot) <= Sylvester.precision;
+        },
+        // Returns the result of adding the argument to the vector
+        add: function(vector) {
+            var V = vector.elements || vector;
+            if (this.elements.length != V.length) {
+                return null;
+            }
+            return this.map(function(x, i) {
+                return x + V[i - 1];
+            });
+        },
+        // Returns the result of subtracting the argument from the vector
+        subtract: function(vector) {
+            var V = vector.elements || vector;
+            if (this.elements.length != V.length) {
+                return null;
+            }
+            return this.map(function(x, i) {
+                return x - V[i - 1];
+            });
+        },
+        // Returns the result of multiplying the elements of the vector by the argument
+        multiply: function(k) {
+            return this.map(function(x) {
+                return x * k;
+            });
+        },
+        x: function(k) {
+            return this.multiply(k);
+        },
+        // Returns the scalar product of the vector with the argument
+        // Both vectors must have equal dimensionality
+        dot: function(vector) {
+            var V = vector.elements || vector;
+            var i, product = 0, n = this.elements.length;
+            if (n != V.length) {
+                return null;
+            }
+            do {
+                product += this.elements[n - 1] * V[n - 1];
+            } while (--n);
+            return product;
+        },
+        // Returns the vector product of the vector with the argument
+        // Both vectors must have dimensionality 3
+        cross: function(vector) {
+            var B = vector.elements || vector;
+            if (this.elements.length != 3 || B.length != 3) {
+                return null;
+            }
+            var A = this.elements;
+            return Vector.create([ A[1] * B[2] - A[2] * B[1], A[2] * B[0] - A[0] * B[2], A[0] * B[1] - A[1] * B[0] ]);
+        },
+        // Returns the (absolute) largest element of the vector
+        max: function() {
+            var m = 0, n = this.elements.length, k = n, i;
+            do {
+                i = k - n;
+                if (Math.abs(this.elements[i]) > Math.abs(m)) {
+                    m = this.elements[i];
+                }
+            } while (--n);
+            return m;
+        },
+        // Returns the index of the first match found
+        indexOf: function(x) {
+            var index = null, n = this.elements.length, k = n, i;
+            do {
+                i = k - n;
+                if (index === null && this.elements[i] == x) {
+                    index = i + 1;
+                }
+            } while (--n);
+            return index;
+        },
+        // Returns a diagonal matrix with the vector's elements as its diagonal elements
+        toDiagonalMatrix: function() {
+            return Matrix.Diagonal(this.elements);
+        },
+        // Returns the result of rounding the elements of the vector
+        round: function() {
+            return this.map(function(x) {
+                return Math.round(x);
+            });
+        },
+        // Returns a copy of the vector with elements set to the given value if they
+        // differ from it by less than Sylvester.precision
+        snapTo: function(x) {
+            return this.map(function(y) {
+                return Math.abs(y - x) <= Sylvester.precision ? x : y;
+            });
+        },
+        // Returns the vector's distance from the argument, when considered as a point in space
+        distanceFrom: function(obj) {
+            if (obj.anchor) {
+                return obj.distanceFrom(this);
+            }
+            var V = obj.elements || obj;
+            if (V.length != this.elements.length) {
+                return null;
+            }
+            var sum = 0, part;
+            this.each(function(x, i) {
+                part = x - V[i - 1];
+                sum += part * part;
+            });
+            return Math.sqrt(sum);
+        },
+        // Returns true if the vector is point on the given line
+        liesOn: function(line) {
+            return line.contains(this);
+        },
+        // Return true iff the vector is a point in the given plane
+        liesIn: function(plane) {
+            return plane.contains(this);
+        },
+        // Rotates the vector about the given object. The object should be a 
+        // point if the vector is 2D, and a line if it is 3D. Be careful with line directions!
+        rotate: function(t, obj) {
+            var V, R, x, y, z;
+            switch (this.elements.length) {
+              case 2:
+                V = obj.elements || obj;
+                if (V.length != 2) {
+                    return null;
+                }
+                R = Matrix.Rotation(t).elements;
+                x = this.elements[0] - V[0];
+                y = this.elements[1] - V[1];
+                return Vector.create([ V[0] + R[0][0] * x + R[0][1] * y, V[1] + R[1][0] * x + R[1][1] * y ]);
+                break;
+
+              case 3:
+                if (!obj.direction) {
+                    return null;
+                }
+                var C = obj.pointClosestTo(this).elements;
+                R = Matrix.Rotation(t, obj.direction).elements;
+                x = this.elements[0] - C[0];
+                y = this.elements[1] - C[1];
+                z = this.elements[2] - C[2];
+                return Vector.create([ C[0] + R[0][0] * x + R[0][1] * y + R[0][2] * z, C[1] + R[1][0] * x + R[1][1] * y + R[1][2] * z, C[2] + R[2][0] * x + R[2][1] * y + R[2][2] * z ]);
+                break;
+
+              default:
+                return null;
+            }
+        },
+        // Returns the result of reflecting the point in the given point, line or plane
+        reflectionIn: function(obj) {
+            if (obj.anchor) {
+                // obj is a plane or line
+                var P = this.elements.slice();
+                var C = obj.pointClosestTo(P).elements;
+                return Vector.create([ C[0] + (C[0] - P[0]), C[1] + (C[1] - P[1]), C[2] + (C[2] - (P[2] || 0)) ]);
+            } else {
+                // obj is a point
+                var Q = obj.elements || obj;
+                if (this.elements.length != Q.length) {
+                    return null;
+                }
+                return this.map(function(x, i) {
+                    return Q[i - 1] + (Q[i - 1] - x);
+                });
+            }
+        },
+        // Utility to make sure vectors are 3D. If they are 2D, a zero z-component is added
+        to3D: function() {
+            var V = this.dup();
+            switch (V.elements.length) {
+              case 3:
+                break;
+
+              case 2:
+                V.elements.push(0);
+                break;
+
+              default:
+                return null;
+            }
+            return V;
+        },
+        // Returns a string representation of the vector
+        inspect: function() {
+            return "[" + this.elements.join(", ") + "]";
+        },
+        // Set vector's elements from an array
+        setElements: function(els) {
+            this.elements = (els.elements || els).slice();
+            return this;
+        }
+    };
+    // Constructor function
+    Vector.create = function(elements) {
+        var V = new Vector();
+        return V.setElements(elements);
+    };
+    // i, j, k unit vectors
+    Vector.i = Vector.create([ 1, 0, 0 ]);
+    Vector.j = Vector.create([ 0, 1, 0 ]);
+    Vector.k = Vector.create([ 0, 0, 1 ]);
+    // Random vector of size n
+    Vector.Random = function(n) {
+        var elements = [];
+        do {
+            elements.push(Math.random());
+        } while (--n);
+        return Vector.create(elements);
+    };
+    // Vector filled with zeros
+    Vector.Zero = function(n) {
+        var elements = [];
+        do {
+            elements.push(0);
+        } while (--n);
+        return Vector.create(elements);
+    };
+    function Matrix() {}
+    Matrix.prototype = {
+        // Returns element (i,j) of the matrix
+        e: function(i, j) {
+            if (i < 1 || i > this.elements.length || j < 1 || j > this.elements[0].length) {
+                return null;
+            }
+            return this.elements[i - 1][j - 1];
+        },
+        // Returns row k of the matrix as a vector
+        row: function(i) {
+            if (i > this.elements.length) {
+                return null;
+            }
+            return Vector.create(this.elements[i - 1]);
+        },
+        // Returns column k of the matrix as a vector
+        col: function(j) {
+            if (j > this.elements[0].length) {
+                return null;
+            }
+            var col = [], n = this.elements.length, k = n, i;
+            do {
+                i = k - n;
+                col.push(this.elements[i][j - 1]);
+            } while (--n);
+            return Vector.create(col);
+        },
+        // Returns the number of rows/columns the matrix has
+        dimensions: function() {
+            return {
+                rows: this.elements.length,
+                cols: this.elements[0].length
+            };
+        },
+        // Returns the number of rows in the matrix
+        rows: function() {
+            return this.elements.length;
+        },
+        // Returns the number of columns in the matrix
+        cols: function() {
+            return this.elements[0].length;
+        },
+        // Returns true iff the matrix is equal to the argument. You can supply
+        // a vector as the argument, in which case the receiver must be a
+        // one-column matrix equal to the vector.
+        eql: function(matrix) {
+            var M = matrix.elements || matrix;
+            if (typeof M[0][0] == "undefined") {
+                M = Matrix.create(M).elements;
+            }
+            if (this.elements.length != M.length || this.elements[0].length != M[0].length) {
+                return false;
+            }
+            var ni = this.elements.length, ki = ni, i, nj, kj = this.elements[0].length, j;
+            do {
+                i = ki - ni;
+                nj = kj;
+                do {
+                    j = kj - nj;
+                    if (Math.abs(this.elements[i][j] - M[i][j]) > Sylvester.precision) {
+                        return false;
+                    }
+                } while (--nj);
+            } while (--ni);
+            return true;
+        },
+        // Returns a copy of the matrix
+        dup: function() {
+            return Matrix.create(this.elements);
+        },
+        // Maps the matrix to another matrix (of the same dimensions) according to the given function
+        map: function(fn) {
+            var els = [], ni = this.elements.length, ki = ni, i, nj, kj = this.elements[0].length, j;
+            do {
+                i = ki - ni;
+                nj = kj;
+                els[i] = [];
+                do {
+                    j = kj - nj;
+                    els[i][j] = fn(this.elements[i][j], i + 1, j + 1);
+                } while (--nj);
+            } while (--ni);
+            return Matrix.create(els);
+        },
+        // Returns true iff the argument has the same dimensions as the matrix
+        isSameSizeAs: function(matrix) {
+            var M = matrix.elements || matrix;
+            if (typeof M[0][0] == "undefined") {
+                M = Matrix.create(M).elements;
+            }
+            return this.elements.length == M.length && this.elements[0].length == M[0].length;
+        },
+        // Returns the result of adding the argument to the matrix
+        add: function(matrix) {
+            var M = matrix.elements || matrix;
+            if (typeof M[0][0] == "undefined") {
+                M = Matrix.create(M).elements;
+            }
+            if (!this.isSameSizeAs(M)) {
+                return null;
+            }
+            return this.map(function(x, i, j) {
+                return x + M[i - 1][j - 1];
+            });
+        },
+        // Returns the result of subtracting the argument from the matrix
+        subtract: function(matrix) {
+            var M = matrix.elements || matrix;
+            if (typeof M[0][0] == "undefined") {
+                M = Matrix.create(M).elements;
+            }
+            if (!this.isSameSizeAs(M)) {
+                return null;
+            }
+            return this.map(function(x, i, j) {
+                return x - M[i - 1][j - 1];
+            });
+        },
+        // Returns true iff the matrix can multiply the argument from the left
+        canMultiplyFromLeft: function(matrix) {
+            var M = matrix.elements || matrix;
+            if (typeof M[0][0] == "undefined") {
+                M = Matrix.create(M).elements;
+            }
+            // this.columns should equal matrix.rows
+            return this.elements[0].length == M.length;
+        },
+        // Returns the result of multiplying the matrix from the right by the argument.
+        // If the argument is a scalar then just multiply all the elements. If the argument is
+        // a vector, a vector is returned, which saves you having to remember calling
+        // col(1) on the result.
+        multiply: function(matrix) {
+            if (!matrix.elements) {
+                return this.map(function(x) {
+                    return x * matrix;
+                });
+            }
+            var returnVector = matrix.modulus ? true : false;
+            var M = matrix.elements || matrix;
+            if (typeof M[0][0] == "undefined") {
+                M = Matrix.create(M).elements;
+            }
+            if (!this.canMultiplyFromLeft(M)) {
+                return null;
+            }
+            var ni = this.elements.length, ki = ni, i, nj, kj = M[0].length, j;
+            var cols = this.elements[0].length, elements = [], sum, nc, c;
+            do {
+                i = ki - ni;
+                elements[i] = [];
+                nj = kj;
+                do {
+                    j = kj - nj;
+                    sum = 0;
+                    nc = cols;
+                    do {
+                        c = cols - nc;
+                        sum += this.elements[i][c] * M[c][j];
+                    } while (--nc);
+                    elements[i][j] = sum;
+                } while (--nj);
+            } while (--ni);
+            var M = Matrix.create(elements);
+            return returnVector ? M.col(1) : M;
+        },
+        x: function(matrix) {
+            return this.multiply(matrix);
+        },
+        // Returns a submatrix taken from the matrix
+        // Argument order is: start row, start col, nrows, ncols
+        // Element selection wraps if the required index is outside the matrix's bounds, so you could
+        // use this to perform row/column cycling or copy-augmenting.
+        minor: function(a, b, c, d) {
+            var elements = [], ni = c, i, nj, j;
+            var rows = this.elements.length, cols = this.elements[0].length;
+            do {
+                i = c - ni;
+                elements[i] = [];
+                nj = d;
+                do {
+                    j = d - nj;
+                    elements[i][j] = this.elements[(a + i - 1) % rows][(b + j - 1) % cols];
+                } while (--nj);
+            } while (--ni);
+            return Matrix.create(elements);
+        },
+        // Returns the transpose of the matrix
+        transpose: function() {
+            var rows = this.elements.length, cols = this.elements[0].length;
+            var elements = [], ni = cols, i, nj, j;
+            do {
+                i = cols - ni;
+                elements[i] = [];
+                nj = rows;
+                do {
+                    j = rows - nj;
+                    elements[i][j] = this.elements[j][i];
+                } while (--nj);
+            } while (--ni);
+            return Matrix.create(elements);
+        },
+        // Returns true iff the matrix is square
+        isSquare: function() {
+            return this.elements.length == this.elements[0].length;
+        },
+        // Returns the (absolute) largest element of the matrix
+        max: function() {
+            var m = 0, ni = this.elements.length, ki = ni, i, nj, kj = this.elements[0].length, j;
+            do {
+                i = ki - ni;
+                nj = kj;
+                do {
+                    j = kj - nj;
+                    if (Math.abs(this.elements[i][j]) > Math.abs(m)) {
+                        m = this.elements[i][j];
+                    }
+                } while (--nj);
+            } while (--ni);
+            return m;
+        },
+        // Returns the indeces of the first match found by reading row-by-row from left to right
+        indexOf: function(x) {
+            var index = null, ni = this.elements.length, ki = ni, i, nj, kj = this.elements[0].length, j;
+            do {
+                i = ki - ni;
+                nj = kj;
+                do {
+                    j = kj - nj;
+                    if (this.elements[i][j] == x) {
+                        return {
+                            i: i + 1,
+                            j: j + 1
+                        };
+                    }
+                } while (--nj);
+            } while (--ni);
+            return null;
+        },
+        // If the matrix is square, returns the diagonal elements as a vector.
+        // Otherwise, returns null.
+        diagonal: function() {
+            if (!this.isSquare) {
+                return null;
+            }
+            var els = [], n = this.elements.length, k = n, i;
+            do {
+                i = k - n;
+                els.push(this.elements[i][i]);
+            } while (--n);
+            return Vector.create(els);
+        },
+        // Make the matrix upper (right) triangular by Gaussian elimination.
+        // This method only adds multiples of rows to other rows. No rows are
+        // scaled up or switched, and the determinant is preserved.
+        toRightTriangular: function() {
+            var M = this.dup(), els;
+            var n = this.elements.length, k = n, i, np, kp = this.elements[0].length, p;
+            do {
+                i = k - n;
+                if (M.elements[i][i] == 0) {
+                    for (j = i + 1; j < k; j++) {
+                        if (M.elements[j][i] != 0) {
+                            els = [];
+                            np = kp;
+                            do {
+                                p = kp - np;
+                                els.push(M.elements[i][p] + M.elements[j][p]);
+                            } while (--np);
+                            M.elements[i] = els;
+                            break;
+                        }
+                    }
+                }
+                if (M.elements[i][i] != 0) {
+                    for (j = i + 1; j < k; j++) {
+                        var multiplier = M.elements[j][i] / M.elements[i][i];
+                        els = [];
+                        np = kp;
+                        do {
+                            p = kp - np;
+                            // Elements with column numbers up to an including the number
+                            // of the row that we're subtracting can safely be set straight to
+                            // zero, since that's the point of this routine and it avoids having
+                            // to loop over and correct rounding errors later
+                            els.push(p <= i ? 0 : M.elements[j][p] - M.elements[i][p] * multiplier);
+                        } while (--np);
+                        M.elements[j] = els;
+                    }
+                }
+            } while (--n);
+            return M;
+        },
+        toUpperTriangular: function() {
+            return this.toRightTriangular();
+        },
+        // Returns the determinant for square matrices
+        determinant: function() {
+            if (!this.isSquare()) {
+                return null;
+            }
+            var M = this.toRightTriangular();
+            var det = M.elements[0][0], n = M.elements.length - 1, k = n, i;
+            do {
+                i = k - n + 1;
+                det = det * M.elements[i][i];
+            } while (--n);
+            return det;
+        },
+        det: function() {
+            return this.determinant();
+        },
+        // Returns true iff the matrix is singular
+        isSingular: function() {
+            return this.isSquare() && this.determinant() === 0;
+        },
+        // Returns the trace for square matrices
+        trace: function() {
+            if (!this.isSquare()) {
+                return null;
+            }
+            var tr = this.elements[0][0], n = this.elements.length - 1, k = n, i;
+            do {
+                i = k - n + 1;
+                tr += this.elements[i][i];
+            } while (--n);
+            return tr;
+        },
+        tr: function() {
+            return this.trace();
+        },
+        // Returns the rank of the matrix
+        rank: function() {
+            var M = this.toRightTriangular(), rank = 0;
+            var ni = this.elements.length, ki = ni, i, nj, kj = this.elements[0].length, j;
+            do {
+                i = ki - ni;
+                nj = kj;
+                do {
+                    j = kj - nj;
+                    if (Math.abs(M.elements[i][j]) > Sylvester.precision) {
+                        rank++;
+                        break;
+                    }
+                } while (--nj);
+            } while (--ni);
+            return rank;
+        },
+        rk: function() {
+            return this.rank();
+        },
+        // Returns the result of attaching the given argument to the right-hand side of the matrix
+        augment: function(matrix) {
+            var M = matrix.elements || matrix;
+            if (typeof M[0][0] == "undefined") {
+                M = Matrix.create(M).elements;
+            }
+            var T = this.dup(), cols = T.elements[0].length;
+            var ni = T.elements.length, ki = ni, i, nj, kj = M[0].length, j;
+            if (ni != M.length) {
+                return null;
+            }
+            do {
+                i = ki - ni;
+                nj = kj;
+                do {
+                    j = kj - nj;
+                    T.elements[i][cols + j] = M[i][j];
+                } while (--nj);
+            } while (--ni);
+            return T;
+        },
+        // Returns the inverse (if one exists) using Gauss-Jordan
+        inverse: function() {
+            if (!this.isSquare() || this.isSingular()) {
+                return null;
+            }
+            var ni = this.elements.length, ki = ni, i, j;
+            var M = this.augment(Matrix.I(ni)).toRightTriangular();
+            var np, kp = M.elements[0].length, p, els, divisor;
+            var inverse_elements = [], new_element;
+            // Matrix is non-singular so there will be no zeros on the diagonal
+            // Cycle through rows from last to first
+            do {
+                i = ni - 1;
+                // First, normalise diagonal elements to 1
+                els = [];
+                np = kp;
+                inverse_elements[i] = [];
+                divisor = M.elements[i][i];
+                do {
+                    p = kp - np;
+                    new_element = M.elements[i][p] / divisor;
+                    els.push(new_element);
+                    // Shuffle of the current row of the right hand side into the results
+                    // array as it will not be modified by later runs through this loop
+                    if (p >= ki) {
+                        inverse_elements[i].push(new_element);
+                    }
+                } while (--np);
+                M.elements[i] = els;
+                // Then, subtract this row from those above it to
+                // give the identity matrix on the left hand side
+                for (j = 0; j < i; j++) {
+                    els = [];
+                    np = kp;
+                    do {
+                        p = kp - np;
+                        els.push(M.elements[j][p] - M.elements[i][p] * M.elements[j][i]);
+                    } while (--np);
+                    M.elements[j] = els;
+                }
+            } while (--ni);
+            return Matrix.create(inverse_elements);
+        },
+        inv: function() {
+            return this.inverse();
+        },
+        // Returns the result of rounding all the elements
+        round: function() {
+            return this.map(function(x) {
+                return Math.round(x);
+            });
+        },
+        // Returns a copy of the matrix with elements set to the given value if they
+        // differ from it by less than Sylvester.precision
+        snapTo: function(x) {
+            return this.map(function(p) {
+                return Math.abs(p - x) <= Sylvester.precision ? x : p;
+            });
+        },
+        // Returns a string representation of the matrix
+        inspect: function() {
+            var matrix_rows = [];
+            var n = this.elements.length, k = n, i;
+            do {
+                i = k - n;
+                matrix_rows.push(Vector.create(this.elements[i]).inspect());
+            } while (--n);
+            return matrix_rows.join("\n");
+        },
+        // Set the matrix's elements from an array. If the argument passed
+        // is a vector, the resulting matrix will be a single column.
+        setElements: function(els) {
+            var i, elements = els.elements || els;
+            if (typeof elements[0][0] != "undefined") {
+                var ni = elements.length, ki = ni, nj, kj, j;
+                this.elements = [];
+                do {
+                    i = ki - ni;
+                    nj = elements[i].length;
+                    kj = nj;
+                    this.elements[i] = [];
+                    do {
+                        j = kj - nj;
+                        this.elements[i][j] = elements[i][j];
+                    } while (--nj);
+                } while (--ni);
+                return this;
+            }
+            var n = elements.length, k = n;
+            this.elements = [];
+            do {
+                i = k - n;
+                this.elements.push([ elements[i] ]);
+            } while (--n);
+            return this;
+        }
+    };
+    // Constructor function
+    Matrix.create = function(elements) {
+        var M = new Matrix();
+        return M.setElements(elements);
+    };
+    // Identity matrix of size n
+    Matrix.I = function(n) {
+        var els = [], k = n, i, nj, j;
+        do {
+            i = k - n;
+            els[i] = [];
+            nj = k;
+            do {
+                j = k - nj;
+                els[i][j] = i == j ? 1 : 0;
+            } while (--nj);
+        } while (--n);
+        return Matrix.create(els);
+    };
+    // Diagonal matrix - all off-diagonal elements are zero
+    Matrix.Diagonal = function(elements) {
+        var n = elements.length, k = n, i;
+        var M = Matrix.I(n);
+        do {
+            i = k - n;
+            M.elements[i][i] = elements[i];
+        } while (--n);
+        return M;
+    };
+    // Rotation matrix about some axis. If no axis is
+    // supplied, assume we're after a 2D transform
+    Matrix.Rotation = function(theta, a) {
+        if (!a) {
+            return Matrix.create([ [ Math.cos(theta), -Math.sin(theta) ], [ Math.sin(theta), Math.cos(theta) ] ]);
+        }
+        var axis = a.dup();
+        if (axis.elements.length != 3) {
+            return null;
+        }
+        var mod = axis.modulus();
+        var x = axis.elements[0] / mod, y = axis.elements[1] / mod, z = axis.elements[2] / mod;
+        var s = Math.sin(theta), c = Math.cos(theta), t = 1 - c;
+        // Formula derived here: http://www.gamedev.net/reference/articles/article1199.asp
+        // That proof rotates the co-ordinate system so theta
+        // becomes -theta and sin becomes -sin here.
+        return Matrix.create([ [ t * x * x + c, t * x * y - s * z, t * x * z + s * y ], [ t * x * y + s * z, t * y * y + c, t * y * z - s * x ], [ t * x * z - s * y, t * y * z + s * x, t * z * z + c ] ]);
+    };
+    // Special case rotations
+    Matrix.RotationX = function(t) {
+        var c = Math.cos(t), s = Math.sin(t);
+        return Matrix.create([ [ 1, 0, 0 ], [ 0, c, -s ], [ 0, s, c ] ]);
+    };
+    Matrix.RotationY = function(t) {
+        var c = Math.cos(t), s = Math.sin(t);
+        return Matrix.create([ [ c, 0, s ], [ 0, 1, 0 ], [ -s, 0, c ] ]);
+    };
+    Matrix.RotationZ = function(t) {
+        var c = Math.cos(t), s = Math.sin(t);
+        return Matrix.create([ [ c, -s, 0 ], [ s, c, 0 ], [ 0, 0, 1 ] ]);
+    };
+    // Random matrix of n rows, m columns
+    Matrix.Random = function(n, m) {
+        return Matrix.Zero(n, m).map(function() {
+            return Math.random();
+        });
+    };
+    // Matrix filled with zeros
+    Matrix.Zero = function(n, m) {
+        var els = [], ni = n, i, nj, j;
+        do {
+            i = n - ni;
+            els[i] = [];
+            nj = m;
+            do {
+                j = m - nj;
+                els[i][j] = 0;
+            } while (--nj);
+        } while (--ni);
+        return Matrix.create(els);
+    };
+    function Line() {}
+    Line.prototype = {
+        // Returns true if the argument occupies the same space as the line
+        eql: function(line) {
+            return this.isParallelTo(line) && this.contains(line.anchor);
+        },
+        // Returns a copy of the line
+        dup: function() {
+            return Line.create(this.anchor, this.direction);
+        },
+        // Returns the result of translating the line by the given vector/array
+        translate: function(vector) {
+            var V = vector.elements || vector;
+            return Line.create([ this.anchor.elements[0] + V[0], this.anchor.elements[1] + V[1], this.anchor.elements[2] + (V[2] || 0) ], this.direction);
+        },
+        // Returns true if the line is parallel to the argument. Here, 'parallel to'
+        // means that the argument's direction is either parallel or antiparallel to
+        // the line's own direction. A line is parallel to a plane if the two do not
+        // have a unique intersection.
+        isParallelTo: function(obj) {
+            if (obj.normal) {
+                return obj.isParallelTo(this);
+            }
+            var theta = this.direction.angleFrom(obj.direction);
+            return Math.abs(theta) <= Sylvester.precision || Math.abs(theta - Math.PI) <= Sylvester.precision;
+        },
+        // Returns the line's perpendicular distance from the argument,
+        // which can be a point, a line or a plane
+        distanceFrom: function(obj) {
+            if (obj.normal) {
+                return obj.distanceFrom(this);
+            }
+            if (obj.direction) {
+                // obj is a line
+                if (this.isParallelTo(obj)) {
+                    return this.distanceFrom(obj.anchor);
+                }
+                var N = this.direction.cross(obj.direction).toUnitVector().elements;
+                var A = this.anchor.elements, B = obj.anchor.elements;
+                return Math.abs((A[0] - B[0]) * N[0] + (A[1] - B[1]) * N[1] + (A[2] - B[2]) * N[2]);
+            } else {
+                // obj is a point
+                var P = obj.elements || obj;
+                var A = this.anchor.elements, D = this.direction.elements;
+                var PA1 = P[0] - A[0], PA2 = P[1] - A[1], PA3 = (P[2] || 0) - A[2];
+                var modPA = Math.sqrt(PA1 * PA1 + PA2 * PA2 + PA3 * PA3);
+                if (modPA === 0) return 0;
+                // Assumes direction vector is normalized
+                var cosTheta = (PA1 * D[0] + PA2 * D[1] + PA3 * D[2]) / modPA;
+                var sin2 = 1 - cosTheta * cosTheta;
+                return Math.abs(modPA * Math.sqrt(sin2 < 0 ? 0 : sin2));
+            }
+        },
+        // Returns true iff the argument is a point on the line
+        contains: function(point) {
+            var dist = this.distanceFrom(point);
+            return dist !== null && dist <= Sylvester.precision;
+        },
+        // Returns true iff the line lies in the given plane
+        liesIn: function(plane) {
+            return plane.contains(this);
+        },
+        // Returns true iff the line has a unique point of intersection with the argument
+        intersects: function(obj) {
+            if (obj.normal) {
+                return obj.intersects(this);
+            }
+            return !this.isParallelTo(obj) && this.distanceFrom(obj) <= Sylvester.precision;
+        },
+        // Returns the unique intersection point with the argument, if one exists
+        intersectionWith: function(obj) {
+            if (obj.normal) {
+                return obj.intersectionWith(this);
+            }
+            if (!this.intersects(obj)) {
+                return null;
+            }
+            var P = this.anchor.elements, X = this.direction.elements, Q = obj.anchor.elements, Y = obj.direction.elements;
+            var X1 = X[0], X2 = X[1], X3 = X[2], Y1 = Y[0], Y2 = Y[1], Y3 = Y[2];
+            var PsubQ1 = P[0] - Q[0], PsubQ2 = P[1] - Q[1], PsubQ3 = P[2] - Q[2];
+            var XdotQsubP = -X1 * PsubQ1 - X2 * PsubQ2 - X3 * PsubQ3;
+            var YdotPsubQ = Y1 * PsubQ1 + Y2 * PsubQ2 + Y3 * PsubQ3;
+            var XdotX = X1 * X1 + X2 * X2 + X3 * X3;
+            var YdotY = Y1 * Y1 + Y2 * Y2 + Y3 * Y3;
+            var XdotY = X1 * Y1 + X2 * Y2 + X3 * Y3;
+            var k = (XdotQsubP * YdotY / XdotX + XdotY * YdotPsubQ) / (YdotY - XdotY * XdotY);
+            return Vector.create([ P[0] + k * X1, P[1] + k * X2, P[2] + k * X3 ]);
+        },
+        // Returns the point on the line that is closest to the given point or line
+        pointClosestTo: function(obj) {
+            if (obj.direction) {
+                // obj is a line
+                if (this.intersects(obj)) {
+                    return this.intersectionWith(obj);
+                }
+                if (this.isParallelTo(obj)) {
+                    return null;
+                }
+                var D = this.direction.elements, E = obj.direction.elements;
+                var D1 = D[0], D2 = D[1], D3 = D[2], E1 = E[0], E2 = E[1], E3 = E[2];
+                // Create plane containing obj and the shared normal and intersect this with it
+                // Thank you: http://www.cgafaq.info/wiki/Line-line_distance
+                var x = D3 * E1 - D1 * E3, y = D1 * E2 - D2 * E1, z = D2 * E3 - D3 * E2;
+                var N = Vector.create([ x * E3 - y * E2, y * E1 - z * E3, z * E2 - x * E1 ]);
+                var P = Plane.create(obj.anchor, N);
+                return P.intersectionWith(this);
+            } else {
+                // obj is a point
+                var P = obj.elements || obj;
+                if (this.contains(P)) {
+                    return Vector.create(P);
+                }
+                var A = this.anchor.elements, D = this.direction.elements;
+                var D1 = D[0], D2 = D[1], D3 = D[2], A1 = A[0], A2 = A[1], A3 = A[2];
+                var x = D1 * (P[1] - A2) - D2 * (P[0] - A1), y = D2 * ((P[2] || 0) - A3) - D3 * (P[1] - A2), z = D3 * (P[0] - A1) - D1 * ((P[2] || 0) - A3);
+                var V = Vector.create([ D2 * x - D3 * z, D3 * y - D1 * x, D1 * z - D2 * y ]);
+                var k = this.distanceFrom(P) / V.modulus();
+                return Vector.create([ P[0] + V.elements[0] * k, P[1] + V.elements[1] * k, (P[2] || 0) + V.elements[2] * k ]);
+            }
+        },
+        // Returns a copy of the line rotated by t radians about the given line. Works by
+        // finding the argument's closest point to this line's anchor point (call this C) and
+        // rotating the anchor about C. Also rotates the line's direction about the argument's.
+        // Be careful with this - the rotation axis' direction affects the outcome!
+        rotate: function(t, line) {
+            // If we're working in 2D
+            if (typeof line.direction == "undefined") {
+                line = Line.create(line.to3D(), Vector.k);
+            }
+            var R = Matrix.Rotation(t, line.direction).elements;
+            var C = line.pointClosestTo(this.anchor).elements;
+            var A = this.anchor.elements, D = this.direction.elements;
+            var C1 = C[0], C2 = C[1], C3 = C[2], A1 = A[0], A2 = A[1], A3 = A[2];
+            var x = A1 - C1, y = A2 - C2, z = A3 - C3;
+            return Line.create([ C1 + R[0][0] * x + R[0][1] * y + R[0][2] * z, C2 + R[1][0] * x + R[1][1] * y + R[1][2] * z, C3 + R[2][0] * x + R[2][1] * y + R[2][2] * z ], [ R[0][0] * D[0] + R[0][1] * D[1] + R[0][2] * D[2], R[1][0] * D[0] + R[1][1] * D[1] + R[1][2] * D[2], R[2][0] * D[0] + R[2][1] * D[1] + R[2][2] * D[2] ]);
+        },
+        // Returns the line's reflection in the given point or line
+        reflectionIn: function(obj) {
+            if (obj.normal) {
+                // obj is a plane
+                var A = this.anchor.elements, D = this.direction.elements;
+                var A1 = A[0], A2 = A[1], A3 = A[2], D1 = D[0], D2 = D[1], D3 = D[2];
+                var newA = this.anchor.reflectionIn(obj).elements;
+                // Add the line's direction vector to its anchor, then mirror that in the plane
+                var AD1 = A1 + D1, AD2 = A2 + D2, AD3 = A3 + D3;
+                var Q = obj.pointClosestTo([ AD1, AD2, AD3 ]).elements;
+                var newD = [ Q[0] + (Q[0] - AD1) - newA[0], Q[1] + (Q[1] - AD2) - newA[1], Q[2] + (Q[2] - AD3) - newA[2] ];
+                return Line.create(newA, newD);
+            } else if (obj.direction) {
+                // obj is a line - reflection obtained by rotating PI radians about obj
+                return this.rotate(Math.PI, obj);
+            } else {
+                // obj is a point - just reflect the line's anchor in it
+                var P = obj.elements || obj;
+                return Line.create(this.anchor.reflectionIn([ P[0], P[1], P[2] || 0 ]), this.direction);
+            }
+        },
+        // Set the line's anchor point and direction.
+        setVectors: function(anchor, direction) {
+            // Need to do this so that line's properties are not
+            // references to the arguments passed in
+            anchor = Vector.create(anchor);
+            direction = Vector.create(direction);
+            if (anchor.elements.length == 2) {
+                anchor.elements.push(0);
+            }
+            if (direction.elements.length == 2) {
+                direction.elements.push(0);
+            }
+            if (anchor.elements.length > 3 || direction.elements.length > 3) {
+                return null;
+            }
+            var mod = direction.modulus();
+            if (mod === 0) {
+                return null;
+            }
+            this.anchor = anchor;
+            this.direction = Vector.create([ direction.elements[0] / mod, direction.elements[1] / mod, direction.elements[2] / mod ]);
+            return this;
+        }
+    };
+    // Constructor function
+    Line.create = function(anchor, direction) {
+        var L = new Line();
+        return L.setVectors(anchor, direction);
+    };
+    // Axes
+    Line.X = Line.create(Vector.Zero(3), Vector.i);
+    Line.Y = Line.create(Vector.Zero(3), Vector.j);
+    Line.Z = Line.create(Vector.Zero(3), Vector.k);
+    function Plane() {}
+    Plane.prototype = {
+        // Returns true iff the plane occupies the same space as the argument
+        eql: function(plane) {
+            return this.contains(plane.anchor) && this.isParallelTo(plane);
+        },
+        // Returns a copy of the plane
+        dup: function() {
+            return Plane.create(this.anchor, this.normal);
+        },
+        // Returns the result of translating the plane by the given vector
+        translate: function(vector) {
+            var V = vector.elements || vector;
+            return Plane.create([ this.anchor.elements[0] + V[0], this.anchor.elements[1] + V[1], this.anchor.elements[2] + (V[2] || 0) ], this.normal);
+        },
+        // Returns true iff the plane is parallel to the argument. Will return true
+        // if the planes are equal, or if you give a line and it lies in the plane.
+        isParallelTo: function(obj) {
+            var theta;
+            if (obj.normal) {
+                // obj is a plane
+                theta = this.normal.angleFrom(obj.normal);
+                return Math.abs(theta) <= Sylvester.precision || Math.abs(Math.PI - theta) <= Sylvester.precision;
+            } else if (obj.direction) {
+                // obj is a line
+                return this.normal.isPerpendicularTo(obj.direction);
+            }
+            return null;
+        },
+        // Returns true iff the receiver is perpendicular to the argument
+        isPerpendicularTo: function(plane) {
+            var theta = this.normal.angleFrom(plane.normal);
+            return Math.abs(Math.PI / 2 - theta) <= Sylvester.precision;
+        },
+        // Returns the plane's distance from the given object (point, line or plane)
+        distanceFrom: function(obj) {
+            if (this.intersects(obj) || this.contains(obj)) {
+                return 0;
+            }
+            if (obj.anchor) {
+                // obj is a plane or line
+                var A = this.anchor.elements, B = obj.anchor.elements, N = this.normal.elements;
+                return Math.abs((A[0] - B[0]) * N[0] + (A[1] - B[1]) * N[1] + (A[2] - B[2]) * N[2]);
+            } else {
+                // obj is a point
+                var P = obj.elements || obj;
+                var A = this.anchor.elements, N = this.normal.elements;
+                return Math.abs((A[0] - P[0]) * N[0] + (A[1] - P[1]) * N[1] + (A[2] - (P[2] || 0)) * N[2]);
+            }
+        },
+        // Returns true iff the plane contains the given point or line
+        contains: function(obj) {
+            if (obj.normal) {
+                return null;
+            }
+            if (obj.direction) {
+                return this.contains(obj.anchor) && this.contains(obj.anchor.add(obj.direction));
+            } else {
+                var P = obj.elements || obj;
+                var A = this.anchor.elements, N = this.normal.elements;
+                var diff = Math.abs(N[0] * (A[0] - P[0]) + N[1] * (A[1] - P[1]) + N[2] * (A[2] - (P[2] || 0)));
+                return diff <= Sylvester.precision;
+            }
+        },
+        // Returns true iff the plane has a unique point/line of intersection with the argument
+        intersects: function(obj) {
+            if (typeof obj.direction == "undefined" && typeof obj.normal == "undefined") {
+                return null;
+            }
+            return !this.isParallelTo(obj);
+        },
+        // Returns the unique intersection with the argument, if one exists. The result
+        // will be a vector if a line is supplied, and a line if a plane is supplied.
+        intersectionWith: function(obj) {
+            if (!this.intersects(obj)) {
+                return null;
+            }
+            if (obj.direction) {
+                // obj is a line
+                var A = obj.anchor.elements, D = obj.direction.elements, P = this.anchor.elements, N = this.normal.elements;
+                var multiplier = (N[0] * (P[0] - A[0]) + N[1] * (P[1] - A[1]) + N[2] * (P[2] - A[2])) / (N[0] * D[0] + N[1] * D[1] + N[2] * D[2]);
+                return Vector.create([ A[0] + D[0] * multiplier, A[1] + D[1] * multiplier, A[2] + D[2] * multiplier ]);
+            } else if (obj.normal) {
+                // obj is a plane
+                var direction = this.normal.cross(obj.normal).toUnitVector();
+                // To find an anchor point, we find one co-ordinate that has a value
+                // of zero somewhere on the intersection, and remember which one we picked
+                var N = this.normal.elements, A = this.anchor.elements, O = obj.normal.elements, B = obj.anchor.elements;
+                var solver = Matrix.Zero(2, 2), i = 0;
+                while (solver.isSingular()) {
+                    i++;
+                    solver = Matrix.create([ [ N[i % 3], N[(i + 1) % 3] ], [ O[i % 3], O[(i + 1) % 3] ] ]);
+                }
+                // Then we solve the simultaneous equations in the remaining dimensions
+                var inverse = solver.inverse().elements;
+                var x = N[0] * A[0] + N[1] * A[1] + N[2] * A[2];
+                var y = O[0] * B[0] + O[1] * B[1] + O[2] * B[2];
+                var intersection = [ inverse[0][0] * x + inverse[0][1] * y, inverse[1][0] * x + inverse[1][1] * y ];
+                var anchor = [];
+                for (var j = 1; j <= 3; j++) {
+                    // This formula picks the right element from intersection by
+                    // cycling depending on which element we set to zero above
+                    anchor.push(i == j ? 0 : intersection[(j + (5 - i) % 3) % 3]);
+                }
+                return Line.create(anchor, direction);
+            }
+        },
+        // Returns the point in the plane closest to the given point
+        pointClosestTo: function(point) {
+            var P = point.elements || point;
+            var A = this.anchor.elements, N = this.normal.elements;
+            var dot = (A[0] - P[0]) * N[0] + (A[1] - P[1]) * N[1] + (A[2] - (P[2] || 0)) * N[2];
+            return Vector.create([ P[0] + N[0] * dot, P[1] + N[1] * dot, (P[2] || 0) + N[2] * dot ]);
+        },
+        // Returns a copy of the plane, rotated by t radians about the given line
+        // See notes on Line#rotate.
+        rotate: function(t, line) {
+            var R = Matrix.Rotation(t, line.direction).elements;
+            var C = line.pointClosestTo(this.anchor).elements;
+            var A = this.anchor.elements, N = this.normal.elements;
+            var C1 = C[0], C2 = C[1], C3 = C[2], A1 = A[0], A2 = A[1], A3 = A[2];
+            var x = A1 - C1, y = A2 - C2, z = A3 - C3;
+            return Plane.create([ C1 + R[0][0] * x + R[0][1] * y + R[0][2] * z, C2 + R[1][0] * x + R[1][1] * y + R[1][2] * z, C3 + R[2][0] * x + R[2][1] * y + R[2][2] * z ], [ R[0][0] * N[0] + R[0][1] * N[1] + R[0][2] * N[2], R[1][0] * N[0] + R[1][1] * N[1] + R[1][2] * N[2], R[2][0] * N[0] + R[2][1] * N[1] + R[2][2] * N[2] ]);
+        },
+        // Returns the reflection of the plane in the given point, line or plane.
+        reflectionIn: function(obj) {
+            if (obj.normal) {
+                // obj is a plane
+                var A = this.anchor.elements, N = this.normal.elements;
+                var A1 = A[0], A2 = A[1], A3 = A[2], N1 = N[0], N2 = N[1], N3 = N[2];
+                var newA = this.anchor.reflectionIn(obj).elements;
+                // Add the plane's normal to its anchor, then mirror that in the other plane
+                var AN1 = A1 + N1, AN2 = A2 + N2, AN3 = A3 + N3;
+                var Q = obj.pointClosestTo([ AN1, AN2, AN3 ]).elements;
+                var newN = [ Q[0] + (Q[0] - AN1) - newA[0], Q[1] + (Q[1] - AN2) - newA[1], Q[2] + (Q[2] - AN3) - newA[2] ];
+                return Plane.create(newA, newN);
+            } else if (obj.direction) {
+                // obj is a line
+                return this.rotate(Math.PI, obj);
+            } else {
+                // obj is a point
+                var P = obj.elements || obj;
+                return Plane.create(this.anchor.reflectionIn([ P[0], P[1], P[2] || 0 ]), this.normal);
+            }
+        },
+        // Sets the anchor point and normal to the plane. If three arguments are specified,
+        // the normal is calculated by assuming the three points should lie in the same plane.
+        // If only two are sepcified, the second is taken to be the normal. Normal vector is
+        // normalised before storage.
+        setVectors: function(anchor, v1, v2) {
+            anchor = Vector.create(anchor);
+            anchor = anchor.to3D();
+            if (anchor === null) {
+                return null;
+            }
+            v1 = Vector.create(v1);
+            v1 = v1.to3D();
+            if (v1 === null) {
+                return null;
+            }
+            if (typeof v2 == "undefined") {
+                v2 = null;
+            } else {
+                v2 = Vector.create(v2);
+                v2 = v2.to3D();
+                if (v2 === null) {
+                    return null;
+                }
+            }
+            var A1 = anchor.elements[0], A2 = anchor.elements[1], A3 = anchor.elements[2];
+            var v11 = v1.elements[0], v12 = v1.elements[1], v13 = v1.elements[2];
+            var normal, mod;
+            if (v2 !== null) {
+                var v21 = v2.elements[0], v22 = v2.elements[1], v23 = v2.elements[2];
+                normal = Vector.create([ (v12 - A2) * (v23 - A3) - (v13 - A3) * (v22 - A2), (v13 - A3) * (v21 - A1) - (v11 - A1) * (v23 - A3), (v11 - A1) * (v22 - A2) - (v12 - A2) * (v21 - A1) ]);
+                mod = normal.modulus();
+                if (mod === 0) {
+                    return null;
+                }
+                normal = Vector.create([ normal.elements[0] / mod, normal.elements[1] / mod, normal.elements[2] / mod ]);
+            } else {
+                mod = Math.sqrt(v11 * v11 + v12 * v12 + v13 * v13);
+                if (mod === 0) {
+                    return null;
+                }
+                normal = Vector.create([ v1.elements[0] / mod, v1.elements[1] / mod, v1.elements[2] / mod ]);
+            }
+            this.anchor = anchor;
+            this.normal = normal;
+            return this;
+        }
+    };
+    // Constructor function
+    Plane.create = function(anchor, v1, v2) {
+        var P = new Plane();
+        return P.setVectors(anchor, v1, v2);
+    };
+    // X-Y-Z planes
+    Plane.XY = Plane.create(Vector.Zero(3), Vector.k);
+    Plane.YZ = Plane.create(Vector.Zero(3), Vector.i);
+    Plane.ZX = Plane.create(Vector.Zero(3), Vector.j);
+    Plane.YX = Plane.XY;
+    Plane.ZY = Plane.YZ;
+    Plane.XZ = Plane.ZX;
+    // augment Sylvester some
+    Matrix.Translation = function(v) {
+        if (v.elements.length == 2) {
+            var r = Matrix.I(3);
+            r.elements[2][0] = v.elements[0];
+            r.elements[2][1] = v.elements[1];
+            return r;
+        }
+        if (v.elements.length == 3) {
+            var r = Matrix.I(4);
+            r.elements[0][3] = v.elements[0];
+            r.elements[1][3] = v.elements[1];
+            r.elements[2][3] = v.elements[2];
+            return r;
+        }
+        throw "Invalid length for Translation";
+    };
+    Matrix.prototype.flatten = function() {
+        var result = [];
+        if (this.elements.length == 0) return [];
+        for (var j = 0; j < this.elements[0].length; j++) for (var i = 0; i < this.elements.length; i++) result.push(this.elements[i][j]);
+        return result;
+    };
+    Matrix.prototype.ensure4x4 = function() {
+        if (this.elements.length == 4 && this.elements[0].length == 4) return this;
+        if (this.elements.length > 4 || this.elements[0].length > 4) return null;
+        for (var i = 0; i < this.elements.length; i++) {
+            for (var j = this.elements[i].length; j < 4; j++) {
+                if (i == j) this.elements[i].push(1); else this.elements[i].push(0);
+            }
+        }
+        for (var i = this.elements.length; i < 4; i++) {
+            if (i == 0) this.elements.push([ 1, 0, 0, 0 ]); else if (i == 1) this.elements.push([ 0, 1, 0, 0 ]); else if (i == 2) this.elements.push([ 0, 0, 1, 0 ]); else if (i == 3) this.elements.push([ 0, 0, 0, 1 ]);
+        }
+        return this;
+    };
+    Matrix.prototype.make3x3 = function() {
+        if (this.elements.length != 4 || this.elements[0].length != 4) return null;
+        return Matrix.create([ [ this.elements[0][0], this.elements[0][1], this.elements[0][2] ], [ this.elements[1][0], this.elements[1][1], this.elements[1][2] ], [ this.elements[2][0], this.elements[2][1], this.elements[2][2] ] ]);
+    };
+    Vector.prototype.flatten = function() {
+        return this.elements;
+    };
+    function mht(m) {
+        var s = "";
+        if (m.length == 16) {
+            for (var i = 0; i < 4; i++) {
+                s += "<span style='font-family: monospace'>[" + m[i * 4 + 0].toFixed(4) + "," + m[i * 4 + 1].toFixed(4) + "," + m[i * 4 + 2].toFixed(4) + "," + m[i * 4 + 3].toFixed(4) + "]</span><br>";
+            }
+        } else if (m.length == 9) {
+            for (var i = 0; i < 3; i++) {
+                s += "<span style='font-family: monospace'>[" + m[i * 3 + 0].toFixed(4) + "," + m[i * 3 + 1].toFixed(4) + "," + m[i * 3 + 2].toFixed(4) + "]</font><br>";
+            }
+        } else {
+            return m.toString();
+        }
+        return s;
+    }
+    //
+    // gluLookAt
+    //
+    function makeLookAt(ex, ey, ez, cx, cy, cz, ux, uy, uz) {
+        var eye = $V([ ex, ey, ez ]);
+        var center = $V([ cx, cy, cz ]);
+        var up = $V([ ux, uy, uz ]);
+        var mag;
+        var z = eye.subtract(center).toUnitVector();
+        var x = up.cross(z).toUnitVector();
+        var y = z.cross(x).toUnitVector();
+        var m = $M([ [ x.e(1), x.e(2), x.e(3), 0 ], [ y.e(1), y.e(2), y.e(3), 0 ], [ z.e(1), z.e(2), z.e(3), 0 ], [ 0, 0, 0, 1 ] ]);
+        var t = $M([ [ 1, 0, 0, -ex ], [ 0, 1, 0, -ey ], [ 0, 0, 1, -ez ], [ 0, 0, 0, 1 ] ]);
+        return m.x(t);
+    }
+    //
+    // glOrtho
+    //
+    function makeOrtho(left, right, bottom, top, znear, zfar) {
+        var tx = -(right + left) / (right - left);
+        var ty = -(top + bottom) / (top - bottom);
+        var tz = -(zfar + znear) / (zfar - znear);
+        return $M([ [ 2 / (right - left), 0, 0, tx ], [ 0, 2 / (top - bottom), 0, ty ], [ 0, 0, -2 / (zfar - znear), tz ], [ 0, 0, 0, 1 ] ]);
+    }
+    //
+    // gluPerspective
+    //
+    module.exports.makePerspective = function makePerspective(fovy, aspect, znear, zfar) {
+        var ymax = znear * Math.tan(fovy * Math.PI / 360);
+        var ymin = -ymax;
+        var xmin = ymin * aspect;
+        var xmax = ymax * aspect;
+        return makeFrustum(xmin, xmax, ymin, ymax, znear, zfar);
+    };
+    //
+    // glFrustum
+    //
+    function makeFrustum(left, right, bottom, top, znear, zfar) {
+        var X = 2 * znear / (right - left);
+        var Y = 2 * znear / (top - bottom);
+        var A = (right + left) / (right - left);
+        var B = (top + bottom) / (top - bottom);
+        var C = -(zfar + znear) / (zfar - znear);
+        var D = -2 * zfar * znear / (zfar - znear);
+        return $M([ [ X, 0, A, 0 ], [ 0, Y, B, 0 ], [ 0, 0, C, D ], [ 0, 0, -1, 0 ] ]);
+    }
+    //
+    // glOrtho
+    //
+    function makeOrtho(left, right, bottom, top, znear, zfar) {
+        var tx = -(right + left) / (right - left);
+        var ty = -(top + bottom) / (top - bottom);
+        var tz = -(zfar + znear) / (zfar - znear);
+        return $M([ [ 2 / (right - left), 0, 0, tx ], [ 0, 2 / (top - bottom), 0, ty ], [ 0, 0, -2 / (zfar - znear), tz ], [ 0, 0, 0, 1 ] ]);
+    }
+    // Utility functions
+    var $V = Vector.create;
+    var $M = Matrix.create;
+    var $L = Line.create;
+    var $P = Plane.create;
+    module.exports.Vector = Vector;
+    module.exports.Matrix = Matrix;
+    module.exports.Line = Line;
+    module.exports.Plane = Plane;
+    module.exports.$V = $V;
+    module.exports.$M = $M;
+    module.exports.$P = $P;
+    module.exports.$L = $L;
 }.bind(this));
 
 require.config({
@@ -10440,6 +12391,10 @@ require.config({
             "famous/physics/constraints/constraint": "famous_modules/famous/physics/constraints/constraint/_git_modularized/index.js",
             "famous/physics/integrator/symplectic-euler": "famous_modules/famous/physics/integrator/symplectic-euler/_git_modularized/index.js"
         },
+        "famous_modules/famous/transitions/drag-transition/_git_modularized/index.js": {
+            "famous/physics/engine": "famous_modules/famous/physics/engine/_git_modularized/index.js",
+            "famous/physics/forces/drag": "famous_modules/famous/physics/forces/drag/_git_modularized/index.js"
+        },
         "famous_modules/famous/physics/forces/spring/_git_modularized/index.js": {
             "famous/physics/forces/force": "famous_modules/famous/physics/forces/force/_git_modularized/index.js",
             "famous/math/vector": "famous_modules/famous/math/vector/_git_modularized/index.js",
@@ -10468,7 +12423,8 @@ require.config({
             "famous/input/touch-sync": "famous_modules/famous/input/touch-sync/_git_modularized/index.js",
             "famous/input/generic-sync": "famous_modules/famous/input/generic-sync/_git_modularized/index.js",
             "famous/transitions/transitionable": "famous_modules/famous/transitions/transitionable/_git_modularized/index.js",
-            "famous/event-handler": "famous_modules/famous/event-handler/_git_modularized/index.js"
+            "famous/event-handler": "famous_modules/famous/event-handler/_git_modularized/index.js",
+            "famous/transitions/drag-transition": "famous_modules/famous/transitions/drag-transition/_git_modularized/index.js"
         },
         "famous_modules/famous/views/drag-sort/_git_modularized/index.js": {
             "famous/view-sequence": "famous_modules/famous/view-sequence/_git_modularized/index.js",
@@ -10477,7 +12433,8 @@ require.config({
             "famous/event-handler": "famous_modules/famous/event-handler/_git_modularized/index.js",
             "famous/transform": "famous_modules/famous/transform/_git_modularized/index.js",
             "famous/utilities/utility": "famous_modules/famous/utilities/utility/_git_modularized/index.js",
-            "famous/options-manager": "famous_modules/famous/options-manager/_git_modularized/index.js"
+            "famous/options-manager": "famous_modules/famous/options-manager/_git_modularized/index.js",
+            "famous/transitions/drag-transition": "famous_modules/famous/transitions/drag-transition/_git_modularized/index.js"
         },
         "famous_modules/famous/group/_git_modularized/index.js": {
             "famous/context": "famous_modules/famous/context/_git_modularized/index.js",
@@ -10555,14 +12512,14 @@ require.config({
             "famous/view": "famous_modules/famous/view/_git_modularized/index.js",
             "famous/views/scrollview": "famous_modules/famous/views/scrollview/_git_modularized/index.js",
             "./TaskView": "app/main/views/TaskView.js",
-            "./data": "app/main/views/data.js",
             "./BoxView": "app/main/views/BoxView.js",
             "./BoxContainer": "app/main/views/BoxContainer.js",
             "famous/utilities/timer": "famous_modules/famous/utilities/timer/_git_modularized/index.js",
             "famous/surfaces/input-surface": "famous_modules/famous/surfaces/input-surface/_git_modularized/index.js",
             "famous/views/drag-sort": "famous_modules/famous/views/drag-sort/_git_modularized/index.js",
             "./customScrollView": "app/main/views/customScrollView.js",
-            "./TaskItem": "app/main/views/TaskItem.js"
+            "./TaskItem": "app/main/views/TaskItem.js",
+            "./Color": "app/main/views/Color.js"
         },
         "app/main/views/FooterView.js": {
             "famous/surface": "famous_modules/famous/surface/_git_modularized/index.js",
@@ -10587,7 +12544,6 @@ require.config({
             "famous/transform": "famous_modules/famous/transform/_git_modularized/index.js",
             "famous/transitions/transitionable": "famous_modules/famous/transitions/transitionable/_git_modularized/index.js",
             "./TaskView": "app/main/views/TaskView.js",
-            "./data": "app/main/views/data.js",
             "famous/surfaces/input-surface": "famous_modules/famous/surfaces/input-surface/_git_modularized/index.js",
             "famous/utilities/timer": "famous_modules/famous/utilities/timer/_git_modularized/index.js"
         },
@@ -10603,7 +12559,7 @@ require.config({
             "famous/modifiers/draggable": "famous_modules/famous/modifiers/draggable/_git_modularized/index.js",
             "famous/views/header-footer-layout": "famous_modules/famous/views/header-footer-layout/_git_modularized/index.js",
             "famous/utilities/utility": "famous_modules/famous/utilities/utility/_git_modularized/index.js",
-            "./data": "app/main/views/data.js",
+            "./Color": "app/main/views/Color.js",
             "./TaskView": "app/main/views/TaskView.js",
             "./HeaderView": "app/main/views/HeaderView.js",
             "./FooterView": "app/main/views/FooterView.js",
@@ -10621,20 +12577,23 @@ require.config({
             "famous/views/sequential-layout": "famous_modules/famous/views/sequential-layout/_git_modularized/index.js",
             "famous/view-sequence": "famous_modules/famous/view-sequence/_git_modularized/index.js",
             "famous/modifiers/draggable": "famous_modules/famous/modifiers/draggable/_git_modularized/index.js",
-            "famous/animation/easing": "famous_modules/famous/animation/easing/_git_modularized/index.js"
+            "famous/animation/easing": "famous_modules/famous/animation/easing/_git_modularized/index.js",
+            "famous/utilities/timer": "famous_modules/famous/utilities/timer/_git_modularized/index.js"
         },
         "app/main/views/TaskView.js": {
             "famous/modifiers/draggable": "famous_modules/famous/modifiers/draggable/_git_modularized/index.js",
             "famous/transform": "famous_modules/famous/transform/_git_modularized/index.js",
             "famous/view": "famous_modules/famous/view/_git_modularized/index.js",
-            "./TaskItem": "app/main/views/TaskItem.js",
-            "famous/modifier": "famous_modules/famous/modifier/_git_modularized/index.js"
+            "famous/modifier": "famous_modules/famous/modifier/_git_modularized/index.js",
+            "./TaskItem": "app/main/views/TaskItem.js"
         },
+        "app/main/views/colorData.js": {},
         "app/main/views/customScrollView.js": {
             "famous/views/scrollview": "famous_modules/famous/views/scrollview/_git_modularized/index.js",
             "famous/engine": "famous_modules/famous/engine/_git_modularized/index.js"
         },
-        "app/main/views/data.js": {}
+        "app/main/views/data.js": {},
+        "app/main/views/webGL/sylvester.js": {}
     }
 });
 //# sourceMappingURL=build.map.js

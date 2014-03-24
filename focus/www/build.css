@@ -61,11 +61,11 @@ body {
 
 @font-face {
   font-family: 'museo_sans300';
-  src: url('museosans-300-webfont-webfont.eot');
-/*  src: url('museosans-300-webfont-webfont.eot?#iefix') format('embedded-opentype'),
-       url('museosans-300-webfont-webfont.woff') format('woff'),
-       url('museosans-300-webfont-webfont.ttf') format('truetype'),
-       url('museosans-300-webfont-webfont.svg#museo_sans300') format('svg');
+  src: url('./fonts/museosans-300-webfont-webfont.eot');
+/*  src: url('./fonts/museosans-300-webfont-webfont.eot?#iefix') format('embedded-opentype'),
+       url('./fonts/museosans-300-webfont-webfont.woff') format('woff'),
+       url('./fonts/museosans-300-webfont-webfont.ttf') format('truetype'),
+       url('./fonts/museosans-300-webfont-webfont.svg#museo_sans300') format('svg');
 */  font-weight: normal;
   font-style: normal;
 }
@@ -76,8 +76,16 @@ html {
   margin: 0;
 }
 
+.api {
+  text-align: center;
+}
+
 .layer {
   background-color: #444;
+}
+
+button {
+  padding: 10px 40px;
 }
 
 .deleteIcon, .checkIcon {
@@ -93,13 +101,16 @@ input {
   height: 3em;
   margin-top: 10px;
   margin-left: 0;
+  border-radius: 0;
+  -webkit-transition: background-color 1s;
 }
 
 .title h1 {
   margin-top: 200px;
   text-align: center;
   color: transparent;
-  font-size: 4em;
+  font-size: 3em;
+  padding-left: 0;
 }
 
 .invisible {
@@ -107,22 +118,48 @@ input {
 }
 
 .task {
+
   box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.2);
   line-height: 60px;
   background-color: rgba(255, 255, 255, 0.07);
+  -webkit-transition: background-color 0.8s;
 /*  background: -webkit-linear-gradient(bottom, rgba(255, 255, 255, 0.05), transparent);
 */}
 
-.dragging {
-  box-shadow: 0px 0px 5px rgba(0, 0, 0, 20);
+input.edit {
+  color: #003156!important;
+  padding-left: 20px;
+  letter-spacing: 0.3px;
+  font-size: 1.1em;
+  border:none;
 }
 
+.shadowed {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.dragging {
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 20);
+  background-color: rgba(255, 255, 255, 0.5)!important;  
+}
+
+
+
 .task p {
-  padding-left: 20px;
+  font-family: helvetica,'museo_sans300';
+  padding-left: 30px;
   margin: 0;
   letter-spacing: 0.3px;
   font-size: 1.1em;
   font-weight: 200;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 280px;
+  overflow: hidden;
+}
+
+.taskWhite {
+  color: white
 }
 
 .today {
@@ -130,12 +167,12 @@ input {
 }
 
 h1 {
-  padding-left: 20px;
+  padding-left: 30px;
   font-weight: 300;
-  letter-spacing: 4px;
-  font-size: 2em;
-  color: #003156;
-}
+  letter-spacing: 2px;
+  font-size: 1.5em;
+/*  color: #EDEDED;
+*/}
 
 .container {
   width: 300px;
@@ -189,13 +226,13 @@ h1 {
 #box .bottom { -webkit-transform: rotateX( -90deg ) translateZ( 50px ); }
 
 .famous-surface.show-top #box {
-  -webkit-transform: translateZ( -100px ) rotateX( -90deg ); 
+  -webkit-transform: translateZ( -100px ) rotateX( -90deg );
 }
 
 .famous-surface.show-front #box {
-  -webkit-transform: translateZ( -50px ) rotateX( 0deg ) rotateY(5deg); 
+  -webkit-transform: translateZ( -50px ) rotateX( 0deg ) rotateY(5deg);
 }
 
-#box .front  { 
+#box .front  {
   background-color: rgba(128, 128, 128, 0.6);
 }

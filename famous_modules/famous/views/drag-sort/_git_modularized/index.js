@@ -178,11 +178,18 @@ function backwardSwap() {
 function handleDragEnd(data) {
     if (Math.abs(data.v[1]) > 0.5) {
         if (data.v[1] > 0) {
-            var v = 1
+            var v = 1;
+            if (this.array[this.index].taskItem.page === 'NEVER') {
+                this._eventOutput.emit('swapPage');
+                return;
+            }
         } else {
-            var v = -1
+            var v = -1;
+            if (this.array[this.index].taskItem.page === 'FOCUS') {
+                this._eventOutput.emit('swapPage');
+                return;
+            }
         }
-        console.log(this)
         this.draggable._positionState.set(data.p, {
             method   : 'drag',
             strength : 0.0001,
@@ -193,18 +200,18 @@ function handleDragEnd(data) {
             page: this.array[this.index].taskItem.page,
             direction: v
         });
+        return;
+    } 
+    if (this.index !== this.currentNode.index) {
+        this._eventOutput.emit('shift', {
+            oldIndex: this.index,
+            newIndex: this.currentNode.index
+        });
     } else {
-        if (this.index !== this.currentNode.index) {
-            this._eventOutput.emit('shift', {
-                oldIndex: this.index,
-                newIndex: this.currentNode.index
-            });
-        } else {
-            this.setPosition([0,0], {
-            duration: 165,
-            curve: 'easeOut'
-            });
-        }
+        this.setPosition([0,0], {
+        duration: 165,
+        curve: 'easeOut'
+        });
     }
     this.dragging = false;
     this.modifier.setTransform(Matrix.Identity);
