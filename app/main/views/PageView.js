@@ -186,6 +186,7 @@ function _contentEvents() {
     this.touchCount += 1;
     if (this.touchCount >= 2) {
       this.contents._eventOutput.emit('twoFingerMode');
+      this.contents.twoFingerMode = true;
       console.log('twofingers!')
       this.twoFingerMode = true;
     }
@@ -193,11 +194,28 @@ function _contentEvents() {
   }.bind(this));
 
   this.contents._eventInput.on('endTouch', function() {
-    this.touchCount -= 1;
+    this.touchCount = 0;
     if (this.touchCount < 2) {
+      this.contents.twoFingerMode = false;
       console.log('disablingTwoTOuch')
       this.contents._eventOutput.emit('twoFingerModeDisabled');
       this.twoFingerMode = false;
+    }
+  }.bind(this));
+
+  this.contents._eventInput.on('swiping', function(data) {
+    if (this.twoFingerMode) {
+      if (data === 'up') {
+        this._eventOutput.emit('togglePageViewUp');
+      } else {
+        this._eventOutput.emit('togglePageViewDown');
+      }
+      this.touchCount = 0;
+      this.twoFingerMode = false;
+      this.contents.twoFingerMode = false;
+      this.contents._eventOutput.emit('twoFingerModeDisabled');
+      this.contents._eventOutput.emit('hideInput');
+      this.inputToggled = false;
     }
   }.bind(this));
 };
