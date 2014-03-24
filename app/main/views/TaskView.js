@@ -78,14 +78,19 @@ TaskView.prototype.appearIn = function() {
 
 function animateIn(counter, source) {
   var deleteCheck = -1 * this.options.deleteCheckWidth;
+  var animationDelay = 20 + 6 * counter; //in frames?
+  
   if (source === 'up') {
     this.taskItemModifier.setTransform(Transform.translate(deleteCheck, -1000, 0), this.options.noTransition, function(){});
   }
+
+  //default the tasks are animated in from off creen from the bottom
+
   Timer.after(function() {
     this.taskItemModifier.setTransform(Transform.translate(deleteCheck, 0, 0), this.options.dipTransition, function() {
       this.taskItemModifier.setOpacity(1, this.options.transition, function() {});
     }.bind(this));
-  }.bind(this), 10);
+  }.bind(this), animationDelay);
 };
 
 TaskView.prototype.appearIn = function() {
