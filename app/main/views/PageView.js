@@ -25,6 +25,7 @@ function PageView() {
   } else {
     this.headerSizeTransitionable = new Transitionable([this.options.regSmallHeader]);
   }
+  
   this.offPage = false;
   this.touchCount = 0;
   _createLayout.call(this);
@@ -122,13 +123,25 @@ function _pipeSubviewEventsToAppView() {
   this.contents._eventOutput.pipe(this.contents._eventInput);
 };
 
-function _setListeners() {
-  this.contents._eventInput.pipe(this._eventOutput);
-  this._eventInput.pipe(this.contents._eventInput);
+function _headerEvents() {
+  this.header.on('focusHideInput', function() {
+    this.header._eventOutput.emit('hideInput');
+    this.header.value.length && this.contents._eventOutput.emit('saveNewTask', this.header.value);
+  }.bind(this));
+  
+  this.header.on('inputRotated', function() {
+    this.newTaskOpened = true;
+    _lightboxFadeIn.call(this);
+    this.editTaskOffset = 90;
+    _editInputFlyIn.call(this);
+  }.bind(this));
+  
+  this.header.on('refreshAsana', function() {
+    this.contents._eventOutput.emit('refreshAsanaTasks');
+  }.bind(this));
+};
 
-
-  window.Engine.on('prerender', _setHeaderSize.bind(this));
-
+function _contentEvents() {
 /*============ listen to task count ============= */
   this.contents._eventInput.on('inputClosed', function(){
     this.header.focusInputClosed = true;
@@ -151,12 +164,7 @@ function _setListeners() {
   }.bind(this));
 
   this.contents.on('hideInput', _rotateInputBack.bind(this));
-
-  this.header.on('focusHideInput', function() {
-    this.header._eventOutput.emit('hideInput');
-    this.header.value.length && this.contents._eventOutput.emit('saveNewTask', this.header.value);
-  }.bind(this));
-
+  
   this.contents.on('openEdit', function(options) {
     this.taskIndex = options.index;
     this.editSurface.setValue(options.text);
@@ -165,12 +173,6 @@ function _setListeners() {
     _editInputFlyIn.call(this);
   }.bind(this));
   
-  this.header.on('inputRotated', function() {
-    this.newTaskOpened = true;
-    _lightboxFadeIn.call(this);
-    this.editTaskOffset = 90;
-    _editInputFlyIn.call(this);
-  }.bind(this));
 
   this.contents._eventInput.on('newTouch', function() {
     this.touchCount += 1;
@@ -186,6 +188,16 @@ function _setListeners() {
       this._eventOutput.emit('twoFingerModeDisabled');
     }
   }.bind(this));
+};
+
+function _setListeners() {
+  this.contents._eventInput.pipe(this._eventOutput);
+  this._eventInput.pipe(this.contents._eventInput);
+
+  window.Engine.on('prerender', _setHeaderSize.bind(this));
+  
+  _headerEvents.call(this);
+  _contentEvents.call(this);
 };
 
 function _rotateInputBack() {
@@ -218,26 +230,26 @@ function _editInputFlyIn() {
 };
 
 function _editInputFlyOut() {
-    window.AndroidKeyboard.hide();
-    this.editSurface.blur();
-    this.contents.editTask = this.newTaskOpened ? false : true;
-    this.contents._eventOutput.emit('unhideEditedTask');
-    if (this.newTaskOpened) {
-      this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0), {duration: 300}, function() {
-        var newText = this.editSurface.getValue();
-        this.editSurface.setValue('');
-        newText.length && this.contents._eventOutput.emit('saveNewTask', newText);
-        Timer.after(_rotateInputBack.bind(this), 8);
-        this.newTaskOpened = false;              
-      }.bind(this));
-    } else {
-      this.editSurface.setProperties({'visibility': 'hidden'});
-      this.editMod.setTransform(Transform.translate(0, 600, 0));
-      var editedText = this.editSurface.getValue();
-      var editedTask = this.contents.customdragsort.array[this.taskIndex].taskItem;
+  window.AndroidKeyboard.hide();
+  this.editSurface.blur();
+  this.contents.editTask = this.newTaskOpened ? false : true;
+  this.contents._eventOutput.emit('unhideEditedTask');
+  if (this.newTaskOpened) {
+    this.editMod.setTransform(Transform.translate(0, this.editTaskOffset, 0), {duration: 300}, function() {
+      var newText = this.editSurface.getValue();
       this.editSurface.setValue('');
-      editedTask._eventOutput.emit('saveTask', editedText);    
-    }
+      newText.length && this.contents._eventOutput.emit('saveNewTask', newText);
+      Timer.after(_rotateInputBack.bind(this), 8);
+      this.newTaskOpened = false;              
+    }.bind(this));
+  } else {
+    this.editSurface.setProperties({'visibility': 'hidden'});
+    this.editMod.setTransform(Transform.translate(0, 600, 0));
+    var editedText = this.editSurface.getValue();
+    var editedTask = this.contents.customdragsort.array[this.taskIndex].taskItem;
+    this.editSurface.setValue('');
+    editedTask._eventOutput.emit('saveTask', editedText);    
+  }
     
 };
 

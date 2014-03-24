@@ -13,6 +13,8 @@ var Color          = require('./Color');
 function AppView() {
   View.apply(this, arguments);
   this.headerSizeTransitionable = new Transitionable([70]);
+  
+  _createColorOptions.call(this);
   _createGradientSurfaces.call(this);
   _createCompletionSurface.call(this);
   _createLightBox.call(this);
@@ -25,7 +27,7 @@ AppView.prototype.constructor = AppView;
 
 AppView.DEFAULT_OPTIONS = {
   transition: {
-    duration: 1200,
+    duration: 700,
     curve: 'easeIn'
   },
   pageUpInTransition: {
@@ -45,15 +47,28 @@ AppView.DEFAULT_OPTIONS = {
   },
   noTransition: {
     duration: 0
-  },
-  colors: [
-    ['#ffffff', '#32CEA8', null, '#ffffff','#23a5f6', '#32CEA8'],
-    ['#ffffff', '#FFFFCD', '#87CEFA','#ffffff', '#ffffb3', '#23a5f6'],
-    ['#3690FF', '#8977C6', null, '#8977C6', '#1a80ff', '#735dbb'],
-    ['#ffffff', '#F76D6D', null, '#F0DC8D', '#F76D6D', null]
-    // ['#ffffff', '#F75761', null, '#FFFFCD', '#F2614B', null]
-    // ['#81F781', '#E0F8E6', '#E0F8E6', '#E0F8E6']
-  ]
+  }
+};
+
+function _createColorOptions() {
+  if (window.asana) {
+    this.colors = [
+      ['#ffffff', '#32CEA8', null, '#ffffff','#23a5f6', '#32CEA8'],
+      ['#ffffff', '#FFFFCD', '#87CEFA','#ffffff', '#ffffb3', '#23a5f6'],
+      ['#3690FF', '#8977C6', null, '#8977C6', '#1a80ff', '#735dbb'],
+      ['#ffffff', '#32CEA8', null, '#ffffff','#23a5f6', '#32CEA8'],
+      ['#ffffff', '#F76D6D', null, '#F0DC8D', '#F76D6D', null]
+      // ['#81F781', '#E0F8E6', '#E0F8E6', '#E0F8E6']
+    ];      
+  } else {
+    this.colors = [
+      ['#ffffff', '#32CEA8', null, '#ffffff','#23a5f6', '#32CEA8'],
+      ['#ffffff', '#FFFFCD', '#87CEFA','#ffffff', '#ffffb3', '#23a5f6'],
+      ['#3690FF', '#8977C6', null, '#8977C6', '#1a80ff', '#735dbb'],
+      ['#ffffff', '#F76D6D', null, '#F0DC8D', '#F76D6D', null]
+      // ['#81F781', '#E0F8E6', '#E0F8E6', '#E0F8E6']
+    ];      
+  }
 };
 
 function _isAndroid() {
@@ -96,18 +111,6 @@ function _addPageRelations(page, previousPage, nextPage) {
   _addEventListeners.call(this, this[page + 'View'], this[page + 'Modifier']);
 };
 
-
-//toggle up
-//outTransition: easeOut
-//outTransform:  Transform.translate(0, -600, 1)
-//inTransition: false
-//inTransform: Transform.translate(0, 0, -1)
-
-//toggle down
-//outTransition: false
-//outTransform:  Transform.translate(0, 0, -1)
-//inTransition: wall
-//inTransform: Transform.translate(0, -600, 1)
 
 function _addEventListeners(newView, newModifier){
   this._eventOutput.pipe(newView._eventInput);
@@ -174,12 +177,20 @@ function _createAppViews() {
   _addPageView.call(this, 'FOCUS');
   _addPageView.call(this, 'TODAY');
   _addPageView.call(this, 'LATER');
+  if(window.asana) {_addPageView.call(this, 'ASANA');}
   _addPageView.call(this, 'NEVER');
 
   _addPageRelations.call(this, 'FOCUS',    null, 'TODAY');
   _addPageRelations.call(this, 'TODAY', 'FOCUS', 'LATER');
-  _addPageRelations.call(this, 'LATER', 'TODAY', 'NEVER');
-  _addPageRelations.call(this, 'NEVER', 'LATER',    null);
+  
+  if (window.asana) {
+    _addPageRelations.call(this, 'LATER', 'TODAY', 'ASANA');
+    _addPageRelations.call(this, 'ASANA', 'LATER', 'NEVER');
+    _addPageRelations.call(this, 'NEVER', 'ASANA',    null);    
+  } else {
+    _addPageRelations.call(this, 'LATER', 'TODAY', 'NEVER');
+    _addPageRelations.call(this, 'NEVER', 'LATER',    null);        
+  }
 
 };
 
@@ -194,16 +205,16 @@ function _createGradientSurfaces(pages) {
   window.faderSurfaces = [];
   window.faderMods = [];
 
-  for(var i=0; i < this.options.colors.length; i++){
+  for(var i=0; i < this.colors.length; i++){
     var backgroundSurfOne = new CanvasSurface({
       size: [window.innerWidth, window.innerHeight],
       canvasSize: [window.innerWidth*2, window.innerHeight*2],
-      classes: ['famous-surface', 'gradient', this.options.colors[i]]
+      classes: ['famous-surface', 'gradient', this.colors[i]]
     });
     var backgroundSurfTwo = new CanvasSurface({
       size: [window.innerWidth, window.innerHeight],
       canvasSize: [window.innerWidth*2, window.innerHeight*2],
-      classes: ['famous-surface', 'gradient', this.options.colors[i]]
+      classes: ['famous-surface', 'gradient', this.colors[i]]
     });
 
     var startOpacity = i === 0 ? 1 : 0;
@@ -239,13 +250,13 @@ function _colorSurfaces() {
                 1500         // y1
                 );
 
-      if (this.options.colors[i][2]) {
-        radial.addColorStop(0, this.options.colors[i][2]);
-        radial.addColorStop(0.90, this.options.colors[i][1]);
-        radial.addColorStop(1, this.options.colors[i][1]);
+      if (this.colors[i][2]) {
+        radial.addColorStop(0, this.colors[i][2]);
+        radial.addColorStop(0.90, this.colors[i][1]);
+        radial.addColorStop(1, this.colors[i][1]);
       } else {
-        radial.addColorStop(1, this.options.colors[i][0]);
-        radial.addColorStop(0, this.options.colors[i][1]);
+        radial.addColorStop(1, this.colors[i][0]);
+        radial.addColorStop(0, this.colors[i][1]);
       }
     } else {
       //first background
@@ -259,13 +270,13 @@ function _colorSurfaces() {
                       1200        // r1
                       );
 
-      if (this.options.colors[i][5]) {
-        radialOne.addColorStop(0, this.options.colors[i][3]);
-        radialOne.addColorStop(0.2, this.options.colors[i][4]);
-        radialOne.addColorStop(1, this.options.colors[i][5]);
+      if (this.colors[i][5]) {
+        radialOne.addColorStop(0, this.colors[i][3]);
+        radialOne.addColorStop(0.2, this.colors[i][4]);
+        radialOne.addColorStop(1, this.colors[i][5]);
       } else {
-        radialOne.addColorStop(0, this.options.colors[i][3]);
-        radialOne.addColorStop(1, this.options.colors[i][4]);
+        radialOne.addColorStop(0, this.colors[i][3]);
+        radialOne.addColorStop(1, this.colors[i][4]);
       }
 
       //second background
@@ -279,13 +290,13 @@ function _colorSurfaces() {
                       1200        // r1
                       );
 
-      if (this.options.colors[i][2]) {
-        radialTwo.addColorStop(0, this.options.colors[i][0]);
-        radialTwo.addColorStop(0.2, this.options.colors[i][1]);
-        radialTwo.addColorStop(1, this.options.colors[i][2]);
+      if (this.colors[i][2]) {
+        radialTwo.addColorStop(0, this.colors[i][0]);
+        radialTwo.addColorStop(0.2, this.colors[i][1]);
+        radialTwo.addColorStop(1, this.colors[i][2]);
       } else {
-        radialTwo.addColorStop(0, this.options.colors[i][0]);
-        radialTwo.addColorStop(1, this.options.colors[i][1]);
+        radialTwo.addColorStop(0, this.colors[i][0]);
+        radialTwo.addColorStop(1, this.colors[i][1]);
       }
 
     }

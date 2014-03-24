@@ -12,6 +12,8 @@ var DragSort          = require('famous/views/drag-sort');
 var CustomScrollView  = require('./customScrollView');
 var TaskItem          = require('./TaskItem');
 var Color             = require('./Color');
+var ImageSurface      = require('famous/surfaces/image-surface');
+
 
 function ContentView(options) {
   View.apply(this, arguments);
@@ -22,11 +24,17 @@ function ContentView(options) {
   this.shown = {}; 
   this.toShow = {};
   this.notAnimated = true;
-
+  this.gradientsRunning = true;
+  
+  this.shown = {}; this.toShow = {};
+  this.scrolled = false;
+  window.asanaIDs = window.localStorage._asanaIDs ? JSON.parse(window.localStorage._asanaIDs) : [];
+  
+  _createViewIndexOptions.call(this);
+  _createSpinner.call(this);
   _setBackground.call(this);
   _createTasks.call(this);
   _setListeners.call(this);
-
   _monitorOffsets.call(this);
   _hideLastTask.call(this);
 };
@@ -38,14 +46,27 @@ ContentView.DEFAULT_OPTIONS = {
   title: 'FOCUS',
   classes: ['contents'],
   inputDuration: 300,
-  views: {
-    'FOCUS': [0],
-    'TODAY': [1],
-    'LATER': [2],
-    'NEVER': [3]
-  },
-  gradientDuration: 1200,
+  gradientDuration: 500,
   completionDuration: 500
+};
+
+function _createViewIndexOptions() {
+  if (window.asana) {
+    this.views =  {
+      'FOCUS': [0],
+      'TODAY': [1],
+      'LATER': [2],
+      'ASANA': [3],
+      'NEVER': [4]
+    };    
+  } else {
+    this.views =  {
+      'FOCUS': [0],
+      'TODAY': [1],
+      'LATER': [2],
+      'NEVER': [3]
+    };    
+  }
 };
 
 function _isAndroid() {
@@ -54,7 +75,7 @@ function _isAndroid() {
 };
 
 function _setBackground() {
-  var index = this.options.views[this.options.title][0];
+  var index = this.views[this.options.title][0];
   this.backgroundSurfOne = window.faderSurfaces[index][0];
   this.backgroundModOne = window.faderMods[index][0];
   
@@ -76,6 +97,7 @@ function _setBackground() {
 };
 
 function _createTasks() {
+  
   this.tasks = window.memory.read(this.options.title);
   this.taskCount = 0;
 
@@ -87,6 +109,7 @@ function _createTasks() {
   });
   var node = this.customdragsort;
   for(var i = 0; i < this.tasks.length; i++) {
+    if (this.tasks[i].page === this.options.title) {
       var newTask = new TaskView({text: this.tasks[i].text, index: this.taskCount, page: this.options.title});
       this.customdragsort.push(newTask);
       if(node.getNext()) node = node._next;
@@ -96,7 +119,9 @@ function _createTasks() {
       newTask.pipe(this._eventInput);
       this.customscrollview.pipe(node);
       this.taskCount++;
+    }
   }
+  
   if(this.taskCount > 4) {
     var extraSpace = new Surface({
       size: [undefined, 200],
@@ -123,6 +148,7 @@ function _setListeners() {
   _newTaskListener.call(this);
   _inputListeners.call(this);
   _unhideTaskListener.call(this);
+  _asanaListener.call(this);
   this._eventInput.on('swapPages', _createNewTask.bind(this));
 };
 
@@ -157,24 +183,25 @@ ContentView.prototype._newScrollView = function(data, newIndex) {
 }
 
 ContentView.prototype._addToList = function(data, newIndex, node) {
-      var newTask = new TaskView({text: data.text, index: newIndex, page: this.title});
-      window.memory.save({
-        text: newTask.text,
-        page: newTask.page
-      });
-      this.customdragsort.push(newTask);
-      for (var j = 0; j < newIndex - 1; j++) {
-        node = node._next;
-      }
-      if(node.getNext()) node = node._next;
-      newTask.pipe(node);
-      node.pipe(this.customscrollview);
-      newTask.pipe(this.customscrollview);
+  var newTask = new TaskView({text: data.text, index: newIndex, page: this.title});
+  window.memory.save({
+    text: newTask.text,
+    page: newTask.page
+  });
+  this.customdragsort.push(newTask);
+  for (var j = 0; j < newIndex - 1; j++) {
+    node = node._next;
+    console.log('node in loop', j, node);
+  }
+  if(node.getNext()) node = node._next;
+  newTask.pipe(node);
+  node.pipe(this.customscrollview);
+  newTask.pipe(this.customscrollview);
 
-      newTask.pipe(this._eventInput);
+  newTask.pipe(this._eventInput);
 
-      this.customscrollview.pipe(node);
-      _activateTasks.call(this, newTask);
+  this.customscrollview.pipe(node);
+  _activateTasks.call(this, newTask);
 }
 
 function _activateTasks(newTask) {
@@ -191,11 +218,23 @@ function _activateTasks(newTask) {
 }
 
 function _createNewTask(data) {
-  var pages = {
-    'FOCUS': 0,
-    'TODAY': 1,
-    'LATER': 2,
-    'NEVER': 3 
+  var pages;
+  
+  if (window.asana) {
+    pages = {
+      'FOCUS': 0,
+      'TODAY': 1,
+      'LATER': 2,
+      'ASANA': 3,
+      'NEVER': 4
+    };
+  } else {
+    pages = {
+      'FOCUS': 0,
+      'TODAY': 1,
+      'LATER': 2,
+      'NEVER': 3
+    };  
   }
   
   if (this.options.title === 'FOCUS'  && this.taskCount > 2) return;
@@ -254,7 +293,13 @@ function _inputListeners() {
   this.touchSurf.on('touchend', function() {
     this.backgroundTouched = false;
     if (this.timeTouched > 60) {
-      console.log('LONGTOUCH')
+      this.backgroundModOne.halt();
+      this.backgroundModTwo.halt();
+      this.gradientsRunning = false;
+      this.backgroundModOne.setOpacity(1, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});
+      this.backgroundModTwo.setOpacity(0, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});      
+      this.swapGradients.call(this);
+      this.timeTouched = 0;     
     } else {    
       this.inputToggled = !this.inputToggled;
       this.inputToggled ? this._eventOutput.emit('showInput') : this._eventOutput.emit('hideInput');
@@ -262,9 +307,7 @@ function _inputListeners() {
   }.bind(this));
   
   window.Engine.on('prerender', function() {
-    if (this.backgroundTouched) {
-      this.timeTouched += 1;
-    }
+    this.backgroundTouched && this.timeTouched++;
   }.bind(this));
   
 };
@@ -318,11 +361,9 @@ function _gradientListener() {
   this.on('opened', function() {
     this.opacityOne = 0;
     this.opacityTwo = 1;
-    Timer.after(function() {
-      this.opened = true;
-      this.backgroundModOne.setOpacity(0, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});
-      this.backgroundModTwo.setOpacity(1, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});      
-    }.bind(this), 10);
+    this.opened = true;
+    this.backgroundModOne.setOpacity(0, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});
+    this.backgroundModTwo.setOpacity(1, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});      
     this.swapGradients();
   }.bind(this));
 
@@ -330,11 +371,73 @@ function _gradientListener() {
     this.opened = false;
     this.backgroundModOne.halt();
     this.backgroundModTwo.halt();
-    Timer.after(function() {
-      this.backgroundModOne.setOpacity(0, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});    
-      this.backgroundModTwo.setOpacity(0, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});      
-    }.bind(this), 10);
+    this.backgroundModOne.setOpacity(0, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});    
+    this.backgroundModTwo.setOpacity(0, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});      
   }.bind(this));
+};
+
+ContentView.prototype.swapGradients = function() {
+  if (this.opened && this.gradientsRunning) {
+    this.opacityOne = this.opacityOne ? 0 : 1;
+    this.opacityTwo = this.opacityTwo ? 0 : 1;
+    
+    this.backgroundModOne.setOpacity(this.opacityOne, {duration: 5000}, function() {});        
+    this.backgroundModTwo.setOpacity(this.opacityTwo, {duration: 5000}, function() {});        
+  }
+};
+
+function _asanaListener() {
+  this.on('refreshAsanaTasks', function() {
+    if (window.workspaces === undefined) {
+      window.workspaces = JSON.parse(window.localStorage._workspaces);
+    }
+    _getAsanaTasks.call(null, 0, this, window.workspaces);
+  }.bind(this));
+};
+
+function _getAsanaTasks(counter, context, spaces) {
+  if (spaces.length) {
+    var url = 'https://app.asana.com/api/1.0/workspaces/' + spaces[counter]['id'] + '/tasks?assignee=me&completed_since=now';
+    $.ajax({
+      method: 'GET',
+      url: url,
+      beforeSend: function(xhr) {
+        xhr.setRequestHeader("Authorization", "Basic " + window.localStorage._authKey);
+        loadSpinner.call(context);
+      },
+      success: function(resp) {
+        var syncedTasks = resp.data;
+        var savedTasks = window.asanaIDs;
+        
+        for (var i = 0; i < syncedTasks.length; i++) {
+          var savedAlready = savedTasks.indexOf(syncedTasks[i].id);
+          if (savedAlready === -1 && syncedTasks[i].name.length) {
+            var taskData = {
+              text: syncedTasks[i].name,
+              page: 'ASANA'
+            };
+            var node = context.customscrollview.node.find(0);
+            var newIndex = context.customdragsort.array.length;
+            !newIndex ? context._newScrollView(taskData, newIndex) : context._addToList(taskData, newIndex, node);
+            window.asanaIDs.push(syncedTasks[i].id);
+          }
+        }
+        
+        window.localStorage._asanaIDs = JSON.stringify(window.asanaIDs);
+        if (counter === spaces.length - 1) {
+          closeSpinner.call(context);
+        } else {
+          _getAsanaTasks.call(context, counter + 1, context, spaces);
+        }
+      },
+      error: function(err) {
+        closeSpinner.call(context);
+        console.log("ERR:", err);
+      }
+    });       
+  } else {
+    console.log('No workspaces');
+  }
 };
 
 function _completionListener(task) {
@@ -356,22 +459,6 @@ function _completionListener(task) {
   if(this.options.title === 'FOCUS' && this.taskCount < 3) this._eventOutput.emit('inputOpen');
 
 };
-
-ContentView.prototype.swapGradients = function() {
-  if (this.opened) {
-    this.opacityOne = this.opacityOne ? 0 : 1;
-    this.opacityTwo = this.opacityTwo ? 0 : 1;
-
-    this.backgroundModOne.setOpacity(this.opacityOne, {duration: 5000}, function() {});        
-    this.backgroundModTwo.setOpacity(this.opacityTwo, {duration: 5000}, function() {});        
-  }
-};
-
-function getTitleIndex(title) {
-  var titles = {'FOCUS':0, 'TODAY':1, 'LATER':2, 'NEVER':3};
-  return titles[title];
-};
-
 
 ContentView.prototype.animateTasksIn = function(title) {
   var counter = 1; var scrollview;
@@ -405,7 +492,6 @@ function _monitorOffsets() {
       if(scrollview._offsets[0] !== undefined) {
         this._eventOutput.emit('offsets');
         this.notAnimated = false;
-        console.log(this.customscrollview.node.array[0], this.customscrollview._offsets)
       };
     }
   }.bind(this));
@@ -425,6 +511,29 @@ function _hideLastTask(title) {
   }.bind(this));
 };
 
+function _createSpinner() {
+  this.spinner = new ImageSurface({
+    size: [36, 36],
+    properties: {
+      display: 'none'
+    }
+  });
+  
+  this.spinner.setContent('./img/spinner.gif');
+  
+  this.spinnerMod = new Modifier({
+    origin: [0.5, 0.5]
+  });
+  
+  this._add(this.spinnerMod).add(this.spinner);
+};
 
+function loadSpinner() {
+  this.spinner.setProperties({'display': 'block'});
+};
+
+function closeSpinner() {
+  this.spinner.setProperties({'display': 'none'});
+};
 
 module.exports = ContentView;
