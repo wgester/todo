@@ -40,19 +40,14 @@ function _isAndroid() {
 
 function _createRefresh() {
   this.refresh = new Surface({
-    size: [30, 30],
-    properties: {
-      backgroundColor: 'blue',
-      borderRadius: '50%'
-    }
+    content: "<img width='60' height='60' src='./img/refresh.png'/>"
   });
   
   this.refreshMod = new Modifier({
-    transform: Transform.translate(240, 20, 1)
+    transform: Transform.translate(100, 11, 1)
   });
   
   this.refresh.on('touchend', function() {
-    console.log('refresh tasks!')
     this._eventOutput.emit('refreshAsana');
   }.bind(this));
   

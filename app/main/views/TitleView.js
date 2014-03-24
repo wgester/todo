@@ -50,7 +50,7 @@ function _createTitleSurface() {
 
 function _shadowMod() {
   this.titleSurf.setProperties({
-    textShadow: '0px 0px ' + this.shadowTransitionable.get()[0] + 'px rgba(0, 49, 86, 1)'
+    textShadow: '0px 0px ' + this.shadowTransitionable.get()[0] + 'px rgba(255, 255, 255, 1)'
   });
 };
 
@@ -127,7 +127,7 @@ function _playShadow() {
   } else {
     this.shadowTransitionable.set([1.5, 100, 50], {duration: 1500}, function() {
       this.shadowTransitionable.set([2, 100, 50], {duration: 500}, function(){
-        this.shadowTransitionable.set([0, 100, 50], {duration: 800}, function() {
+        this.shadowTransitionable.set([0, 100, 50], {duration: 1500}, function() {
           Timer.after(function() {
             if (this.options.asanaConnect && window.localStorage._authKey === undefined) {
               this.syncButtonMod.setOpacity(1);

@@ -53,10 +53,10 @@ AppView.DEFAULT_OPTIONS = {
 function _createColorOptions() {
   if (window.asana) {
     this.colors = [
-      ['#ffffff', '#32CEA8', null, '#ffffff','#23a5f6', '#32CEA8'],
+      ['#91EDD5', '#32CEA8', null, '#4AA9DF','#23a5f6', '#32CEA8'],
       ['#ffffff', '#FFFFCD', '#87CEFA','#ffffff', '#ffffb3', '#23a5f6'],
       ['#3690FF', '#8977C6', null, '#8977C6', '#1a80ff', '#735dbb'],
-      ['#ffffff', '#32CEA8', null, '#ffffff','#23a5f6', '#32CEA8'],
+      ['#2E8BCC', '#D2DCE5', null, '#2E8BCC', '#2E8BCC', '#B7D286',],
       ['#ffffff', '#F76D6D', null, '#F0DC8D', '#F76D6D', null]
       // ['#81F781', '#E0F8E6', '#E0F8E6', '#E0F8E6']
     ];      
@@ -65,8 +65,8 @@ function _createColorOptions() {
       ['#ffffff', '#32CEA8', null, '#ffffff','#23a5f6', '#32CEA8'],
       ['#ffffff', '#FFFFCD', '#87CEFA','#ffffff', '#ffffb3', '#23a5f6'],
       ['#3690FF', '#8977C6', null, '#8977C6', '#1a80ff', '#735dbb'],
-      ['#ffffff', '#F76D6D', null, '#F0DC8D', '#F76D6D', null]
-      // ['#81F781', '#E0F8E6', '#E0F8E6', '#E0F8E6']
+      ['#ffffff', '#F76D6D', null, '#F0DC8D', '#F76D6D', null],
+      ['#81F781', '#E0F8E6', null, '#E0F8E6', '#E0F8E6', null]
     ];      
   }
 };
@@ -312,9 +312,15 @@ function _colorSurfaces() {
 
 function _createCompletionSurface() {
 
-  window.completionSurf = window.faderSurfaces[4];
+  // window.completionSurf = window.faderSurfaces[4]
+  window.completionSurf = new Surface({
+    size: [undefined, undefined],
+    properties: {
+      backgroundColor: '#33FF66'
+    }
+  });
   window.completionMod = new Modifier({
-    opacity: 0,
+    opacity: 0.01,
     transform: Transform.translate(0, 0, 0)
   });
 

@@ -21,6 +21,8 @@ var mainCtx = window.Engine.createContext();
 mainCtx.setPerspective(1000);
 _createStorageAPI();
 
+_createStorageAPI();
+
 window.$("head link[rel='stylesheet']").last().after("<link rel='stylesheet' href='http://fonts.googleapis.com/css?family=Signika+Negative|Quicksand:400,700|Josefin+Sans|Convergence|Julius+Sans+One' type='text/css'>");
 
 if (!wrapped) {

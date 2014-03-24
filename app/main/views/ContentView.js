@@ -495,9 +495,8 @@ function _syncCompletionWithAsana(task) {
 function _completionListener(task) {
   task.on('completed', function() {
     this.taskCount--;
-    window.completionMod.setOpacity(0.8, {duration: this.options.completionDuration}, function() {
-      window.completionMod.setOpacity(0, {duration: 2000}, function () {});
-      _syncCompletionWithAsana.call(this, task);
+    window.completionMod.setOpacity(0.7, {duration: this.options.completionDuration}, function() {
+      window.completionMod.setOpacity(0, {duration: 1000}, function () {});
     }.bind(this));
   }.bind(this));
 
