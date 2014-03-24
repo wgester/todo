@@ -139,7 +139,6 @@ function _createTasks() {
       }
     });
   };
-  // this.customdragsort.push(extraSpace)
 
   this.scrollMod = new Modifier({
     transform: Transform.translate(0, 0, 1)
@@ -159,7 +158,14 @@ function _setListeners() {
   _unhideTaskListener.call(this);
   _asanaListener.call(this);
   this._eventInput.on('swapPages', _createNewTask.bind(this));
+  // _listenForTaskSwapPageToDeleteFromMemory.call(this);
 };
+
+// function _listenForTaskSwapPageToDeleteFromMemory() {
+//   this.customdragsort._eventOutput.on('swapPage', function(evt) {
+//     console.log(evt);
+//   });
+// }
 
 ContentView.prototype._newScrollView = function(data, newIndex) {
   this.customscrollview = new CustomScrollView({page: this.title});
@@ -298,12 +304,8 @@ function _inputListeners() {
     }
   }
 
-  // this.extraSpace.on('touchstart', function() {
-  //   this.inputToggled = !this.inputToggled;
-  //   this.inputToggled ? this._eventOutput.emit('showInput') : this._eventOutput.emit('hideInput');
-  // }.bind(this));
 
-  this.touchSurf.on('touchstart', function(data) {
+  this.touchSurf.on('touchstart', function() {
     this.timeTouched = 0;
     this.backgroundTouched = true;
     this._eventOutput.emit('newTouch');
