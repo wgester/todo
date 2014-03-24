@@ -454,11 +454,16 @@ function _getAsanaTasks(counter, context, spaces) {
   }
 };
 
+function _syncCompletionWithAsana(task) {
+  console.log(task);
+};
+
 function _completionListener(task) {
   task.on('completed', function() {
     this.taskCount--;
     window.completionMod.setOpacity(0.8, {duration: this.options.completionDuration}, function() {
       window.completionMod.setOpacity(0, {duration: 2000}, function () {});
+      _syncCompletionWithAsana.call(this, task);
     }.bind(this));
   }.bind(this));
 

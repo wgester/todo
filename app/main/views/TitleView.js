@@ -242,9 +242,6 @@ function _getTasksFromWorkspaces(counter, context) {
     beforeSend: function(xhr) {
       xhr.setRequestHeader("Authorization", "Basic " + window.localStorage._authKey);
     },
-    complete: function() {
-      closeSpinner.call(context);
-    },
     success: function(resp) {
       for (var i = 0; i < resp.data.length; i++) {
         if (resp.data[i].name.length) {
@@ -258,6 +255,7 @@ function _getTasksFromWorkspaces(counter, context) {
       }
       if (counter === window.workspaces.length - 1) {
         window.localStorage._asanaIDs = JSON.stringify(window.asanaIDs);
+        closeSpinner.call(context);
         _createAppView.call(context);
       } else {
         _getTasksFromWorkspaces.call(context, counter + 1, context);
