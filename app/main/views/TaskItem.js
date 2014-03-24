@@ -19,6 +19,7 @@ function TaskItem(options) {
     this.page = this.options.page;
     this.text = this.options.text;
     this.index = this.options.index;
+    this.touchEnabled = true;
     _createLayout.call(this);
     _bindEvents.call(this);
     _setDate.call(this);
@@ -119,46 +120,63 @@ function _bindEvents() {
 }
 
 function handleStart(data) {
-  this._eventInput.pipe(this.draggable);
-  this.touched = true;
-  this.distanceThreshold = false;
+  this._eventOutput.emit('newTouch');
   this.touchStart = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
   this.touchCurrent = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
-  this._eventOutput.emit('newTouch');
+  if (this.touchEnabled) {
+      // this._eventOutput.emit('editmodeOn');
+      this._eventInput.pipe(this.draggable);
+      this.touched = true;
+      this.distanceThreshold = false;
+  } else {
+    this._eventInput.unpipe(this.draggable);
+    this._eventOutput.emit('xScroll');
+  }
 }
 
 function handleMove(data) {
     this.touchCurrent = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
     var distance = Math.sqrt(Math.pow((this.touchStart[0] - this.touchCurrent[0]), 2) + Math.pow((this.touchStart[1] - this.touchCurrent[1]), 2));
-    if ((distance > 35) && !this.distanceThreshold) {
-        this.distanceThreshold = true;
-        var xDistance = Math.abs(this.touchStart[0] - this.touchCurrent[0]);
-        var yDistance = Math.abs(this.touchStart[1] - this.touchCurrent[1]);
-        if (xDistance > yDistance) {
-            this._eventOutput.emit('xScroll');
+    if (this.touchEnabled) {
+        if ((distance > 35) && !this.distanceThreshold) {
+            this.distanceThreshold = true;
+            var xDistance = Math.abs(this.touchStart[0] - this.touchCurrent[0]);
+            var yDistance = Math.abs(this.touchStart[1] - this.touchCurrent[1]);
+            if (xDistance > yDistance) {
+                this._eventOutput.emit('xScroll');
+            }
+            if (yDistance >= xDistance) {
+                this._eventInput.unpipe(this.draggable);
+            }
         }
-        if (yDistance >= xDistance) {
-            this._eventOutput.emit('yScroll');
-            this._eventInput.unpipe(this.draggable);
+    } else {
+        if (distance > 35) {
+            if ((this.touchStart[1] - this.touchCurrent[1]) > 0) {
+                this._eventOutput.emit('swiping', 'up');
+            } else {
+                this._eventOutput.emit('swiping', 'down');
+            }
+            this._eventOutput.emit('touchend');
         }
     }
 }
 
 function handleEnd() {
+    this._eventOutput.emit('endTouch');
     this.touched = false;
     replaceTask.call(this);
     var xDistance = Math.abs(this.touchStart[0] - this.touchCurrent[0]);
     var yDistance = Math.abs(this.touchStart[1] - this.touchCurrent[1]);
-
-    if (this.touchStart[1] < 90){
-      this._eventOutput.emit('openInput');
-    }  else if (xDistance < 10 && yDistance < 10 && this.timeTouched > 0 && this.timeTouched < 200) {      
-      this._eventOutput.emit('closeInputOrEdit', {text: this.options.text, index: this.options.index});      
+    if (this.touchEnabled) {
+        if (this.touchStart[1] < 90){
+          this._eventOutput.emit('openInput');
+        }  else if (xDistance < 10 && yDistance < 10 && this.timeTouched > 0 && this.timeTouched < 200) {      
+          this._eventOutput.emit('closeInputOrEdit', {text: this.options.text, index: this.options.index});      
+        }
     }
 
     this.timeTouched = 0;
     this._eventInput.pipe(this.draggable);
-    this._eventOutput.emit('endTouch');
 }
 
 function findTimeDeltas() {
@@ -174,7 +192,11 @@ function _setDate() {
 }
 
 function checkForDragging(data) {
-  if (this.touched) {
+  if (!this.touchEnabled) {
+    this._eventOutput.emit('xScroll');
+    this._eventInput.unpipe(this.draggable);
+  }
+  if (this.touched && this.touchEnabled) {
     this.timeTouched += this.timeDelta;
     if (this.timeTouched > this.options.dragThreshold) {
       var distance = Math.sqrt(Math.pow((this.touchStart[0] - this.touchCurrent[0]), 2) + Math.pow((this.touchStart[1] - this.touchCurrent[1]), 2));

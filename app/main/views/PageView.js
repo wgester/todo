@@ -29,7 +29,7 @@ function PageView() {
   this.offPage = false;
   this.touchCount = 0;
   _createLayout.call(this);
-  _pipeSubviewEventsToAppView.call(this);
+  _eventPiping.call(this);
   _createEditLightbox.call(this);
   _setListeners.call(this);
 }
@@ -123,10 +123,12 @@ function _setHeaderSize() {
   this.layout.setOptions({headerSize: this.headerSizeTransitionable.get()[0]});
 };
 
-function _pipeSubviewEventsToAppView() {
+function _eventPiping() {
   this.footer.pipe(this._eventOutput);
   this.header.pipe(this._eventOutput);
   this.contents._eventOutput.pipe(this.contents._eventInput);
+  this.contents._eventInput.pipe(this._eventOutput);
+  this._eventInput.pipe(this.contents._eventInput);
 };
 
 function _headerEvents() {
@@ -183,15 +185,37 @@ function _contentEvents() {
   this.contents._eventInput.on('newTouch', function() {
     this.touchCount += 1;
     if (this.touchCount >= 2) {
-      this._eventOutput.emit('twoFingerMode');
+      this.contents._eventOutput.emit('twoFingerMode');
+      this.contents.twoFingerMode = true;
+      console.log('twofingers!')
+      this.twoFingerMode = true;
     }
 
   }.bind(this));
 
   this.contents._eventInput.on('endTouch', function() {
-    this.touchCount -= 1;
+    this.touchCount = 0;
     if (this.touchCount < 2) {
-      this._eventOutput.emit('twoFingerModeDisabled');
+      this.contents.twoFingerMode = false;
+      console.log('disablingTwoTOuch')
+      this.contents._eventOutput.emit('twoFingerModeDisabled');
+      this.twoFingerMode = false;
+    }
+  }.bind(this));
+
+  this.contents._eventInput.on('swiping', function(data) {
+    if (this.twoFingerMode) {
+      if (data === 'up') {
+        this._eventOutput.emit('togglePageViewUp');
+      } else {
+        this._eventOutput.emit('togglePageViewDown');
+      }
+      this.touchCount = 0;
+      this.twoFingerMode = false;
+      this.contents.twoFingerMode = false;
+      this.contents._eventOutput.emit('twoFingerModeDisabled');
+      this.contents._eventOutput.emit('hideInput');
+      this.inputToggled = false;
     }
   }.bind(this));
 };

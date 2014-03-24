@@ -1,3 +1,4 @@
+require('famous/polyfills');
 window.Engine         = require('famous/engine');
 var AppView           = require('./views/AppView');
 var Surface           = require('famous/surface')
@@ -12,9 +13,9 @@ var bootstrappedData  = require('./views/data.js');
 window.$              = require('./jquery');
 var TitleView         = require('./views/TitleView');
 
-var devMode = false;
+var devMode = true;
 var wrapped = false;
-var asanaConnect = true;
+var asanaConnect = false;
 
 var mainCtx = window.Engine.createContext();
 mainCtx.setPerspective(1000);

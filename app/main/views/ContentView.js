@@ -122,6 +122,7 @@ function _createTasks() {
       newTask.pipe(node);
       node.pipe(this.customscrollview);
       newTask.pipe(this.customscrollview);
+      this._eventOutput.pipe(newTask._eventInput);
       newTask.pipe(this._eventInput);
       this.customscrollview.pipe(node);
       this.taskCount++;
@@ -178,6 +179,7 @@ ContentView.prototype._newScrollView = function(data, newIndex) {
   newTask.pipe(this.customscrollview);
   newTask.pipe(this._eventInput);
   this.customscrollview.pipe(node);
+  this._eventOutput.pipe(newTask._eventInput);
   this.scrollMod = new Modifier({
     transform: Transform.translate(0, 0, 1)
   });
@@ -211,6 +213,7 @@ ContentView.prototype._addToList = function(data, newIndex, node) {
   newTask.pipe(node);
   node.pipe(this.customscrollview);
   newTask.pipe(this.customscrollview);
+  this._eventOutput.pipe(newTask._eventInput);
 
   newTask.pipe(this._eventInput);
 
@@ -298,27 +301,40 @@ function _inputListeners() {
   //   this.inputToggled ? this._eventOutput.emit('showInput') : this._eventOutput.emit('hideInput');
   // }.bind(this));
 
-  this.touchSurf.on('touchstart', function() {
+  this.touchSurf.on('touchstart', function(data) {
     this.timeTouched = 0;
     this.backgroundTouched = true;
+    this._eventOutput.emit('newTouch');
+    this.touchStart = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
+    this.touchCurrent = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
+    console.log(data)
   }.bind(this));
-  
-  this.touchSurf.on('touchend', function() {
-    this.backgroundTouched = false;
-    if (this.timeTouched > 60) {
-      this.backgroundModOne.halt();
-      this.backgroundModTwo.halt();
-      this.gradientsRunning = false;
-      this.backgroundModOne.setOpacity(1, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});
-      this.backgroundModTwo.setOpacity(0, {duration: this.options.gradientDuration, curve: 'easeOut'}, function() {});      
-      this.swapGradients.call(this);
-      this.timeTouched = 0;     
-    } else {    
-      this.inputToggled = !this.inputToggled;
-      this.inputToggled ? this._eventOutput.emit('showInput') : this._eventOutput.emit('hideInput');
+
+  this.touchSurf.on('touchmove', function(data) {
+    this.touchCurrent = [data.targetTouches[0]['pageX'], data.targetTouches[0]['pageY']];
+    var distance = Math.sqrt(Math.pow((this.touchStart[0] - this.touchCurrent[0]), 2) + Math.pow((this.touchStart[1] - this.touchCurrent[1]), 2));
+    if (this.twoFingerMode) {
+      if (distance > 50) {
+        if ((this.touchStart[1] - this.touchCurrent[1]) > 0) {
+          this._eventOutput.emit('swiping', 'up');
+        } else {
+          this._eventOutput.emit('swiping', 'down');
+          console.log('down')
+        }
+      }
     }
   }.bind(this));
   
+  this.touchSurf.on('touchend', function(data) {
+    this.backgroundTouched = false;
+    this._eventOutput.emit('endTouch');
+  }.bind(this));
+  
+  this.touchSurf.on('click', function() {
+    this.inputToggled = true;
+    this._eventOutput.emit('showInput');   
+  }.bind(this));
+
   window.Engine.on('prerender', function() {
     this.backgroundTouched && this.timeTouched++;
   }.bind(this));
@@ -352,7 +368,7 @@ function _closeInputListener(task) {
 
 function _unhideTaskListener() {
   this.on('unhideEditedTask', function() {
-    if (this.editTask) {
+    if (this.editTask && this.editedTask) {
       this.editedTask._eventOutput.emit('unhide');
       this.editTask = false;
     }

@@ -8,12 +8,15 @@ function TaskView(options) {
     View.apply(this, arguments);
     _addTaskItem.call(this);
     this.options.transition = {
-    duration: 1300,
-    curve: 'easeInOut' };
+        duration: 1300,
+        curve: 'easeInOut' 
+    };
     this.animateIn = animateIn;
     this.resetAnimation = resetAnimation;
     this.page = this.options.page;
     this.text = this.options.text;
+    _addEventListeners.call(this);
+
 }
 
 TaskView.prototype = Object.create(View.prototype);
@@ -37,7 +40,22 @@ function _addTaskItem() {
   this.taskItem.pipe(this._eventOutput);
 
   this._add(this.taskItemModifier).add(this.taskItem);
+
 };
+
+function _addEventListeners() {
+    this._eventInput.on('twoFingerMode', _disableTouch.bind(this));
+    this._eventInput.on('twoFingerModeDisabled', _enableTouch.bind(this));
+}
+
+function _disableTouch() {
+    this.taskItem.touchEnabled = false;
+}
+
+function _enableTouch() {
+    this.taskItem.touchEnabled = true;
+    console.log('enablingtouch')
+}
 
 /*-----------------------ANIMATION-------------------------------*/
 
