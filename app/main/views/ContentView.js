@@ -4,6 +4,8 @@ var Transform         = require('famous/transform');
 var View              = require('famous/view');
 var Scrollview        = require('famous/views/scrollview');
 var TaskView          = require('./TaskView');
+// var Tasks             = window._taskData || [];
+var Tasks             = require('./data');
 var Box               = require('./BoxView');
 var BoxContainer      = require('./BoxContainer');
 var Timer             = require('famous/utilities/timer');
@@ -493,9 +495,8 @@ function _syncCompletionWithAsana(task) {
 function _completionListener(task) {
   task.on('completed', function() {
     this.taskCount--;
-    window.completionMod.setOpacity(0.8, {duration: this.options.completionDuration}, function() {
-      window.completionMod.setOpacity(0, {duration: 2000}, function () {});
-      _syncCompletionWithAsana.call(this, task);
+    window.completionMod.setOpacity(0.7, {duration: this.options.completionDuration}, function() {
+      window.completionMod.setOpacity(0, {duration: 1000}, function () {});
     }.bind(this));
   }.bind(this));
 
@@ -509,6 +510,16 @@ function _completionListener(task) {
   
   if(this.options.title === 'FOCUS' && this.taskCount < 3) this._eventOutput.emit('inputOpen');
 
+};
+
+ContentView.prototype.swapGradients = function() {
+  if (this.opened) {
+    this.opacityOne = this.opacityOne ? 0 : 1;
+    this.opacityTwo = this.opacityTwo ? 0 : 1;
+
+    this.backgroundModOne.setOpacity(this.opacityOne, {duration: 5000}, function() {});        
+    this.backgroundModTwo.setOpacity(this.opacityTwo, {duration: 5000}, function() {});        
+  }
 };
 
 ContentView.prototype.animateTasksIn = function(title) {
@@ -552,8 +563,8 @@ function _hideLastTask(title) {
   Engine.on('prerender', function(){
     if(!this.notAnimated){
       for(var i=0; i < this.customscrollview.node.array.length; i++){
-        if(this.customscrollview._offsets[i] > 360 || this.customscrollview._offsets[i]<0) {
-          this.customscrollview.node.array[i].taskItemModifier.setOpacity(0)
+        if(this.customscrollview._offsets[i] > 360 || this.customscrollview._offsets[i]< -5) {
+          this.customscrollview.node.array[i].taskItemModifier.setOpacity(0, {duration: 250}, function(){})
         } else {
           this.customscrollview.node.array[i].taskItemModifier.setOpacity(1); 
         }

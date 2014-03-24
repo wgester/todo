@@ -40,19 +40,14 @@ function _isAndroid() {
 
 function _createRefresh() {
   this.refresh = new Surface({
-    size: [30, 30],
-    properties: {
-      backgroundColor: 'blue',
-      borderRadius: '50%'
-    }
+    content: "<img width='60' height='60' src='./img/refresh.png'/>"
   });
   
   this.refreshMod = new Modifier({
-    transform: Transform.translate(240, 20, 1)
+    transform: Transform.translate(100, 11, 1)
   });
   
   this.refresh.on('touchend', function() {
-    console.log('refresh tasks!')
     this._eventOutput.emit('refreshAsana');
   }.bind(this));
   
@@ -94,11 +89,6 @@ function _createTitle() {
     this.titleMod.setOpacity(1, undefined, function() {});
     this.titleHeader.setProperties({
       textAlign: 'left'
-  //     fontWeight: '50',
-  //     marginTop: '40px',
-  //     marginLeft: '15px',
-  //     opacity: '0.9'
-
     })
   };
 
@@ -108,12 +98,14 @@ function _createTitle() {
     });
   
     this.upMod = new Modifier({
-      transform: Transform.translate(260, 20, 0)
+      transform: Transform.translate(265, 20, 0)
     });
     this._add(this.upMod).add(this.upSurf);
   }
   
   this._add(this.titleMod).add(this.titleHeader);
+
+  // _createDots.call(this);
 };
 
 function _buttonListener() {
@@ -173,5 +165,22 @@ function _setInputListener() {
 
   }.bind(this));
 };
+
+function getTitleIndex(title) {
+  var titles = {'FOCUS':'0', 'TODAY':'1', 'LATER':'2', 'NEVER':'3'};
+  return titles[title];
+};
+
+
+function _createDots() {
+  console.log(getTitleIndex(this.options.title))
+  this.dots = new Surface({
+    content: "<img width='13' height='52' src='./img/" + 'dots_' + getTitleIndex(this.options.title) + ".png'/>"
+  });
+  this.dotsMod = new Modifier({
+    transform: Transform.translate(0, 0, 0)
+  })
+  this._add(this.dotsMod).add(this.dots);
+}
 
 module.exports = HeaderView;

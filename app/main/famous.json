@@ -38,7 +38,7 @@
   "scripts": ["index.js", "**/*.js"],
   "styles": ["styles.css"],
   "images": ["favicon.ico", "img/**/*.png", "img/**/*.gif"],
-  "fonts": ["fonts/museosans-300-webfont-webfont.eot", "fonts/museosans-300-webfont-webfont.woff"],
+  "fonts": [],
   "templates": [],
   "files": []
 }
