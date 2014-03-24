@@ -76,8 +76,16 @@ html {
   margin: 0;
 }
 
+.api {
+  text-align: center;
+}
+
 .layer {
   background-color: #444;
+}
+
+button {
+  padding: 10px 40px;
 }
 
 .deleteIcon, .checkIcon {
@@ -163,8 +171,8 @@ h1 {
   font-weight: 300;
   letter-spacing: 2px;
   font-size: 1.5em;
-  color: #EDEDED;
-}
+/*  color: #EDEDED;
+*/}
 
 .container {
   width: 300px;

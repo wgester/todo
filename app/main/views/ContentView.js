@@ -15,6 +15,7 @@ var CustomScrollView  = require('./customScrollView');
 var TaskItem          = require('./TaskItem');
 var Color             = require('./Color');
 var ImageSurface      = require('famous/surfaces/image-surface');
+var Utility           = require('famous/utilities/utility');
 
 
 function ContentView(options) {
@@ -139,7 +140,6 @@ function _createTasks() {
       }
     });
   };
-  // this.customdragsort.push(extraSpace)
 
   this.scrollMod = new Modifier({
     transform: Transform.translate(0, 0, 1)
@@ -298,12 +298,8 @@ function _inputListeners() {
     }
   }
 
-  // this.extraSpace.on('touchstart', function() {
-  //   this.inputToggled = !this.inputToggled;
-  //   this.inputToggled ? this._eventOutput.emit('showInput') : this._eventOutput.emit('hideInput');
-  // }.bind(this));
 
-  this.touchSurf.on('touchstart', function(data) {
+  this.touchSurf.on('touchstart', function() {
     this.timeTouched = 0;
     this.backgroundTouched = true;
     this._eventOutput.emit('newTouch');
@@ -522,18 +518,17 @@ ContentView.prototype.swapGradients = function() {
   }
 };
 
-ContentView.prototype.animateTasksIn = function(title) {
+ContentView.prototype.animateTasksIn = function(title, source) {
   var counter = 1; var scrollview;
   if(this.customscrollview.options.page === title) scrollview = this.customscrollview;
-    
-  for(var i = 0; i < scrollview.node.array.length; i++) {
-    if (this.shown[i] !== title) {
-      this.toShow[i] = title;
-      scrollview.node.array[i].animateIn(i);                            
-      this.toShow[i] = undefined;
+    for(var i = 0; i < scrollview.node.array.length; i++) {
+      if (this.shown[i] !== title) {
+        this.toShow[i] = title;
+        scrollview.node.array[i].animateIn(i, source);
+        this.toShow[i] = undefined;
+      }
+      this.shown = this.toShow; 
     }
-    this.shown = this.toShow; 
-  }
 };
 
 ContentView.prototype.resetAnimations = function(title) {

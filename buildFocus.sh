@@ -3,7 +3,7 @@
 # exit on error
 set -e
 
-famous build -o focus/www/
+famous build -m -o focus/www/
 rm focus/www/original_project
 cp indexScript.html focus/www/index.html
 cd focus

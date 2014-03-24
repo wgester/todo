@@ -61,6 +61,8 @@ function swapPage(indexObj) {
         }
         return;
     }
+    window.memory.remove(this.node.array[indexObj.index]);
+    
     var currentNode = this.node.find(0);
     while (currentNode && (currentNode.index !== indexObj.index)) {
         currentNode.setPosition([0,0]);

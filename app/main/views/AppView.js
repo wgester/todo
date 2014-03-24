@@ -123,11 +123,9 @@ function _addEventListeners(newView, newModifier){
   }.bind(this));
 
   newView.on('togglePageViewUp', function() {
-    
-    newView.nextPage.contents.resetAnimations(newView.nextPage.options.title);
-    newView.nextPage.contents.animateTasksIn(newView.nextPage.options.title);
-
     if (newView.nextPage) {
+      newView.nextPage.contents.resetAnimations(newView.nextPage.options.title);
+      newView.nextPage.contents.animateTasksIn(newView.nextPage.options.title, 'down');
       if (!this.lightBox.optionsForSwipeUp){
         this.lightBox.setOptions({
           outTransition: this.options.transition,
@@ -148,16 +146,15 @@ function _addEventListeners(newView, newModifier){
   }.bind(this));
 
   newView.on('togglePageViewDown', function() {
-
     if (newView.previousPage) {
       newView.previousPage.contents.resetAnimations(newView.previousPage.options.title);
-      newView.previousPage.contents.animateTasksIn(newView.previousPage.options.title);
+      newView.previousPage.contents.animateTasksIn(newView.previousPage.options.title, 'up');
       if (this.lightBox.optionsForSwipeUp)  {
         this.lightBox.setOptions({
           outTransition: this.options.noTransition,
           outTransform: Transform.translate(0, 0, -5),
           inTransition: this.options.wall,
-          inTransform: Transform.translate(0, -1200, 1),
+          inTransform: Transform.translate(0, -1200, 0),
           inOpacity: 1
         });
         this.lightBox.optionsForSwipeUp = false;
@@ -198,7 +195,6 @@ function _renderFocusPage() {
   this.lightBox.show(this.FOCUSView);
   this.FOCUSView.contents.swapGradients();
   this.FOCUSView.contents.animateTasksIn('FOCUS');
-
 };
 
 function _createGradientSurfaces(pages) {
