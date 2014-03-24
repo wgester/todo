@@ -455,7 +455,23 @@ function _getAsanaTasks(counter, context, spaces) {
 };
 
 function _syncCompletionWithAsana(task) {
-  console.log(task);
+  if (task.options.id) {
+    var url = 'https://app.asana.com/api/1.0/tasks/' + task.options.id;
+    $.ajax({
+      method: 'PUT',
+      url: url,
+      data: "completed=true",
+      beforeSend: function(xhr) {
+        xhr.setRequestHeader("Authorization", "Basic " + window.localStorage._authKey);
+      },
+      success: function(resp) {
+       console.log(resp);
+      },
+      error: function(err) {
+        console.log("ERR:", err);
+      }
+    }); 
+  }
 };
 
 function _completionListener(task) {
