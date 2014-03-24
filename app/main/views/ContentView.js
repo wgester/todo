@@ -15,6 +15,7 @@ var CustomScrollView  = require('./customScrollView');
 var TaskItem          = require('./TaskItem');
 var Color             = require('./Color');
 var ImageSurface      = require('famous/surfaces/image-surface');
+var Utility           = require('famous/utilities/utility');
 
 
 function ContentView(options) {
@@ -158,14 +159,7 @@ function _setListeners() {
   _unhideTaskListener.call(this);
   _asanaListener.call(this);
   this._eventInput.on('swapPages', _createNewTask.bind(this));
-  // _listenForTaskSwapPageToDeleteFromMemory.call(this);
 };
-
-// function _listenForTaskSwapPageToDeleteFromMemory() {
-//   this.customdragsort._eventOutput.on('swapPage', function(evt) {
-//     console.log(evt);
-//   });
-// }
 
 ContentView.prototype._newScrollView = function(data, newIndex) {
   this.customscrollview = new CustomScrollView({page: this.title});
@@ -524,18 +518,17 @@ ContentView.prototype.swapGradients = function() {
   }
 };
 
-ContentView.prototype.animateTasksIn = function(title) {
+ContentView.prototype.animateTasksIn = function(title, source) {
   var counter = 1; var scrollview;
   if(this.customscrollview.options.page === title) scrollview = this.customscrollview;
-    
-  for(var i = 0; i < scrollview.node.array.length; i++) {
-    if (this.shown[i] !== title) {
-      this.toShow[i] = title;
-      scrollview.node.array[i].animateIn(i);                            
-      this.toShow[i] = undefined;
+    for(var i = 0; i < scrollview.node.array.length; i++) {
+      if (this.shown[i] !== title) {
+        this.toShow[i] = title;
+        scrollview.node.array[i].animateIn(i, source);
+        this.toShow[i] = undefined;
+      }
+      this.shown = this.toShow; 
     }
-    this.shown = this.toShow; 
-  }
 };
 
 ContentView.prototype.resetAnimations = function(title) {

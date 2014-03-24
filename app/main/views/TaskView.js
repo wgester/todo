@@ -3,6 +3,9 @@ var Transform        = require('famous/transform');
 var View             = require('famous/view');
 var Modifier         = require('famous/modifier');
 var TaskItem         = require('./TaskItem');
+var Timer            = require('famous/utilities/timer');
+var Easing           = require('famous/animation/easing');   
+
 
 function TaskView(options) {
     View.apply(this, arguments);
@@ -24,7 +27,16 @@ TaskView.prototype.constructor = TaskView;
 
 TaskView.DEFAULT_OPTIONS = {
   deleteCheckWidth: 100,
-  xThreshold: 95
+  xThreshold: 95,
+  dipTransition: {
+    curve: function(t) {
+      return Easing.outBack(t, 0.5, 0.5, 1);
+    },
+    duration: 1000
+  },
+  noTransition: {
+    duration: 0
+  }
 };
 
 
@@ -64,14 +76,16 @@ TaskView.prototype.appearIn = function() {
   this.taskItemModifier.setOpacity(1);
 };
 
-function animateIn(counter) {
+function animateIn(counter, source) {
   var deleteCheck = -1 * this.options.deleteCheckWidth;
-  this.taskItemModifier.setTransform(Transform.translate(deleteCheck, 0, 0), {duration: 200 * counter, curve: 'easeInOut'}, function() {
-    this.taskItemModifier.setTransform(Transform.translate(deleteCheck, -5, 0), {duration: 100, curve: 'easeInOut'}, function() {
-        this.taskItemModifier.setTransform(Transform.translate(deleteCheck, 0, 0), {duration: 180, curve: 'easeInOut'}, function() {});
-    }.bind(this))
-  }.bind(this));
-  this.taskItemModifier.setOpacity(1, this.options.transition, function() {});
+  if (source === 'up') {
+    this.taskItemModifier.setTransform(Transform.translate(deleteCheck, -1000, 0), this.options.noTransition, function(){});
+  }
+  Timer.after(function() {
+    this.taskItemModifier.setTransform(Transform.translate(deleteCheck, 0, 0), this.options.dipTransition, function() {
+      this.taskItemModifier.setOpacity(1, this.options.transition, function() {});
+    }.bind(this));
+  }.bind(this), 10);
 };
 
 TaskView.prototype.appearIn = function() {
