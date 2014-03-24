@@ -27,7 +27,7 @@ function _createButton() {
   });
 
   this.buttonModifier = new Modifier({
-    origin: [0.5, 1]
+    transform: Transform.translate(2, 0, 1)
   });
 
   this._add(this.buttonModifier).add(this.buttonSurf);

@@ -98,7 +98,7 @@ function _createTitle() {
     });
   
     this.upMod = new Modifier({
-      transform: Transform.translate(260, 20, 0)
+      transform: Transform.translate(265, 20, 0)
     });
     this._add(this.upMod).add(this.upSurf);
   }
