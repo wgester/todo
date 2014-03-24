@@ -183,7 +183,6 @@ ContentView.prototype._newScrollView = function(data, newIndex) {
 }
 
 ContentView.prototype._addToList = function(data, newIndex, node) {
-  console.log('HERE IN ADDTOLIST')
   var newTask = new TaskView({text: data.text, index: newIndex, page: this.title});
   window.memory.save({
     text: newTask.text,
@@ -432,6 +431,7 @@ function _getAsanaTasks(counter, context, spaces) {
         }
       },
       error: function(err) {
+        closeSpinner.call(context);
         console.log("ERR:", err);
       }
     });       
@@ -519,7 +519,7 @@ function _createSpinner() {
     }
   });
   
-  this.spinner.setContent('./img/spinner2.gif');
+  this.spinner.setContent('./img/spinner.gif');
   
   this.spinnerMod = new Modifier({
     origin: [0.5, 0.5]

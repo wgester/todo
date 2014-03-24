@@ -6,6 +6,8 @@ var Transitionable    = require("famous/transitions/transitionable");
 var Timer             = require('famous/utilities/timer');
 var AppView           = require('./views/AppView');
 var ImageSurface      = require('famous/surfaces/image-surface');
+var InputSurface      = require('famous/surfaces/input-surface');
+
 
 function TitleView(options) {
   View.apply(this, arguments);
@@ -92,9 +94,15 @@ function _setListeners() {
   window.Engine.on("prerender", _shadowMod.bind(this));
   
   this.syncButton.on('touchend', function() {
+    if (window.asana) {
+      this.labelMod.setOpacity(0);
+      this.apiMod.setOpacity(0);
+      this.syncButtonMod.setOpacity(0);
+      _populateAsana.call(this);
+    } else {
+      _createAPIInput.call(this);
+    }
     window.asana = true;
-    _hideButtons.call(this);
-    _populateAsana.call(this);
   }.bind(this));
   
   this.skipButton.on('touchend', function() {
@@ -136,9 +144,39 @@ function _playShadow() {
 };
 
 function _populateAsana() {
-  var APIKey = prompt("What is your api key?");
+  var APIKey = this.apiInput.getValue();
   window.localStorage._authKey = btoa(APIKey + ":");
-  _getWorkspaces.call(null, this);  
+  _getWorkspaces.call(null, this);    
+};
+
+function _createAPIInput() {
+  this.skipButtonMod.setTransform(Transform.translate(0, 200, 0));
+  this.skipButtonMod.setOpacity(0);
+  this.titleSurf.setContent('');
+ 
+  this.apiInput = new InputSurface({
+    size: [300, 50]
+  });
+  
+  this.apiMod = new Modifier({
+    origin: [0.5, 0.6]
+  });
+  
+  this.labelSurface = new Surface({
+    size: [300, 50],
+    classes: ['api'],
+    content: '<p>Please enter your Asana API Key.</p>'
+  });
+  
+  this.labelMod = new Modifier({
+    origin: [0.5, 0.5]
+  });
+  
+  this.syncButtonMod.setTransform(Transform.translate(0, 100, 0), {duration: 300}, function() {});
+  
+  this._add(this.labelMod).add(this.labelSurface);
+  this._add(this.apiMod).add(this.apiInput); 
+
 };
 
 function _createSpinner() {
@@ -149,7 +187,7 @@ function _createSpinner() {
     }
   });
   
-  this.spinner.setContent('./img/spinner2.gif');
+  this.spinner.setContent('./img/spinner.gif');
   
   this.spinnerMod = new Modifier({
     origin: [0.5, 0.5]
