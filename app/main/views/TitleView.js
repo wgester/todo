@@ -172,7 +172,11 @@ function _createAPIInput() {
     origin: [0.5, 0.5]
   });
   
-  this.syncButtonMod.setTransform(Transform.translate(0, 100, 0), {duration: 300}, function() {});
+  this.syncButtonMod.setTransform(Transform.translate(0, 100, 0), {duration: 300}, function() {
+    this.apiMod.setTransform(Transform.translate(0, -200, 0), {duration: 300}, function() {});
+    this.labelMod.setTransform(Transform.translate(0, -200, 0), {duration: 300}, function() {});
+    this.syncButtonMod.setTransform(Transform.translate(0, -100, 0), {duration: 300}, function() {});
+  }.bind(this));
   
   this._add(this.labelMod).add(this.labelSurface);
   this._add(this.apiMod).add(this.apiInput); 
