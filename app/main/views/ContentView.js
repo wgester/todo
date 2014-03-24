@@ -110,7 +110,13 @@ function _createTasks() {
   var node = this.customdragsort;
   for(var i = 0; i < this.tasks.length; i++) {
     if (this.tasks[i].page === this.options.title) {
-      var newTask = new TaskView({text: this.tasks[i].text, index: this.taskCount, page: this.options.title});
+      var id = this.tasks[i].id ? this.tasks[i].id : null;
+      var newTask = new TaskView({
+        text: this.tasks[i].text,
+        index: this.taskCount,
+        page: this.options.title,
+        id: id
+      });        
       this.customdragsort.push(newTask);
       if(node.getNext()) node = node._next;
       newTask.pipe(node);
@@ -183,11 +189,19 @@ ContentView.prototype._newScrollView = function(data, newIndex) {
 }
 
 ContentView.prototype._addToList = function(data, newIndex, node) {
-  var newTask = new TaskView({text: data.text, index: newIndex, page: this.title});
+  var id = data.id ? data.id : null;
+  var newTask = new TaskView({
+    text: data.text,
+    index: newIndex,
+    page: this.title,
+    id: id
+  });        
   window.memory.save({
     text: newTask.text,
-    page: newTask.page
+    page: newTask.page,
+    id: newTask.id
   });
+  
   this.customdragsort.push(newTask);
   for (var j = 0; j < newIndex - 1; j++) {
     node = node._next;
@@ -256,14 +270,13 @@ function _newTaskListener() {
 
   this.on('saveNewTask', function(val) {
     if (this.options.title === 'FOCUS' && this.taskCount > 2) return;
-
+    
     this.taskCount++;
     
     var node = this.customscrollview.node;
     var newIndex = this.customdragsort.array.length;
     if (!newIndex) {
       this._newScrollView({text: val}, newIndex);
-
     } else {
       this._addToList({text: val}, newIndex, node);
     }
@@ -414,7 +427,8 @@ function _getAsanaTasks(counter, context, spaces) {
           if (savedAlready === -1 && syncedTasks[i].name.length) {
             var taskData = {
               text: syncedTasks[i].name,
-              page: 'ASANA'
+              page: 'ASANA',
+              id: syncedTasks[i].id
             };
             var node = context.customscrollview.node.find(0);
             var newIndex = context.customdragsort.array.length;
@@ -440,11 +454,32 @@ function _getAsanaTasks(counter, context, spaces) {
   }
 };
 
+function _syncCompletionWithAsana(task) {
+  if (task.options.id) {
+    var url = 'https://app.asana.com/api/1.0/tasks/' + task.options.id;
+    $.ajax({
+      method: 'PUT',
+      url: url,
+      data: "completed=true",
+      beforeSend: function(xhr) {
+        xhr.setRequestHeader("Authorization", "Basic " + window.localStorage._authKey);
+      },
+      success: function(resp) {
+       console.log(resp);
+      },
+      error: function(err) {
+        console.log("ERR:", err);
+      }
+    }); 
+  }
+};
+
 function _completionListener(task) {
   task.on('completed', function() {
     this.taskCount--;
     window.completionMod.setOpacity(0.8, {duration: this.options.completionDuration}, function() {
       window.completionMod.setOpacity(0, {duration: 2000}, function () {});
+      _syncCompletionWithAsana.call(this, task);
     }.bind(this));
   }.bind(this));
 

@@ -107,6 +107,7 @@ function _setListeners() {
   
   this.skipButton.on('touchend', function() {
     window.asana = false;
+    window.localStorage._authKey = "skipped";
     _hideButtons.call(this);
     _createAppView.call(this);
   }.bind(this));
@@ -132,7 +133,11 @@ function _playShadow() {
               this.syncButtonMod.setOpacity(1);
               this.skipButtonMod.setOpacity(1);
             } else {
-              window.asana = this.options.asanaConnect;
+              if (window.localStorage._authKey === "skipped") {
+                window.asana = false;
+              } else {
+                window.asana = this.options.asanaConnect;
+              }
               _createAppView.call(this);
               this.titleMod.setOpacity(0.01, {duration: 500}, function() {});
             }
@@ -172,7 +177,11 @@ function _createAPIInput() {
     origin: [0.5, 0.5]
   });
   
-  this.syncButtonMod.setTransform(Transform.translate(0, 100, 0), {duration: 300}, function() {});
+  this.syncButtonMod.setTransform(Transform.translate(0, 100, 0), {duration: 300}, function() {
+    this.apiMod.setTransform(Transform.translate(0, -200, 0), {duration: 300}, function() {});
+    this.labelMod.setTransform(Transform.translate(0, -200, 0), {duration: 300}, function() {});
+    this.syncButtonMod.setTransform(Transform.translate(0, -100, 0), {duration: 300}, function() {});
+  }.bind(this));
   
   this._add(this.labelMod).add(this.labelSurface);
   this._add(this.apiMod).add(this.apiInput); 
@@ -233,9 +242,6 @@ function _getTasksFromWorkspaces(counter, context) {
     beforeSend: function(xhr) {
       xhr.setRequestHeader("Authorization", "Basic " + window.localStorage._authKey);
     },
-    complete: function() {
-      closeSpinner.call(context);
-    },
     success: function(resp) {
       for (var i = 0; i < resp.data.length; i++) {
         if (resp.data[i].name.length) {
@@ -249,6 +255,7 @@ function _getTasksFromWorkspaces(counter, context) {
       }
       if (counter === window.workspaces.length - 1) {
         window.localStorage._asanaIDs = JSON.stringify(window.asanaIDs);
+        closeSpinner.call(context);
         _createAppView.call(context);
       } else {
         _getTasksFromWorkspaces.call(context, counter + 1, context);

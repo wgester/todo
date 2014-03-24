@@ -48,7 +48,7 @@ function _createRefresh() {
   });
   
   this.refreshMod = new Modifier({
-    transform: Transform.translate(0, 0, 1)
+    transform: Transform.translate(240, 20, 1)
   });
   
   this.refresh.on('touchend', function() {
@@ -106,11 +106,13 @@ function _createTitle() {
     this.upSurf = new Surface({
       content: "<img width='40' height='40' src='./img/up.png'/>"
     });
+  
     this.upMod = new Modifier({
       transform: Transform.translate(260, 20, 0)
-    })
+    });
     this._add(this.upMod).add(this.upSurf);
-  };
+  }
+  
   this._add(this.titleMod).add(this.titleHeader);
 };
 
