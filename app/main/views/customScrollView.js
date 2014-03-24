@@ -50,7 +50,7 @@ function deleteTask(indexObj) {
 }
 
 function swapPage(indexObj) {
-    if (!indexObj) {
+    if (!indexObj.page) {
         var currentNode = this.node.find(0);
         if (currentNode.array.length) {
             while (currentNode) {
