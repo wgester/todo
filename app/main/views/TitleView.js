@@ -182,6 +182,7 @@ function _getWorkspaces(context) {
     },
     error: function(err) {
       alert('Not a valid API key');
+      closeSpinner.call(context);
       _createAppView.call(context);
     }
   }); 
@@ -216,6 +217,7 @@ function _getTasksFromWorkspaces(counter, context) {
       }
     },
     error: function(err) {
+      closeSpinner.call(context);
       console.log("ERR:", err);
     }
   });       
