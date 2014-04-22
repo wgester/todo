@@ -1,6 +1,5 @@
 require('famous/polyfills');
 window.Engine         = require('famous/engine');
-var AppView           = require('./views/AppView');
 var Surface           = require('famous/surface')
 var Modifier          = require('famous/modifier');
 var Transform         = require('famous/transform');
@@ -9,22 +8,30 @@ var WallTransition    = require("famous/transitions/wall-transition");
 var SpringTransition  = require("famous/transitions/spring-transition");
 var Timer             = require('famous/utilities/timer');
 var CanvasSurface     = require('famous/surfaces/canvas-surface');
+
+//// Require local files for subviewing
+var AppView           = require('./views/AppView');
 var bootstrappedData  = require('./views/data.js');
 var TitleView         = require('./views/TitleView');
 window.$              = require('./jquery');
 
+//// Development switches for cross-platform building, devMode is for the opening animation, wrapped is for cordova, asanaConnect is for enabling asana integration
 var devMode = false;
 var wrapped = false;
 var asanaConnect = false;
 
+//// Famous context, need for all apps
 var mainCtx = window.Engine.createContext();
+//// Perspective for viewing 3d transforms, this integer is the "pixel value" in z-space that the camera is positioned 
 mainCtx.setPerspective(1000);
-_createStorageAPI();
+
 
 _createStorageAPI();
 
+//// Fonts?
 window.$("head link[rel='stylesheet']").last().after("<link rel='stylesheet' href='http://fonts.googleapis.com/css?family=Signika+Negative|Quicksand:400,700|Josefin+Sans|Convergence|Julius+Sans+One' type='text/css'>");
 
+//// Shim vibration api for browser development
 if (!wrapped) {
   navigator.notification = {
     vibrate: function(time) {
@@ -33,6 +40,7 @@ if (!wrapped) {
   };
 }
 
+//// Shim android keyboard for browser development and ios
 if (!_isAndroid() || !wrapped) {
   window.AndroidKeyboard = {
     show: function() {
@@ -44,6 +52,7 @@ if (!_isAndroid() || !wrapped) {
   };
 } 
 
+//// Use localStorage for data store
 function _createStorageAPI() {
   window.memory = {
     read: function(page) {
@@ -79,6 +88,7 @@ function _createStorageAPI() {
   _loadSavedData();
 }
 
+//// Load data from localStorage on startup.  Useful for mobile as localStorate persists until app uninstalls
 function _loadSavedData(cb) {
   if (window.localStorage._taskData === undefined) {
     window.memory.data = {
@@ -94,18 +104,22 @@ function _loadSavedData(cb) {
   if (cb) cb();
 }
 
+//// Register transitions for simple physics API
 Transitionable.registerMethod('wall', WallTransition);
 Transitionable.registerMethod('spring', SpringTransition);
 
-
+//// Determine android user agent, will return true on android Chrome, Browser, and wrapped browser
 function _isAndroid() {
   var userAgent = navigator.userAgent.toLowerCase();
   return userAgent.indexOf("android") > -1;
 };
 
+//// Provide sugar and sheild errors if no vibrate API exists.  Perhaps use a try/catch or promised error handling
 window.vibrate = function(length) {
   navigator && navigator.notification && navigator.notification.vibrate(length);
 }
 
+//// Start the app with the first subview
 var titleView = new TitleView({context: mainCtx, devMode: devMode, asana: asanaConnect});
+//// Append this view to the context so it can be rendered
 mainCtx.add(titleView);

@@ -1,3 +1,5 @@
+//// bootstrapped data for development, consider using something like this
+
 var tasks = {
   "FOCUS" : [
     { text: 'make an app', page: 'FOCUS'},

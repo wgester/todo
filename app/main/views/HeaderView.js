@@ -7,6 +7,7 @@ var Transitionable    = require('famous/transitions/transitionable');
 var Box               = require('./BoxView');
 var BoxContainer      = require('./BoxContainer');
 
+//// Page header view and up button
 
 function HeaderView() {
   View.apply(this, arguments);

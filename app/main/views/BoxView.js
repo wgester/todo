@@ -4,6 +4,7 @@ var Transform     = require('famous/transform');
 var View           = require('famous/view');
 var InputSurface      = require("famous/surfaces/input-surface");
 
+//// This is the rotating box on input, was from an older design decision
 
 function Box(options) {
   View.apply(this, arguments);

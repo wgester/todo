@@ -4,16 +4,18 @@ var View              = require('famous/view');
 var Transform         = require('famous/transform');
 var Transitionable    = require("famous/transitions/transitionable");
 var Timer             = require('famous/utilities/timer');
-var AppView           = require('./views/AppView');
 var ImageSurface      = require('famous/surfaces/image-surface');
 var InputSurface      = require('famous/surfaces/input-surface');
 
+var AppView           = require('./views/AppView');
 
 function TitleView(options) {
   View.apply(this, arguments);
+  //// I think multiple values passed to a Transitionable can be transitioned independently, maybe see if this is a good strategy
   this.shadowTransitionable = new Transitionable([50, 206, 168, 255, 255, 255]);
   window.asanaIDs = [];
   
+  //// Call private methods to create content.  Use this pattern if you want, the new Timbre tutorial may have better practices
   _createTitleSurface.call(this);
   _createSpinner.call(this);
   _createButtons.call(this);
@@ -21,6 +23,7 @@ function TitleView(options) {
   _playShadow.call(this);
 };
 
+//// Subclassing boilerplate code
 TitleView.prototype = Object.create(View.prototype);
 TitleView.prototype.constructor = TitleView;
 
@@ -49,6 +52,7 @@ function _createTitleSurface() {
 };
 
 function _shadowMod() {
+  //// This is used to 'opacitate' the text in
   this.titleSurf.setProperties({
     textShadow: '0px 0px ' + this.shadowTransitionable.get()[0] + 'px rgba(255, 255, 255, 1)'
   });
@@ -91,8 +95,10 @@ function _hideButtons() {
 };
 
 function _setListeners() {
+  //// callbacks to "prerender" are executed every tick of the engine
   window.Engine.on("prerender", _shadowMod.bind(this));
   
+  //// maybe use 'click' events but these work fine
   this.syncButton.on('touchend', function() {
     if (window.asana) {
       this.labelMod.setOpacity(0);
@@ -113,6 +119,7 @@ function _setListeners() {
   }.bind(this));
 };
 
+//// AppView was the primary view before titleView refactor, most of the useful code for an MVC project is in there
 function _createAppView() {
   var appView = new AppView();
   this.options.context.add(appView);
@@ -121,10 +128,12 @@ function _createAppView() {
 
 
 function _playShadow() {
+  //// When in devMode, don't do the animation
   if (this.options.devMode) {
     this.titleMod.setOpacity(0);
      _createAppView.call(this); 
   } else {
+  	//// Try to avoid callback hell, here it's not so bad as this is basically transition, then transition, then... 
     this.shadowTransitionable.set([1.5, 100, 50], {duration: 1500}, function() {
       this.shadowTransitionable.set([2, 100, 50], {duration: 500}, function(){
         this.shadowTransitionable.set([0, 100, 50], {duration: 1500}, function() {
@@ -148,12 +157,14 @@ function _playShadow() {
   }
 };
 
+
 function _populateAsana() {
   var APIKey = this.apiInput.getValue();
   window.localStorage._authKey = btoa(APIKey + ":");
   _getWorkspaces.call(null, this);    
 };
 
+//// Deprecated, used to insert the asana account key directly
 function _createAPIInput() {
   this.skipButtonMod.setTransform(Transform.translate(0, 200, 0));
   this.skipButtonMod.setOpacity(0);
@@ -188,6 +199,7 @@ function _createAPIInput() {
 
 };
 
+//// Get a better spinner gif
 function _createSpinner() {
   this.spinner = new ImageSurface({
     size: [36, 36],
@@ -214,6 +226,7 @@ function closeSpinner() {
 };
 
 function _getWorkspaces(context) {
+  //// YEAH jquery ajax.
   $.ajax({
     method: 'GET',
     url: 'https://app.asana.com/api/1.0/users/me',
@@ -235,6 +248,7 @@ function _getWorkspaces(context) {
   }); 
 }; 
 
+//// This might be the more current, useful code
 function _getTasksFromWorkspaces(counter, context) {
   $.ajax({
     method: 'GET',

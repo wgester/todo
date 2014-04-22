@@ -6,6 +6,8 @@ var TaskItem         = require('./TaskItem');
 var Timer            = require('famous/utilities/timer');
 var Easing           = require('famous/animation/easing');   
 
+//// This subview used for animation of tasks in to the PageView instance
+//// See the animateIn method
 
 function TaskView(options) {
     View.apply(this, arguments);
@@ -80,6 +82,7 @@ function animateIn(counter, source) {
   var deleteCheck = -1 * this.options.deleteCheckWidth;
   var animationDelay = 20 + 6 * counter; //in frames?
   
+  //// If animating the tasks from the top, change their position to above the screen before animation
   if (source === 'up') {
     this.taskItemModifier.setTransform(Transform.translate(deleteCheck, -1000, 0), this.options.noTransition, function(){});
   }

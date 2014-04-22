@@ -2,13 +2,13 @@ var Surface        = require('famous/surface');
 var Modifier       = require('famous/modifier');
 var Transform      = require('famous/transform');
 var View           = require('famous/view');
-var PageView       = require('./PageView');
 var Lightbox       = require('famous/views/light-box');
 var CanvasSurface  = require('famous/surfaces/canvas-surface');
 var InputSurface   = require("famous/surfaces/input-surface");
 var Transitionable = require('famous/transitions/transitionable');
 var Easing         = require('famous/animation/easing');   
 var Color          = require('./Color');
+var PageView       = require('./PageView');
 
 function AppView() {
   View.apply(this, arguments);
@@ -35,6 +35,9 @@ AppView.DEFAULT_OPTIONS = {
     curve: 'easeIn'
   },
   wall: {
+  	//// Manual transition curve here to smooth out the wall transition from the native one that was jarring, consult jquery easing parameters.
+  	//// Easing.outBack(t, b, c, d, s?)
+  	//// This might help: http://stackoverflow.com/questions/5916058/jquery-easing-function-variables-comprehension
     curve: function(t) {
       return Easing.outBack(t, 0.5, 0.5, 1);
     },
@@ -50,6 +53,7 @@ AppView.DEFAULT_OPTIONS = {
   }
 };
 
+//// Color palette for the background gradients
 function _createColorOptions() {
   if (window.asana) {
     this.colors = [
@@ -76,7 +80,7 @@ function _isAndroid() {
   return userAgent.indexOf("android") > -1;
 };
 
-
+//// Lightbox is for swapping views on the fly
 function _createLightBox() {
   this.lightBox = new Lightbox({
     inTransition: this.options.noTransition,
@@ -91,7 +95,7 @@ function _createLightBox() {
   this._add(this.lightBox);
 };
 
-
+//// Used for dynamic creation of pages, original vision was to create unlimited pages, used now to generate finite pages
 function _addPageView(title, previousPage, nextPage) {
 
   var pageViewOptions = {
@@ -104,6 +108,7 @@ function _addPageView(title, previousPage, nextPage) {
 
 };
 
+//// Next and previous are for swapping pages in the lightbox
 function _addPageRelations(page, previousPage, nextPage) {
   this[page + 'View'].previousPage = previousPage && this[previousPage + 'View'];
   this[page + 'View'].nextPage =     nextPage     && this[nextPage + 'View'];
@@ -127,6 +132,7 @@ function _addEventListeners(newView, newModifier){
       newView.nextPage.contents.resetAnimations(newView.nextPage.options.title);
       newView.nextPage.contents.animateTasksIn(newView.nextPage.options.title, 'down');
       if (!this.lightBox.optionsForSwipeUp){
+      	//// Reset transitions for up or down
         this.lightBox.setOptions({
           outTransition: this.options.transition,
           outTransform: Transform.translate(0, -1200, 1),
@@ -191,12 +197,14 @@ function _createAppViews() {
 
 };
 
+//// Bootstrap the first page of the app
 function _renderFocusPage() {
   this.lightBox.show(this.FOCUSView);
   this.FOCUSView.contents.swapGradients();
   this.FOCUSView.contents.animateTasksIn('FOCUS');
 };
 
+//// Canvas background gradients, certainly reusable.  Simplified code could be found in github.com/FamousPrivateBeta/Airbnb
 function _createGradientSurfaces(pages) {
   window.faderSurfaces = [];
   window.faderMods = [];
@@ -305,7 +313,7 @@ function _colorSurfaces() {
   
 };
 
-
+//// Green wash background surface
 function _createCompletionSurface() {
 
   // window.completionSurf = window.faderSurfaces[4]

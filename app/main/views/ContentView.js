@@ -17,6 +17,7 @@ var Color             = require('./Color');
 var ImageSurface      = require('famous/surfaces/image-surface');
 var Utility           = require('famous/utilities/utility');
 
+//// The content (middle between header and footer in HeaderFooterLayout), needs a hook to the data
 
 function ContentView(options) {
   View.apply(this, arguments);
@@ -101,6 +102,7 @@ function _setBackground() {
 
 function _createTasks() {
   
+  //// Basically this splices tasks from the memory state into a scrollView, use famous/views/ScrollView
   this.tasks = window.memory.read(this.options.title);
   this.taskCount = 0;
 

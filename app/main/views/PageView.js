@@ -54,6 +54,7 @@ PageView.DEFAULT_OPTIONS = {
 };
 
 function _createEditLightbox() {
+  //// Maybe subview this?
   this.editLightBox = new View();
   this.editLBMod = new Modifier({
     transform: Transform.translate(0, 0, -10),
@@ -75,6 +76,7 @@ function _createEditLightbox() {
     }
   });
 
+  //// On enter/return keystroke, collapse the keyboard
   this.editSurface.on('keyup', function(evt) {
     if (evt.keyIdentifier === "Enter") _removeInput.call(this);
   }.bind(this));
@@ -182,6 +184,7 @@ function _contentEvents() {
   }.bind(this));
   
 
+  //// Use famous/events?/EventArbiter for multi-touch support 
   this.contents._eventInput.on('newTouch', function() {
     this.touchCount += 1;
     if (this.touchCount >= 2) {
@@ -224,6 +227,7 @@ function _setListeners() {
   this.contents._eventInput.pipe(this._eventOutput);
   this._eventInput.pipe(this.contents._eventInput);
 
+  //// Careful with too many callbacks to the prerender event
   window.Engine.on('prerender', _setHeaderSize.bind(this));
   
   _headerEvents.call(this);

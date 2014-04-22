@@ -3,6 +3,8 @@ var Modifier  = require('famous/modifier');
 var Transform = require('famous/transform');
 var View      = require('famous/view');
 
+//// This is the toggle down button
+
 function FooterView() {
   View.apply(this, arguments);
   this.options.title !== 'NEVER' && _createButton.call(this);

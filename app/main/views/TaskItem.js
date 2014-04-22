@@ -13,6 +13,9 @@ var Transform        = require('famous/transform');
 var Easing           = require('famous/animation/easing');
 var Timer            = require('famous/utilities/timer');
 
+//// This is the view for each of the task items, including scroll events and drag-sorting
+//// Multitouch and dragging should be refactored to EventArbiter
+
 function TaskItem(options) {
     View.apply(this, arguments);
     this.timeTouched = 0;
